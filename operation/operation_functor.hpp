@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "std_e/base/var_arg_reduction.h"
-#include "std_e/operation/operation_kind.h"
+#include "std_e/base/var_arg_reduction.hpp"
+#include "std_e/operation/operation_kind.hpp"
 #include <cmath>
 
 

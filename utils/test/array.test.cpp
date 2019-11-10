@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/array.h"
+#include "doctest/doctest.hpp"
+#include "std_e/utils/array.hpp"
 
 
 TEST_CASE("Constant std::array") {

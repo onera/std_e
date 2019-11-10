@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "std_e/multi_index/concept.h"
-#include "std_e/multi_index/cartesian_product.h"
-#include "std_e/multi_index/increment_multi_index.h"
-#include "std_e/multi_index/multi_index.h"
-#include "std_e/multi_index/cx_multi_index.h"
-#include "std_e/future/algorithm.h"
+#include "std_e/multi_index/concept.hpp"
+#include "std_e/multi_index/cartesian_product.hpp"
+#include "std_e/multi_index/increment_multi_index.hpp"
+#include "std_e/multi_index/multi_index.hpp"
+#include "std_e/multi_index/cx_multi_index.hpp"
+#include "std_e/future/algorithm.hpp"
 
 
 namespace std_e {

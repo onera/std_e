@@ -2,7 +2,7 @@
 
 
 #include <array>
-#include "std_e/future/algorithm.h"
+#include "std_e/future/algorithm.hpp"
 
 
 namespace std_e {

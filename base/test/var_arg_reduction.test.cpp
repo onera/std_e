@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/base/var_arg_reduction.h"
+#include "doctest/doctest.hpp"
+#include "std_e/base/var_arg_reduction.hpp"
 
 using namespace std_e;
 

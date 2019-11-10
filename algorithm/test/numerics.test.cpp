@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/algorithm/numerics.h"
+#include "doctest/doctest.hpp"
+#include "std_e/algorithm/numerics.hpp"
 #include <vector>
 
 TEST_CASE("partial_accumulate") {

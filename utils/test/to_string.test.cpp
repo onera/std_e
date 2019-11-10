@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
+#include "doctest/doctest.hpp"
 
-#include "std_e/utils/to_string.h"
+#include "std_e/utils/to_string.hpp"
 #include <vector>
 
 using namespace std_e;

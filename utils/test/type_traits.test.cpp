@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/type_traits.h"
+#include "doctest/doctest.hpp"
+#include "std_e/utils/type_traits.hpp"
 
 using namespace std_e;
 

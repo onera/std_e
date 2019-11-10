@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "std_e/utils/iterator_range.h"
-#include "std_e/future/contract.h"
+#include "std_e/utils/iterator_range.hpp"
+#include "std_e/future/contract.hpp"
 #include <algorithm>
 #include <iterator>
 #include <functional>

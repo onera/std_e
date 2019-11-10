@@ -1,13 +1,13 @@
 #pragma once
 
 
-#include "std_e/base/macros.h"
-#include "std_e/memory_ressource/concept.h"
-#include "std_e/multi_array/shape/concept.h"
-#include "std_e/multi_index/concept.h"
-#include "std_e/multi_index/multi_index.h"
-#include "std_e/multi_index/fortran_order.h"
-#include "std_e/future/contract.h"
+#include "std_e/base/macros.hpp"
+#include "std_e/memory_ressource/concept.hpp"
+#include "std_e/multi_array/shape/concept.hpp"
+#include "std_e/multi_index/concept.hpp"
+#include "std_e/multi_index/multi_index.hpp"
+#include "std_e/multi_index/fortran_order.hpp"
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {

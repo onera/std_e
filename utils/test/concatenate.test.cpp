@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/concatenate.h"
+#include "doctest/doctest.hpp"
+#include "std_e/utils/concatenate.hpp"
 #include <vector>
 
 TEST_CASE("Concatenate vectors") {

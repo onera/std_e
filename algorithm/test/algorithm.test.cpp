@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/algorithm/algorithm.h"
+#include "doctest/doctest.hpp"
+#include "std_e/algorithm/algorithm.hpp"
 #include <vector>
 
 using namespace std_e;

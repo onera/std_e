@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
-#include "std_e/multi_index/cartesian_product.h"
-#include "std_e/multi_index/multi_index.h"
+#include "doctest/doctest.hpp"
+#include "std_e/multi_index/cartesian_product.hpp"
+#include "std_e/multi_index/multi_index.hpp"
 
 using namespace std_e;
 

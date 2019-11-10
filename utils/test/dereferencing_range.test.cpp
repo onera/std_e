@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/dereferencing_range.h"
+#include "doctest/doctest.hpp"
+#include "std_e/utils/dereferencing_range.hpp"
 
 #include <vector>
 #include <algorithm>

@@ -6,8 +6,8 @@
 // (note: used to work around icpc <= 17 and gcc 8 not being able to flatten an inner loop in a SIMD context)
 
 
-#include "std_e/base/macros.h"
-#include "std_e/base/index_t.h"
+#include "std_e/base/macros.hpp"
+#include "std_e/base/index_t.hpp"
 
 
 namespace std_e {

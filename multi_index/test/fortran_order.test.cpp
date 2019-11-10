@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
-#include "std_e/multi_index/multi_index.h"
-#include "std_e/multi_index/fortran_order.h"
+#include "doctest/doctest.hpp"
+#include "std_e/multi_index/multi_index.hpp"
+#include "std_e/multi_index/fortran_order.hpp"
 
 using namespace std_e;
 

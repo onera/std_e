@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "std_e/multi_array/multi_array/multi_array.h"
+#include "std_e/multi_array/multi_array/multi_array.hpp"
 #include <array>
-#include "std_e/multi_array/shape/fixed_shape.h"
-#include "std_e/multi_array/shape/dyn_shape.h"
-#include "std_e/multi_array/shape/dyn_rank_shape.h"
-#include "std_e/base/memory_view.h"
+#include "std_e/multi_array/shape/fixed_shape.hpp"
+#include "std_e/multi_array/shape/dyn_shape.hpp"
+#include "std_e/multi_array/shape/dyn_rank_shape.hpp"
+#include "std_e/base/memory_view.hpp"
 
 
 namespace std_e {

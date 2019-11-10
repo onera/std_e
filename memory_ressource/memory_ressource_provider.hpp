@@ -3,9 +3,9 @@
 
 #include <array>
 #include <vector>
-#include "std_e/future/span.h"
-#include "std_e/future/constexpr_vector.h"
-#include "std_e/memory_ressource/concept.h"
+#include "std_e/future/span.hpp"
+#include "std_e/future/constexpr_vector.hpp"
+#include "std_e/memory_ressource/concept.hpp"
 
 
 namespace std_e {

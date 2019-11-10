@@ -1,5 +1,5 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/integer_range.h"
+#include "doctest/doctest.hpp"
+#include "std_e/utils/integer_range.hpp"
 
 TEST_CASE("integer_range") {
   using irange = std_e::integer_range<int>;

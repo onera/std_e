@@ -2,8 +2,8 @@
 
 
 #include <array>
-#include "std_e/future/algorithm.h"
-#include "std_e/base/index_t.h"
+#include "std_e/future/algorithm.hpp"
+#include "std_e/base/index_t.hpp"
 
 
 namespace std_e {

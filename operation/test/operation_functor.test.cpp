@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
-#include "std_e/operation/operation_kind.h"
-#include "std_e/operation/operation_functor.h"
+#include "doctest/doctest.hpp"
+#include "std_e/operation/operation_kind.hpp"
+#include "std_e/operation/operation_functor.hpp"
 #include <array>
 
 

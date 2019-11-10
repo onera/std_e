@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
+#include "doctest/doctest.hpp"
 #include <vector>
-#include "std_e/base/inline_for.h"
+#include "std_e/base/inline_for.hpp"
 
 
 struct inline_for_callable_for_test {

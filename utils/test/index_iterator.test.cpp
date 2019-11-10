@@ -1,6 +1,6 @@
-#include "doctest/doctest.h"
+#include "doctest/doctest.hpp"
 
-#include "std_e/utils/index_iterator.h"
+#include "std_e/utils/index_iterator.hpp"
 #include <vector>
 
 using std::vector;
