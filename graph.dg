@@ -1,0 +1,15 @@
+tree -> std_e/future
+tree -> std_e/memory_ressource
+tree -> std_e/utils
+
+
+algo_adjacencies -> algo_base
+
+algo_nodes -> algo_adjacencies
+algo_nodes -> adjacency_to_node_visitor_adaptor
+
+algorithm -> algo_base
+algo_nodes -> adjacency_to_node_visitor_adaptor
+
+record -> 
+reduction ->
