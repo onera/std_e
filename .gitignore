@@ -1,0 +1,9 @@
+build/*
+*.swp
+
+# Latex
+*.aux
+*.log
+*.out
+*.toc
+*.data

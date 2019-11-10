@@ -1,0 +1,10 @@
+shape -> std_e/multi_index
+
+memory_indexer -> shape
+memory_indexer -> multi_index
+
+multi_array/multi_array -> std_e/memory_ressource
+multi_array/multi_array -> memory_indexer
+
+multi_array -> multi_array/multi_array
+multi_array -> array/vector/... TODO
