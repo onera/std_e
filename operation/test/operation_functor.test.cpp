@@ -1,4 +1,4 @@
-#include "doctest/doctest.hpp"
+#include "doctest/doctest.h"
 #include "std_e/operation/operation_kind.hpp"
 #include "std_e/operation/operation_functor.hpp"
 #include <array>

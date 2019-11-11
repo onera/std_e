@@ -1,4 +1,4 @@
-#include "doctest/doctest.hpp"
+#include "doctest/doctest.h"
 #include "std_e/multi_array/utils.hpp"
 #include "std_e/multi_array/multi_array.hpp"
 

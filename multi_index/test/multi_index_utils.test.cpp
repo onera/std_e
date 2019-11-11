@@ -1,4 +1,4 @@
-#include "doctest/doctest.hpp"
+#include "doctest/doctest.h"
 #include "std_e/multi_index/cx_multi_index.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 
