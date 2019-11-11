@@ -1,4 +1,4 @@
-#include "doctest/doctest.hpp"
+#include "doctest/doctest.h"
 #include "doctest/doctest_utils.hpp"
 
 #include "graph/tree/nested_tree.hpp"
