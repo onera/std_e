@@ -6,6 +6,7 @@
 #include "std_e/future/span.hpp"
 #include "std_e/future/constexpr_vector.hpp"
 #include "std_e/memory_ressource/concept.hpp"
+#include "std_e/base/memory_view.hpp"
 
 
 namespace std_e {
@@ -46,13 +47,30 @@ template<size_t N>
 struct constexpr_dyn_size_external_memory_ressource {
   static constexpr bool owns_memory = false;
   static constexpr size_t max_size = N; // remember max_size if asked...
-  template<class T> using type = std_e::span<T,std_e::dynamic_extent>; // ...but no need to use internally
+  template<class T> using type = std_e::span<T,std_e::dynamic_size>; // ...but no need to use internally
 };
 struct dyn_size_external_memory_ressource {
   static constexpr bool owns_memory = false;
-  template<class T> using type = std_e::span<T,std_e::dynamic_extent>;
+  template<class T> using type = std_e::span<T,std_e::dynamic_size>;
 };
 /// memory view }
+
+/// const memory view {
+struct const_external_memory_ressource {
+  static constexpr bool owns_memory = false;
+  template<class T> using type = std_e::memory_view<const T*>;
+};
+template<size_t N>
+struct constexpr_const_dyn_size_external_memory_ressource {
+  static constexpr bool owns_memory = false;
+  static constexpr size_t max_size = N; // remember max_size if asked...
+  template<class T> using type = std_e::memory_view<const T*>; // ...but no need to use internally
+};
+struct const_dyn_size_external_memory_ressource {
+  static constexpr bool owns_memory = false;
+  template<class T> using type = std_e::span<const T,std_e::dynamic_size>;
+};
+/// const memory view }
 
 
 template<class T, class memory_ressource_type> using memory_ressource_for = typename memory_ressource_type::template type<T>;

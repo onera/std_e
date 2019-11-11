@@ -2,41 +2,72 @@
 
 
 #include "std_e/multi_index/multi_index.hpp"
+#include "std_e/utils/array_vector_common.hpp"
+#include "std_e/base/dynamic_size.hpp"
 
 
 namespace std_e {
 
 
-template<class Integer, size_t N>
-class dyn_shape {
+template<class Integer, int N>
+class dyn_shape__impl {
   public:
   // type traits
     using index_type = Integer;
-    static constexpr size_t fixed_rank = N;
+    static constexpr int fixed_rank = N;
 
     using multi_index_type = multi_index<index_type,fixed_rank>;
 
   // ctors
-    FORCE_INLINE constexpr dyn_shape() = default;
-
     FORCE_INLINE constexpr
-    dyn_shape(multi_index_type extent_, multi_index_type offset_)
-      : extent_(std::move(extent_))
-      , offset_(std::move(offset_))
+    dyn_shape__impl() = default;
+
+    template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
+    dyn_shape__impl(Multi_index ext, Multi_index off)
+      : extent_(convert_to<multi_index_type>(std::move(ext)))
+      , offset_(convert_to<multi_index_type>(std::move(off)))
+    {
+      STD_E_ASSERT(extent().size()==offset().size());
+    }
+    template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
+    dyn_shape__impl(Multi_index ext)
+      : extent_(convert_to<multi_index_type>(std::move(ext)))
+      , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
     {}
 
   // accessors
-    static FORCE_INLINE constexpr auto
-    rank() -> size_t {
-      return fixed_rank;
+    FORCE_INLINE constexpr auto
+    extent() const -> const multi_index_type& {
+      return extent_;
     }
-    FORCE_INLINE constexpr auto 
+    FORCE_INLINE constexpr auto
     offset() const -> const multi_index_type& {
       return offset_;
     }
-    FORCE_INLINE constexpr auto 
-    extent() const -> const multi_index_type& {
+    FORCE_INLINE auto
+    extent(int i) const -> index_type {
+      return extent()[i];
+    }
+    FORCE_INLINE auto
+    offset(int i) const -> index_type {
+      return offset()[i];
+    }
+
+    FORCE_INLINE constexpr auto
+    extent() -> multi_index_type& {
       return extent_;
+    }
+    FORCE_INLINE constexpr auto
+    offset() -> multi_index_type& {
+      return offset_;
+    }
+    FORCE_INLINE auto
+    extent(int i) -> index_type& {
+      return extent()[i];
+    }
+    FORCE_INLINE auto
+    offset(int i) -> index_type& {
+      return offset()[i];
     }
   private:
     multi_index_type extent_;
@@ -44,6 +75,35 @@ class dyn_shape {
 };
 
 
+template<class Integer, int N>
+class dyn_shape : public dyn_shape__impl<Integer,N> {
+  public:
+  // ctors
+    using base = dyn_shape__impl<Integer,N>;
+    using base::base;
+
+  // accessors
+    static FORCE_INLINE constexpr auto
+    rank() -> int {
+      return N;
+    }
+};
+
+
+
+template<class Integer>
+class dyn_shape<Integer,dynamic_size> : public dyn_shape__impl<Integer,dynamic_size> {
+  public:
+  // ctors
+    using base = dyn_shape__impl<Integer,dynamic_size>;
+    using base::base;
+
+  // accessors
+    FORCE_INLINE auto
+    rank() const -> int {
+      return base::extent().size();
+    }
+};
+
+
 } // std_e
-
-

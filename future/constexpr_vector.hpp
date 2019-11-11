@@ -33,7 +33,7 @@ class constexpr_vector {
       : sz(sz)
       , elts{T{}}
     {
-      std_e::ASSERT(sz<=max_size);
+      STD_E_ASSERT(sz<=max_size);
     }
 
     template<class Iter> constexpr
@@ -41,7 +41,7 @@ class constexpr_vector {
       : sz(sz)
       , elts{}
     {
-      std_e::ASSERT(sz<=max_size);
+      STD_E_ASSERT(sz<=max_size);
       std_e::copy_n(first,sz,elts);
     }
 
@@ -50,7 +50,7 @@ class constexpr_vector {
       : sz(init.size())
       , elts{}
     {
-      std_e::ASSERT(sz<=max_size);
+      STD_E_ASSERT(sz<=max_size);
       std_e::copy_n(init.begin(),sz,elts);
     }
 
@@ -61,7 +61,7 @@ class constexpr_vector {
     }
     FORCE_INLINE constexpr auto
     resize(size_t sz) -> void {
-      std_e::ASSERT(sz<=max_size);
+      STD_E_ASSERT(sz<=max_size);
       this->sz = sz;
     }
     FORCE_INLINE constexpr auto
@@ -106,7 +106,7 @@ class constexpr_vector {
   // mutators
     FORCE_INLINE constexpr auto
     push_back(const T& x) -> void {
-      std_e::ASSERT(sz<max_size);
+      STD_E_ASSERT(sz+1<max_size);
       elts[sz] = x;
       ++sz;
     }

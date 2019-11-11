@@ -1,14 +1,10 @@
 #pragma once
 
 
-#include "std_e/base/memory_view.hpp"
-#include "std_e/base/index_t.hpp"
+#include "std_e/base/dynamic_size.hpp"
 
 
 namespace std_e {
-
-
-constexpr index_t dynamic_extent = -1;
 
 
 // span_size {
@@ -32,7 +28,7 @@ struct span_size {
 };
 
 template<>
-class span_size<dynamic_extent> {
+class span_size<dynamic_size> {
   public:
     FORCE_INLINE constexpr
     span_size()
@@ -67,18 +63,17 @@ class span_size<dynamic_extent> {
 // span_size }
 
 
-template<class T, index_t N>
-class span : public memory_view<T*>, public span_size<N> {
+template<class T, index_t N=dynamic_size>
+class span : public span_size<N> {
   public:
   // type traits
-    using memory_view_type = memory_view<T*>;
     using span_size_type = span_size<N>;
 
-    using value_type           = T;
-    using pointer_type         = T*;
-    using const_pointer_type   = const T*;
-    using reference_type       = T&;
-    using const_reference_type = const T&;
+    using value_type      = T;
+    using pointer         = T*;
+    using const_pointer   = const T*;
+    using reference       = T&;
+    using const_reference = const T&;
 
   // ctors
     FORCE_INLINE constexpr
@@ -89,35 +84,57 @@ class span : public memory_view<T*>, public span_size<N> {
     FORCE_INLINE constexpr explicit
     span(T* ptr, index_t n)
       // Precondition: [ptr,ptr+N) is valid range
-      : memory_view_type(ptr)
-      , span_size_type(n)
+      : span_size_type(n)
+      , ptr(ptr)
     {}
 
     // static span ctor
     FORCE_INLINE constexpr explicit
     span(T* ptr)
       // Precondition: [ptr,ptr+N) is valid range
-      : memory_view_type(ptr)
-      , span_size_type()
+      : span_size_type()
+      , ptr(ptr)
     {}
 
   // inherited behavior
     using span_size_type::size;
 
-    using memory_view_type::data;
-    using memory_view_type::operator[];
-    using memory_view_type::begin;
-
   // accessors
     FORCE_INLINE constexpr auto
-    end() -> pointer_type {
+    data() -> pointer {
+      return ptr;
+    }
+    FORCE_INLINE constexpr auto
+    data() const -> const_pointer {
+      return ptr;
+    }
+
+    FORCE_INLINE constexpr auto
+    begin() -> pointer {
+      return ptr;
+    }
+    FORCE_INLINE constexpr auto
+    begin() const -> const_pointer {
+      return ptr;
+    }
+    FORCE_INLINE constexpr auto
+    end() -> pointer {
       return data()+size();
     }
     FORCE_INLINE constexpr auto
-    end() const -> const_pointer_type {
+    end() const -> const_pointer {
       return data()+size();
     }
-    
+
+    FORCE_INLINE constexpr auto
+    operator[](int i) -> reference {
+      return ptr[i];
+    }
+    FORCE_INLINE constexpr auto
+    operator[](int i) const -> const_reference {
+      return ptr[i];
+    }
+
   // comparison
     friend constexpr auto
     operator==(const span& x, const span& y) -> bool {
@@ -128,8 +145,18 @@ class span : public memory_view<T*>, public span_size<N> {
     operator!=(const span& x, const span& y) -> bool {
       return !(x==y);
     }
+  private:
+    T* ptr;
 };
 
+template<class T, index_t N> FORCE_INLINE constexpr auto
+begin(span<T,N>& x) {
+  return x.begin();
+}
+template<class T, index_t N> FORCE_INLINE constexpr auto
+begin(const span<T,N>& x) {
+  return x.begin();
+}
 template<class T, index_t N> FORCE_INLINE constexpr auto
 end(span<T,N>& x) {
   return x.end();
@@ -144,16 +171,42 @@ end(const span<T,N>& x) {
 
 template<index_t N, class T> FORCE_INLINE constexpr auto
 make_span(T* ptr) {
-  static_assert(N!=dynamic_extent,"do not use this function to create a dynamic span");
+  static_assert(N!=dynamic_size,"can't create dynamic span with no size given");
   return span<T,N>(ptr);
 }
+template<index_t N, class T> FORCE_INLINE constexpr auto
+make_span(const T* ptr) {
+  static_assert(N!=dynamic_size,"can't create dynamic span with no size given");
+  return span<const T,N>(ptr);
+}
+
 template<class T> FORCE_INLINE constexpr auto
 make_span(T* ptr, index_t n) {
-  return span<T,dynamic_extent>(ptr,n);
+  return span<T,dynamic_size>(ptr,n);
 }
 template<class T> FORCE_INLINE constexpr auto
+make_span(const T* ptr, index_t n) {
+  return span<const T,dynamic_size>(ptr,n);
+}
+
+template<class T> FORCE_INLINE constexpr auto
 make_span(T* ptr, index_t offset, index_t n) {
-  return span<T,dynamic_extent>(ptr+offset,n);
+  return span<T,dynamic_size>(ptr+offset,n);
+}
+template<class T> FORCE_INLINE constexpr auto
+make_span(const T* ptr, index_t offset, index_t n) {
+  return span<const T,dynamic_size>(ptr+offset,n);
+}
+
+template<class Container> FORCE_INLINE constexpr auto
+make_span(Container& x) {
+  using T = typename Container::value_type;
+  return span<T,dynamic_size>(x.data(),x.size());
+}
+template<class Container> FORCE_INLINE constexpr auto
+make_span(const Container& x) {
+  using T = typename Container::value_type;
+  return span<const T,dynamic_size>(x.data(),x.size());
 }
 
 

@@ -4,6 +4,7 @@
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/future/constexpr_vector.hpp"
 #include "std_e/utils/concatenate.hpp"
+#include "std_e/utils/array_vector_common.hpp"
 
 
 namespace std_e {
@@ -19,44 +20,18 @@ using cx_multi_index = constexpr_vector<int,Max_size_of_multi_index>;
 /// cx_multi_index }
 
 
-/// index_type_of Multi_index {
-template<class Multi_index>
-struct index_type_of__impl; // primary template
-
-template<>
-struct index_type_of__impl<cx_multi_index> {
-  using type = int;
-};
-
-template<class Multi_index> using index_type_of = typename index_type_of__impl<Multi_index>::type;
-/// index_type_of Multi_index }
-
-
-/// zero_index {
-template<class Multi_index>
-struct zero_index__impl;
-
-template<> 
-struct zero_index__impl<cx_multi_index> {
-  static constexpr auto
-  get(size_t rank) -> cx_multi_index {
-    return cx_multi_index(rank); // already zero-initialized
-  }
-};
-
-// TODO already defined
-//template<class Multi_index> constexpr auto
-//zero_index(size_t rank) -> Multi_index {
-//  return zero_index__impl<Multi_index>::get(rank);
-//}
-/// zero_index }
-
-
 /// utils {
 template<class... Multi_index> constexpr auto
 concatenate_indices(const Multi_index&... is) {
   size_t sz = (is.size() + ...);
-  cx_multi_index cat_is(sz);
+  auto cat_is = make_array_of_size<concatenated_array<Multi_index...>>(sz);
+  concatenate_in(cat_is,is...);
+  return cat_is;
+}
+template<class... Multi_index> constexpr auto
+concatenate_into_cx_multi_index(const Multi_index&... is) {
+  size_t sz = (is.size() + ...);
+  auto cat_is = cx_multi_index(sz);
   concatenate_in(cat_is,is...);
   return cat_is;
 }

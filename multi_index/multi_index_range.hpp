@@ -41,7 +41,7 @@ class multi_index_generator {
     constexpr
     multi_index_generator(multi_index_type dims)
       : dims(std::move(dims))
-      , current_indices{zero_index<Multi_index>(dims.size())}
+      , current_indices{make_zero_multi_index<Multi_index>(dims.size())}
       , current_pos{0}
     {}
 

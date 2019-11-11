@@ -1,6 +1,7 @@
 #include "doctest/doctest.hpp"
 #include "std_e/base/var_arg_reduction.hpp"
 
+
 using namespace std_e;
 
 
@@ -30,7 +31,7 @@ TEST_CASE("var_arg_reduction") {
   CHECK( arity_2 == expected_arity_2 );
   
   int arity_3 = var_arg_reduction(op,i,j,k);
-  int expected_arity_3 = 2* (2*(42+43)+44);
+  int expected_arity_3 = 2*( 2*(42+43) + 44 ); // left associative
   CHECK( arity_3 == expected_arity_3 );
 }
 
@@ -47,6 +48,6 @@ TEST_CASE("reduction_functor") {
   reduction_functor<operation_for_test> multi_arity_op;
   int arity_3 = multi_arity_op(i,j,k); 
 
-  int expected_arity_3 = 2* (2*(42+43)+44);
+  int expected_arity_3 = 2*( 2*(42+43) + 44 ); // left associative
   CHECK( arity_3 == expected_arity_3 );
 }

@@ -83,7 +83,7 @@ operator-(const array_iterator<T*>& x, int i) -> array_iterator<T*> {
 }
 template<class T0, class T1> constexpr auto
 operator-(const array_iterator<T0*>& x, const array_iterator<T1*>& y) -> int {
-  std_e::ASSERT(x.ptr==y.ptr); // only diff of pointers of same array is not UB
+  STD_E_ASSERT(x.ptr==y.ptr); // only diff of pointers of same array is not UB
   return x.index-y.index;
 }
 

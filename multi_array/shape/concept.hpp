@@ -12,7 +12,7 @@ namespace std_e {
     index_type
     multi_index_type
 
-    rank() -> size_t
+    rank() -> int
     extent() -> Multi_index
     offset() -> Multi_index
 */

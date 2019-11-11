@@ -29,7 +29,7 @@ class reference_wrapper2 {
 
     constexpr auto
     operator=(const reference_wrapper2& old) noexcept -> reference_wrapper2& {
-      std_e::ASSERT(c_ptr==old.c_ptr);
+      STD_E_ASSERT(c_ptr==old.c_ptr);
       *idx_ptr = *old.idx_ptr;
       return *this;
     }
