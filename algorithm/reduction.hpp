@@ -56,7 +56,7 @@ struct visitor_for_reduction {
   // retrieve state when done
     constexpr auto
     final_value() -> auto& {
-      std_e::ASSERT(S.is_at_root_level());
+      STD_E_ASSERT(S.is_at_root_level());
       return S.current_level();
     }
 

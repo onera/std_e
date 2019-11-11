@@ -196,7 +196,7 @@ redirect_entering_adjacencies(io_adjacency_iterator<T>& old, io_adjacency_iterat
     auto& outs_of_in = inward_ptr->outwards;
     //auto old_pos = std_e::find(begin(outs_of_in),end(outs_of_in),&old);
     auto* old_pos = std_e::find_if(begin(outs_of_in),end(outs_of_in),[old](const auto& n_it){ return n_it->index==old->index; });
-    std_e::ASSERT(old_pos!=end(outs_of_in));
+    STD_E_ASSERT(old_pos!=end(outs_of_in));
     *old_pos = new_adj;
   }
 };

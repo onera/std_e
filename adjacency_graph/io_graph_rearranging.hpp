@@ -49,7 +49,7 @@ class io_graph_rearranging_view {
     }
     constexpr auto
     resize(size_t sz) -> void {
-      std_e::ASSERT(sz <= size());
+      STD_E_ASSERT(sz <= size());
       adj_refs.resize(sz);
     }
 

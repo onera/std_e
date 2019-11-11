@@ -115,12 +115,12 @@ class nested_tree {
     }
     FORCE_INLINE constexpr auto
     root() -> T& {
-      std_e::ASSERT(size()>0);
+      STD_E_ASSERT(size()>0);
       return nodes[0];
     }
     FORCE_INLINE constexpr auto
     root() const -> const T& {
-      std_e::ASSERT(size()>0);
+      STD_E_ASSERT(size()>0);
       return nodes[0];
     }
     FORCE_INLINE constexpr auto
