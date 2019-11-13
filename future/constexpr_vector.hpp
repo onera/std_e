@@ -8,6 +8,7 @@
 #include "std_e/base/index_t.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
+#include <array>
 
 
 namespace std_e {
@@ -42,7 +43,7 @@ class constexpr_vector {
       , elts{}
     {
       STD_E_ASSERT(sz<=max_size);
-      std_e::copy_n(first,sz,elts);
+      std_e::copy_n(first,sz,elts.begin());
     }
 
     constexpr
@@ -51,7 +52,7 @@ class constexpr_vector {
       , elts{}
     {
       STD_E_ASSERT(sz<=max_size);
-      std_e::copy_n(init.begin(),sz,elts);
+      std_e::copy_n(init.begin(),sz,elts.begin());
     }
 
   // size
@@ -80,28 +81,28 @@ class constexpr_vector {
     }
     FORCE_INLINE constexpr auto
     data() const -> const T* {
-      return elts;
+      return elts.data();
     }
     FORCE_INLINE constexpr auto
     data() -> T* {
-      return elts;
+      return elts.data();
     }
 
     FORCE_INLINE constexpr auto
     begin() -> T* {
-      return elts;
+      return elts.data();
     }
     FORCE_INLINE constexpr auto
     begin() const -> const T* {
-      return elts;
+      return elts.data();
     }
     FORCE_INLINE constexpr auto
     end() -> T* {
-      return elts + sz;
+      return elts.data() + sz;
     }
     FORCE_INLINE constexpr auto
     end() const -> const T* {
-      return elts + sz;
+      return elts.data() + sz;
     }
   // mutators
     FORCE_INLINE constexpr auto
@@ -126,7 +127,7 @@ class constexpr_vector {
 
   private:
     size_t sz;
-    T elts[max_size];
+    std::array<T,max_size> elts;
 };
 
 
