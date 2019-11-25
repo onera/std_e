@@ -26,47 +26,34 @@ to_graphviz_node_string(int id, const io_adjacency<T>& x) -> std::string {
 
 
 template<class T> auto
-to_string__impl(const io_graph<T>& dg) -> std::string {
+to_string__impl(const io_graph<T>& g) -> std::string {
   std::string s = "digraph G {\n";
-  for (size_t i=0; i<dg.size(); ++i) {
-    s += to_graphviz_node_string(i,dg[i]) + '\n';
-    //// TODO BEGIN HACK_0
-    //if ( 
-    //    (dg[i].node.is_constant()
-    //  || dg[i].node.is_param_extractor()) && dg[i].height==0
-    //) {}
-    //else s += to_graphviz_node_string(i,dg[i]) + '\n';
-    //// TODO END HACK_0
+  for (size_t i=0; i<g.size(); ++i) {
+    s += to_graphviz_node_string(i,g[i]) + '\n';
   }
-  for (size_t i=0; i<dg.size(); ++i) {
-    const auto& node = dg[i];
+  for (size_t i=0; i<g.size(); ++i) {
+    const auto& node = g[i];
     const auto& deps = node.outwards;
     for (size_t j=0; j<deps.size(); ++j) {
       s += std::to_string(i);
       s += " -> ";
-      s += std::to_string(deps[j]-dg.begin());
+      s += std::to_string(deps[j]-g.begin());
+      //s += std::to_string(deps[j]->index);
       s += "\n";
     }
-    //const auto& outs = node.out_node_ids;
-    //for (size_t j=0; j<outs.size(); ++j) {
-    //  s += std::to_string(i);
-    //  s += " -> ";
-    //  s += std::to_string(outs[j]);
-    //  s += "\n";
-    //}
   }
   s += "}\n";
   return s;
 }
 
 //template<class T> auto
-//to_string_bidir__impl(const io_graph<T>& dg) -> std::string { // TODO factor with to_string__impl
+//to_string_bidir__impl(const io_graph<T>& g) -> std::string { // TODO factor with to_string__impl
 //  std::string s = "digraph G {\n";
-//  for (size_t i=0; i<dg.adjs.size(); ++i) {
-//    s += to_graphviz_node_string(i,dg.adjs[i]) + '\n';
+//  for (size_t i=0; i<g.adjs.size(); ++i) {
+//    s += to_graphviz_node_string(i,g.adjs[i]) + '\n';
 //  }
-//  for (size_t i=0; i<dg.adjs.size(); ++i) {
-//    const auto& node = dg.adjs[i];
+//  for (size_t i=0; i<g.adjs.size(); ++i) {
+//    const auto& node = g.adjs[i];
 //    const auto& deps = node.outward_indices;
 //    for (size_t j=0; j<deps.size(); ++j) {
 //      s += std::to_string(i);
@@ -91,8 +78,8 @@ to_string__impl(const io_graph<T>& dg) -> std::string {
 //}
 
 //template<class T> auto 
-//repeat_constants_and_params(const io_graph<T>& dg) {
-//  io_graph<T> res_dg = dg;
+//repeat_constants_and_params(const io_graph<T>& g) {
+//  io_graph<T> res_dg = g;
 //  auto& ns = res_dg.adjs;
 //
 //  //// 0. remove constants and params
@@ -121,15 +108,15 @@ to_string__impl(const io_graph<T>& dg) -> std::string {
 //}
 
 template<class T> auto
-to_dot_string(const io_graph<T>& dg) -> std::string {
-  // io_graph<T> const_param_dg = repeat_constants_and_params(dg); // HACK
+to_dot_string(const io_graph<T>& g) -> std::string {
+  // io_graph<T> const_param_dg = repeat_constants_and_params(g); // HACK
   //return to_string__impl(const_param_dg);
-  return to_string__impl(dg);
+  return to_string__impl(g);
 }
 
 //template<class T> auto
-//to_dot_string_bidir(const io_graph<T>& dg) -> std::string {
-//  return to_string_bidir__impl(dg);
+//to_dot_string_bidir(const io_graph<T>& g) -> std::string {
+//  return to_string_bidir__impl(g);
 //}
 
 

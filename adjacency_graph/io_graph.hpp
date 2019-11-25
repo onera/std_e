@@ -92,7 +92,7 @@ class io_graph {
 
   private:
   public: // TODO
-    io_adjacency_list<T> adjs;
+    io_adjacency_list<T> adjs; // TODO !! push_back => pointer invalidation if std::vector (but ok with deque)
 };
 
 
