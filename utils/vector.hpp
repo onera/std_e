@@ -21,4 +21,14 @@ partition_copy(const std::vector<T>& v, Unary_predicate p) -> std::pair<std::vec
 }
 
 
+template<class T, class F> constexpr auto
+for_each(std::vector<T>& x, F f) -> void {
+  std::for_each(begin(x),end(x),f);
+}
+template<class T, class F> constexpr auto
+for_each(const std::vector<T>& x, F f) -> void {
+  std::for_each(begin(x),end(x),f);
+}
+
+
 } // std_e
