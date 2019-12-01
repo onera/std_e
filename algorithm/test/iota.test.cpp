@@ -6,11 +6,11 @@
 
 using namespace std_e;
 
-TEST_CASE("iota") {
+TEST_CASE("exclusive_iota") {
   SUBCASE("full, start 0") {
     std::vector<int> v(4);
 
-    std_e::iota(begin(v),end(v),0,10);
+    std_e::exclusive_iota(begin(v),end(v),0,10);
 
     std::vector<int> v_expected = {0,10,20,30};
     CHECK( v == v_expected );
@@ -19,7 +19,7 @@ TEST_CASE("iota") {
   SUBCASE("full, start 1") {
     std::vector<int> v(4);
 
-    std_e::iota(begin(v),end(v),1,10);
+    std_e::exclusive_iota(begin(v),end(v),1,10);
 
     std::vector<int> v_expected = {1,11,21,31};
     CHECK( v == v_expected );
@@ -28,7 +28,7 @@ TEST_CASE("iota") {
   SUBCASE("partial, start 1") {
     std::vector<int> v = {100,101,102,103};
 
-    std_e::iota(begin(v)+1,end(v)-1,1,10);
+    std_e::exclusive_iota(begin(v)+1,end(v)-1,1,10);
 
     std::vector<int> v_expected = {100,1,11,103};
     CHECK( v == v_expected );
@@ -37,18 +37,18 @@ TEST_CASE("iota") {
   SUBCASE("empty") {
     std::vector<int> v = {100,101,102,103};
 
-    std_e::iota(begin(v)+2,end(v)-2,1,10);
+    std_e::exclusive_iota(begin(v)+2,end(v)-2,1,10);
 
     std::vector<int> v_expected = {100,101,102,103};
     CHECK( v == v_expected );
   }
 }
 
-TEST_CASE("iota_n") {
+TEST_CASE("exclusive_iota_n") {
   SUBCASE("full, start 0") {
     std::vector<int> v(4);
 
-    auto last = std_e::iota_n(begin(v),4,0,10);
+    auto last = std_e::exclusive_iota_n(begin(v),4,0,10);
 
     std::vector<int> v_expected = {0,10,20,30};
     CHECK( v == v_expected );
@@ -58,7 +58,7 @@ TEST_CASE("iota_n") {
   SUBCASE("full, start 1") {
     std::vector<int> v(4);
 
-    auto last = std_e::iota_n(begin(v),4,1,10);
+    auto last = std_e::exclusive_iota_n(begin(v),4,1,10);
 
     std::vector<int> v_expected = {1,11,21,31};
     CHECK( v == v_expected );
@@ -68,7 +68,7 @@ TEST_CASE("iota_n") {
   SUBCASE("partial, start 1") {
     std::vector<int> v = {100,101,102,103};
 
-    auto last = std_e::iota_n(begin(v)+1,2,1,10);
+    auto last = std_e::exclusive_iota_n(begin(v)+1,2,1,10);
 
     std::vector<int> v_expected = {100,1,11,103};
     CHECK( v == v_expected );
@@ -78,12 +78,30 @@ TEST_CASE("iota_n") {
   SUBCASE("empty") {
     std::vector<int> v = {100,101,102,103};
 
-    auto last = std_e::iota_n(begin(v)+2,0,1,10);
+    auto last = std_e::exclusive_iota_n(begin(v)+2,0,1,10);
 
     std::vector<int> v_expected = {100,101,102,103};
     CHECK( v == v_expected );
     CHECK( last == begin(v)+2 );
   }
+}
+
+TEST_CASE("inclusive_iota") {
+  std::vector<int> v(4);
+
+  std_e::inclusive_iota(begin(v),end(v),1,10);
+
+  std::vector<int> v_expected = {11,21,31,41};
+  CHECK( v == v_expected );
+}
+TEST_CASE("inclusive_iota_n") {
+  std::vector<int> v(4);
+
+  auto last = std_e::inclusive_iota_n(begin(v),4,1,10);
+
+  std::vector<int> v_expected = {11,21,31,41};
+  CHECK( v == v_expected );
+  CHECK( last == end(v) );
 }
 
 
