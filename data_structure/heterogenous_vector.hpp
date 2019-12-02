@@ -15,6 +15,11 @@ class heterogenous_vector {
     constexpr
     heterogenous_vector() = default;
 
+    template<class... Ts0> constexpr
+    heterogenous_vector(std::vector<Ts0>... xs)
+      : _impl({std::move(xs)...})
+    {}
+
     constexpr auto
     impl() -> auto& {
       return _impl;

@@ -2,7 +2,6 @@
 #include "doctest/doctest_utils.hpp"
 #include "std_e/algorithm/iota.hpp"
 #include <vector>
-#include <iostream>
 
 using namespace std_e;
 
@@ -112,7 +111,6 @@ TEST_CASE("uniform_distribution") {
     uniform_distribution(begin(v),end(v),100,0);
 
     std::vector<int> v_expected = {100};
-    std::cout << "v0 = " <<std_e::range_to_string(v)<<"\n";
     CHECK( v == v_expected );
   }
 
@@ -122,7 +120,6 @@ TEST_CASE("uniform_distribution") {
 
     uniform_distribution(begin(v),end(v),100,15);
 
-    std::cout << "v1 = " <<std_e::range_to_string(v)<<"\n";
     std::vector<int> v_expected = {100,105,110,115};
     CHECK( v == v_expected );
   }
@@ -133,7 +130,6 @@ TEST_CASE("uniform_distribution") {
 
     uniform_distribution(begin(v),end(v),100,17);
 
-    std::cout << "v2 = " <<std_e::range_to_string(v)<<"\n";
     std::vector<int> v_expected = {100,106,112,117};
     CHECK( v == v_expected );
   }
