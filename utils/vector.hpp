@@ -31,4 +31,12 @@ for_each(const std::vector<T>& x, F f) -> void {
 }
 
 
+template<class T> constexpr auto
+hash_vector(const std::vector<T>& v) -> std::vector<size_t> {
+  std::vector<size_t> res(v.size());
+  std::transform(begin(v),end(v),begin(res),[](const T& x){ return std::hash<T>{}(x); });
+  return res;
+}
+
+
 } // std_e

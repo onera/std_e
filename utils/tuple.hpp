@@ -2,9 +2,55 @@
 
 
 #include <tuple>
+#include <type_traits>
 
 
 namespace std_e {
+
+
+// index_of_type_in_tuple {
+// https://stackoverflow.com/a/18063608/1583122
+template <class T, class Tuple>
+struct index_of_type_in_tuple__impl;
+
+template <class T, class... Types>
+struct index_of_type_in_tuple__impl<T, std::tuple<T, Types...>> {
+  static constexpr int value = 0;
+};
+
+template <class T, class U, class... Types>
+struct index_of_type_in_tuple__impl<T, std::tuple<U, Types...>> {
+  static constexpr int value = 1 + index_of_type_in_tuple__impl<T, std::tuple<Types...>>::value;
+};
+
+template <class T, class Tuple>
+constexpr int index_of_type_in_tuple = index_of_type_in_tuple__impl<T,Tuple>::value;
+// index_of_type_in_tuple }
+
+
+// tuple_contains_type {
+// https://stackoverflow.com/a/25958302/1583122
+template <typename T, typename Tuple>
+struct tuple_contains_type__impl;
+
+template <typename T>
+struct tuple_contains_type__impl<T, std::tuple<>> {
+  static constexpr bool value = false;
+};
+
+template <typename T, typename... Ts>
+struct tuple_contains_type__impl<T, std::tuple<T, Ts...>> {
+  static constexpr bool value = true;
+};
+
+template <typename T, typename U, typename... Ts>
+struct tuple_contains_type__impl<T, std::tuple<U, Ts...>> {
+  static constexpr bool value = tuple_contains_type__impl<T, std::tuple<Ts...>>::value;
+};
+
+template <typename T, typename Tuple>
+constexpr bool tuple_contains_type = tuple_contains_type__impl<T, Tuple>::value;
+// tuple_contains_type }
 
 
 // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
