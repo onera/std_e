@@ -38,5 +38,12 @@ hash_vector(const std::vector<T>& v) -> std::vector<size_t> {
   return res;
 }
 
+template<class T> constexpr auto
+sort_unique(std::vector<T>& v) -> void {
+  std::sort(begin(v),end(v));
+  auto new_end = std::unique(begin(v),end(v));
+  v.erase(new_end,end(v));
+}
+
 
 } // std_e
