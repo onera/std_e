@@ -87,6 +87,12 @@ class span : public span_size<N> {
       : span_size_type(n)
       , ptr(ptr)
     {}
+    FORCE_INLINE constexpr explicit
+    span(T* first, T* last)
+      // Precondition: [first,last) is valid range
+      : span_size_type(last-first)
+      , ptr(first)
+    {}
 
     // static span ctor
     FORCE_INLINE constexpr explicit
