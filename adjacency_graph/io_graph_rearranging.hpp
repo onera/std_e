@@ -27,8 +27,8 @@ template<class T>
 class io_graph_rearranging_view {
   public:
     using adj_type = io_adjacency<T>;
-    using adj_iterator_type = io_adjacency_iterator<T>;
-    using ref_wrapper_type = std_e::reference_wrapper<adj_iterator_type>;
+    using adj_iterator_type = io_adjacency<T>*;
+    using ref_wrapper_type = std_e::reference_wrapper<adj_iterator_type>; // TODO use std::
 
     using node_type = T;
 
@@ -46,6 +46,10 @@ class io_graph_rearranging_view {
     constexpr auto
     size() const -> size_t {
       return adj_refs.size();
+    }
+    constexpr auto
+    initial_size() const -> size_t {
+      return g_ptr->size();
     }
     constexpr auto
     resize(size_t sz) -> void {
@@ -81,14 +85,16 @@ class io_graph_rearranging_view {
 
     constexpr auto
     old_to_new_positions() const {
+      std::vector<int> old_to_new(initial_size());
+
       int sz = size();
-      std_e::constexpr_vector<int,2048> old_to_new(sz);
-      for (int i=0; i<sz; ++i) {
+      for (size_t i=0; i<sz; ++i) {
         old_to_new[old_index(i)] = i;
       }
       return old_to_new;
     }
   private:
+  public: //TODO
   // member functions
     constexpr auto
     underlying_graph() const -> const io_graph<T>& {
@@ -102,7 +108,7 @@ class io_graph_rearranging_view {
     }
   // data members
     io_graph<T>* g_ptr; // TODO DEL
-    std_e::constexpr_vector<ref_wrapper_type,Max_graph_size> adj_refs;
+    std::vector<ref_wrapper_type> adj_refs;
 };
 
 template<class T> constexpr auto
@@ -134,7 +140,8 @@ propagate_outward_edges(const io_graph_rearranging_view<T>& x, const array_type&
   for (size_t i=0; i<g.size(); ++i) {
     for (size_t j=0; j<x.adjacency(i).outwards.size(); ++j) {
       //g[i].outwards.push_back ( {start , old_to_new_positions[ x.adjacency(i).outwards[j]->index ]} ); // TODO
-      g[i].outwards.push_back ( start + old_to_new_positions[ x.adjacency(i).outwards[j]->index ] ); // TODO
+      int index = x.adjacency(i).outwards[j] - x.underlying_graph().begin();
+      g[i].outwards.push_back ( start + old_to_new_positions[index] ); // TODO
     }
   }
 }
@@ -143,9 +150,8 @@ make_bidirectional_from_outward_edges(io_graph<T>& g) {
   auto start = g.begin();
   for (size_t i=0; i<g.size(); ++i) {
     for (size_t j=0; j<g[i].outwards.size(); ++j) {
-      auto dep = g[i].outwards[j] - start; // TODO
-      g[dep].inwards.push_back( &g.adjs[i] );// TODO
-      //g[dep].inwards.push_back( start+i );// TODO
+      auto index = g[i].outwards[j] - start; // TODO
+      g[index].inwards.push_back( &g.adjs[i] );// TODO
     }
   }
 }
@@ -158,7 +164,6 @@ bidirectional_graph_from_outward_edges(const io_graph_rearranging_view<T>& x) ->
   io_graph<T> res(sz);
   for (int i=0; i<sz; ++i) {
     res[i].node = x.adjacency(i).node;
-    res[i].index = i;
   }
 
   propagate_outward_edges(x,x.old_to_new_positions(),res);

@@ -10,7 +10,7 @@
 namespace graph {
   
 
-/** Node_builder
+/** concept Node_builder
   result_type 
   F::operator()(Graph::node_type) -> T
 */
@@ -26,6 +26,7 @@ struct bidirectional_graph_builder {
     bidirectional_graph_builder(io_graph<T>& g, Node_builder_0&& f)
       : g(g)
       , node_builder(FWD(f))
+      , i(0) // TODO DEL
     {}
 
   // Graph_adjacency_visitor interface {
@@ -38,19 +39,18 @@ struct bidirectional_graph_builder {
     post(const node_adjacency_type& na) -> void {
       const auto& n = root(na);
       auto new_n = node_builder(n,heights.current_level(),out_deps.current_level());
-      int node_id = g.size();
-      g.adjs.push_back(graph::io_adjacency<T>{
+      g.adjs[i] = graph::io_adjacency<T>{
         new_n,
         {},
         out_deps.current_level(),
-        node_id
-      });
+      };
 
-      auto* adj_ptr = &g.adjs.back();
+      auto* adj_ptr = &g.adjs[i];
 
       // back-tracking (add parent as the only parent node)
       for (auto* out_dep : out_deps.current_level()) {
-        g[out_dep->index].inwards = {adj_ptr};
+        int index = out_dep-g.begin();
+        g[index].inwards = {adj_ptr};
       }
 
       // prepare next iteration
@@ -61,6 +61,7 @@ struct bidirectional_graph_builder {
         heights.pop_level();
         out_deps.pop_level();
       }
+      ++i;
     }
   // Graph_adjacency_visitor interface }
   
@@ -69,6 +70,7 @@ struct bidirectional_graph_builder {
     graph_stack<connections_container<T>> out_deps;
     graph_stack<int> heights;
     std_e::remove_rvalue_reference<Node_builder> node_builder;
+    int i;
 };
 
 
@@ -80,7 +82,7 @@ build_bidirectional_graph(const Graph& g, Node_builder&& node_builder, io_graph<
 template<class Graph, class Node_builder> constexpr auto
 build_bidirectional_graph(const Graph& g, Node_builder&& node_builder) {
   using T = typename std::decay_t<Node_builder>::result_type;
-  io_graph<T> res;
+  io_graph<T> res(g.size());
   build_bidirectional_graph(g,node_builder,res);
   return res;
 }

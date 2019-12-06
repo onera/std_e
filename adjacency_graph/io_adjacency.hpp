@@ -1,9 +1,8 @@
 #pragma once
 
 
-#include "graph/constexpr_max_sizes.hpp"
-#include "std_e/future/constexpr_vector.hpp"
-#include "std_e/utils/array_iterator.hpp" // TODO DEL?
+#include <vector>
+#include "std_e/future/contract.hpp" 
 #include "std_e/utils/iterator_range.hpp"
 #include "std_e/utils/dereferencing_range.hpp"
 
@@ -12,14 +11,10 @@ namespace graph {
 
 
 // connection containers {
-using connection_indices_container = std_e::constexpr_vector<int,Max_nb_adj_connections>;
+using connection_indices_container = std::vector<int>;
 
 template<class T> struct io_adjacency;
-template<class T> using io_adjacency_iterator = io_adjacency<T>*;
-template<class T> using const_io_adjacency_iterator = const io_adjacency<T>*;
-//template<class T> using io_adjacency_iterator = array_iterator<io_adjacency<T>*>;
-//template<class T> using const_io_adjacency_iterator = array_iterator<const io_adjacency<T>*>;
-template<class T> using connections_container = std_e::constexpr_vector<io_adjacency_iterator<T>,Max_nb_adj_connections>;
+template<class T> using connections_container = std::vector<io_adjacency<T>*>;
 
 template<class T> constexpr auto
 to_connection_indices_container(const connections_container<T>& x, const io_adjacency<T>* start) -> connection_indices_container {
@@ -35,7 +30,6 @@ to_connections_container(const connection_indices_container& x_indices, io_adjac
   int sz = x_indices.size();
   connections_container<T> x(sz);
   for (int j=0; j<sz; ++j) {
-    //x[j] = {start , x_indices[j]}; // TODO
     x[j] = start + x_indices[j];
   }
   return x;
@@ -45,16 +39,14 @@ to_connections_container(const connections_container<T>& old, const io_adjacency
   int sz = old.size();
   connections_container<T> x(sz);
   for (int j=0; j<sz; ++j) {
-    //int index = old[j].ptr - old_start; //TODO
     int index = old[j] - old_start;
-    //x[j] = {start , index}; // TODO
     x[j] = start + index;
   }
   return x;
 }
 
 template<class T> constexpr auto
-equal(const connections_container<T>& x, const connections_container<T>& y, const_io_adjacency_iterator<T> x_start, const_io_adjacency_iterator<T> y_start) -> bool { // TODO
+equal(const connections_container<T>& x, const connections_container<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool { // TODO
   if (x.size() != y.size()) return false;
   int sz = x.size();
   for (int j=0; j<sz; ++j) {
@@ -74,7 +66,7 @@ struct io_index_adjacency {
   connection_indices_container inwards;
   connection_indices_container outwards;
 };
-template<class T> using io_index_adjacency_list = std_e::constexpr_vector<io_index_adjacency<T>,Max_graph_size>;
+template<class T> using io_index_adjacency_list = std::vector<io_index_adjacency<T>>;
 // io_index_adjacency }
 
 
@@ -84,42 +76,32 @@ struct io_adjacency {
   constexpr
   io_adjacency()
     : node(T())
-    , index(0)
   {}
 
   constexpr
-  io_adjacency(T node, connections_container<T> inwards, connections_container<T> outwards, int index)
+  io_adjacency(T node, connections_container<T> inwards, connections_container<T> outwards)
     : node(std::move(node))
     , inwards(std::move(inwards))
     , outwards(std::move(outwards))
-    , index(index)
   {}
   constexpr
   io_adjacency(const io_index_adjacency<T>& x, io_adjacency<T>* start, int i)
     : node(x.node)
     , inwards(to_connections_container(x.inwards,start))
     , outwards(to_connections_container(x.outwards,start))
-    , index(i)
   {}
   constexpr
   io_adjacency(const io_adjacency<T>& x, const io_adjacency<T>* old_start, io_adjacency<T>* start, int i)
     : node(x.node)
     , inwards(to_connections_container(x.inwards,old_start,start))
     , outwards(to_connections_container(x.outwards,old_start,start))
-    , index(i)
   {}
 
   T node;
   connections_container<T> inwards;
   connections_container<T> outwards;
-
-  // Sometimes, pointer differences are not resolved as constexpr by gcc
-  // (This is a gcc <= 9 bug [works with clang 10])
-  // To work around it, node adjacency must store where they are in a sequence
-  // This is not a very bad workaround, but it prevents the copy/move ctors/assigment op to do the right thing most of the time
-  int index; // TODO
 };
-template<class T> using io_adjacency_list = std_e::constexpr_vector<io_adjacency<T>,Max_graph_size>;
+template<class T> using io_adjacency_list = std::vector<io_adjacency<T>>;
 
 // Node_adjacency interface {
 template<class T> constexpr auto
@@ -143,7 +125,7 @@ children(const io_adjacency<T>& adj) {
 // Node_adjacency interface }
 
 template<class T> constexpr auto
-equal(const io_adjacency<T>& x, const io_adjacency<T>& y, const_io_adjacency_iterator<T> x_start, const_io_adjacency_iterator<T> y_start) -> bool { // TODO
+equal(const io_adjacency<T>& x, const io_adjacency<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool { // TODO
   if (x.node != y.node) return false;
 
   return equal(x.inwards,y.inwards,x_start,y_start)
@@ -159,7 +141,7 @@ template<class T> constexpr auto
 is_reflexive_in_adjacency(const io_adjacency<T>& x) -> bool {
   for (auto inward_ptr : x.inwards) {
     auto& outs_of_in = inward_ptr->outwards;
-    auto x_pos = std_e::find(begin(outs_of_in),end(outs_of_in),&x);
+    auto x_pos = std::find(begin(outs_of_in),end(outs_of_in),&x);
     if (x_pos==end(outs_of_in)) return false;
   }
   return true;
@@ -168,7 +150,7 @@ template<class T> constexpr auto
 is_reflexive_out_adjacency(const io_adjacency<T>& x) -> bool {
   for (auto outward_ptr : x.outwards) {
     auto& ins_of_out = outward_ptr->inwards;
-    auto x_pos = std_e::find(begin(ins_of_out),end(ins_of_out),&x);
+    auto x_pos = std::find(begin(ins_of_out),end(ins_of_out),&x);
     if (x_pos==end(ins_of_out)) return false;
   }
   return true;
@@ -181,7 +163,7 @@ is_bidirectional_adjacency(const io_adjacency<T>& x) -> bool {
 
 /// redirect all edges entering "old" to now enter "new_adj"
 template<class T> constexpr auto
-redirect_entering_adjacencies(io_adjacency_iterator<T>& old, io_adjacency_iterator<T>& new_adj) -> void {
+redirect_entering_adjacencies(io_adjacency<T>* old, io_adjacency<T>* new_adj) -> void {
   // Precondition: is_reflexive_in_adjacency(old)
   // Post conditions:
   //  - all edges previously entering "old" now enter "new_adj"
@@ -194,9 +176,10 @@ redirect_entering_adjacencies(io_adjacency_iterator<T>& old, io_adjacency_iterat
   //         pick this one and make it point to new_adj
   for (auto inward_ptr : old->inwards) {
     auto& outs_of_in = inward_ptr->outwards;
-    //auto old_pos = std_e::find(begin(outs_of_in),end(outs_of_in),&old);
-    auto* old_pos = std_e::find_if(begin(outs_of_in),end(outs_of_in),[old](const auto& n_it){ return n_it->index==old->index; });
-    STD_E_ASSERT(old_pos!=end(outs_of_in));
+    auto first = outs_of_in.data();
+    auto last = outs_of_in.data()+outs_of_in.size();
+    auto old_pos = std::find(first,last,old);
+    STD_E_ASSERT(old_pos!=last);
     *old_pos = new_adj;
   }
 };

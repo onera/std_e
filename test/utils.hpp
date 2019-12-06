@@ -7,11 +7,10 @@
 namespace graph {
 
 
-constexpr size_t nested_tree_max_size_for_tests = 128;
-using nested_tree_for_tests = tree<int,nested_tree_max_size_for_tests>;
+using nested_tree_for_tests = tree<int>;
 
 
-constexpr auto
+inline auto
 create_nested_tree_for_tests() -> nested_tree_for_tests {
   /*
          1

@@ -33,11 +33,11 @@ namespace graph {
 */
 
 template<class T, class Memory_ressource> class nested_tree;
-template<class T, size_t N> using tree = nested_tree<T,std_e::constexpr_dyn_size_owned_memory_ressource<N>>;
-template<class T, size_t N> using tree_view = nested_tree<T,std_e::constexpr_dyn_size_external_memory_ressource<N>>;
-template<class T, size_t N> using const_tree_view = nested_tree<const T,std_e::constexpr_dyn_size_external_memory_ressource<N>>;
+template<class T> using tree = nested_tree<T,std_e::dyn_size_owned_memory_ressource>;
+template<class T> using tree_view = nested_tree<T,std_e::dyn_size_external_memory_ressource>;
+template<class T> using const_tree_view = nested_tree<const T,std_e::dyn_size_external_memory_ressource>;
 
-template<class T_ptr, class I_ptr, size_t N> class child_iterator;
+template<class T_ptr, class I_ptr> class child_iterator;
 
 template<class T, class Memory_ressource>
 // requires T is Regular, Memory_ressource with max_size
@@ -50,16 +50,13 @@ class nested_tree {
     using nodes_mem_type = std_e::memory_ressource_for<T,Memory_ressource>;
     using sizes_mem_type = std_e::memory_ressource_for<integer_type,Memory_ressource>;
 
-    static constexpr size_t max_number_of_nodes = Memory_ressource::max_size;
-    static constexpr size_t N = max_number_of_nodes;
-
-    using iterator = child_iterator<T*,integer_type*,N>;
-    using const_iterator = child_iterator<const T*,const integer_type*,N>;
+    using iterator = child_iterator<T*,integer_type*>;
+    using const_iterator = child_iterator<const T*,const integer_type*>;
 
     using range_type = std_e::iterator_range<iterator>;
     using const_range_type = std_e::iterator_range<const_iterator>;
 
-    using node_adj_type = const_tree_view<T,N>; // TODO DEL
+    using node_adj_type = const_tree_view<T>; // TODO DEL
 
     static constexpr size_t is_nested_tree = true;
     template<class T0, class M0> friend class nested_tree;
@@ -82,13 +79,13 @@ class nested_tree {
 
     template<class T0, class M0> FORCE_NO_INLINE constexpr
     nested_tree(const nested_tree<T0,M0>& t)
-      : nodes(begin(t.nodes),t.size())
-      , sizes(begin(t.sizes),t.size())
+      : nodes(t.nodes.data(),t.nodes.data()+t.size())
+      , sizes(t.sizes.data(),t.sizes.data()+t.size())
     {}
     template<class T0, class M0> FORCE_NO_INLINE constexpr auto
     operator=(const nested_tree<T0,M0>& t) -> nested_tree& {
-      nodes = nodes_mem_type(begin(t.nodes),t.size());
-      sizes = sizes_mem_type(begin(t.sizes),t.size());
+      nodes = nodes_mem_type(t.nodes.data(),t.nodes.data()+t.size());
+      sizes = sizes_mem_type(t.sizes.data(),t.sizes.data()+t.size());
       return *this;
     }
 
@@ -124,12 +121,12 @@ class nested_tree {
       return nodes[0];
     }
     FORCE_INLINE constexpr auto
-    view() -> tree_view<T,N> {
-      return {std_e::make_span(nodes.data(),N),std_e::make_span(sizes.data(),N)};
+    view() -> tree_view<T> {
+      return {std_e::make_span(nodes.data()),std_e::make_span(sizes.data())};
     }
     FORCE_INLINE constexpr auto
-    const_view() const -> const_tree_view<T,N> {
-      return {std_e::make_span(nodes.data(),N),std_e::make_span(sizes.data(),N)};
+    const_view() const -> const_tree_view<T> {
+      return {std_e::make_span(nodes.data()),std_e::make_span(sizes.data())};
     }
 
   // iteration / ranges
@@ -170,29 +167,27 @@ class nested_tree {
   // member functions
     constexpr auto
     first_root() -> iterator {
-      return {begin(nodes),begin(sizes)};
+      return {nodes.data(),sizes.data()};
     }
     constexpr auto
     first_root() const -> const_iterator {
-      return {begin(nodes),begin(sizes)};
+      return {nodes.data(),sizes.data()};
     }
     constexpr auto
     first_child() -> iterator {
-      return {begin(nodes)+1,begin(sizes)+1}; // the first sub-tree of a tree
+      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
     }                                         // begins just after the first node
     constexpr auto
     first_child() const -> const_iterator {
-      return {begin(nodes)+1,begin(sizes)+1}; // the first sub-tree of a tree
+      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
     }                                         // begins just after the first node
     constexpr auto
     last() -> iterator {
-      //return const_iterator{end(nodes),end(sizes)};
-      return {begin(nodes)+size(),begin(sizes)+size()}; // TODO why end() does not work ?
+      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
     }
     constexpr auto
     last() const -> const_iterator {
-      //return const_iterator{end(nodes),end(sizes)};
-      return {begin(nodes)+size(),begin(sizes)+size()}; // TODO why end() does not work ?
+      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
     }
   // data members
     nodes_mem_type nodes;
@@ -201,16 +196,16 @@ class nested_tree {
 
 
 // child_iterator {
-template<class T_ptr, class I_ptr, size_t N>
+template<class T_ptr, class I_ptr>
 // requires T_ptr is (const)T*
 // requires I_ptr is (const)Integer*
 class child_iterator {
   public:
     using value_type = std::remove_pointer_t<T_ptr>;
-    using iterator = child_iterator<T_ptr,I_ptr,N>;
-    using const_iterator = child_iterator<const T_ptr,const I_ptr,N>;
-    using reference = tree_view<value_type,N>;
-    using const_reference = const_tree_view<value_type,N>;
+    using iterator = child_iterator<T_ptr,I_ptr>;
+    using const_iterator = child_iterator<const T_ptr,const I_ptr>;
+    using reference = tree_view<value_type>;
+    using const_reference = const_tree_view<value_type>;
   // ctors
     constexpr
     child_iterator()
@@ -224,52 +219,58 @@ class child_iterator {
     {}
 
     constexpr auto
-    operator*() -> tree_view<value_type,N> {
-      return {std_e::make_span(node_ptr,N),std_e::make_span(size_ptr,N)};
+    size() -> size_t {
+      return *size_ptr;
+    }
+
+    constexpr auto
+    operator*() -> tree_view<value_type> {
+      index_t n = size();
+      return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     constexpr auto
-    operator*() const -> const_tree_view<value_type,N> {
-      return {std_e::make_span(node_ptr,N),std_e::make_span(size_ptr,N)};
+    operator*() const -> const_tree_view<value_type> {
+      index_t n = size();
+      return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     //constexpr auto
-    //operator->() const -> const_tree_view<T,N>* { // TODO check language
+    //operator->() const -> const_tree_view<T>* { // TODO check language
     //  return &*(*this);
     //}
     constexpr auto
     operator++() -> child_iterator& {
-      auto size = *size_ptr;
-      node_ptr += size;
-      size_ptr += size;
+      node_ptr += size();
+      size_ptr += size();
       return *this;
     }
 
   // comparison
-    template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1, size_t N0> friend constexpr auto
-    operator==(const child_iterator<T_ptr0,I_ptr0,N0>& x, const child_iterator<T_ptr1,I_ptr1,N0>& y);
+    template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1> friend constexpr auto
+    operator==(const child_iterator<T_ptr0,I_ptr0>& x, const child_iterator<T_ptr1,I_ptr1>& y);
   private:
     T_ptr node_ptr;
     I_ptr size_ptr;
 };
 
-template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1, size_t N0> constexpr auto
+template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1> constexpr auto
 // requires T_ptr0 is T* or const T*
 // requires T_ptr1 is T* or const T*
-operator==(const child_iterator<T_ptr0,I_ptr0,N0>& x, const child_iterator<T_ptr1,I_ptr1,N0>& y) {
+operator==(const child_iterator<T_ptr0,I_ptr0>& x, const child_iterator<T_ptr1,I_ptr1>& y) {
   return x.node_ptr==y.node_ptr && x.size_ptr==y.size_ptr;
 }
-template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1, size_t N0> constexpr auto
+template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1> constexpr auto
 // requires T_ptr0 is T* or const T*
 // requires T_ptr1 is T* or const T*
-operator!=(const child_iterator<T_ptr0,I_ptr0,N0>& x, const child_iterator<T_ptr1,I_ptr1,N0>& y) {
+operator!=(const child_iterator<T_ptr0,I_ptr0>& x, const child_iterator<T_ptr1,I_ptr1>& y) {
   return !(x==y);
 }
 } // graph
 
 namespace std {
 
-template<class T_ptr, class I_ptr, size_t N>
-struct iterator_traits<graph::child_iterator<T_ptr,I_ptr,N>> {
-  using type = graph::child_iterator<T_ptr,I_ptr,N>;
+template<class T_ptr, class I_ptr>
+struct iterator_traits<graph::child_iterator<T_ptr,I_ptr>> {
+  using type = graph::child_iterator<T_ptr,I_ptr>;
   using difference_type = int;
   using iterator_category = std::forward_iterator_tag;
 
@@ -289,7 +290,7 @@ namespace graph {
 
 // public tree interface {
 template<class T, class... tree_types> constexpr auto
-// requires T regular, tree_types are all tree<T,N>
+// requires T regular, tree_types are all tree<T>
 create_tree(const T& root, const tree_types&... ts) {
   using tree_type = std::common_type_t<tree_types...>;
   tree_type res(root);
@@ -362,8 +363,7 @@ template<class nested_tree_type, class nested_tree_visitor_type> auto
 // requires nested_tree_type is nested_tree<T,M>
 // requires nested_tree_visitor_type has .pre(T), .up(), .down()
 nested_tree_dfs_with_preordering(nested_tree_type&& t, nested_tree_visitor_type&& f) -> void {
-  constexpr size_t N = std::decay_t<nested_tree_type>::max_number_of_nodes;
-  std_e::constexpr_vector<int,N> remaining_nodes_stack = {};
+  std::vector<int> remaining_nodes_stack = {};
 
   remaining_nodes_stack.push_back(t.sizes[0]);
   f.pre(t.nodes[0]);

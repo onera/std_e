@@ -20,7 +20,7 @@ level(const node_with_level_for_test& x) {
   return x.reverse_level;
 }
 
-using nested_tree_with_level_for_tests = tree<node_with_level_for_test,nested_tree_max_size_for_tests>;
+using nested_tree_with_level_for_tests = tree<node_with_level_for_test>;
 
 struct graph_with_levels_creator {
   public:

@@ -54,32 +54,28 @@ class io_graph {
       return *this;
     }
 
-    constexpr io_graph(io_graph&& old) = delete; // TODO default in C++20 (constexpr std::vector)
-    constexpr io_graph& operator=(io_graph&&) = delete; // TODO default in C++20 (constexpr std::vector)
+    constexpr io_graph(io_graph&& old) = default;
+    constexpr io_graph& operator=(io_graph&&) = default;
 
     constexpr auto
     size() const -> size_t {
       return adjs.size();
     }
     constexpr auto
-    begin() -> io_adjacency_iterator<T> {
-      //return {adjs.begin(),0};
-      return adjs.begin();
+    begin() -> io_adjacency<T>* {
+      return adjs.data();
     }
     constexpr auto
-    begin() const -> const_io_adjacency_iterator<T> {
-      //return {adjs.begin(),0};
-      return adjs.begin();
+    begin() const -> const io_adjacency<T>* {
+      return adjs.data();
     }
     constexpr auto
-    end() -> io_adjacency_iterator<T> {
-      //return {adjs.begin(),size()};
-      return adjs.end();
+    end() -> io_adjacency<T>* {
+      return adjs.data() + size();
     }
     constexpr auto
-    end() const -> const_io_adjacency_iterator<T> {
-      //return {adjs.begin(),size()};
-      return adjs.end();
+    end() const -> const io_adjacency<T>* {
+      return adjs.data() + size();
     }
     constexpr auto
     operator[](int i) -> io_adjacency<T>& {

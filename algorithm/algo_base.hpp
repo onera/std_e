@@ -1,8 +1,7 @@
 #pragma once
 
 
-#include "graph/constexpr_max_sizes.hpp"
-#include "std_e/future/constexpr_vector.hpp"
+#include <vector>
 #include "std_e/utils/meta.hpp"
 
 
@@ -57,7 +56,7 @@ class graph_stack {
     }
 
   private:
-    std_e::constexpr_vector<T,Max_graph_depth> S;
+    std::vector<T> S;
 };
 
 template<class range_type>
