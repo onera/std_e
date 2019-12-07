@@ -38,11 +38,16 @@ split(const std::string& s, char sep) -> std::vector<std::string> {
 }
 
 inline auto
-copy_without_whitespaces(const std::string& s) -> std::string {
+remove_spaces_copy(const std::string& s) -> std::string {
   std::string res;
   auto not_space = [](char c){ return !isspace(c); };
   std::copy_if(begin(s), end(s), std::back_inserter(res), not_space);
   return res;
+}
+
+inline auto
+remove_spaces_split(const std::string& s, char sep) -> std::vector<std::string> {
+  return split(remove_spaces_copy(s),sep);
 }
 
 
