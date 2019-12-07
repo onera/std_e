@@ -88,7 +88,7 @@ class io_graph_rearranging_view {
       std::vector<int> old_to_new(initial_size());
 
       int sz = size();
-      for (size_t i=0; i<sz; ++i) {
+      for (int i=0; i<sz; ++i) {
         old_to_new[old_index(i)] = i;
       }
       return old_to_new;
