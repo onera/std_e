@@ -8,3 +8,5 @@
 #define RESTRICT __restrict
 
 #define FWD(x) std::forward<decltype(x)>(x)
+
+#define STD_E_UNUSED(x) ((void)(x))

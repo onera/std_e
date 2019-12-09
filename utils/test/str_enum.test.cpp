@@ -26,17 +26,14 @@ TEST_CASE("to_string(STR_ENUM)") {
 
 
 
-/* BAD (won't compile because of no namespace support by macros)
-
-namespace testing_nspace {
-STR_ENUM(enum_for_testing,
-  value_2,
-  value_3
-)
-}
-
-*/
-
+// BAD: (won't compile because of no namespace support by macros)
+// namespace testing_nspace {
+//   STR_ENUM(enum_for_testing,
+//     value_2,
+//     value_3
+//   )
+// }
+// GOOD:
 STR_ENUM_NSPACE(testing_nspace, enum_for_testing,
   value_2,
   value_3

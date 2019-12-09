@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <string>
+
+
 namespace std_e {
 
 
@@ -33,8 +36,8 @@ enum class operation_kind {
   
 
 // to_string {
-constexpr auto
-to_string(operation_kind x) -> const char* {
+inline auto
+to_symbol_string(operation_kind x) -> std::string {
   switch (x) {
     case operation_kind::identity: return "id";
     case operation_kind::assignment: return "=";
@@ -55,7 +58,7 @@ to_string(operation_kind x) -> const char* {
     case operation_kind::t: return "t";
     case operation_kind::tr: return "tr";
   }
-  return nullptr;
+  return "";
 }
 /// } to_string
 
