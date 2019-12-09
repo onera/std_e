@@ -2,7 +2,8 @@
 
 
 #include "graph/adjacency_graph/io_graph.hpp"
-#include "graph/algorithm/algo_adjacencies.hpp"
+//#include "graph/algorithm/algo_adjacencies.hpp"
+#include "graph/algorithm/algo_nodes.hpp"
 #include "std_e/utils/functional.hpp"
 #include <iostream> // TODO
 
@@ -20,70 +21,68 @@ template<class Graph, class Node_builder>
 struct bidirectional_graph_builder {
   public:
     using T = typename std::decay_t<Node_builder>::result_type;
+    //using node_type = T;
+    using node_type = typename Graph::node_type;
     using node_adjacency_type = typename Graph::node_adj_type;
+    using output_graph_iterator = io_adjacency<T>*;
 
     template<class Node_builder_0> constexpr
-    bidirectional_graph_builder(io_graph<T>& g, Node_builder_0&& f)
-      : g(g)
+    bidirectional_graph_builder(io_graph<T>& g, output_graph_iterator it, Node_builder_0&& f)
+      : it(it)
       , node_builder(FWD(f))
-      , i(0) // TODO DEL
     {}
 
-  // Graph_adjacency_visitor interface {
+  // Graph_node_visitor interface {
     constexpr auto
-    pre(node_adjacency_type) -> void {
+    pre(node_type) -> void {
       heights.push_level(0); // TODO RENAME push
-      out_deps.push_level({});
+      outs_stack.push_level({});
     }
     constexpr auto
-    post(const node_adjacency_type& na) -> void {
-      const auto& n = root(na);
-      auto new_n = node_builder(n,heights.current_level(),out_deps.current_level());
-      g.adjs[i] = graph::io_adjacency<T>{
+    post(const node_type& n) -> void {
+      // create node
+      int height_lvl = heights.current_level();
+      auto outs_lvl = outs_stack.current_level();
+      auto new_n = node_builder(n,height_lvl,outs_lvl);
+      *it = graph::io_adjacency<T>{
         new_n,
         {},
-        out_deps.current_level(),
+        outs_lvl
       };
 
-      auto* adj_ptr = &g.adjs[i];
-
       // back-tracking (add parent as the only parent node)
-      for (auto* out_dep : out_deps.current_level()) {
-        int index = out_dep-g.begin();
-        g[index].inwards = {adj_ptr};
+      for (auto* out : outs_lvl) {
+        out->inwards = {it};
       }
 
       // prepare next iteration
-      if (!out_deps.is_at_root_level()) {
+      if (!outs_stack.is_at_root_level()) {
         heights.parent_level() = std::max(heights.parent_level(),heights.current_level()+1);
-        out_deps.parent_level().push_back(adj_ptr);
+        outs_stack.parent_level().push_back(it);
 
         heights.pop_level();
-        out_deps.pop_level();
+        outs_stack.pop_level();
       }
-      ++i;
+      ++it;
     }
-  // Graph_adjacency_visitor interface }
+  // Graph_node_visitor interface }
   
   private:
-    io_graph<T>& g;
-    graph_stack<connections_container<T>> out_deps;
+    output_graph_iterator it;
+    graph_stack<connections_container<T>> outs_stack;
     graph_stack<int> heights;
     std_e::remove_rvalue_reference<Node_builder> node_builder;
-    int i;
 };
 
 
-template<class Graph, class Node_builder, class T> constexpr auto
-build_bidirectional_graph(const Graph& g, Node_builder&& node_builder, io_graph<T>& res) {
-  bidirectional_graph_builder<Graph,Node_builder> vis(res,FWD(node_builder));
-  prepostorder_depth_first_scan_adjacencies(g,vis);
-}
 template<class Graph, class Node_builder> constexpr auto
 build_bidirectional_graph(const Graph& g, Node_builder&& node_builder) {
   using T = typename std::decay_t<Node_builder>::result_type;
   io_graph<T> res(g.size());
-  build_bidirectional_graph(g,node_builder,res);
+
+  bidirectional_graph_builder<Graph,Node_builder> vis(res,begin(res),FWD(node_builder));
+  prepostorder_depth_first_scan(g,vis);
+
   return res;
 }
 

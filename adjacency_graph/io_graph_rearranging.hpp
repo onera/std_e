@@ -136,22 +136,20 @@ make_rearranging_view(io_graph<T>& g) {
 
 template<class array_type, class T> constexpr auto
 propagate_outward_edges(const io_graph_rearranging_view<T>& x, const array_type& old_to_new_positions, io_graph<T>& g) {
-  auto start = &g.adjs[0];//TODO
   for (size_t i=0; i<g.size(); ++i) {
     for (size_t j=0; j<x.adjacency(i).outwards.size(); ++j) {
-      //g[i].outwards.push_back ( {start , old_to_new_positions[ x.adjacency(i).outwards[j]->index ]} ); // TODO
       int index = x.adjacency(i).outwards[j] - x.underlying_graph().begin();
-      g[i].outwards.push_back ( start + old_to_new_positions[index] ); // TODO
+      g[i].outwards.push_back ( &g[old_to_new_positions[index]] ); // TODO
     }
   }
 }
 template<class T> constexpr auto
 make_bidirectional_from_outward_edges(io_graph<T>& g) {
-  auto start = g.begin();
+  auto start = g.begin(); // TODO
   for (size_t i=0; i<g.size(); ++i) {
     for (size_t j=0; j<g[i].outwards.size(); ++j) {
       auto index = g[i].outwards[j] - start; // TODO
-      g[index].inwards.push_back( &g.adjs[i] );// TODO
+      g[index].inwards.push_back( &g[i] );// TODO
     }
   }
 }

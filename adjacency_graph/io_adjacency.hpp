@@ -85,13 +85,13 @@ struct io_adjacency {
     , outwards(std::move(outwards))
   {}
   constexpr
-  io_adjacency(const io_index_adjacency<T>& x, io_adjacency<T>* start, int i)
+  io_adjacency(const io_index_adjacency<T>& x, io_adjacency<T>* start)
     : node(x.node)
     , inwards(to_connections_container(x.inwards,start))
     , outwards(to_connections_container(x.outwards,start))
   {}
   constexpr
-  io_adjacency(const io_adjacency<T>& x, const io_adjacency<T>* old_start, io_adjacency<T>* start, int i)
+  io_adjacency(const io_adjacency<T>& x, const io_adjacency<T>* old_start, io_adjacency<T>* start)
     : node(x.node)
     , inwards(to_connections_container(x.inwards,old_start,start))
     , outwards(to_connections_container(x.outwards,old_start,start))
@@ -101,7 +101,7 @@ struct io_adjacency {
   connections_container<T> inwards;
   connections_container<T> outwards;
 };
-template<class T> using io_adjacency_list = std::vector<io_adjacency<T>>;
+template<class T> using io_adjacency_vector = std::vector<io_adjacency<T>>;
 
 // Node_adjacency interface {
 template<class T> constexpr auto

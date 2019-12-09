@@ -29,7 +29,7 @@ class io_graph {
       int sz = idx_l.size();
       auto start = &adjs[0];
       for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(idx_l[i],start,i);
+        adjs[i] = io_adjacency(idx_l[i],start);
       }
     }
 
@@ -40,7 +40,7 @@ class io_graph {
       auto old_start = &old.adjs[0];
       auto start = &adjs[0];
       for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(old.adjs[i],old_start,start,i);
+        adjs[i] = io_adjacency(old.adjs[i],old_start,start);
       }
     }
     constexpr io_graph& operator=(const io_graph& old) {
@@ -49,7 +49,7 @@ class io_graph {
       auto old_start = &old.adjs[0];
       auto start = &adjs[0];
       for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(old.adjs[i],old_start,start,i);
+        adjs[i] = io_adjacency(old.adjs[i],old_start,start);
       }
       return *this;
     }
@@ -87,11 +87,26 @@ class io_graph {
     }
 
   private:
-  public: // TODO
-    io_adjacency_list<T> adjs; // TODO !! push_back => pointer invalidation if std::vector (but ok with deque)
+    io_adjacency_vector<T> adjs;
 };
 
 
+template<class T> constexpr auto
+begin(io_graph<T>& x) -> io_adjacency<T>* {
+  return x.begin();
+}
+template<class T> constexpr auto
+begin(const io_graph<T>& x) -> const io_adjacency<T>* {
+  return x.begin();
+}
+template<class T> constexpr auto
+end(io_graph<T>& x) -> io_adjacency<T>* {
+  return x.end();
+}
+template<class T> constexpr auto
+end(const io_graph<T>& x) -> const io_adjacency<T>* {
+  return x.end();
+}
 template<class T> constexpr auto
 operator==(const io_graph<T>& x, const io_graph<T>& y) -> bool {
   int x_sz = x.size();
