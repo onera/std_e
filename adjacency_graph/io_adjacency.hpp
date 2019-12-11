@@ -16,46 +16,6 @@ using connection_indices_container = std::vector<int>;
 
 template<class T> struct io_adjacency;
 template<class T> using connections_container = std::vector<io_adjacency<T>*>;
-
-template<class T> constexpr auto
-to_connection_indices_container(const connections_container<T>& x, const io_adjacency<T>* start) -> connection_indices_container {
-  int sz = x.size();
-  connection_indices_container x_indices(sz);
-  for (int i=0; i<sz; ++i) {
-    x_indices[i] = x[i] - start;
-  }
-  return x_indices;
-}
-template<class T> constexpr auto
-to_connections_container(const connection_indices_container& x_indices, io_adjacency<T>* start) -> connections_container<T> {
-  int sz = x_indices.size();
-  connections_container<T> x(sz);
-  for (int j=0; j<sz; ++j) {
-    x[j] = start + x_indices[j];
-  }
-  return x;
-}
-
-
-template<class T> constexpr auto
-to_connections_container(const connections_container<T>& olds, const io_adjacency<T>* old_start, io_adjacency<T>* start) -> connections_container<T> {
-  int sz = olds.size();
-  connections_container<T> x(sz);
-  transfer_iterator_shifts(begin(olds),end(olds),begin(x),old_start,start);
-  return x;
-}
-
-template<class T> constexpr auto
-equal(const connections_container<T>& x, const connections_container<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool { // TODO
-  if (x.size() != y.size()) return false;
-  int sz = x.size();
-  for (int j=0; j<sz; ++j) {
-    int x_index = x[j] - x_start;
-    int y_index = y[j] - y_start;
-    if (x_index != y_index) return false;
-  }
-  return true;
-}
 // connection containers }
 
 
@@ -74,9 +34,7 @@ template<class T> using io_index_adjacency_vector = std::vector<io_index_adjacen
 template<class T>
 struct io_adjacency {
   constexpr
-  io_adjacency()
-    : node(T())
-  {}
+  io_adjacency() = default;
 
   constexpr
   io_adjacency(T node, connections_container<T> inwards, connections_container<T> outwards)
@@ -87,14 +45,14 @@ struct io_adjacency {
   constexpr
   io_adjacency(const io_index_adjacency<T>& x, io_adjacency<T>* start)
     : node(x.node)
-    , inwards(to_connections_container(x.inwards,start))
-    , outwards(to_connections_container(x.outwards,start))
+    , inwards(std_e::indices_to_iterators(x.inwards,start))
+    , outwards(std_e::indices_to_iterators(x.outwards,start))
   {}
   constexpr
   io_adjacency(const io_adjacency<T>& x, const io_adjacency<T>* old_start, io_adjacency<T>* start)
     : node(x.node)
-    , inwards(to_connections_container(x.inwards,old_start,start))
-    , outwards(to_connections_container(x.outwards,old_start,start))
+    , inwards(std_e::iterators_to_iterators(x.inwards,old_start,start))
+    , outwards(std_e::iterators_to_iterators(x.outwards,old_start,start))
   {}
 
   T node;
@@ -128,8 +86,8 @@ template<class T> constexpr auto
 equal(const io_adjacency<T>& x, const io_adjacency<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool {
   return 
       x.node == y.node
-   && equal(x.inwards,y.inwards,x_start,y_start)
-   && equal(x.outwards,y.outwards,x_start,y_start);
+   && std_e::equal_iterator_shifts(x.inwards,y.inwards,x_start,y_start)
+   && std_e::equal_iterator_shifts(x.outwards,y.outwards,x_start,y_start);
 }
 // io_adjacency }
 

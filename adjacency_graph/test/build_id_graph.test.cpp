@@ -4,7 +4,7 @@
 
 #include "graph/tree/nested_tree.hpp"
 #include "graph/adjacency_graph/build_adjacency_graph.hpp"
-#include "graph/test/utils.hpp"
+#include "graph/test/nested_tree.hpp"
 
 
 using namespace graph;

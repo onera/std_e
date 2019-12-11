@@ -3,9 +3,7 @@
 
 #include "graph/tree/nested_tree.hpp"
 #include "graph/algorithm/algo_nodes.hpp"
-#include "graph/test/utils.hpp"
-#include <iostream>//TODO DEL
-#include <stdexcept>//TODO DEL
+#include "graph/test/nested_tree.hpp"
 
 #include "graph/adjacency_graph/io_graph.hpp"
 

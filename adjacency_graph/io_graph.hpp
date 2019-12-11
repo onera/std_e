@@ -124,21 +124,19 @@ operator!=(const io_graph<T>& x, const io_graph<T>& y) -> bool {
 
 template<class T> auto
 to_string(const io_adjacency<T>& x, const io_adjacency<T>* start) -> std::string {
-  auto inward_indices = to_indices(x.inwards,start);
-  auto outward_indices = to_indices(x.outwards,start);
+  auto inward_indices = std_e::iterators_to_indices(x.inwards,start);
+  auto outward_indices = std_e::iterators_to_indices(x.outwards,start);
   using std::to_string;
-  return to_string(x.node) + "| lvl:" + to_string(x.height)
+  return to_string(x.node)
     + " outwd=" + std_e::range_to_string(outward_indices)
     + " inwd=" + std_e::range_to_string(inward_indices);
 }
 
 template<class T> auto
 to_string(const io_graph<T>& x) -> std::string {
-  int sz = x.adjs.size();
-  auto* start = &x.adjs[0];
   std::string s;
-  for (int i=0; i<sz; ++i) {
-    s += to_string(x.adjs[i],start) + "\n";
+  for (const auto& adj : x) {
+    s += to_string(adj,begin(x)) + "\n";
   }
   return s;
 }
