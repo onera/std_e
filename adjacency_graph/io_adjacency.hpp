@@ -5,6 +5,7 @@
 #include "std_e/future/contract.hpp" 
 #include "std_e/utils/iterator_range.hpp"
 #include "std_e/utils/dereferencing_range.hpp"
+#include "std_e/algorithm/iterator.hpp"
 
 
 namespace graph {
@@ -34,14 +35,13 @@ to_connections_container(const connection_indices_container& x_indices, io_adjac
   }
   return x;
 }
+
+
 template<class T> constexpr auto
-to_connections_container(const connections_container<T>& old, const io_adjacency<T>* old_start, io_adjacency<T>* start) -> connections_container<T> {
-  int sz = old.size();
+to_connections_container(const connections_container<T>& olds, const io_adjacency<T>* old_start, io_adjacency<T>* start) -> connections_container<T> {
+  int sz = olds.size();
   connections_container<T> x(sz);
-  for (int j=0; j<sz; ++j) {
-    int index = old[j] - old_start;
-    x[j] = start + index;
-  }
+  transfer_iterator_shifts(begin(olds),end(olds),begin(x),old_start,start);
   return x;
 }
 
@@ -66,7 +66,7 @@ struct io_index_adjacency {
   connection_indices_container inwards;
   connection_indices_container outwards;
 };
-template<class T> using io_index_adjacency_list = std::vector<io_index_adjacency<T>>;
+template<class T> using io_index_adjacency_vector = std::vector<io_index_adjacency<T>>;
 // io_index_adjacency }
 
 
@@ -125,11 +125,11 @@ children(const io_adjacency<T>& adj) {
 // Node_adjacency interface }
 
 template<class T> constexpr auto
-equal(const io_adjacency<T>& x, const io_adjacency<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool { // TODO
-  if (x.node != y.node) return false;
-
-  return equal(x.inwards,y.inwards,x_start,y_start)
-      && equal(x.outwards,y.outwards,x_start,y_start);
+equal(const io_adjacency<T>& x, const io_adjacency<T>& y, const io_adjacency<T>* x_start, const io_adjacency<T>* y_start) -> bool {
+  return 
+      x.node == y.node
+   && equal(x.inwards,y.inwards,x_start,y_start)
+   && equal(x.outwards,y.outwards,x_start,y_start);
 }
 // io_adjacency }
 

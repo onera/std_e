@@ -8,7 +8,6 @@
 namespace graph {
 
 
-// TODO ENCAPS
 template<class T>
 class io_graph {
   public:
@@ -23,34 +22,31 @@ class io_graph {
     {}
 
     constexpr
-    io_graph(const io_index_adjacency_list<T>& idx_l)
-      : adjs(idx_l.size())
+    io_graph(const io_index_adjacency_vector<T>& idx_adjs)
+      : adjs(idx_adjs.size())
     {
-      int sz = idx_l.size();
-      auto start = &adjs[0];
-      for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(idx_l[i],start);
-      }
+      auto start = this->begin();
+      std::transform(idx_adjs.begin(),idx_adjs.end(),adjs.begin(),[start](const auto& idx_adj){
+        return io_adjacency(idx_adj,start);
+      });
     }
 
     constexpr io_graph(const io_graph& old)
       : adjs(old.adjs.size())
     {
-      int sz = adjs.size();
-      auto old_start = &old.adjs[0];
-      auto start = &adjs[0];
-      for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(old.adjs[i],old_start,start);
-      }
+      auto old_start = old.begin();
+      auto start = this->begin();
+      std::transform(old.begin(),old.end(),adjs.begin(),[=](const auto& adj){
+        return io_adjacency(adj,old_start,start);
+      });
     }
     constexpr io_graph& operator=(const io_graph& old) {
-      int sz = old.adjs.size();
-      adjs.resize(sz);
-      auto old_start = &old.adjs[0];
-      auto start = &adjs[0];
-      for (int i=0; i<sz; ++i) {
-        adjs[i] = io_adjacency(old.adjs[i],old_start,start);
-      }
+      adjs.resize(old.size());
+      auto old_start = old.begin();
+      auto start = this->begin();
+      std::transform(old.begin(),old.end(),adjs.begin(),[=](const auto& adj){
+        return io_adjacency(adj,old_start,start);
+      });
       return *this;
     }
 
@@ -146,6 +142,18 @@ to_string(const io_graph<T>& x) -> std::string {
   }
   return s;
 }
+
+
+// algorithm {
+template<class T> constexpr auto
+make_bidirectional_from_outward_edges(io_graph<T>& g) {
+  for (auto& adj : g) {
+    for (auto* out : adj.outwards) {
+      out->inwards.push_back( &adj );
+    }
+  }
+}
+// algorithm }
 
 
 } // graph

@@ -25,7 +25,7 @@ TEST_CASE("Tree reverse_levels") {
   4    7  \9  10   11    lvl 0
   */
   using IC = connection_indices_container;
-  io_index_adjacency_list<int> adj_index_list = {
+  io_index_adjacency_vector<int> idx_adjs = {
     /*0*/ { 4,IC{2}    ,IC{}     },
     /*1*/ { 7,IC{2}    ,IC{}     },
     /*2*/ { 2,IC{8}    ,IC{0,1,3}},
@@ -36,7 +36,7 @@ TEST_CASE("Tree reverse_levels") {
     /*7*/ { 3,IC{8}    ,IC{4,5,6}},
     /*8*/ { 1,IC{}     ,IC{2,7,3}},
   };
-  io_graph<int> io_g(adj_index_list);
+  io_graph<int> io_g(idx_adjs);
 
 
   io_graph_rearranging_view<int> reordered_io_graph(io_g);
@@ -50,7 +50,7 @@ TEST_CASE("Tree reverse_levels") {
   // expected permuted graph:
   //  - permute element order
   //  - permute inward and outward node indices
-  io_index_adjacency_list<int> expected_perm_adj_index_list = {
+  io_index_adjacency_vector<int> expected_perm_idx_adjs = {
     /*8*/ { 1,IC{}     ,IC{6,1,5}},
     /*7*/ { 3,IC{0}    ,IC{4,3,2}},
     /*6*/ {11,IC{1}    ,IC{}     },
@@ -61,7 +61,7 @@ TEST_CASE("Tree reverse_levels") {
     /*1*/ { 7,IC{6}    ,IC{}     },
     /*0*/ { 4,IC{6}    ,IC{}     },
   };
-  io_graph<int> expected_permuted_io_graph(expected_perm_adj_index_list);
+  io_graph<int> expected_permuted_io_graph(expected_perm_idx_adjs);
 
   CHECK( permuted_io_graph == expected_permuted_io_graph );
 }

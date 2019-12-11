@@ -21,13 +21,13 @@ template<class Graph, class Node_builder>
 struct bidirectional_graph_builder {
   public:
     using T = typename std::decay_t<Node_builder>::result_type;
-    //using node_type = T;
     using node_type = typename Graph::node_type;
+    //using node_type = T; // TODO false, why?
     using node_adjacency_type = typename Graph::node_adj_type;
     using output_graph_iterator = io_adjacency<T>*;
 
     template<class Node_builder_0> constexpr
-    bidirectional_graph_builder(io_graph<T>& g, output_graph_iterator it, Node_builder_0&& f)
+    bidirectional_graph_builder(output_graph_iterator it, Node_builder_0&& f)
       : it(it)
       , node_builder(FWD(f))
     {}
@@ -35,13 +35,13 @@ struct bidirectional_graph_builder {
   // Graph_node_visitor interface {
     constexpr auto
     pre(node_type) -> void {
-      heights.push_level(0); // TODO RENAME push
+      height_stack.push_level(0); // TODO RENAME push
       outs_stack.push_level({});
     }
     constexpr auto
     post(const node_type& n) -> void {
       // create node
-      int height_lvl = heights.current_level();
+      int height_lvl = height_stack.current_level();
       auto outs_lvl = outs_stack.current_level();
       auto new_n = node_builder(n,height_lvl,outs_lvl);
       *it = graph::io_adjacency<T>{
@@ -57,10 +57,10 @@ struct bidirectional_graph_builder {
 
       // prepare next iteration
       if (!outs_stack.is_at_root_level()) {
-        heights.parent_level() = std::max(heights.parent_level(),heights.current_level()+1);
+        height_stack.parent_level() = std::max(height_stack.parent_level(),height_stack.current_level()+1);
         outs_stack.parent_level().push_back(it);
 
-        heights.pop_level();
+        height_stack.pop_level();
         outs_stack.pop_level();
       }
       ++it;
@@ -70,7 +70,7 @@ struct bidirectional_graph_builder {
   private:
     output_graph_iterator it;
     graph_stack<connections_container<T>> outs_stack;
-    graph_stack<int> heights;
+    graph_stack<int> height_stack;
     std_e::remove_rvalue_reference<Node_builder> node_builder;
 };
 
@@ -80,7 +80,7 @@ build_bidirectional_graph(const Graph& g, Node_builder&& node_builder) {
   using T = typename std::decay_t<Node_builder>::result_type;
   io_graph<T> res(g.size());
 
-  bidirectional_graph_builder<Graph,Node_builder> vis(res,begin(res),FWD(node_builder));
+  bidirectional_graph_builder<Graph,Node_builder> vis(begin(res),FWD(node_builder));
   prepostorder_depth_first_scan(g,vis);
 
   return res;

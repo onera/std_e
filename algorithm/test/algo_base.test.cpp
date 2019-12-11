@@ -286,7 +286,7 @@ TEST_CASE("Adj graph depth-first prune") {
   4    7  \9  10   11    lvl 0
   */
   using IC = connection_indices_container;
-  io_index_adjacency_list<int> adj_index_list = {
+  io_index_adjacency_vector<int> idx_adjs = {
     /*0*/ { 4,IC{2}    ,IC{}     },
     /*1*/ { 7,IC{2}    ,IC{}     },
     /*2*/ { 2,IC{8}    ,IC{0,1,3}},
@@ -297,7 +297,7 @@ TEST_CASE("Adj graph depth-first prune") {
     /*7*/ { 3,IC{8}    ,IC{4,5,6}},
     /*8*/ { 1,IC{}     ,IC{2,7,3}},
   };
-  io_graph<int> io_g(adj_index_list);
+  io_graph<int> io_g(idx_adjs);
 
   visitor_for_testing_dfs_prune_adjacencies v;
   prepostorder_depth_first_prune_adjacencies(io_g[8],v);

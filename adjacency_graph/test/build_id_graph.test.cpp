@@ -46,7 +46,7 @@ TEST_CASE("build_bidirectional_graph") {
   4    7   9  10   11    lvl 0
   */
   using IC = connection_indices_container;
-  io_index_adjacency_list<int_height> expected_adj_index_list = {
+  io_index_adjacency_vector<int_height> expected_idx_adjs = {
     /*0*/ {{ 4,0},IC{2},IC{}     },
     /*1*/ {{ 7,0},IC{2},IC{}     },
     /*2*/ {{ 2,1},IC{8},IC{0,1}  },
@@ -57,7 +57,7 @@ TEST_CASE("build_bidirectional_graph") {
     /*7*/ {{ 3,2},IC{8},IC{4,5,6}},
     /*8*/ {{ 1,3},IC{} ,IC{2,7}  },
   };
-  io_graph<int_height> expected_io_g(expected_adj_index_list);
+  io_graph<int_height> expected_io_g(expected_idx_adjs);
 
   CHECK( io_g == expected_io_g );
 }
