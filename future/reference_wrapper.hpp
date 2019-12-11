@@ -5,34 +5,20 @@ namespace std_e {
 
 
 /** 
- * Similar to std::reference_wrapper, 
- * but 
- *   - default-constructible to fix std_e::constexpr_vector ctors
- *   - stores an iterator, not necessarily a pointer
- *       and thus 
- *        - is templated by the iterator
- *        - is constructed from an iterator
+ * Similar to std::reference_wrapper, but default-constructible
 */
-template<class Iterator>
+template<class T>
 class reference_wrapper {
   public:
   // ctors
-    //using T = typename Iterator::value_type;
-    using T = std::remove_pointer_t<std::decay_t<Iterator>>;
     using type = T;
-    //using iterator = Iterator;
-    //using const_iterator = typename Iterator::const_iterator;
-    using iterator = Iterator;
-    using const_iterator = const Iterator;
    
     constexpr
-    reference_wrapper() noexcept
-      : iter(Iterator{})
-    {}
+    reference_wrapper() noexcept = default;
 
     constexpr
-    reference_wrapper(Iterator iter) noexcept
-      : iter(iter)
+    reference_wrapper(T& x) noexcept
+      : ptr(&x)
     {}
 
     constexpr
@@ -42,23 +28,23 @@ class reference_wrapper {
    
   // access
     constexpr
-    operator const T& () const noexcept { return *iter; }
+    operator const T& () const noexcept { return *ptr; }
     constexpr
-    operator T& () noexcept { return *iter; }
+    operator T& () noexcept { return *ptr; }
 
     constexpr auto
-    get() const noexcept -> const T& { return *iter; }
+    get() const noexcept -> const T& { return *ptr; }
     constexpr auto
-    get() noexcept -> T& { return *iter; }
+    get() noexcept -> T& { return *ptr; }
 
     constexpr auto
-    get_iterator() const noexcept -> const_iterator { return iter; }
+    get_pointer() const noexcept -> const T* { return ptr; }
     constexpr auto
-    get_iterator() noexcept -> iterator { return iter; }
+    get_pointer() noexcept -> T* { return ptr; }
 
 
   private:
-    Iterator iter;
+    T* ptr;
 };
 
 template<class T> constexpr auto
@@ -70,12 +56,12 @@ get(reference_wrapper<T>& x) noexcept {
   return x.get();
 }
 template<class T> constexpr auto
-get_iterator(const reference_wrapper<T>& x) noexcept {
-  return x.get_iterator();
+get_pointer(const reference_wrapper<T>& x) noexcept {
+  return x.get_pointer();
 }
 template<class T> constexpr auto
-get_iterator(reference_wrapper<T>& x) noexcept {
-  return x.get_iterator();
+get_pointer(reference_wrapper<T>& x) noexcept {
+  return x.get_pointer();
 }
 
 
