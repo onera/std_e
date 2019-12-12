@@ -31,6 +31,7 @@ for_each_partition(Forward_it first, Forward_it last, Predicate_generator compar
 }
 
 
+// TODO RENAME replace_by_first_equivalent
 template<class Forward_it, class Binary_pred> constexpr auto
 // requires Binary_pred(Forward_it,Forward_it) -> bool
 for_each_equivalent(Forward_it first, Forward_it last, Binary_pred f) -> void {

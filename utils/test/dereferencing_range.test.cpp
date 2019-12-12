@@ -12,8 +12,8 @@ TEST_CASE("Range<double*> -> Range<double refs> ") {
   double d2 = 20.;
   std::vector<double*> v = {&d0,&d1,&d2};
 
-  SUBCASE("dereferencing_range") {
-    auto it = derefencing_iterator(begin(v));
+  SUBCASE("dereferencing_iterator") {
+    auto it = dereferencing_iterator(begin(v));
 
     CHECK( *it == 42. );
 
@@ -25,7 +25,7 @@ TEST_CASE("Range<double*> -> Range<double refs> ") {
   }
 
   SUBCASE("dereferencing_range") {
-    auto r = dereferencing_range(v);
+    auto r = make_dereferencing_range(v);
 
     std::vector<double> res;
     std::copy(begin(r),end(r),std::back_inserter(res));
@@ -35,4 +35,3 @@ TEST_CASE("Range<double*> -> Range<double refs> ") {
     CHECK( res == expected_res );
   }
 }
-

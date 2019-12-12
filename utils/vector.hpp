@@ -7,6 +7,12 @@
 namespace std_e {
 
 
+template<class T> auto
+append(std::vector<T>& v, const std::vector<T>& w) -> void {
+  std::copy(begin(w),end(w),std::back_inserter(v));
+}
+
+
 template<class T, class Unary_predicate> constexpr auto
 partition_copy(const std::vector<T>& v, Unary_predicate p) -> std::pair<std::vector<T>,std::vector<T>> {
   std::vector<T> v_true;

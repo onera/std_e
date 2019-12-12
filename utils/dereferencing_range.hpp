@@ -8,66 +8,67 @@ namespace std_e {
 
 
 template<class iterator_over_iterators>
-class derefencing_iterator {
+class dereferencing_iterator {
   public:
   // type traits
     using iterator_value = typename std::iterator_traits<iterator_over_iterators>::value_type;
 
     using value_type = typename std::iterator_traits<iterator_value>::value_type;
     using reference = typename std::iterator_traits<iterator_value>::reference;
-    using iterator = derefencing_iterator;
+    //using const_reference = const reference;
+    using iterator = dereferencing_iterator;
 
     using difference_type = typename std::iterator_traits<iterator_over_iterators>::difference_type;
     using iterator_category = typename std::iterator_traits<iterator_over_iterators>::iterator_category;
   // ctor
     constexpr
-    derefencing_iterator() = default;
+    dereferencing_iterator() = default;
     constexpr
-    derefencing_iterator(iterator_over_iterators it_of_its)
+    dereferencing_iterator(iterator_over_iterators it_of_its)
       : it_of_its(it_of_its)
     {}
 
   // iterator interface
     constexpr auto
-    operator++() -> derefencing_iterator& {
+    operator++() -> dereferencing_iterator& {
       ++it_of_its;
       return *this;
     }
     constexpr auto
-    operator--() -> derefencing_iterator& {
+    operator--() -> dereferencing_iterator& {
       --it_of_its;
       return *this;
     }
     template<class Integer> constexpr auto
-    operator+=(Integer i) -> derefencing_iterator& {
+    operator+=(Integer i) -> dereferencing_iterator& {
       it_of_its += i;
       return *this;
     }
     template<class Integer> constexpr auto
-    operator-=(Integer i) -> derefencing_iterator& {
+    operator-=(Integer i) -> dereferencing_iterator& {
       it_of_its -= i;
       return *this;
     }
 
     constexpr auto
-    operator*() -> decltype(auto) {
+    operator*() -> const reference {
       return **it_of_its;
     }
     constexpr auto
-    operator*() const -> decltype(auto) {
+    operator*() const -> const reference {
       return **it_of_its;
     }
 
     friend constexpr auto
-    operator==(const derefencing_iterator& x, const derefencing_iterator& y) {
+    operator==(const dereferencing_iterator& x, const dereferencing_iterator& y) {
       return x.it_of_its == y.it_of_its;
     }
     friend constexpr auto
-    operator!=(const derefencing_iterator& x, const derefencing_iterator& y) {
+    operator!=(const dereferencing_iterator& x, const dereferencing_iterator& y) {
       return !(x==y);
     }
     friend constexpr auto
-    operator-(const derefencing_iterator& x, const derefencing_iterator& y) -> difference_type {
+    operator-(const dereferencing_iterator& x, const dereferencing_iterator& y) -> difference_type {
       return x.it_of_its - y.it_of_its;
     }
   private:
@@ -79,8 +80,8 @@ class derefencing_iterator {
 } // std_e
 namespace std {
   template<class II>
-  struct iterator_traits<std_e::derefencing_iterator<II>> {
-    using type = std_e::derefencing_iterator<II>;
+  struct iterator_traits<std_e::dereferencing_iterator<II>> {
+    using type = std_e::dereferencing_iterator<II>;
 
     using value_type = typename type::value_type;
     using iterator = typename type::iterator;
@@ -94,39 +95,23 @@ namespace std_e {
 
 
 // Goal: view  Range<Iterator>  as  Range<Iterator::reference>
-
-
-// TODO
-//template<class Range_of_Iterators>
-//struct iterator_type_of_Range_of_Iterators {
-//  using type = typename Range_of_Iterators::iterator;
-//};
-//template<class Range_of_Iterators>
-//struct iterator_type_of_Range_of_Iterators<const Range_of_Iterators> {
-//  using type = const typename Range_of_Iterators::iterator;
-//};
-
-template<class Range_of_Iterators>
+template<class iterator_over_iterators>
 class dereferencing_range {
   public:
   // traits
-    using iterator_over_iterators = typename Range_of_Iterators::iterator;
-    //using iterator_over_iterators = typename iterator_type_of_Range_of_Iterators<Range_of_Iterators>::type;
-    using iterator = derefencing_iterator<iterator_over_iterators>;
-
-    //using value_type = typename std::iterator_traits<Iterator>::value_type;
-    //using iterator = Iterator;
-    //using reference = typename std::iterator_traits<Iterator>::reference;
+    using iterator = dereferencing_iterator<iterator_over_iterators>;
+    using value_type = typename std::iterator_traits<iterator>::value_type;
+    using reference = typename std::iterator_traits<iterator>::reference;
 
   // ctors
     constexpr
     dereferencing_range() = default;
-    constexpr
-    dereferencing_range(Range_of_Iterators& x)
-      : first({x.begin()})
-      , last({x.end()})
-    {}
 
+    constexpr
+    dereferencing_range(iterator_over_iterators f, iterator_over_iterators l)
+      : first({f})
+      , last({l})
+    {}
 
   // iteration
     constexpr auto
@@ -152,18 +137,18 @@ class dereferencing_range {
       return std::distance(begin(),end());
     }
 
-    //template<class Integer> constexpr auto 
-    //operator[](Integer i) -> reference {
-    //  auto it = begin();
-    //  std::advance(it,i);
-    //  return *it;
-    //}
-    //template<class Integer> constexpr auto
-    //operator[](Integer i) const -> const reference {
-    //  auto it = begin();
-    //  std::advance(it,i);
-    //  return *it;
-    //}
+    constexpr auto 
+    operator[](int i) -> reference {
+      auto it = begin();
+      std::advance(it,i);
+      return *it;
+    }
+    constexpr auto
+    operator[](int i) const -> const reference {
+      auto it = begin();
+      std::advance(it,i);
+      return *it;
+    }
 
   private:
     iterator first;
@@ -188,14 +173,12 @@ operator!=(const dereferencing_range<R>& x, const dereferencing_range<R>& y) {
   return !(x==y);
 }
 
-
+// Note: make_dereferencing_range as no non-const overload
+// because it is not needed: even if the range is const,
+// its elements (the iterators) are not
 template<class Range_of_Iterators> constexpr auto
 make_dereferencing_range(const Range_of_Iterators& x) {
-  return dereferencing_range<const Range_of_Iterators>(x);
-}
-template<class Range_of_Iterators> constexpr auto
-make_dereferencing_range(Range_of_Iterators& x) {
-  return dereferencing_range<Range_of_Iterators>(x);
+  return dereferencing_range(begin(x),end(x));
 }
 
 
