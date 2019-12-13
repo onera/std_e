@@ -79,14 +79,14 @@ class nested_tree {
 
     template<class T0, class M0> FORCE_NO_INLINE constexpr
     nested_tree(const nested_tree<T0,M0>& t)
-      : nodes(t.nodes.begin(),t.nodes.end())
-      , sizes(t.sizes.begin(),t.sizes.end())
+      : nodes(t.nodes.data(),t.nodes.data()+t.nodes.size())
+      , sizes(t.sizes.data(),t.sizes.data()+t.sizes.size())
     {}
 
     template<class T0, class M0> FORCE_NO_INLINE constexpr auto
     operator=(const nested_tree<T0,M0>& t) -> nested_tree& {
-      nodes = nodes_mem_type(t.nodes.begin(),t.nodes.end());
-      sizes = sizes_mem_type(t.sizes.begin(),t.sizes.end());
+      nodes = nodes_mem_type(t.nodes.data(),t.nodes.data()+t.nodes.size());
+      sizes = sizes_mem_type(t.sizes.data(),t.sizes.data()+t.sizes.size());
       return *this;
     }
 

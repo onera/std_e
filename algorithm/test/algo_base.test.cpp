@@ -70,41 +70,49 @@ struct visitor_for_testing_dfs {
 };
 
 TEST_CASE("Nested tree prepostorder depth-first scan") {
-  auto t = create_nested_tree_for_tests();
-
   visitor_for_testing_dfs v;
-  prepostorder_depth_first_scan(t,v);
 
-  /* Reminder:
-         1
-      /     \
-     2        3
-   /  \    /  |  \
-  4    7   8  10  11
-           |
-           9
-  */
-  string expected_s = 
-    "pre 1\n"
-    "pre 2\n"
-    "pre 4\n"
-    "post 4\n"
-    "pre 7\n"
-    "post 7\n"
-    "post 2\n"
-    "pre 3\n"
-    "pre 8\n"
-    "pre 9\n"
-    "post 9\n"
-    "post 8\n"
-    "pre 10\n"
-    "post 10\n"
-    "pre 11\n"
-    "post 11\n"
-    "post 3\n"
-    "post 1\n";
+  SUBCASE("normal case") {
+    auto t = create_nested_tree_for_tests();
 
-  CHECK( v.s == expected_s );
+    prepostorder_depth_first_scan(t,v);
+
+    /* Reminder:
+           1
+        /     \
+       2        3
+     /  \    /  |  \
+    4    7   8  10  11
+             |
+             9
+    */
+    string expected_s = 
+      "pre 1\n"
+      "pre 2\n"
+      "pre 4\n"
+      "post 4\n"
+      "pre 7\n"
+      "post 7\n"
+      "post 2\n"
+      "pre 3\n"
+      "pre 8\n"
+      "pre 9\n"
+      "post 9\n"
+      "post 8\n"
+      "pre 10\n"
+      "post 10\n"
+      "pre 11\n"
+      "post 11\n"
+      "post 3\n"
+      "post 1\n";
+
+    CHECK( v.s == expected_s );
+  }
+
+  SUBCASE("only one node") {
+    auto t0 = tree<int>{100};
+    prepostorder_depth_first_scan(t0,v);
+  }
 }
 
 TEST_CASE("Nested tree preorder depth-first scan") {

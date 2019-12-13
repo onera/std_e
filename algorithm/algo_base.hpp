@@ -118,7 +118,7 @@ make_graph_traversal_stack(range_type root_range) -> graph_traversal_stack<range
 template<class Graph_iterator_stack, class F> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) -> void {
-  do {
+  while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
       if (!f(*v)) return;// TODO opposite (like find_if)
@@ -127,13 +127,13 @@ preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) -> voi
       S.pop_level();
       ++S.current_node();
     }
-  } while (!S.is_done());
+  }
 }
 
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
-  do {
+  while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
       f.pre(*v);
@@ -143,13 +143,13 @@ prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adj
       f.post(*S.current_node());
       ++S.current_node();
     }
-  } while (!S.is_done());
+  }
 }
 
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
-  do {
+  while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
       f.pre(*v);
@@ -166,13 +166,13 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
         if (!S.level_is_done()) f.down(*parent,*w);
       }
     }
-  } while (!S.is_done());
+  }
 }
 
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
-  do {
+  while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
       if (f.pre(*v)) { // go down
@@ -186,12 +186,12 @@ prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_ad
       f.post(*S.current_node());
       ++S.current_node();
     }
-  } while (!S.is_done());
+  }
 }
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
-  do {
+  while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
       if (f.pre(*v)) { // go down
@@ -212,7 +212,7 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
         if (!S.level_is_done()) f.down(*parent,*w);
       }
     }
-  } while (!S.is_done());
+  }
 }
 // base algorithms }
 
