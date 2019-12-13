@@ -93,6 +93,12 @@ class span : public span_size<N> {
       : span_size_type(last-first)
       , ptr(first)
     {}
+    template<class Range> FORCE_INLINE constexpr explicit
+    // requires Range::data() -> T*
+    span(const Range& r)
+      : span_size_type(r.size())
+      , ptr(r.data())
+    {}
 
     // static span ctor
     FORCE_INLINE constexpr explicit
