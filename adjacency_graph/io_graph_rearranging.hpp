@@ -43,13 +43,18 @@ class io_graph_rearranging_view {
       return adj_refs.size();
     }
     constexpr auto
+    resize(size_t sz) -> void {
+      STD_E_ASSERT(sz <= size());
+      adj_refs.resize(sz);
+    }
+
+    constexpr auto
     initial_size() const -> size_t {
       return g_ptr->size();
     }
     constexpr auto
-    resize(size_t sz) -> void {
-      STD_E_ASSERT(sz <= size());
-      adj_refs.resize(sz);
+    initial_start() const {
+      return g_ptr->begin();
     }
 
     constexpr auto
@@ -68,7 +73,6 @@ class io_graph_rearranging_view {
     end() const {
       return adj_refs.end();
     }
-
     constexpr auto
     operator[](int i) const -> const adj_type& {
       return adj_refs[i];
@@ -92,14 +96,9 @@ class io_graph_rearranging_view {
   public: //TODO
   // member functions
     constexpr auto
-    underlying_graph() const -> const io_graph<T>& {
-      return *g_ptr;
-    }
-    constexpr auto
     old_index(int new_idx) const -> int {
       auto adj_iter_at_new_idx = std_e::get_pointer(adj_refs[new_idx]);
-      auto first_adj_iter = underlying_graph().begin();
-      return adj_iter_at_new_idx - first_adj_iter;
+      return adj_iter_at_new_idx - initial_start();
     }
   // data members
     io_graph<T>* g_ptr; // TODO DEL
@@ -129,28 +128,17 @@ make_rearranging_view(io_graph<T>& g) {
   return io_graph_rearranging_view<T>(g);
 }
 
+
 template<class array_type, class T> constexpr auto
 propagate_outward_edges(const io_graph_rearranging_view<T>& x, const array_type& old_to_new_positions, io_graph<T>& g) {
   int sz = x.size();
   for (int i=0; i<sz; ++i) {
-    auto& old_outs = x[i].outwards;
-    int sz_out = old_outs.size();
-    auto& new_outs = g[i].outwards;
-    new_outs.resize(sz_out);
-    auto* old_start = x.underlying_graph().begin();
-    auto* start = begin(g);
-    std::transform(begin(old_outs),end(old_outs),begin(new_outs),[&](const auto& old_out){
-      int index = old_out - old_start;
-      return start + old_to_new_positions[index];
-    });
-
-    //for (auto* out : x[i].outwards) {
-    //  int index = out - x.underlying_graph().begin(); // TODO
-    //  g[i].outwards.push_back( &g[old_to_new_positions[index]] ); // TODO
-    //}
+    for (auto* out : x[i].outwards) {
+      int index = out - x.initial_start();
+      g[i].outwards.push_back( &g[old_to_new_positions[index]] );
+    }
   }
 }
-
 
 template<class T> constexpr auto
 bidirectional_graph_from_outward_edges(const io_graph_rearranging_view<T>& x) -> io_graph<T> {

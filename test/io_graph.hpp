@@ -46,7 +46,7 @@ namespace doctest {
 
 template<class T> struct StringMaker<graph::io_graph<T>> {
   static String convert(const graph::io_graph<T>& x) {
-    return graph::to_string(x).c_str();
+    return to_string(x).c_str();
   }
 };
 

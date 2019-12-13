@@ -40,6 +40,11 @@ depth_first_prune(Graph&& g, Graph_node_visitor&& f_node) -> void {
   graph_adjacency_visitor_adaptor<Graph_node_visitor> f(FWD(f_node));
   depth_first_prune_adjacencies(g,f);
 }
+template<class Graph, class Graph_node_visitor> constexpr auto
+prepostorder_depth_first_prune(Graph&& g, Graph_node_visitor&& f_node) -> void {
+  graph_adjacency_visitor_adaptor<Graph_node_visitor> f(FWD(f_node));
+  prepostorder_depth_first_prune_adjacencies(g,f);
+}
 
 
 } // graph 
