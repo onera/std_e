@@ -44,7 +44,7 @@ TEST_CASE("Nested tree children") {
 TEST_CASE("Nested tree append") {
   auto t = create_nested_tree_for_tests();
 
-  auto c2 = nested_tree_for_tests {42};
+  auto c2 = tree<int>{42};
   t.append_child(c2);
 
   // is appended as a child

@@ -5,7 +5,7 @@
 #include "graph/test/io_graph.hpp"
 
 #include "graph/adjacency_graph/io_graph_rearranging.hpp"
-#include "graph/adjacency_graph/build_adjacency_graph.hpp"
+#include "graph/build/io_graph.hpp"
 
 #include <algorithm>
 
