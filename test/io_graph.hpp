@@ -38,33 +38,6 @@ create_io_graph_for_tests() -> io_graph<int> {
   return io_graph<int>(std::move(idx_adjs));
 }
 
-inline auto
-equivalent_tree_for_tests() -> tree<int> {
-  /* Tree equivalent to the graph of create_io_graph_for_tests()
-       ____1____
-      /    |    \
-     2     3     9
-    /|\   /| \
-   4 7 9 8 10 11
-         |
-         9
-  */
-  auto t4 = tree<int>{4};
-  auto t7 = tree<int>{7};
-  auto t9 = tree<int> {9};
-  auto t2 = create_tree(2,t4,t7,t9); 
-
-  auto t8 = create_tree(8,t9); 
-
-  auto t10 = tree<int>{10};
-  auto t11 = tree<int>{11};
-  auto t3 = create_tree(3,t8,t10,t11); 
-
-  auto t1 = create_tree(1,t2,t3,t9); 
-
-  return t1;
-}
-
 
 } // graph
 
