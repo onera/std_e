@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "std_e/utils/string.hpp"
+#include "std_e/utils/frozen_flat_map.hpp"
 
 
 namespace std_e {
@@ -21,6 +22,8 @@ const std::vector<std::string> enum_to_strings;
 template<class Str_enum_type>
 const size_t enum_size;
 
+template<class Str_enum_type>
+const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
 
 } // std_e
 
@@ -41,7 +44,18 @@ const size_t enum_size;
   inline auto to_string(enum_name e) -> const std::string& { \
     int i = std_e::to_int(e); \
     return std_e::enum_to_strings<enum_name>[i]; \
-  };
+  } \
+  \
+  template<> const std_e::frozen_flat_map<std::string,int> \
+    std_e::strings_to_enum_index<enum_name> = \
+      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
+  \
+  template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+  \
+  template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+    int index = std_e::strings_to_enum_index<enum_name>[s]; \
+    return static_cast<enum_name>(index); \
+  }
 
 
 #define STR_ENUM_NSPACE(nspace, enum_name, ... ) \
@@ -56,8 +70,21 @@ const size_t enum_size;
   template<> const size_t std_e::enum_size<nspace::enum_name> = std_e::enum_to_strings<nspace::enum_name>.size(); \
   \
   namespace nspace { \
-  inline auto to_string(enum_name e) -> const std::string& { \
-    int i = std_e::to_int(e); \
-    return std_e::enum_to_strings<enum_name>[i]; \
-  }; \
-  } // nspace
+    inline auto to_string(enum_name e) -> const std::string& { \
+      int i = std_e::to_int(e); \
+      return std_e::enum_to_strings<enum_name>[i]; \
+    } \
+  } \
+  \
+  template<> const std_e::frozen_flat_map<std::string,int> \
+    std_e::strings_to_enum_index<nspace::enum_name> = \
+      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<nspace::enum_name>); \
+  \
+  namespace nspace { \
+    template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+    \
+    template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+      int index = std_e::strings_to_enum_index<enum_name>[s]; \
+      return static_cast<enum_name>(index); \
+    } \
+  }

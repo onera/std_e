@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "std_e/algorithm/permutation.hpp"
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {
@@ -26,6 +27,7 @@ class frozen_flat_map {
     constexpr auto
     operator[](const KT& key) const -> const VT& {
       auto it = std::lower_bound(begin(keys),end(keys),key);
+      STD_E_ASSERT(it!=end(keys));
       int idx = it-begin(keys);
       return values[idx];
     }
@@ -34,6 +36,14 @@ class frozen_flat_map {
     std::vector<KT> keys;
     std::vector<VT> values;
 };
+
+
+template<class KT> auto
+permutation_frozen_flat_map(std::vector<KT> keys) -> frozen_flat_map<KT,int> {
+  std::vector<int> values(keys.size());
+  std::iota(begin(values),end(values),0);
+  return {std::move(keys),std::move(values)};
+}
 
 
 } // std_e
