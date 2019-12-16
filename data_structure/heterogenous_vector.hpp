@@ -40,6 +40,10 @@ class heterogenous_vector {
     std::tuple<std::vector<Ts>...> _impl;
 };
 
+template<class... Ts>
+using hvector = heterogenous_vector<Ts...>;
+
+
 template<class T, class... Ts> constexpr auto
 get(heterogenous_vector<Ts...>& x) -> std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
@@ -71,8 +75,23 @@ for_each_element(const heterogenous_vector<Ts...>& hv, F f) -> void {
 }
 
 
-template<class... Ts>
-using hvector = heterogenous_vector<Ts...>;
+template<class... Ts, class Unary_pred, class F> constexpr auto
+find_apply(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
+  int pos_in_vec = 0;
+  auto f_tuple = [&p,&f,&pos_in_vec](auto&& vec){
+    auto it = std::find_if(begin(vec),end(vec),p);
+    pos_in_vec = it-begin(vec);
+    if (it!=end(vec)) {
+      f(*it);
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  int pos_in_tuple = for_each_until(hv.impl(),f_tuple);
+  return std::make_pair(pos_in_tuple,pos_in_vec);
+}
 
 
 } // std_e

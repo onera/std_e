@@ -88,23 +88,52 @@ accumulate(const std::tuple<Ts...>& x, T& init, bin_op op) -> void {
 
 
 
-template<int I, class tuple_type, class F>  constexpr auto
-for_each_until__impl_tuple(tuple_type&& x, F f) -> decltype(auto) {
+template<int I, class tuple_type, class Unary_pred, class F>  constexpr auto
+find_apply__impl(tuple_type&& x, Unary_pred p, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
   if constexpr (I<sz) {
-    auto&& res = f(std::get<I>(x));
-    if (res) return res;
-    else for_each_until__impl_tuple<I+1>(x,f);
+    if (p(std::get<I>(x))) {
+      f(std::get<I>(x));
+      return I;
+    } else {
+      return find_apply__impl<I+1>(x,p,f);
+    }
   }
+  return sz;
+}
+
+template<class... Ts, class Unary_pred, class F> constexpr auto
+find_apply(std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
+  return find_apply__impl<0>(x,p,f);
+}
+template<class... Ts, class Unary_pred, class F> constexpr auto
+find_apply(const std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
+  return find_apply__impl<0>(x,p,f);
+}
+
+
+
+
+template<int I, class tuple_type, class F>  constexpr auto
+for_each_until__impl_tuple(tuple_type&& x, F f) -> int {
+  constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
+  if constexpr (I<sz) {
+    if (f(std::get<I>(x))) {
+      return I;
+    } else {
+      return for_each_until__impl_tuple<I+1>(x,f);
+    }
+  }
+  return sz;
 }
 
 template<class... Ts, class F> constexpr auto
 for_each_until(std::tuple<Ts...>& x, F f) -> decltype(auto) {
-  for_each_until__impl_tuple<0>(x,f);
+  return for_each_until__impl_tuple<0>(x,f);
 }
 template<class... Ts, class F> constexpr auto
 for_each_until(const std::tuple<Ts...>& x, F f) -> decltype(auto) {
-  for_each_until__impl_tuple<0>(x,f);
+  return for_each_until__impl_tuple<0>(x,f);
 }
 
 
