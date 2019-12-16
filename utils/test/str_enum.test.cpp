@@ -15,7 +15,7 @@ TEST_CASE("STR_ENUM enum_to_strings") {
   CHECK( strs[1] == "value_1" );
 }
 TEST_CASE("STR_ENUM enum_size") {
-  REQUIRE( std_e::enum_size<enum_for_testing> == 2 );
+  static_assert(std_e::enum_size<enum_for_testing> == 2 );
 }
 
 TEST_CASE("to_string(STR_ENUM)") {
@@ -40,21 +40,28 @@ TEST_CASE("to_enum<STR_ENUM>()") {
 // GOOD:
 STR_ENUM_NSPACE(testing_nspace, enum_for_testing,
   value_2,
-  value_3
+  value_3,
+  value_4
 )
 
 TEST_CASE("STR_ENUM_NSPACE enum_to_strings") {
   const vector<string>& strs = std_e::enum_to_strings<testing_nspace::enum_for_testing>;
-  REQUIRE( strs.size() == 2 );
+  REQUIRE( strs.size() == 3 );
   CHECK( strs[0] == "value_2" );
   CHECK( strs[1] == "value_3" );
+  CHECK( strs[2] == "value_4" );
+}
+TEST_CASE("STR_ENUM enum_size") {
+  static_assert(std_e::enum_size<testing_nspace::enum_for_testing> == 3 );
 }
 TEST_CASE("to_string(STR_ENUM_NSPACE)") {
   CHECK( testing_nspace::to_string(testing_nspace::enum_for_testing::value_2) == "value_2" );
   CHECK( testing_nspace::to_string(testing_nspace::enum_for_testing::value_3) == "value_3" );
+  CHECK( testing_nspace::to_string(testing_nspace::enum_for_testing::value_4) == "value_4" );
 }
 
 TEST_CASE("to_enum<STR_ENUM>()") {
   CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_2") == testing_nspace::enum_for_testing::value_2 );
   CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_3") == testing_nspace::enum_for_testing::value_3 );
+  CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_4") == testing_nspace::enum_for_testing::value_4 );
 }

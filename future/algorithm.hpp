@@ -282,4 +282,19 @@ lower_bound(ForwardIt first, ForwardIt last, const T& value, Compare comp) -> Fo
     return first;
 }
 
+
+template<class InputIt, class T> constexpr auto
+count(InputIt first, InputIt last, const T& value)
+ -> typename std::iterator_traits<InputIt>::difference_type
+{
+  typename std::iterator_traits<InputIt>::difference_type ret = 0;
+  for (; first != last; ++first) {
+    if (*first == value) {
+      ret++;
+    }
+  }
+  return ret;
+}
+
+
 } // std_e

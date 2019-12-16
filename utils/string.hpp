@@ -2,9 +2,11 @@
 
 
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include "std_e/future/algorithm.hpp"
 
 
 namespace std_e {
@@ -38,7 +40,7 @@ split(const std::string& s, char sep) -> std::vector<std::string> {
 }
 
 inline auto
-remove_spaces_copy(const std::string& s) -> std::string {
+copy_without_whitespaces(const std::string& s) -> std::string {
   std::string res;
   auto not_space = [](char c){ return !isspace(c); };
   std::copy_if(begin(s), end(s), std::back_inserter(res), not_space);
@@ -47,7 +49,13 @@ remove_spaces_copy(const std::string& s) -> std::string {
 
 inline auto
 remove_spaces_split(const std::string& s, char sep) -> std::vector<std::string> {
-  return split(remove_spaces_copy(s),sep);
+  return split(copy_without_whitespaces(s),sep);
+}
+
+
+constexpr auto
+count_char(std::string_view s, char c) ->  int {
+  return count(begin(s),end(s),c);
 }
 
 

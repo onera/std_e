@@ -20,12 +20,15 @@ template<class Str_enum_type>
 const std::vector<std::string> enum_to_strings;
 
 template<class Str_enum_type>
-const size_t enum_size;
+constexpr size_t enum_size;
 
 template<class Str_enum_type>
 const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
 
 } // std_e
+
+#define NUMBER_OF_VA_ARGS(...) \
+  std_e::count_char(#__VA_ARGS__, ',') + 1
 
 
 // WARNING: STR_ENUM must be declared at global scope, not in a namespace
@@ -39,7 +42,7 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
       ',' \
     ); \
   \
-  template<> const size_t std_e::enum_size<enum_name> = std_e::enum_to_strings<enum_name>.size(); \
+  template<> constexpr size_t std_e::enum_size<enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
   \
   inline auto to_string(enum_name e) -> const std::string& { \
     int i = std_e::to_int(e); \
@@ -67,7 +70,7 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
       ',' \
     ); \
   \
-  template<> const size_t std_e::enum_size<nspace::enum_name> = std_e::enum_to_strings<nspace::enum_name>.size(); \
+  template<> constexpr size_t std_e::enum_size<nspace::enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
   \
   namespace nspace { \
     inline auto to_string(enum_name e) -> const std::string& { \
