@@ -37,7 +37,7 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
   enum class enum_name { __VA_ARGS__ }; \
   \
   template<> const std::vector<std::string> std_e::enum_to_strings<enum_name> = \
-    std_e::remove_spaces_split( \
+    std_e::remove_spaces_and_split( \
       #__VA_ARGS__, \
       ',' \
     ); \
@@ -65,7 +65,7 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
   namespace nspace { enum class enum_name { __VA_ARGS__ }; } \
   \
   template<> const std::vector<std::string> std_e::enum_to_strings<nspace::enum_name> = \
-    std_e::remove_spaces_split( \
+    std_e::remove_spaces_and_split( \
       #__VA_ARGS__, \
       ',' \
     ); \
