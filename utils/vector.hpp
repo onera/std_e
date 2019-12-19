@@ -50,6 +50,14 @@ sort_unique(std::vector<T>& v) -> void {
   auto new_end = std::unique(begin(v),end(v));
   v.erase(new_end,end(v));
 }
+template<class T, class Equiv_pred, class Comp_pred> constexpr auto
+sort_unique(std::vector<T>& v, Equiv_pred eq, Comp_pred cmp) -> void {
+  std::sort(begin(v),end(v),cmp);
+  auto new_end = std::unique(begin(v),end(v),eq);
+  v.erase(new_end,end(v));
+}
+
+ 
 
 
 } // std_e

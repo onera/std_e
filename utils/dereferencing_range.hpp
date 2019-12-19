@@ -173,9 +173,8 @@ operator!=(const dereferencing_range<R>& x, const dereferencing_range<R>& y) {
   return !(x==y);
 }
 
-// Note: make_dereferencing_range as no non-const overload
-// because it is not needed: even if the range is const,
-// its elements (the iterators) are not
+// Note: make_dereferencing_range takes its argument by const
+// But even if the range is const, its elements (the iterators) are not
 template<class Range_of_Iterators> constexpr auto
 make_dereferencing_range(const Range_of_Iterators& x) {
   return dereferencing_range(begin(x),end(x));
