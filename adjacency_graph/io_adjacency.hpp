@@ -80,6 +80,24 @@ template<class T> constexpr auto
 children(const io_adjacency<T>& adj) {
   return std_e::make_dereferencing_range(adj.outwards);
 }
+
+// TODO new interface names => report in concept + nested_tree...
+template<class T> constexpr auto
+out_adjacencies(io_adjacency<T>& adj) {
+  return std_e::make_dereferencing_range(adj.outwards);
+}
+template<class T> constexpr auto
+out_adjacencies(const io_adjacency<T>& adj) {
+  return std_e::make_dereferencing_range(adj.outwards);
+}
+template<class T> constexpr auto
+in_adjacencies(io_adjacency<T>& adj) {
+  return std_e::make_dereferencing_range(adj.inwards);
+}
+template<class T> constexpr auto
+in_adjacencies(const io_adjacency<T>& adj) {
+  return std_e::make_dereferencing_range(adj.inwards);
+}
 // Node_adjacency interface }
 
 template<class T> constexpr auto
