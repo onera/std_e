@@ -65,4 +65,13 @@ TEST_CASE("exclusive_iota") {
       CHECK( pos_in_vec == 2 );
     }
   }
+
+  SUBCASE("for_each_if") {
+    std::vector<double> res;
+    auto pred = [](auto x){ return x<3; };
+    auto f = [&res](auto x){ res.push_back(2.*x); };
+    for_each_if(hv,pred,f);
+    std::vector<double> expected_res = {2.,4.,5.4};
+    CHECK( res == expected_res );
+  }
 }

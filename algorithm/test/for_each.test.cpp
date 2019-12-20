@@ -6,6 +6,18 @@
 
 using namespace std_e;
 
+
+TEST_CASE("for_each_if") {
+  std::vector<int> v = {100,101,2000};
+  std::vector<int> res;
+  auto pred = [](int i){ return i%2==0; };
+  auto f = [&res](int i){ res.push_back(2*i); };
+  for_each_if(begin(v),end(v),pred,f);
+  std::vector<int> expected_res = {200,4000};
+  CHECK( res == expected_res );
+}
+
+
 struct lvl_value {
   int lvl;
   double d;

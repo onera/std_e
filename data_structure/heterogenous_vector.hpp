@@ -94,4 +94,11 @@ find_apply(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> std::pair
 }
 
 
+template<class... Ts, class Unary_pred, class F> constexpr auto
+for_each_if(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> void {
+  auto f_cond = [p,f](auto x){ if (p(x)) f(x); };
+  for_each_element(hv,f_cond);
+}
+
+
 } // std_e
