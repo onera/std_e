@@ -7,6 +7,24 @@
 namespace std_e {
 
 
+template<class T> constexpr auto
+b_ptr(std::vector<T>& v) -> T* {
+  return v.data();
+}
+template<class T> constexpr auto
+b_ptr(const std::vector<T>& v) -> const T* {
+  return v.data();
+}
+template<class T> constexpr auto
+e_ptr(std::vector<T>& v) -> T* {
+  return v.data()+v.size();
+}
+template<class T> constexpr auto
+e_ptr(const std::vector<T>& v) -> const T* {
+  return v.data()+v.size();
+}
+
+
 template<class T> auto
 append(std::vector<T>& v, const std::vector<T>& w) -> void {
   std::copy(begin(w),end(w),std::back_inserter(v));
