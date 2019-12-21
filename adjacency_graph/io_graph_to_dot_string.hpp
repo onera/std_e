@@ -108,7 +108,7 @@ to_string__impl(const io_graph<T>& g) -> std::string {
 //}
 
 template<class T> auto
-to_dot_string(const io_graph<T>& g) -> std::string {
+to_dot_format_string(const io_graph<T>& g) -> std::string {
   // io_graph<T> const_param_dg = repeat_constants_and_params(g); // HACK
   //return to_string__impl(const_param_dg);
   return to_string__impl(g);

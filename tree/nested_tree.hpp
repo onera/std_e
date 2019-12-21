@@ -299,6 +299,15 @@ create_tree(const T& root, const tree_types&... ts) {
   ( res.append_child(ts) , ... );
   return res;
 }
+template<class T, class tree_type> constexpr auto
+// requires T regular, tree_types are all tree<T>
+create_tree(const T& root, const std::vector<tree_type>& ts) { // TODO .append_children() ?
+  tree_type res(root);
+  for (const auto& t : ts) {
+    res.append_child(t);
+  }
+  return res;
+}
 
 template<
   class nested_tree_type,
