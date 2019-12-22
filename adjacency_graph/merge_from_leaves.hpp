@@ -3,6 +3,7 @@
 
 #include "std_e/algorithm/for_each.hpp"
 #include "graph/adjacency_graph/io_graph_rearranging.hpp"
+#include "std_e/future/constexpr_quick_sort.hpp"
 
 
 namespace graph {
@@ -41,7 +42,7 @@ redirect_super_expressions_to_equivalent(T_ref x_p, T_ref y_p, Bin_pred eq) -> b
 
 template<class Random_it, class Bin_pred_0, class Bin_pred_1> constexpr auto
 sort_redirect_super_expressions_to_equivalent(Random_it first, Random_it last, Bin_pred_0 eq, Bin_pred_1 less) {
-  std::sort(first,last,less);
+  std_e::quick_sort(first,last,less);
 
   auto f = [eq](auto x, auto y){ return redirect_super_expressions_to_equivalent(x,y,eq); };
   std_e::for_each_equivalent(first,last,f);
@@ -69,15 +70,13 @@ class level_comparison_generator {
 };
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto
-factorize(io_graph_rearranging_view<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> void {
+merge_from_leaves(io_graph_rearranging_view<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> void {
   STD_E_ASSERT(g.size()!=0);
   //STD_E_ASSERT(is_bidirectional_graph(g));//TODO
 
   // adding outwards to comparison checks
   auto eq_ = [eq](const auto& x, const auto& y){ return equivalent_by_node_and_outwards(x,y,eq); };
   auto less_ = [eq,less](const auto& x, const auto& y){ return less_by_node_and_outwards(x,y,eq,less); };
-  //auto eq_ = [eq](const auto& x, const auto& y){ return equivalent_by_node_and_outwards(std_e::get(x),std_e::get(y),eq); };
-  //auto less_ = [eq,less](const auto& x, const auto& y){ return less_by_node_and_outwards(std_e::get(x),std_e::get(y),eq,less); };
 
   // 0. sort by level
   std::sort(begin(g),end(g),less_by_level);
@@ -98,10 +97,10 @@ factorize(io_graph_rearranging_view<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> vo
 }
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto
-factorize(io_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_graph<T> {
+merge_from_leaves(io_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_graph<T> {
   if (g.size()==0) return io_graph<T>{};
   auto g_view = make_rearranging_view(g);
-  factorize(g_view,eq,less);
+  merge_from_leaves(g_view,eq,less);
   return bidirectional_graph_from_outward_edges(g_view);
 }
 

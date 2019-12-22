@@ -18,53 +18,69 @@ using io_adjacency_ref = std_e::reference_wrapper<io_adjacency<T>>;
 /// Node_adjacency interface {
 template<class T> constexpr auto
 node(io_adjacency_ref<T>& x) -> T& {
-  return node(std_e::get(x));
+  return node(x.get());
 }
 template<class T> constexpr auto
 node(const io_adjacency_ref<T>& x) -> const T& {
-  return node(std_e::get(x));
+  return node(x.get());
+}
+template<class T> constexpr auto
+node2(io_adjacency_ref<T>& x) -> T& {
+  return x.get().node;
+}
+template<class T> constexpr auto
+node2(const io_adjacency_ref<T>& x) -> const T& {
+  return x.get().node;
 }
 template<class T> constexpr auto
 in_ptrs(io_adjacency_ref<T>& x) -> io_adj_ptr_vector<T>& {
-  return in_ptrs(std_e::get(x));
+  return in_ptrs(x.get());
 }
 template<class T> constexpr auto
 in_ptrs(const io_adjacency_ref<T>& x) -> const io_adj_ptr_vector<T>& {
-  return in_ptrs(std_e::get(x));
+  return in_ptrs(x.get());
+}
+template<class T> constexpr auto
+out_ptrs2(io_adjacency_ref<T>& x) -> io_adj_ptr_vector<T>& {
+  return x.get().outwards;
+}
+template<class T> constexpr auto
+out_ptrs2(const io_adjacency_ref<T>& x) -> const io_adj_ptr_vector<T>& {
+  return x.get().outwards;
 }
 template<class T> constexpr auto
 out_ptrs(io_adjacency_ref<T>& x) -> io_adj_ptr_vector<T>& {
-  return out_ptrs(std_e::get(x));
+  return out_ptrs(x.get());
 }
 template<class T> constexpr auto
 out_ptrs(const io_adjacency_ref<T>& x) -> const io_adj_ptr_vector<T>& {
-  return out_ptrs(std_e::get(x));
+  return out_ptrs(x.get());
 }
 
 template<class T> constexpr auto
 children(io_adjacency_ref<T>& x) {
-  return children(std_e::get(x));
+  return children(x.get());
 }
 template<class T> constexpr auto
 children(const io_adjacency_ref<T>& x) {
-  return children(std_e::get(x));
+  return children(x.get());
 }
 
 template<class T> constexpr auto
 out_adjacencies(io_adjacency_ref<T>& x) {
-  return out_adjacencies(std_e::get(x));
+  return out_adjacencies(x.get());
 }
 template<class T> constexpr auto
 out_adjacencies(const io_adjacency_ref<T>& x) {
-  return out_adjacencies(std_e::get(x));
+  return out_adjacencies(x.get());
 }
 template<class T> constexpr auto
 in_adjacencies(io_adjacency_ref<T>& x) {
-  return in_adjacencies(std_e::get(x));
+  return in_adjacencies(x.get());
 }
 template<class T> constexpr auto
 in_adjacencies(const io_adjacency_ref<T>& x) {
-  return in_adjacencies(std_e::get(x));
+  return in_adjacencies(x.get());
 }
 /// Node_adjacency interface }
 // io_adjacency_ref }
