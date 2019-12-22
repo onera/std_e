@@ -53,8 +53,13 @@ remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::stri
 }
 
 
+inline auto
+contains(std::string_view s, char c) -> bool {
+  auto it = std::find(begin(s),end(s),c);
+  return it!=end(s);
+}
 constexpr auto
-count_char(std::string_view s, char c) ->  int {
+count_char(std::string_view s, char c) -> int {
   return count(begin(s),end(s),c);
 }
 
