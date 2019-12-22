@@ -8,50 +8,44 @@
 namespace graph {
 
 
-constexpr auto
-height(const io_adjacency<operation_eval_node>& x) -> int {
-  return node(x).height;
-}
-
-
-template<class T> constexpr auto 
-equal_by_level = [](const io_adjacency<T>& x, const io_adjacency<T>& y) -> bool {
+constexpr auto 
+equal_by_level = [](const auto& x, const auto& y) -> bool {
   return height(x)==height(y);
 };
-template<class T> constexpr auto
-less_by_level = [](const io_adjacency<T>& x, const io_adjacency<T>& y) -> bool {
+constexpr auto
+less_by_level = [](const auto& x, const auto& y) -> bool {
   return height(x)<height(y);
 };
 
 template<class T, class Bin_pred> constexpr auto
-equivalent_by_node_and_outwards(const io_adjacency<T>& x, const io_adjacency<T>& y, Bin_pred eq) -> bool {
-  return eq(x,y) && x.outwards==y.outwards;
-};
-template<class T, , class Bin_pred_0, class Bin_pred_1> constexpr auto
-less_by_node_and_outwards(const io_adjacency<T>& x, const io_adjacency<T>& y, Bin_pred_0 eq, Bin_pred_1 less) -> bool {
-  return less(x,y) || (eq(x,y) && x.outwards<y.outwards);
-};
+equivalent_by_node_and_outwards(const T& x, const T& y, Bin_pred eq) -> bool {
+  return eq(node(x),node(y)) && out_ptrs(x)==out_ptrs(y);
+}
+template<class T, class Bin_pred_0, class Bin_pred_1> constexpr auto
+less_by_node_and_outwards(const T& x, const T& y, Bin_pred_0 eq, Bin_pred_1 less) -> bool {
+  return less(node(x),node(y)) || (eq(node(x),node(y)) && (out_ptrs(x)<out_ptrs(y)));
+}
 
 
 template<class T_ref, class Bin_pred> constexpr auto
 // requires T_ref is std_e::reference_wrapper<...> TODO
-redirect_super_expressions_to_equivalent(T_ref x_p, T_ref y_p, Bin_pred eq) {
+redirect_super_expressions_to_equivalent(T_ref x_p, T_ref y_p, Bin_pred eq) -> bool {
   auto x = get_pointer(*x_p);
   auto x_eq = get_pointer(*y_p);
-  if (equivalent_by_node_and_outwards(*x,*x_eq,eq)) {
+  if (eq(*x,*x_eq)) {
     redirect_entering_adjacencies(x,x_eq);
     return true;
   } 
   return false;
-};
+}
 
 template<class Random_it, class Bin_pred_0, class Bin_pred_1> constexpr auto
 sort_redirect_super_expressions_to_equivalent(Random_it first, Random_it last, Bin_pred_0 eq, Bin_pred_1 less) {
-  auto less_cmp = [eq,less](const auto& x, const auto& y){ return less_by_node_and_outwards(x,y,eq,less); };
-  std::sort(first,last,less_cmp);
+  std::sort(first,last,less);
 
-  std_e::for_each_equivalent(first,last,redirect_super_expressions_to_equivalent);
-};
+  auto f = [eq](auto x, auto y){ return redirect_super_expressions_to_equivalent(x,y,eq); };
+  std_e::for_each_equivalent(first,last,f);
+}
 
 
 class level_comparison_generator {
@@ -79,27 +73,33 @@ factorize(io_graph_rearranging_view<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> vo
   STD_E_ASSERT(g.size()!=0);
   //STD_E_ASSERT(is_bidirectional_graph(g));//TODO
 
+  // adding outwards to comparison checks
+  auto eq_ = [eq](const auto& x, const auto& y){ return equivalent_by_node_and_outwards(x,y,eq); };
+  auto less_ = [eq,less](const auto& x, const auto& y){ return less_by_node_and_outwards(x,y,eq,less); };
+  //auto eq_ = [eq](const auto& x, const auto& y){ return equivalent_by_node_and_outwards(std_e::get(x),std_e::get(y),eq); };
+  //auto less_ = [eq,less](const auto& x, const auto& y){ return less_by_node_and_outwards(std_e::get(x),std_e::get(y),eq,less); };
+
   // 0. sort by level
   std::sort(begin(g),end(g),less_by_level);
 
   // 1. level by level, rebind nodes
+  auto sort_redirect = [eq_,less_](auto f, auto l){ sort_redirect_super_expressions_to_equivalent(f,l,eq_,less_); };
   int first_level = height(g[0]);
   std_e::for_each_partition(
     begin(g),end(g),
     level_comparison_generator(first_level),
-    sort_redirect_super_expressions_to_equivalent
+    sort_redirect
   );
 
   // 2. only keep first node of equivalents 
-  auto equiv = [](const auto& x, const auto& y){ equivalent_by_node_and_outwards(x,y,eq); };
-  auto new_last = std_e::unique(begin(g),end(g),equiv);
+  auto new_last = std::unique(begin(g),end(g),eq_);
   auto new_sz = new_last-begin(g);
   g.resize(new_sz);
 }
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto
-factorize(io_graph& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_graph {
-  if (g.size()==0) return io_graph{};
+factorize(io_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_graph<T> {
+  if (g.size()==0) return io_graph<T>{};
   auto g_view = make_rearranging_view(g);
   factorize(g_view,eq,less);
   return bidirectional_graph_from_outward_edges(g_view);

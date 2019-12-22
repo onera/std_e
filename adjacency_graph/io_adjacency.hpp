@@ -15,7 +15,7 @@ namespace graph {
 using connection_indices_container = std::vector<int>;
 
 template<class T> struct io_adjacency;
-template<class T> using connections_container = std::vector<io_adjacency<T>*>;
+template<class T> using io_adj_ptr_vector = std::vector<io_adjacency<T>*>;
 // connection containers }
 
 
@@ -37,7 +37,7 @@ struct io_adjacency {
   io_adjacency() = default;
 
   constexpr
-  io_adjacency(T node, connections_container<T> inwards, connections_container<T> outwards)
+  io_adjacency(T node, io_adj_ptr_vector<T> inwards, io_adj_ptr_vector<T> outwards)
     : node(std::move(node))
     , inwards(std::move(inwards))
     , outwards(std::move(outwards))
@@ -56,8 +56,8 @@ struct io_adjacency {
   {}
 
   T node;
-  connections_container<T> inwards;
-  connections_container<T> outwards;
+  io_adj_ptr_vector<T> inwards;
+  io_adj_ptr_vector<T> outwards;
 };
 template<class T> using io_adjacency_vector = std::vector<io_adjacency<T>>;
 
@@ -69,6 +69,23 @@ node(io_adjacency<T>& adj) -> T& {
 template<class T> constexpr auto
 node(const io_adjacency<T>& adj) -> const T& {
   return adj.node;
+}
+// TODO new interface names => report in concept + nested_tree...
+template<class T> constexpr auto
+in_ptrs(io_adjacency<T>& adj) -> io_adj_ptr_vector<T>& {
+  return adj.inwards;
+}
+template<class T> constexpr auto
+in_ptrs(const io_adjacency<T>& adj) -> const io_adj_ptr_vector<T>& {
+  return adj.inwards;
+}
+template<class T> constexpr auto
+out_ptrs(io_adjacency<T>& adj) -> io_adj_ptr_vector<T>& {
+  return adj.outwards;
+}
+template<class T> constexpr auto
+out_ptrs(const io_adjacency<T>& adj) -> const io_adj_ptr_vector<T>& {
+  return adj.outwards;
 }
 
 // TODO rename out_nodes

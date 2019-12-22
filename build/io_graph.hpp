@@ -69,7 +69,7 @@ struct bidirectional_graph_builder {
   
   private:
     output_graph_iterator it;
-    graph_stack<connections_container<T>> outs_stack;
+    graph_stack<io_adj_ptr_vector<T>> outs_stack;
     graph_stack<int> height_stack;
     std_e::remove_rvalue_reference<Node_builder> node_builder;
 };

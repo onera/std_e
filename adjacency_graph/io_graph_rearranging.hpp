@@ -11,6 +11,65 @@
 namespace graph {
 
 
+// io_adjacency_ref {
+template<class T>
+using io_adjacency_ref = std_e::reference_wrapper<io_adjacency<T>>;
+
+/// Node_adjacency interface {
+template<class T> constexpr auto
+node(io_adjacency_ref<T>& x) -> T& {
+  return node(std_e::get(x));
+}
+template<class T> constexpr auto
+node(const io_adjacency_ref<T>& x) -> const T& {
+  return node(std_e::get(x));
+}
+template<class T> constexpr auto
+in_ptrs(io_adjacency_ref<T>& x) -> io_adj_ptr_vector<T>& {
+  return in_ptrs(std_e::get(x));
+}
+template<class T> constexpr auto
+in_ptrs(const io_adjacency_ref<T>& x) -> const io_adj_ptr_vector<T>& {
+  return in_ptrs(std_e::get(x));
+}
+template<class T> constexpr auto
+out_ptrs(io_adjacency_ref<T>& x) -> io_adj_ptr_vector<T>& {
+  return out_ptrs(std_e::get(x));
+}
+template<class T> constexpr auto
+out_ptrs(const io_adjacency_ref<T>& x) -> const io_adj_ptr_vector<T>& {
+  return out_ptrs(std_e::get(x));
+}
+
+template<class T> constexpr auto
+children(io_adjacency_ref<T>& x) {
+  return children(std_e::get(x));
+}
+template<class T> constexpr auto
+children(const io_adjacency_ref<T>& x) {
+  return children(std_e::get(x));
+}
+
+template<class T> constexpr auto
+out_adjacencies(io_adjacency_ref<T>& x) {
+  return out_adjacencies(std_e::get(x));
+}
+template<class T> constexpr auto
+out_adjacencies(const io_adjacency_ref<T>& x) {
+  return out_adjacencies(std_e::get(x));
+}
+template<class T> constexpr auto
+in_adjacencies(io_adjacency_ref<T>& x) {
+  return in_adjacencies(std_e::get(x));
+}
+template<class T> constexpr auto
+in_adjacencies(const io_adjacency_ref<T>& x) {
+  return in_adjacencies(std_e::get(x));
+}
+/// Node_adjacency interface }
+// io_adjacency_ref }
+
+
 /** 
 *  class "io_graph_rearranging_view"
 *
@@ -28,7 +87,7 @@ class io_graph_rearranging_view {
   public:
     using adj_type = io_adjacency<T>;
     using adj_iterator_type = io_adjacency<T>*;
-    using ref_wrapper_type = std_e::reference_wrapper<adj_type>;
+    using adj_ref_type = io_adjacency_ref<T>;
 
     using node_type = T;
 
@@ -102,7 +161,7 @@ class io_graph_rearranging_view {
     }
   // data members
     io_graph<T>* g_ptr; // TODO DEL
-    std::vector<ref_wrapper_type> adj_refs;
+    std::vector<adj_ref_type> adj_refs;
 };
 
 template<class T> constexpr auto
