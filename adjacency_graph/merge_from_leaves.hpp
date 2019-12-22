@@ -3,7 +3,6 @@
 
 #include "std_e/algorithm/for_each.hpp"
 #include "graph/adjacency_graph/io_graph_rearranging.hpp"
-#include "std_e/future/constexpr_quick_sort.hpp"
 
 
 namespace graph {
@@ -42,7 +41,7 @@ redirect_super_expressions_to_equivalent(T_ref x_p, T_ref y_p, Bin_pred eq) -> b
 
 template<class Random_it, class Bin_pred_0, class Bin_pred_1> constexpr auto
 sort_redirect_super_expressions_to_equivalent(Random_it first, Random_it last, Bin_pred_0 eq, Bin_pred_1 less) {
-  std_e::quick_sort(first,last,less);
+  std::sort(first,last,less);
 
   auto f = [eq](auto x, auto y){ return redirect_super_expressions_to_equivalent(x,y,eq); };
   std_e::for_each_equivalent(first,last,f);
