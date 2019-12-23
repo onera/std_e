@@ -8,19 +8,19 @@ namespace std_e {
 
 
 template<class T> constexpr auto
-b_ptr(std::vector<T>& v) -> T* {
+begin_ptr(std::vector<T>& v) -> T* {
   return v.data();
 }
 template<class T> constexpr auto
-b_ptr(const std::vector<T>& v) -> const T* {
+begin_ptr(const std::vector<T>& v) -> const T* {
   return v.data();
 }
 template<class T> constexpr auto
-e_ptr(std::vector<T>& v) -> T* {
+end_ptr(std::vector<T>& v) -> T* {
   return v.data()+v.size();
 }
 template<class T> constexpr auto
-e_ptr(const std::vector<T>& v) -> const T* {
+end_ptr(const std::vector<T>& v) -> const T* {
   return v.data()+v.size();
 }
 
