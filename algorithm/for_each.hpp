@@ -33,7 +33,7 @@ for_each_partition(Forward_it first, Forward_it last, Predicate_generator compar
 
 template<class Forward_it, class Unary_pred, class F> constexpr auto
 for_each_if(Forward_it first, Forward_it last, Unary_pred p, F f) -> void {
-  auto f_cond = [p,f](auto x){ if (p(x)) f(x); };
+  auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
   for_each(first,last,f_cond);
 }
 
