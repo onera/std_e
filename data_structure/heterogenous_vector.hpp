@@ -39,6 +39,8 @@ class hvector {
   private:
     std::tuple<std::vector<Ts>...> _impl;
 };
+
+// TODO Test
 //template<class... UTypes>
 //hvector(std::vector<UTypes>...) -> hvector<UTypes...>;
 template<class T0>
@@ -70,6 +72,7 @@ for_each_vector(const hvector<Ts...>& hv, F f) -> void {
   for_each(hv.impl(),f);
 }
 
+// for each element {
 template<class... Ts, class F> constexpr auto
 for_each_element(hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
@@ -80,6 +83,17 @@ for_each_element(const hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
   for_each_vector(hv,f_for_each);
 }
+
+// also defining this function for vector, for genericity purposes
+template<class T, class F> constexpr auto
+for_each_element(std::vector<T>& v, F f) -> void {
+  std::for_each(begin(v),end(v),f);
+}
+template<class T, class F> constexpr auto
+for_each_element(const std::vector<T>& v, F f) -> void {
+  std::for_each(begin(v),end(v),f);
+}
+// for each element }
 
 
 template<class... Ts, class Unary_pred, class F> constexpr auto
