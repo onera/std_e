@@ -10,13 +10,13 @@ namespace std_e {
 
 
 template<class... Ts>
-class heterogenous_vector {
+class hvector {
   public:
     constexpr
-    heterogenous_vector() = default;
+    hvector() = default;
 
     template<class... Ts0> constexpr
-    heterogenous_vector(std::vector<Ts0>... xs)
+    hvector(std::vector<Ts0>... xs)
       : _impl({std::move(xs)...})
     {}
 
@@ -39,44 +39,51 @@ class heterogenous_vector {
   private:
     std::tuple<std::vector<Ts>...> _impl;
 };
-
-template<class... Ts>
-using hvector = heterogenous_vector<Ts...>;
+//template<class... UTypes>
+//hvector(std::vector<UTypes>...) -> hvector<UTypes...>;
+template<class T0>
+hvector(std::vector<T0>) -> hvector<T0>;
+template<class T0, class T1>
+hvector(std::vector<T0>,std::vector<T1>) -> hvector<T0,T1>;
+template<class T0, class T1, class T2>
+hvector(std::vector<T0>,std::vector<T1>,std::vector<T2>) -> hvector<T0,T1,T2>;
+template<class T0, class T1, class T2, class T3>
+hvector(std::vector<T0>,std::vector<T1>,std::vector<T2>,std::vector<T3>) -> hvector<T0,T1,T2,T3>;
 
 
 template<class T, class... Ts> constexpr auto
-get(heterogenous_vector<Ts...>& x) -> std::vector<T>& {
+get(hvector<Ts...>& x) -> std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
 }
 template<class T, class... Ts> constexpr auto
-get(const heterogenous_vector<Ts...>& x) -> const std::vector<T>& {
+get(const hvector<Ts...>& x) -> const std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
 }
 
 
 template<class... Ts, class F> constexpr auto
-for_each_vector(heterogenous_vector<Ts...>& hv, F f) -> void {
+for_each_vector(hvector<Ts...>& hv, F f) -> void {
   for_each(hv.impl(),f);
 }
 template<class... Ts, class F> constexpr auto
-for_each_vector(const heterogenous_vector<Ts...>& hv, F f) -> void {
+for_each_vector(const hvector<Ts...>& hv, F f) -> void {
   for_each(hv.impl(),f);
 }
 
 template<class... Ts, class F> constexpr auto
-for_each_element(heterogenous_vector<Ts...>& hv, F f) -> void {
+for_each_element(hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
   for_each_vector(hv,f_for_each);
 }
 template<class... Ts, class F> constexpr auto
-for_each_element(const heterogenous_vector<Ts...>& hv, F f) -> void {
+for_each_element(const hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
   for_each_vector(hv,f_for_each);
 }
 
 
 template<class... Ts, class Unary_pred, class F> constexpr auto
-find_apply(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
+find_apply(const hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   int pos_in_vec = 0;
   auto f_tuple = [&p,&f,&pos_in_vec](auto&& vec){
     auto it = std::find_if(begin(vec),end(vec),p);
@@ -95,7 +102,7 @@ find_apply(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> std::pair
 
 
 template<class... Ts, class Unary_pred, class F> constexpr auto
-for_each_if(const heterogenous_vector<Ts...>& hv, Unary_pred p, F f) -> void {
+for_each_if(const hvector<Ts...>& hv, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto x){ if (p(x)) f(x); };
   for_each_element(hv,f_cond);
 }
