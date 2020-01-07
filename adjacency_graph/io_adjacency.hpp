@@ -2,6 +2,7 @@
 
 
 #include <vector>
+#include <deque>
 #include "std_e/future/contract.hpp" 
 #include "std_e/utils/iterator_range.hpp"
 #include "std_e/utils/dereferencing_range.hpp"
@@ -33,8 +34,11 @@ template<class T> using io_index_adjacency_vector = std::vector<io_index_adjacen
 // io_adjacency {
 template<class T>
 struct io_adjacency {
-  constexpr
-  io_adjacency() = default;
+  constexpr io_adjacency() = default;
+  constexpr io_adjacency(io_adjacency&&) = default;
+  constexpr io_adjacency(const io_adjacency&) = default;
+  constexpr io_adjacency& operator=(io_adjacency&&) = default;
+  constexpr io_adjacency& operator=(const io_adjacency&) = default;
 
   constexpr
   io_adjacency(T node, io_adj_ptr_vector<T> inwards, io_adj_ptr_vector<T> outwards)
@@ -60,6 +64,7 @@ struct io_adjacency {
   io_adj_ptr_vector<T> outwards;
 };
 template<class T> using io_adjacency_vector = std::vector<io_adjacency<T>>;
+template<class T> using io_adjacency_deque = std::deque<io_adjacency<T>>;
 
 // Node_adjacency interface {
 template<class T> constexpr auto

@@ -14,6 +14,8 @@ class io_graph {
   // Class invariant: represent a self-contained io_graph
   // type traits
     using adjacency_type = io_adjacency<T>;
+    using node_type = T;
+    using node_adj_type = adjacency_type; // TODO DEL
   // ctors
     constexpr io_graph() = default;
 
@@ -25,7 +27,7 @@ class io_graph {
     io_graph(const io_index_adjacency_vector<T>& idx_adjs)
       : adjs(idx_adjs.size())
     {
-      auto start = this->begin();
+      auto start = this->begin_ptr();
       std::transform(idx_adjs.begin(),idx_adjs.end(),adjs.begin(),[start](const auto& idx_adj){
         return io_adjacency(idx_adj,start);
       });
@@ -74,6 +76,39 @@ class io_graph {
       return adjs.data() + size();
     }
     constexpr auto
+    begin_ptr() -> io_adjacency<T>* {
+      return begin();
+    }
+    constexpr auto
+    begin_ptr() const -> const io_adjacency<T>* {
+      return begin();
+    }
+    //constexpr auto
+    //begin() {
+    //  return adjs.begin();
+    //}
+    //constexpr auto
+    //begin() const {
+    //  return adjs.begin();
+    //}
+    //constexpr auto
+    //end() {
+    //  return adjs.end();
+    //}
+    //constexpr auto
+    //end() const {
+    //  return adjs.end();
+    //}
+    //constexpr auto
+    //begin_ptr() -> io_adjacency<T>* {
+    //  return &*adjs.begin();
+    //}
+    //constexpr auto
+    //begin_ptr() const -> const io_adjacency<T>* {
+    //  return &*adjs.begin();
+    //}
+
+    constexpr auto
     operator[](int i) -> io_adjacency<T>& {
       return adjs[i];
     }
@@ -81,26 +116,36 @@ class io_graph {
     operator[](int i) const -> const io_adjacency<T>& {
       return adjs[i];
     }
+    auto
+    push_back(const io_adjacency<T>& x) -> void {
+      return adjs.push_back(x); // TODO !!! if vector capacity == size, reallocates, invalidates everything => BAD
+    }
+    auto
+    emplace_back(io_adjacency<T>&& x) -> io_adjacency<T>& {
+      return adjs.emplace_back(std::move(x)); // TODO !!! if vector capacity == size, reallocates, invalidates everything => BAD
+    }
 
   private:
+  public: // TODO
     io_adjacency_vector<T> adjs;
+    //io_adjacency_deque<T> adjs; // use for stronger iterator stability (especially for push_back)
 };
 
 
 template<class T> constexpr auto
-begin(io_graph<T>& x) -> io_adjacency<T>* {
+begin(io_graph<T>& x) {
   return x.begin();
 }
 template<class T> constexpr auto
-begin(const io_graph<T>& x) -> const io_adjacency<T>* {
+begin(const io_graph<T>& x) {
   return x.begin();
 }
 template<class T> constexpr auto
-end(io_graph<T>& x) -> io_adjacency<T>* {
+end(io_graph<T>& x) {
   return x.end();
 }
 template<class T> constexpr auto
-end(const io_graph<T>& x) -> const io_adjacency<T>* {
+end(const io_graph<T>& x) {
   return x.end();
 }
 template<class T> constexpr auto
@@ -109,8 +154,8 @@ operator==(const io_graph<T>& x, const io_graph<T>& y) -> bool {
   int y_sz = y.size();
   if (x_sz != y_sz) return false;
 
-  auto x_start = x.begin();
-  auto y_start = y.begin();
+  auto x_start = x.begin_ptr();
+  auto y_start = y.begin_ptr();
   for (int i=0; i<x_sz; ++i) {
     if (!equal(x[i],y[i],x_start,y_start)) return false;
   }
