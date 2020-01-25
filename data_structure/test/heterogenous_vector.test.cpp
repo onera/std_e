@@ -7,16 +7,22 @@ using namespace std_e;
 
 TEST_CASE("hvector") {
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
-
+   
   SUBCASE("hsize") {
     CHECK( hvector<int,double>::hsize() == 2 );
     CHECK( hv.hsize() == 2 );
   }
-  SUBCASE("assessors") {
+  SUBCASE("size") {
     CHECK( hv.size() == 4+2 );
+  }
 
+  SUBCASE("assessors") {
     CHECK( std_e::get<int>(hv) == vector{1,2,3,4} );
     CHECK( std_e::get<double>(hv) == vector{3.14,2.7} );
+  }
+  SUBCASE("assessors from index") {
+    CHECK( std_e::get<0>(hv) == vector{1,2,3,4} );
+    CHECK( std_e::get<1>(hv) == vector{3.14,2.7} );
   }
 
   SUBCASE("mutators") {

@@ -26,11 +26,11 @@ class hvector {
 
   // low-level access
     constexpr auto
-    impl() -> auto& {
+    impl() -> impl_type& {
       return _impl;
     }
     constexpr auto
-    impl() const -> const auto& {
+    impl() const -> const impl_type& {
       return _impl;
     }
 
@@ -70,6 +70,14 @@ get(hvector<Ts...>& x) -> std::vector<T>& {
 template<class T, class... Ts> constexpr auto
 get(const hvector<Ts...>& x) -> const std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
+}
+template<size_t I, class... Ts> constexpr auto
+get(hvector<Ts...>& x) -> auto& {
+  return std::get<I>(x.impl());
+}
+template<size_t I, class... Ts> constexpr auto
+get(const hvector<Ts...>& x) -> const auto& {
+  return std::get<I>(x.impl());
 }
 
 
