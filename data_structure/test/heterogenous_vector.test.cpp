@@ -5,9 +5,13 @@
 using namespace std;
 using namespace std_e;
 
-TEST_CASE("exclusive_iota") {
+TEST_CASE("hvector") {
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
 
+  SUBCASE("hsize") {
+    CHECK( hvector<int,double>::hsize() == 2 );
+    CHECK( hv.hsize() == 2 );
+  }
   SUBCASE("assessors") {
     CHECK( hv.size() == 4+2 );
 
@@ -38,7 +42,7 @@ TEST_CASE("exclusive_iota") {
     CHECK( sum == 1+2+3+4 + 3.14+2.7 );
   }
 
-  SUBCASE("for_each_vector") {
+  SUBCASE("find_apply") {
     double value;
     auto f = [&value](auto x){ value = 10*x; };
 
@@ -64,6 +68,13 @@ TEST_CASE("exclusive_iota") {
       CHECK( pos_in_tuple == 2 );
       CHECK( pos_in_vec == 2 );
     }
+  }
+
+  SUBCASE("find_position") {
+    auto p = [](auto x){ return double(x)==3.14; };
+    auto [pos_in_tuple,pos_in_vec] = find_position(hv,p);
+    CHECK( pos_in_tuple == 1 );
+    CHECK( pos_in_vec == 0 );
   }
 
   SUBCASE("for_each_if") {

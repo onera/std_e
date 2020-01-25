@@ -12,6 +12,10 @@ namespace std_e {
 template<class... Ts>
 class hvector {
   public:
+  // traits
+    using impl_type = std::tuple<std::vector<Ts>...>;
+
+  // ctors
     constexpr
     hvector() = default;
 
@@ -20,6 +24,7 @@ class hvector {
       : _impl({std::move(xs)...})
     {}
 
+  // low-level access
     constexpr auto
     impl() -> auto& {
       return _impl;
@@ -29,6 +34,11 @@ class hvector {
       return _impl;
     }
 
+  // size
+    static constexpr auto
+    hsize() -> size_t {
+      return sizeof...(Ts);
+    }
     constexpr auto
     size() const -> size_t {
       size_t sz = 0;
@@ -37,7 +47,7 @@ class hvector {
       return sz;
     }
   private:
-    std::tuple<std::vector<Ts>...> _impl;
+    impl_type _impl;
 };
 
 // TODO Test
@@ -120,6 +130,12 @@ find_apply(hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(const hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
+}
+
+template<class... Ts, class Unary_pred> constexpr auto
+find_position(const hvector<Ts...>& hv, Unary_pred p) -> std::pair<int,int> {
+  auto no_op = [](auto&&){};
+  return find_apply__impl(hv,p,no_op);
 }
 
 
