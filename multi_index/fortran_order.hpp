@@ -12,6 +12,7 @@ namespace std_e {
 template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
 fortran_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index_1& indices) -> int {
+  STD_E_ASSERT(dimensions.size()>0);
   STD_E_ASSERT(dimensions.size()==indices.size());
   int rank = dimensions.size();
   int res = indices[0];
@@ -22,6 +23,13 @@ fortran_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index
   }
   return res;
 }
+// case with potential dims.size==0 TODO can it be merged into fortran_order_from_dimensions without loss of performance?
+template<class T0, class T1> constexpr auto
+fortran_index(const T0& dims, const T1& indices) {
+  if (dims.size()==0) return 0;
+  else return fortran_order_from_dimensions(dims,indices);
+}
+
 template<class Multi_index_0, class Multi_index_1, class Multi_index_2> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_2>
