@@ -4,6 +4,7 @@
 namespace std_e {
 
 
+/// Same as std::partial_sum, but with a given initial value, and one more output value
 template<class InputIt, class OutputIt, class T> constexpr auto
 partial_accumulate(InputIt first, InputIt last, OutputIt d_first, const T& init) -> OutputIt {
   // Precondition: 
