@@ -28,6 +28,11 @@ class hierarchical_zip {
       return _impl;
     }
 
+  // size
+    static constexpr auto
+    size() -> size_t {
+      return sizeof...(Ts);
+    }
   private:
     impl_type _impl;
 };
@@ -64,5 +69,81 @@ zip_projection(hierarchical_zip<Ts...>& hzip, Projection proj) {
   return hierarchical_zip_view( proj(get<Ts>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
 }
 
+//template<int I, class hiera_zip_of_tuple_type, class F>  constexpr auto
+//for_each_until__impl_hiera_zip(hiera_zip_of_tuple_type&& x, F f) -> int {
+//  constexpr int sz = hiera_zip_of_tuple_type::size();
+//  if constexpr (I<sz) {
+//    if (f(std::get<I>(get<0>(x.impl())),std::get<I>(get<1>(x.imp())))) {
+//      return I;
+//    } else {
+//      return for_each_until__impl_hiera_zip<I+1>(x,f);
+//    }
+//  }
+//  return sz;
+//}
+//
+//
+//template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr auto
+//find_apply__impl4(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
+//  int pos_in_vec = 0;
+//  auto f_tuple = [&p,&f,&pos_in_vec](auto&& hiera_zip_of_vec){
+//    auto it = std::find_if(begin(vec),end(vec),p);
+//    pos_in_vec = it-begin(vec);
+//    if (it!=end(vec)) {
+//      f(*it);
+//      return true;
+//    } else {
+//      return false;
+//    }
+//  };
+//
+//  int pos_in_tuple = for_each_until__impl_hiera_zip(zhv,f_tuple);
+//  return std::make_pair(pos_in_tuple,pos_in_vec);
+//}
+
+
+template<int I, class hiera_zip_of_tuple_type, class Unary_pred, class F>  constexpr auto
+find_apply__impl3(hiera_zip_of_tuple_type&& x, Unary_pred p, F f) -> int {
+//  constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
+  constexpr int sz = std::decay_t<hiera_zip_of_tuple_type>::size();
+  if constexpr (I<sz) {
+    //if (p(std::get<I>(std_e::get<0>(x)))) { // std::get works with tuple, here, we have an hvector TODO .impl()
+    if (p(get<I>(std_e::get<0>(x)))) {
+      //auto proj_I = [](auto&& y)->auto&{ return std::get<I>(y); }; // same
+      auto proj_I = [](auto&& y)->auto&{ return get<I>(y); };
+      f(zip_projection(x,proj_I));
+      return I;
+    } else {
+      return find_apply__impl3<I+1>(x,p,f);
+    }
+  }
+  return sz;
+}
+template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr auto
+find_apply__impl4(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
+  int pos_in_vec = 0;
+  auto p_tuple = [&p,&pos_in_vec](auto&& vec){
+    auto it = std::find_if(begin(vec),end(vec),p);
+    pos_in_vec = it-begin(vec);
+    if (it!=end(vec)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+  auto f_tuple = [&f,&pos_in_vec](auto&& hiera_zip_of_vec){
+    auto proj_i = [&pos_in_vec](auto&& vec)->auto&{ return vec[pos_in_vec]; };
+    auto zip_proj = zip_projection(hiera_zip_of_vec,proj_i);
+    f(zip_proj);
+  };
+
+  int pos_in_tuple = find_apply__impl3<0>(zhv,p_tuple,f_tuple);
+  return std::make_pair(pos_in_tuple,pos_in_vec);
+}
+
+template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr auto
+find_fundamental_type_apply_all(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
+  return find_apply__impl4(FWD(zhv),p,f);
+}
 
 } // std_e

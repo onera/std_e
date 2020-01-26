@@ -59,18 +59,39 @@ TEST_CASE("tuple find_apply") {
 TEST_CASE("tuple for_each_until") {
   tuple<S1, S2, S2> t = {S1{1}, S2{2}, S2{3}};
 
-  int cnt;
-  auto f = [&cnt](auto x){ 
-    if (x.i==2) {
-      cnt = 10*x.i;
-      return true;
-    } else {
-      return false;
-    }
-  };
+  SUBCASE("non modifying") {
+    int cnt;
+    auto f = [&cnt](const auto& x){ 
+      if (x.i==2) {
+        cnt = 10*x.i;
+        return true;
+      } else {
+        return false;
+      }
+    };
 
-  auto idx_found = std_e::for_each_until(t,f);
+    auto idx_found = std_e::for_each_until(t,f);
 
-  CHECK( cnt == 10*2 );
-  CHECK( idx_found == 1 );
+    CHECK( idx_found == 1 );
+    CHECK( cnt == 10*2 );
+  }
+
+  SUBCASE("modifying") {
+    int cnt;
+    auto f = [&cnt](auto& x){ 
+      if (x.i==2) {
+        x.i = 10*x.i;
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    auto idx_found = std_e::for_each_until(t,f);
+
+    CHECK( idx_found == 1 );
+    CHECK( get<0>(t).i ==    1 );
+    CHECK( get<1>(t).i == 10*2 );
+    CHECK( get<2>(t).i ==    3 );
+  }
 }

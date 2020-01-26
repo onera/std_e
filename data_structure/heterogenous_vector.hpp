@@ -131,6 +131,26 @@ find_apply__impl(hvector_type&& hv, Unary_pred p, F f) -> std::pair<int,int> {
   int pos_in_tuple = for_each_until(hv.impl(),f_tuple);
   return std::make_pair(pos_in_tuple,pos_in_vec);
 }
+template<class hvector_type, class Unary_pred, class F> constexpr auto
+find_apply__impl2(hvector_type&& hv, Unary_pred p, F f) -> std::pair<int,int> {
+  int pos_in_vec = 0;
+  auto p_tuple = [&p,&pos_in_vec](auto&& vec){
+    auto it = std::find_if(begin(vec),end(vec),p);
+    pos_in_vec = it-begin(vec);
+    if (it!=end(vec)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+  auto f_tuple = [&f,&pos_in_vec](auto&& vec){
+    f(vec[pos_in_vec]);
+  };
+
+  int pos_in_tuple = find_apply(hv.impl(),p_tuple,f_tuple);
+  return std::make_pair(pos_in_tuple,pos_in_vec);
+}
+
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
