@@ -4,8 +4,6 @@
 #include "graph/adjacency_graph/io_graph.hpp"
 #include "std_e/future/reference_wrapper.hpp"
 #include "std_e/algorithm/permutation.hpp"
-#include "std_e/future/constexpr_quick_sort.hpp"
-#include <iostream> // TODO
 
 
 namespace graph {
