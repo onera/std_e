@@ -61,7 +61,7 @@ TEST_CASE("tuple for_each_until") {
 
   SUBCASE("non modifying") {
     int cnt;
-    auto f = [&cnt](const auto& x){ 
+    auto f = [&cnt](const auto& x){
       if (x.i==2) {
         cnt = 10*x.i;
         return true;
@@ -78,7 +78,7 @@ TEST_CASE("tuple for_each_until") {
 
   SUBCASE("modifying") {
     int cnt;
-    auto f = [&cnt](auto& x){ 
+    auto f = [&cnt](auto& x){
       if (x.i==2) {
         x.i = 10*x.i;
         return true;
@@ -90,8 +90,8 @@ TEST_CASE("tuple for_each_until") {
     auto idx_found = std_e::for_each_until(t,f);
 
     CHECK( idx_found == 1 );
-    CHECK( get<0>(t).i ==    1 );
-    CHECK( get<1>(t).i == 10*2 );
-    CHECK( get<2>(t).i ==    3 );
+    CHECK( std::get<0>(t).i ==    1 );
+    CHECK( std::get<1>(t).i == 10*2 );
+    CHECK( std::get<2>(t).i ==    3 );
   }
 }

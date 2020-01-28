@@ -107,6 +107,7 @@ find_apply__impl3(hiera_zip_of_tuple_type&& x, Unary_pred p, F f) -> int {
 //  constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
   constexpr int sz = std::decay_t<hiera_zip_of_tuple_type>::size();
   if constexpr (I<sz) {
+    // std::cout << "ooo :: " << __PRETTY_FUNCTION__ << std::endl;
     //if (p(std::get<I>(std_e::get<0>(x)))) { // std::get works with tuple, here, we have an hvector TODO .impl()
     if (p(get<I>(std_e::get<0>(x)))) {
       //auto proj_I = [](auto&& y)->auto&{ return std::get<I>(y); }; // same
@@ -133,6 +134,8 @@ find_apply__impl4(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pa
   };
   auto f_tuple = [&f,&pos_in_vec](auto&& hiera_zip_of_vec){
     auto proj_i = [&pos_in_vec](auto&& vec)->auto&{ return vec[pos_in_vec]; };
+    // auto proj_i = [&pos_in_vec](auto&& vec)->auto&{ return vec; };
+    // auto proj_i = [&pos_in_vec](auto&& vec)->auto&{ return vec.at(pos_in_vec); };
     auto zip_proj = zip_projection(hiera_zip_of_vec,proj_i);
     f(zip_proj);
   };
@@ -145,5 +148,30 @@ template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr a
 find_fundamental_type_apply_all(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl4(FWD(zhv),p,f);
 }
+
+
+template<int I, class hiera_zip_of_tuple_type, class F>  constexpr auto
+apply__impl3(hiera_zip_of_tuple_type&& x, F f) -> void {
+  constexpr int sz = std::decay_t<hiera_zip_of_tuple_type>::size();
+  if constexpr (I<sz) {
+    auto proj_I = [](auto&& y)->auto&{ return get<I>(y); };
+    f(zip_projection(x,proj_I));
+    apply__impl3<I+1>(x,f);
+  }
+}
+
+template<class hiera_zip_of_hvector_type, class F> constexpr auto
+apply__impl4(hiera_zip_of_hvector_type&& zhv, F f) -> void {
+  auto f_tuple = [&f](auto&& hiera_zip_of_vec){
+    std::apply(f, hiera_zip_of_vec.impl());
+  };
+  apply__impl3<0>(zhv,f_tuple);
+}
+
+template<class hiera_zip_of_hvector_type, class F> constexpr auto
+apply_all(hiera_zip_of_hvector_type&& zhv, F f) -> void {
+  apply__impl4(FWD(zhv),f);
+}
+
 
 } // std_e

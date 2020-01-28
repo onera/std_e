@@ -36,7 +36,7 @@ auto set_str_val(S1_names& x, const string& s) { x.d = s; }
 TEST_CASE("hierarchical_zip with hvector") {
   hvector<S0,S1>             hv  = { vector{S0{10},S0{11},S0{12}} , vector{S1{13.},S1{14.}} };
   hvector<S0_names,S1_names> hvn = { vector<S0_names>(3)          , vector<S1_names>(2)     };
-  
+
   auto hv_with_names = std_e::hierarchical_zip_view(hv,hvn);
 
   auto p = [](const auto& x){ return compare_to(x,13); };
