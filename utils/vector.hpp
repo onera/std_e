@@ -55,7 +55,7 @@ for_each(const std::vector<T>& x, F f) -> void {
 }
 
 
-template<class T> constexpr auto
+template<class T> auto
 hash_vector(const std::vector<T>& v) -> std::vector<size_t> {
   std::vector<size_t> res(v.size());
   std::transform(begin(v),end(v),begin(res),[](const T& x){ return std::hash<T>{}(x); });
@@ -75,7 +75,7 @@ sort_unique(std::vector<T>& v, Equiv_pred eq, Comp_pred cmp) -> void {
   v.erase(new_end,end(v));
 }
 
- 
+
 
 
 } // std_e

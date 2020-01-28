@@ -15,6 +15,7 @@ class frozen_flat_map {
     using key_type = KT;
     using mapped_type = VT;
 
+    frozen_flat_map() = default;
     frozen_flat_map(std::vector<KT> ks, std::vector<VT> vs)
       : keys(std::move(ks))
       , values(std::move(vs))
