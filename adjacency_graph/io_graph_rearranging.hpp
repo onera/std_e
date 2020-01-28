@@ -155,7 +155,7 @@ class io_graph_rearranging_view {
       return adj_refs[i];
     }
 
-    constexpr auto
+    auto
     old_to_new_positions() const {
       std::vector<int> old_to_new(initial_size());
 
