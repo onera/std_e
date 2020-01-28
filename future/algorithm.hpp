@@ -24,6 +24,18 @@ copy_n(InputIt first, Size count, OutputIt result)
     return result;
 }
 
+template<class InputIt, class OutputIt, class UnaryPredicate>
+constexpr OutputIt
+copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate pred)
+{
+    while (first != last) {
+        if (pred(*first))
+            *d_first++ = *first;
+        first++;
+    }
+    return d_first;
+}
+
 
 template< class ForwardIt, class T >
 constexpr void
@@ -290,6 +302,19 @@ count(InputIt first, InputIt last, const T& value)
   typename std::iterator_traits<InputIt>::difference_type ret = 0;
   for (; first != last; ++first) {
     if (*first == value) {
+      ret++;
+    }
+  }
+  return ret;
+}
+
+template<class InputIt, class UnaryPredicate> constexpr auto
+count_if(InputIt first, InputIt last, UnaryPredicate p)
+ -> typename std::iterator_traits<InputIt>::difference_type
+{
+  typename std::iterator_traits<InputIt>::difference_type ret = 0;
+  for (; first != last; ++first) {
+    if (p(*first)) {
       ret++;
     }
   }
