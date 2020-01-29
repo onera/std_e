@@ -80,6 +80,30 @@ get(const hvector<Ts...>& x) -> const auto& {
   return std::get<I>(x.impl());
 }
 
+// tuple protocol {
+} // std_e
+namespace std {
+  template<class... Ts>
+  struct tuple_size<std_e::hvector<Ts...>> {
+    using impl_type = typename std_e::hvector<Ts...>::impl_type;
+    static constexpr size_t value = tuple_size_v<impl_type>;
+  };
+  template<size_t I, class... Ts>
+  struct tuple_element<I, std_e::hvector<Ts...>> {
+    using impl_type = typename std_e::hvector<Ts...>::impl_type;
+    using type = tuple_element_t<I, impl_type>;
+  };
+} // std
+namespace std_e {
+template <class F, class... Ts> constexpr auto
+apply(F&& f, hvector<Ts...>& x) -> decltype(auto) {
+  return std::apply(f, x.impl());
+}
+template <class F, class... Ts> constexpr auto
+apply(F&& f, const hvector<Ts...>& x) -> decltype(auto) {
+  return std::apply(f, x.impl());
+}
+// tuple protocol }
 
 template<class... Ts, class F> constexpr auto
 for_each_vector(hvector<Ts...>& hv, F f) -> void {

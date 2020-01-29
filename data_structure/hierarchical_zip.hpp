@@ -8,13 +8,13 @@ namespace std_e {
 
 
 template<class... Ts>
-class hierarchical_zip {
+class hzip {
   public:
   // traits
     using impl_type = std::tuple<Ts...>;
   // ctor
     template<class... Ts0>
-    hierarchical_zip(Ts0&&... xs)
+    hzip(Ts0&&... xs)
       : _impl{FWD(xs)...}
     {}
 
@@ -37,36 +37,99 @@ class hierarchical_zip {
     impl_type _impl;
 };
 template<class T, class... Ts> constexpr auto
-get(hierarchical_zip<Ts...>& x) -> T& {
+get(hzip<Ts...>& x) -> T& {
   return std::get<T>(x.impl());
 }
 template<class T, class... Ts> constexpr auto
-get(const hierarchical_zip<Ts...>& x) -> const T& {
+get(const hzip<Ts...>& x) -> const T& {
   return std::get<T>(x.impl());
 }
 template<size_t I, class... Ts> constexpr auto
-get(hierarchical_zip<Ts...>& x) -> auto& {
+get(hzip<Ts...>& x) -> auto& {
   return std::get<I>(x.impl());
 }
 template<size_t I, class... Ts> constexpr auto
-get(const hierarchical_zip<Ts...>& x) -> const auto& {
+get(const hzip<Ts...>& x) -> const auto& {
   return std::get<I>(x.impl());
 }
 
 
 template<class... Ts> constexpr auto
-hierarchical_zip_view(Ts&... xs) {
-  return hierarchical_zip<Ts&...>(xs...);
+hzip_view(Ts&... xs) {
+  return hzip<Ts&...>(xs...);
 }
 template<class... Ts> constexpr auto
-hierarchical_zip_const_view(const Ts&... xs) {
-  return hierarchical_zip<const Ts&...>(xs...);
+hzip_const_view(const Ts&... xs) {
+  return hzip<const Ts&...>(xs...);
 }
+
+template<size_t I, class hzip_type>
+struct hzip_element {
+  using impl_type = typename hzip_type::impl_type;
+  using type = std::tuple_element_t<I, impl_type>;
+};
+
+template<size_t I, class hzip_type>
+using hzip_element_t = typename hzip_element<I, hzip_type>::type;
+
+
+template<size_t I, class tuple_hzip_type>
+struct tuple_hzip_size_at {
+  using tuple_type_I = typename hzip_element<I, tuple_hzip_type>::type;
+  static constexpr size_t value = std::tuple_size_v<std::decay_t<tuple_type_I>>;
+};
+
+template<size_t I, class hzip_type>
+inline constexpr size_t tuple_hzip_size_at_v = tuple_hzip_size_at<I, hzip_type>::value;
+
+
+template<int I, class hzip_type> constexpr auto
+same_tuple_size_in_hzip__impl0(const size_t s0) -> bool {
+  constexpr size_t sz = hzip_type::size();
+  if constexpr (I<sz) {
+    if(tuple_hzip_size_at_v<I, hzip_type> != s0 ){
+      return false;
+    } else {
+      return same_tuple_size_in_hzip__impl0<I+1, hzip_type>;
+    }
+  }
+  return true;
+};
+
+template<class hzip_type> constexpr auto
+same_tuple_size_in_hzip__impl() -> bool {
+  constexpr size_t sz = hzip_type::size();
+  if constexpr ( sz == 0 ){
+    return true;
+  } else {
+    constexpr size_t s0 = tuple_hzip_size_at_v<0, hzip_type>;
+    return same_tuple_size_in_hzip__impl0<1, hzip_type>(s0);
+  }
+};
+
+
+template<class hzip_type> constexpr bool same_tuple_size_in_hzip = same_tuple_size_in_hzip__impl<hzip_type>();
+
+
+template<class tuple_hzip_type>
+struct tuple_hzip_size {
+  static_assert(same_tuple_size_in_hzip<tuple_hzip_type>);
+  static constexpr size_t value = tuple_hzip_size_at_v<0, tuple_hzip_type>;
+};
+
+template<class hzip_type>
+inline constexpr size_t tuple_hzip_size_v = tuple_hzip_size<hzip_type>::value;
 
 
 template<class... Ts, class Projection> constexpr auto
-zip_projection(hierarchical_zip<Ts...>& hzip, Projection proj) {
-  return hierarchical_zip_view( proj(get<Ts>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
+zip_projection(hzip<Ts...>& hzip, Projection proj) {
+  return hzip_view( proj(get<Ts>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
+}
+
+template<class... Ts, class Projection> constexpr auto
+zip_projection2(hzip<Ts...>& hzip, Projection proj) {
+  return std::make_tuple(1);
+  // return hzip_view( proj(get<0>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
 }
 
 //template<int I, class hiera_zip_of_tuple_type, class F>  constexpr auto
@@ -149,28 +212,35 @@ find_fundamental_type_apply_all(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F
   return find_apply__impl4(FWD(zhv),p,f);
 }
 
-
-template<int I, class hiera_zip_of_tuple_type, class F>  constexpr auto
-apply__impl3(hiera_zip_of_tuple_type&& x, F f) -> void {
-  constexpr int sz = std::decay_t<hiera_zip_of_tuple_type>::size();
+template<int I, class hzip_of_tuple_type, class F>  constexpr auto
+for_each_element__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
+  constexpr int sz = tuple_hzip_size_v<std::decay_t<hzip_of_tuple_type>>;
   if constexpr (I<sz) {
-    auto proj_I = [](auto&& y)->auto&{ return get<I>(y); };
-    f(zip_projection(x,proj_I));
-    apply__impl3<I+1>(x,f);
+    auto proj_I = [](auto&& y)->auto&{return get<I>(y);};
+    f(zip_projection2(x,proj_I));
+    for_each_element__impl_hzip_0<I+1>(x,f);
   }
 }
 
-template<class hiera_zip_of_hvector_type, class F> constexpr auto
-apply__impl4(hiera_zip_of_hvector_type&& zhv, F f) -> void {
+
+template<class hzip_of_tuple_type, class F> constexpr auto
+for_each_element__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
   auto f_tuple = [&f](auto&& hiera_zip_of_vec){
-    std::apply(f, hiera_zip_of_vec.impl());
+    apply(f, hiera_zip_of_vec);
   };
-  apply__impl3<0>(zhv,f_tuple);
+  // for_each_element__impl_hzip_0<0>(FWD(zhv),f_tuple);
+  for_each_element__impl_hzip_0<0>(zhv,f_tuple);
 }
 
-template<class hiera_zip_of_hvector_type, class F> constexpr auto
-apply_all(hiera_zip_of_hvector_type&& zhv, F f) -> void {
-  apply__impl4(FWD(zhv),f);
+template<class... Ts, class F> constexpr auto
+for_each_element(hzip<Ts...>& x, F f) -> void {
+  // for_each_element__impl_hzip(FWD(x),f);
+  for_each_element__impl_hzip(x,f);
+}
+
+template<class... Ts, class F> constexpr auto
+for_each_element(const hzip<Ts...>& x, F f) -> void {
+  for_each_element__impl_hzip(x,f);
 }
 
 
