@@ -217,7 +217,7 @@ for_each_element__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
   constexpr int sz = tuple_hzip_size_v<std::decay_t<hzip_of_tuple_type>>;
   if constexpr (I<sz) {
     auto proj_I = [](auto&& y)->auto&{return get<I>(y);};
-    f(zip_projection2(x,proj_I));
+    f(zip_projection(x,proj_I));
     for_each_element__impl_hzip_0<I+1>(x,f);
   }
 }
@@ -226,7 +226,7 @@ for_each_element__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
 template<class hzip_of_tuple_type, class F> constexpr auto
 for_each_element__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
   auto f_tuple = [&f](auto&& hiera_zip_of_vec){
-    apply(f, hiera_zip_of_vec);
+    std::apply(f, hiera_zip_of_vec);
   };
   // for_each_element__impl_hzip_0<0>(FWD(zhv),f_tuple);
   for_each_element__impl_hzip_0<0>(zhv,f_tuple);
