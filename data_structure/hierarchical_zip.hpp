@@ -87,10 +87,10 @@ template<int I, class hzip_type> constexpr auto
 same_tuple_size_in_hzip__impl0(const size_t s0) -> bool {
   constexpr size_t sz = hzip_type::size();
   if constexpr (I<sz) {
-    if(tuple_hzip_size_at_v<I, hzip_type> != s0 ){
+    if ( tuple_hzip_size_at_v<I, hzip_type> != s0 ){
       return false;
     } else {
-      return same_tuple_size_in_hzip__impl0<I+1, hzip_type>;
+      return same_tuple_size_in_hzip__impl0<I+1, hzip_type>(s0);
     }
   }
   return true;
