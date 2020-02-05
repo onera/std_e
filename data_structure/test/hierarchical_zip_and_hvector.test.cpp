@@ -29,6 +29,8 @@ struct S1_names {
 auto set_str_val(S0_names& x, const string& s) { x.i = s; }
 auto set_str_val(S1_names& x, const string& s) { x.d = s; }
 
+auto to_string(const S0_names& x) { return x.i; }
+auto to_string(const S1_names& x) { return x.d; }
 
 // struct fundamental_hierarchy {
 //   std_e::hvector<S0> level1;
@@ -73,8 +75,12 @@ TEST_CASE("hzip with hvector") {
   SUBCASE("for_each_elements hzip with hvector ") {
 
     auto g = [&](auto& x1, auto& x2){
-      assert( x1.size() == x2.size() );
-      CHECK( x1.size() == x2.size() );
+    // auto g = [&](auto& x1){
+      std::cout << __PRETTY_FUNCTION__ << std::endl;
+      std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
+      // std::cout << " x1.i " << x1.i << " <-> " << " x2.i " << x2.i << std::endl;
+      // assert( x1.size() == x2.size() );
+      // CHECK( x1.size() == x2.size() );
     };
 
     for_each_element(hv_with_names, g);

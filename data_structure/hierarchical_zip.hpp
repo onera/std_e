@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <iostream>
 #include "std_e/base/macros.hpp"
 
 
@@ -128,7 +129,8 @@ zip_projection(hzip<Ts...>& hzip, Projection proj) {
 
 template<class... Ts, class Projection> constexpr auto
 zip_projection2(hzip<Ts...>& hzip, Projection proj) {
-  return std::make_tuple(1);
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  return std::make_tuple(1, 1);
   // return hzip_view( proj(get<0>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
 }
 
@@ -226,7 +228,25 @@ for_each_element__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
 template<class hzip_of_tuple_type, class F> constexpr auto
 for_each_element__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
   auto f_tuple = [&f](auto&& hiera_zip_of_vec){
-    std::apply(f, hiera_zip_of_vec);
+    std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
+    // L'erreur vient que on onbtient ici un hzip de vector --> On ne peut faire apply dessus
+    // Maintenant il faut le faire pour tt les éléments
+
+    auto sV = get<0>(hiera_zip_of_vec).size();
+    std::cout << "f_tuple ::sV " << sV << std::endl;
+
+    for(int iv = 0; iv < sV; ++iv){
+      auto proj_v   = [&iv](auto&& vec)->auto&{ return vec.at(iv); };
+      auto zip_proj = zip_projection(hiera_zip_of_vec, proj_v);
+      std::apply(f, zip_proj.impl());
+    };
+
+    // f(zip_proj);
+    // std::for_each
+    // std::apply(f, hiera_zip_of_vec);
+    // auto proj_v = [&](auto&& vec)->auto&{ return vec.at(0); };
+    // auto zip_proj = zip_projection(hiera_zip_of_vec, proj_v);
+    // std::apply(f, zip_proj.impl());
   };
   // for_each_element__impl_hzip_0<0>(FWD(zhv),f_tuple);
   for_each_element__impl_hzip_0<0>(zhv,f_tuple);
@@ -243,5 +263,41 @@ for_each_element(const hzip<Ts...>& x, F f) -> void {
   for_each_element__impl_hzip(x,f);
 }
 
+
+
+template<int I, class hzip_of_tuple_type, class F>  constexpr auto
+apply_all__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
+  constexpr int sz = tuple_hzip_size_v<std::decay_t<hzip_of_tuple_type>>;
+  if constexpr (I<sz) {
+    auto proj_I = [](auto&& y)->auto&{return get<I>(y);};
+    f(zip_projection(x,proj_I));
+    apply_all__impl_hzip_0<I+1>(x,f);
+  }
+}
+
+
+template<class hzip_of_tuple_type, class F> constexpr auto
+apply_all__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
+  auto f_tuple = [&f](auto&& hiera_zip_of_vec){
+    std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
+    auto proj_v = [&](auto&& vec)->auto&{ return vec; };
+    auto zip_proj = zip_projection(hiera_zip_of_vec, proj_v);
+    // f(zip_proj);
+    std::apply(f, zip_proj.impl());
+  };
+  // apply_all__impl_hzip_0<0>(FWD(zhv),f_tuple);
+  apply_all__impl_hzip_0<0>(zhv,f_tuple);
+}
+
+template<class... Ts, class F> constexpr auto
+apply_all(hzip<Ts...>& x, F f) -> void {
+  // apply_all__impl_hzip(FWD(x),f);
+  apply_all__impl_hzip(x,f);
+}
+
+template<class... Ts, class F> constexpr auto
+apply_all(const hzip<Ts...>& x, F f) -> void {
+  apply_all__impl_hzip(x,f);
+}
 
 } // std_e
