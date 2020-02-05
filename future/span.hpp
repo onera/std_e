@@ -1,7 +1,9 @@
 #pragma once
 
 
+#include <algorithm>
 #include "std_e/base/dynamic_size.hpp"
+#include "std_e/base/macros.hpp"
 
 
 namespace std_e {
@@ -151,7 +153,7 @@ class span : public span_size<N> {
     friend constexpr auto
     operator==(const span& x, const span& y) -> bool {
       if (x.size() != y.size()) return false;
-      return equal(x.begin(),x.end(),y.begin());
+      return std::equal(x.begin(),x.end(),y.begin());
     }
     friend constexpr auto
     operator!=(const span& x, const span& y) -> bool {

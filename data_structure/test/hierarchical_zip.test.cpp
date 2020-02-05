@@ -41,11 +41,11 @@ struct S3_names {
 };
 
 
-TEST_CASE("hierarchical_zip") {
+TEST_CASE("hzip") {
   S3       s3  = {{{42,3.14},{'a'},10u},true};
   S3_names s3n = {{{"",""  },{""} ,"" },""  };;
-  
-  auto s3_with_names = std_e::hierarchical_zip_view(s3,s3n);
+
+  auto s3_with_names = std_e::hzip_view(s3,s3n);
 
   SUBCASE("access") {
     auto s2_getter = [](auto& s3_like)->auto&{ return s3_like.s2; };
