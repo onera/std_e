@@ -5,10 +5,6 @@
 #include <algorithm>
 // #include <iostream>
 
-struct S1{
-  int i;
-};
-
 TEST_CASE("Span size") {
   constexpr auto sp1size = std_e::span_size<1>();
   constexpr auto sp2size = std_e::span_size<1>();

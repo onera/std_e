@@ -5,7 +5,6 @@
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/contract.hpp"
 
-
 namespace std_e {
 
 
@@ -28,7 +27,7 @@ class frozen_flat_map {
     constexpr auto
     operator[](const KT& key) const -> const VT& {
       auto it = std::lower_bound(begin(keys),end(keys),key);
-      STD_E_ASSERT(it!=end(keys));
+      STD_E_ASSERT(*it == key);
       int idx = it-begin(keys);
       return values[idx];
     }

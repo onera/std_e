@@ -1,5 +1,6 @@
 #include "doctest/doctest.h"
 #include "std_e/utils/str_enum.hpp"
+#include <iostream>
 using std::vector;
 using std::string;
 
