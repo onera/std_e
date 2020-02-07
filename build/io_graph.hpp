@@ -93,11 +93,6 @@ struct identity_node_builder {
   constexpr auto operator()(const T& x) { return x; }
 };
 template<class Graph> constexpr auto
-build_adjacency_list(const Graph& g) {
-  using T = typename Graph::node_type;
-  return build_adjacency_list(g,identity_node_builder<T>{});
-}
-template<class Graph> constexpr auto
 build_bidirectional_graph(const Graph& g) {
   using T = typename Graph::node_type;
   return build_bidirectional_graph(g,identity_node_builder<T>{});
