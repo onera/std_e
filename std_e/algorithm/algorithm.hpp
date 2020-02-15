@@ -24,4 +24,11 @@ equal_n(InputIt1 first1, InputIt2 first2, Integer n, BinaryPredicate p) {
 }
 
 
+template<class Random_access_range, class T> constexpr auto
+lower_bound_position(const Random_access_range& r, const T& value) {
+  auto it = std::lower_bound(begin(r),end(r),value);
+  return it-begin(r);
+}
+
+
 } // std_e
