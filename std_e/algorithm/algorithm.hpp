@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <algorithm>
+
+
 namespace std_e {
 
 

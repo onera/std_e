@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
+include(scripts/cmake/add_extern_package.cmake)
 
 ## Project ##
 project(
@@ -38,7 +39,8 @@ target_include_directories(${PROJECT_NAME} INTERFACE
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
-#add_subdirectory(extern/doctest)
+# TODO main.test.cpp
+#add_extern_package(doctest)
 #add_executable(${PROJECT_NAME}_unit_tests ${test_files})
 #target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
 #target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
