@@ -232,7 +232,7 @@ for_each_element__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
     // L'erreur vient que on onbtient ici un hzip de vector --> On ne peut faire apply dessus
     // Maintenant il faut le faire pour tt les éléments
 
-    auto sV = get<0>(hiera_zip_of_vec).size();
+    int sV = get<0>(hiera_zip_of_vec).size();
     std::cout << "f_tuple ::sV " << sV << std::endl;
 
     for(int iv = 0; iv < sV; ++iv){

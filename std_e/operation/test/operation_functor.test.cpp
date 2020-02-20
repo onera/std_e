@@ -41,6 +41,8 @@ TEST_CASE("operation_functor for int") {
   constexpr auto op_min = std_e::operation_functor<std_e::operation_kind::min>;
   constexpr auto op_max = std_e::operation_functor<std_e::operation_kind::max>;
 
+  CHECK ( op_identity(i) == i );
+
   CHECK ( op_plus(i) == 42 );
   CHECK ( op_plus(i,j) == 42+43 );
 
@@ -90,7 +92,7 @@ TEST_CASE("operation_functor for user-defined type") {
   tensor_like_type_for_test y = {44.,45.};
 
   constexpr auto op_pipe = std_e::operation_functor<std_e::operation_kind::pipe>;
-  constexpr auto op_tensor_prod = std_e::operation_functor<std_e::operation_kind::tensor_prod>;
+  //constexpr auto op_tensor_prod = std_e::operation_functor<std_e::operation_kind::tensor_prod>;
   constexpr auto op_t = std_e::operation_functor<std_e::operation_kind::t>;
   constexpr auto op_tr = std_e::operation_functor<std_e::operation_kind::tr>;
 
