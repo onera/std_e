@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-include(scripts/cmake/add_extern_package.cmake)
+include(scripts/cmake/target_add_dependency.cmake)
 
 ## Project ##
 project(
@@ -55,7 +55,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 ## Unit tests ##
 # TODO main.test.cpp
-add_extern_package(doctest)
+target_add_dependency(${PROJECT_NAME}_unit_tests doctest)
 add_executable(${PROJECT_NAME}_unit_tests ${test_files})
 target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
