@@ -10,14 +10,11 @@ project(
 
 
 ## Find files ##
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/)
-
-file(GLOB_RECURSE hpp_files
-    "${SRC_DIR}*.hpp"
-)
+set(SRC_DIR ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
+set(INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE cpp_and_test_files
-    "${SRC_DIR}*.cpp"
+  "${SRC_DIR}/*.cpp"
 )
 set(cpp_files ${cpp_and_test_files})
 list(FILTER cpp_files EXCLUDE REGEX ".*\.test\.cpp$")
@@ -31,22 +28,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fno-math-errno -mar
 set(CMAKE_BUILD_TYPE "Release")
 
 
-## Targets ##
+## Main library ##
 add_library(${PROJECT_NAME} INTERFACE)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 target_include_directories(${PROJECT_NAME} INTERFACE 
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
-# TODO main.test.cpp
-#add_extern_package(doctest)
-#add_executable(${PROJECT_NAME}_unit_tests ${test_files})
-#target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
-#target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
-
-
-## Install ##
+### Install ###
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -54,9 +44,18 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
   INCLUDES DESTINATION include
 )
 install(EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}.cmake
+  FILE ${PROJECT_NAME}Config.cmake # no dependency
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
+install(DIRECTORY ${SRC_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+
+## Unit tests ##
+# TODO main.test.cpp
+add_extern_package(doctest)
+add_executable(${PROJECT_NAME}_unit_tests ${test_files})
+target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
