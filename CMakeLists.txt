@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-include(scripts/cmake/target_add_dependency.cmake)
+include(external/project_utils/scripts/cmake/target_add_dependency.cmake)
 
 ## Project ##
 project(
