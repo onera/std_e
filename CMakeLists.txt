@@ -1,6 +1,6 @@
 ## Global config ##
 cmake_minimum_required(VERSION 3.12)
-include(external/project_utils/scripts/cmake/target_add_dependency.cmake)
+include(${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
 
 ## Project ##
 project(
