@@ -1,6 +1,7 @@
 ## Global config ##
 cmake_minimum_required(VERSION 3.12)
 include(${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 ## Project ##
 project(
@@ -11,11 +12,11 @@ project(
 
 
 ## Find files ##
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
-set(INCLUDE_DIR ${PROJECT_SOURCE_DIR})
+set(src_dir ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
+set(include_dir ${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE cpp_and_test_files
-  "${SRC_DIR}/*.cpp"
+  "${src_dir}/*.cpp"
 )
 set(cpp_files ${cpp_and_test_files})
 list(FILTER cpp_files EXCLUDE REGEX ".*\.test\.cpp$")
@@ -33,7 +34,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fno-math-errno -mar
 add_library(${PROJECT_NAME} INTERFACE)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 target_include_directories(${PROJECT_NAME} INTERFACE 
-  $<BUILD_INTERFACE:${INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
@@ -49,7 +50,7 @@ install(EXPORT ${PROJECT_NAME}Targets
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY ${SRC_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY ${src_dir} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
