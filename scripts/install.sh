@@ -4,15 +4,10 @@ module load gcc/9.2
 export CC=gcc
 export CXX=g++
 
-export LANG=en_US
-
-
-#rm -rf ../build
-
 cd ..
-cmake -S . -Bbuild
+cmake -S . -Bbuild/
 
-cmake --build build -- -j24
+cmake --build build/ -- -j24
 
 
 ## launch unit tests ##
