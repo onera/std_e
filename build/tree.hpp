@@ -55,8 +55,8 @@ struct tree_builder {
     }
   private:
     std_e::remove_rvalue_reference<builder_visitor_type> build_vis;
-    graph::graph_stack<int> indices_stack;
-    graph::graph_stack<int> sizes_stack;
+    graph_stack<int> indices_stack;
+    graph_stack<int> sizes_stack;
     std::vector<tree_node_type> nodes;
     std::vector<int> sizes;
 };
