@@ -1,0 +1,9 @@
+[submodule "external/project_utils"]
+	path = external/project_utils
+	url = https://github.com/BerengerBerthoul/project_utils.git
+[submodule "external/doctest"]
+	path = external/doctest
+	url = https://github.com/onqtam/doctest.git
+[submodule "external/std_e"]
+	path = external/std_e
+	url = https://git.onera.fr/std_e
