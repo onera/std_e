@@ -1,7 +1,12 @@
 ## Global config ##
 cmake_minimum_required(VERSION 3.12)
-include(${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
+
+execute_process(COMMAND git rev-parse --show-superproject-working-tree OUTPUT_VARIABLE git_root_dir_with_space)
+string(STRIP ${git_root_dir_with_space} git_root_dir)
+include(${git_root_dir}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
+
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 ## Project ##
 project(
