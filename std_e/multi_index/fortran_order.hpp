@@ -3,6 +3,7 @@
 
 #include "std_e/future/contract.hpp"
 #include "std_e/multi_index/concept.hpp"
+#include "std_e/utils/array_vector_common.hpp"
 // TODO RENAME file, test (offsets!)
 
 
