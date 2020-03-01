@@ -33,7 +33,7 @@ TEST_CASE("tuple for_each") {
 
     vector<int> v;
     std_e::for_each(t, [&](auto& vt){
-        std::for_each(begin(vt), end(vt), [&](auto& t){ v.push_back(t.i); });
+      std::for_each(begin(vt), end(vt), [&](auto& x){v.push_back(x.i);});
     });
 
     vector<int> v_expected = {3, 2, 1, -9, 30};

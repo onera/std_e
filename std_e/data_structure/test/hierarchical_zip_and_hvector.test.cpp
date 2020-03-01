@@ -9,35 +9,35 @@ using std::string;
 using std::vector;
 using std_e::hvector;
 
-struct S0 {
+struct HS0 {
   int i;
 };
-struct S1 {
+struct HS1 {
   double d;
 };
-auto to_string(const S0& x) { return std::to_string(    x.i ); }
-auto to_string(const S1& x) { return std::to_string(int(x.d)); }
-auto compare_to(const S0& x, int i) { return     x.i  == i; }
-auto compare_to(const S1& x, int i) { return int(x.d) == i; }
+auto to_string(const HS0& x) { return std::to_string(    x.i ); }
+auto to_string(const HS1& x) { return std::to_string(int(x.d)); }
+auto compare_to(const HS0& x, int i) { return     x.i  == i; }
+auto compare_to(const HS1& x, int i) { return int(x.d) == i; }
 
-struct S0_names {
+struct HS0_names {
   string i;
 };
-struct S1_names {
+struct HS1_names {
   string d;
 };
-auto set_str_val(S0_names& x, const string& s) { x.i = s; }
-auto set_str_val(S1_names& x, const string& s) { x.d = s; }
+auto set_str_val(HS0_names& x, const string& s) { x.i = s; }
+auto set_str_val(HS1_names& x, const string& s) { x.d = s; }
 
-auto to_string(const S0_names& x) { return x.i; }
-auto to_string(const S1_names& x) { return x.d; }
+auto to_string(const HS0_names& x) { return x.i; }
+auto to_string(const HS1_names& x) { return x.d; }
 
 // struct fundamental_hierarchy {
-//   std_e::hvector<S0> level1;
+//   std_e::hvector<HS0> level1;
 // };
 
 // struct optional_hierarchy_1 {
-//   std_e::hvector<S0_names> level1;
+//   std_e::hvector<HS0_names> level1;
 // };
 
 
@@ -54,8 +54,8 @@ auto to_string(const S1_names& x) { return x.d; }
 
 
 TEST_CASE("hzip with hvector") {
-  hvector<S0,S1>             hv  = { vector{S0{10},S0{11},S0{12}} , vector{S1{13.},S1{14.}} };
-  hvector<S0_names,S1_names> hvn = { vector<S0_names>(3)          , vector<S1_names>(2)     };
+  hvector<HS0,HS1>             hv  = { vector{HS0{10},HS0{11},HS0{12}} , vector{HS1{13.},HS1{14.}} };
+  hvector<HS0_names,HS1_names> hvn = { vector<HS0_names>(3)            , vector<HS1_names>(2)     };
 
   auto hv_with_names = std_e::hzip_view(hv,hvn);
 
@@ -76,8 +76,8 @@ TEST_CASE("hzip with hvector") {
 
     auto g = [&](auto& x1, auto& x2){
     // auto g = [&](auto& x1){
-      //std::cout << __PRETTY_FUNCTION__ << std::endl;
-      //std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
+      // std::cout << __PRETTY_FUNCTION__ << std::endl;
+      // std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
       // std::cout << " x1.i " << x1.i << " <-> " << " x2.i " << x2.i << std::endl;
       // assert( x1.size() == x2.size() );
       // CHECK( x1.size() == x2.size() );
