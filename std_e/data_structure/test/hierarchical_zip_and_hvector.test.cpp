@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "std_e/utils/doctest_utils.hpp"
+#include "doctest/doctest_utils.hpp"
 #include "std_e/data_structure/hierarchical_zip.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
 
@@ -76,8 +76,8 @@ TEST_CASE("hzip with hvector") {
 
     auto g = [&](auto& x1, auto& x2){
     // auto g = [&](auto& x1){
-      std::cout << __PRETTY_FUNCTION__ << std::endl;
-      std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
+      //std::cout << __PRETTY_FUNCTION__ << std::endl;
+      //std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
       // std::cout << " x1.i " << x1.i << " <-> " << " x2.i " << x2.i << std::endl;
       // assert( x1.size() == x2.size() );
       // CHECK( x1.size() == x2.size() );

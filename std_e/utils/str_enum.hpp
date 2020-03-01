@@ -53,9 +53,9 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
     std_e::strings_to_enum_index<enum_name> = \
       std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
   \
-  template<class Str_enum_type> inline constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+  template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
   \
-  template<> inline constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+  template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
     int index = std_e::strings_to_enum_index<enum_name>[s]; \
     return static_cast<enum_name>(index); \
   }
@@ -84,9 +84,9 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
       std_e::permutation_frozen_flat_map(std_e::enum_to_strings<nspace::enum_name>); \
   \
   namespace nspace { \
-    template<class Str_enum_type> inline constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+    template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
     \
-    template<> inline constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+    template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
       int index = std_e::strings_to_enum_index<enum_name>[s]; \
       return static_cast<enum_name>(index); \
     } \

@@ -129,7 +129,7 @@ zip_projection(hzip<Ts...>& hzip, Projection proj) {
 
 template<class... Ts, class Projection> constexpr auto
 zip_projection2(hzip<Ts...>& hzip, Projection proj) {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << std::endl;
   return std::make_tuple(1, 1);
   // return hzip_view( proj(get<0>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
 }
@@ -228,12 +228,12 @@ for_each_element__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
 template<class hzip_of_tuple_type, class F> constexpr auto
 for_each_element__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
   auto f_tuple = [&f](auto&& hiera_zip_of_vec){
-    std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
+    //std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
     // L'erreur vient que on onbtient ici un hzip de vector --> On ne peut faire apply dessus
     // Maintenant il faut le faire pour tt les éléments
 
     int sV = get<0>(hiera_zip_of_vec).size();
-    std::cout << "f_tuple ::sV " << sV << std::endl;
+    //std::cout << "f_tuple ::sV " << sV << std::endl;
 
     for(int iv = 0; iv < sV; ++iv){
       auto proj_v   = [&iv](auto&& vec)->auto&{ return vec.at(iv); };
@@ -279,7 +279,7 @@ apply_all__impl_hzip_0(hzip_of_tuple_type&& x, F f) -> void {
 template<class hzip_of_tuple_type, class F> constexpr auto
 apply_all__impl_hzip(hzip_of_tuple_type&& zhv, F f) -> void {
   auto f_tuple = [&f](auto&& hiera_zip_of_vec){
-    std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
+    //std::cout << "f_tuple ::" << __PRETTY_FUNCTION__ << std::endl;
     auto proj_v = [&](auto&& vec)->auto&{ return vec; };
     auto zip_proj = zip_projection(hiera_zip_of_vec, proj_v);
     // f(zip_proj);
