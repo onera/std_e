@@ -14,6 +14,15 @@ using namespace std;
 
 TEST_CASE("Nested tree preorder depth-first find") {
   auto t = create_nested_tree_for_tests();
+    /* Reminder:
+           1
+        /     \
+       2        3
+     /  \    /  |  \
+    4    7   8  10  11
+             |
+             9
+    */
 
   vector<int> pre_nodes;
 
@@ -74,9 +83,6 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
 
   SUBCASE("normal case") {
     auto t = create_nested_tree_for_tests();
-
-    prepostorder_depth_first_scan(t,v);
-
     /* Reminder:
            1
         /     \
@@ -86,6 +92,9 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
              |
              9
     */
+
+    prepostorder_depth_first_scan(t,v);
+
     string expected_s = 
       "pre 1\n"
       "pre 2\n"
@@ -112,6 +121,12 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
   SUBCASE("only one node") {
     auto t0 = tree<int>{100};
     prepostorder_depth_first_scan(t0,v);
+
+    string expected_s = 
+      "pre 100\n"
+      "post 100\n";
+
+    CHECK( v.s == expected_s );
   }
 }
 
