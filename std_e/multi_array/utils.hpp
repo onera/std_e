@@ -36,7 +36,7 @@ reshape(multi_array<Memory_ressource,Multi_array_shape>& x, const typename Multi
 
 
 template<class Memory_ressource, class Multi_array_shape> auto
-empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
+is_empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
   return std_e::cartesian_product(x.extent())==0;
 }
 
@@ -46,7 +46,8 @@ template<
   std::enable_if_t< Multi_array_shape::fixed_rank==1 , int > =0
 > auto
 to_string_1D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  std::string s = "["+std::to_string(x[0]);
+  using std::to_string;
+  std::string s = "["+to_string(x[0]);
   int n = x.extent()[0];
   for (int i=1; i<n; ++i) {
     s += "," + std::to_string(x(i));
@@ -58,7 +59,8 @@ template<
   std::enable_if_t< Multi_array_shape::fixed_rank==2 , int > =0
 > auto
 to_string_2D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  std::string s = "["+std::to_string(x(0,0));
+  using std::to_string;
+  std::string s = "["+to_string(x(0,0));
   int n_i = x.extent()[0];
   int n_j = x.extent()[1];
   for (int j=1; j<n_j; ++j) {
@@ -91,8 +93,9 @@ to_string_2D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::s
 
 template<class Memory_ressource, class Multi_array_shape> auto
 to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  if (empty(x)) {
-    return "[]";
+  using std::to_string;
+  if (x.rank()==0) {
+    return "["+to_string(x())+"]";
   } 
   if (x.rank()==1) {
     return to_string_1D(x);

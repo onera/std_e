@@ -6,7 +6,7 @@
 
 
 // When calling a Shape ctor in a generic context,
-// we provide all the dyn_shape arguements.
+// we provide all the dyn_shape arguments.
 // make_shape provides a uniform interface for fixed_/dyn_shape:
 // It always takes the args and
 //  - forwards them for the dyn_shape ctor

@@ -46,15 +46,16 @@ class multi_array : private Multi_array_shape
 
     // Ctor for owning memory
     template<class... ints>
-    multi_array(ints... dims)
-      : shape_type({dims...},{0})
-      , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
+    multi_array(index_type dim, ints... dims)
+      : shape_type({dim,dims...},{0})
+      , mem(std_e::cartesian_product(multi_index<int,1+sizeof...(ints)>{1+dims...}))
     {}
     // Ctor for rank==1, owning memory // TODO extract
     multi_array(std::initializer_list<value_type> l)
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
       , mem(make_array_of_size<memory_ressource_type>(l.size()))
     {
+      STD_E_ASSERT(this->rank()==1);
       index_type i=0;
       for (const value_type& x : l) {
         (*this)(i) = x;
@@ -66,6 +67,7 @@ class multi_array : private Multi_array_shape
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
       , mem(make_array_of_size<memory_ressource_type>(ll.size()*std::begin(ll)->size()))
     {
+      STD_E_ASSERT(this->rank()==2);
       index_type i=0;
       for (const auto& l : ll) {
         index_type j=0;
@@ -179,6 +181,11 @@ class multi_array : private Multi_array_shape
                                                                   // to be an integer for unsurprising overload resolution
       STD_E_ASSERT(1+sizeof...(ints)==rank()); // the number of indices must be the array rank
       return fortran_linear_index(multi_index_type{i,is...});
+    }
+    FORCE_INLINE constexpr auto
+    // requires ints are integers && sizeof...(ints)==rank()
+    fortran_linear_index() const -> index_type { // Note: rank 0 case
+      return 0;
     }
   /// fortran_linear_index }
 
