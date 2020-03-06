@@ -11,6 +11,8 @@ namespace std_e {
     pointer_type
     begin() -> pointer_type
     operator[](Integer i) -> reference_type
+
+  memory_is_owned<Memory_ressource> -> bool
 */
 
 

@@ -11,6 +11,7 @@
 #include "std_e/multi_array/multi_array/concept.hpp"
 #include "std_e/multi_index/cartesian_product.hpp"
 #include "std_e/multi_array/shape/fixed_dyn_shape_common.hpp"
+#include "std_e/memory_ressource/memory_ressource.hpp"
 
 
 namespace std_e {
@@ -35,6 +36,8 @@ class multi_array : private Multi_array_shape
     static constexpr size_t fixed_rank = shape_type::fixed_rank;
     using multi_index_type = typename shape_type::multi_index_type;
 
+    static constexpr bool mem_is_owned = memory_is_owned<memory_ressource_type>;
+
   // constructors
     FORCE_INLINE constexpr multi_array() = default;
 
@@ -44,17 +47,22 @@ class multi_array : private Multi_array_shape
       , mem(std::move(mem))
     {}
 
-    // Ctor for owning memory
-    template<class... ints>
-    multi_array(index_type dim, ints... dims)
-      : shape_type({dim,dims...},{0})
-      , mem(std_e::cartesian_product(multi_index<int,1+sizeof...(ints)>{1+dims...}))
+    // ctor for owning memory
+    template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
+    template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
+    template<class... ints,
+      std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
+    >
+    multi_array(ints... dims)
+      : shape_type({dims...},{0})
+      , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
     {}
-    // Ctor for rank==1, owning memory // TODO extract
+    // ctor for rank==1, owning memory
     multi_array(std::initializer_list<value_type> l)
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
       , mem(make_array_of_size<memory_ressource_type>(l.size()))
     {
+      static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
       STD_E_ASSERT(this->rank()==1);
       index_type i=0;
       for (const value_type& x : l) {
@@ -62,11 +70,12 @@ class multi_array : private Multi_array_shape
         ++i;
       }
     }
-    // Ctor for rank==2, owning memory // TODO extract
+    // ctor for rank==2, owning memory
     multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
       , mem(make_array_of_size<memory_ressource_type>(ll.size()*std::begin(ll)->size()))
     {
+      static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
       STD_E_ASSERT(this->rank()==2);
       index_type i=0;
       for (const auto& l : ll) {
