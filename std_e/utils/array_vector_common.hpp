@@ -78,7 +78,7 @@ struct concatenated_array__impl<std_e::constexpr_vector<T,max_size>,std_e::const
 
 template<class... Arrays> using
 concatenated_array = typename concatenated_array__impl<Arrays...>::type;
-// make_array_of_size }
+// concatenated_array }
 
 
 

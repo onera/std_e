@@ -79,16 +79,16 @@ class multi_index_generator {
     int current_pos;
 };
 
-struct fortran_index_sentinel {
+struct multi_index_generator_sentinel {
   int size;
 };
 
 template<class multi_index_generator_type> constexpr auto
-operator==(const multi_index_generator_type& gen, fortran_index_sentinel sentinel) {
+operator==(const multi_index_generator_type& gen, multi_index_generator_sentinel sentinel) {
   return gen.current_position()==sentinel.size;
 }
 template<class multi_index_generator_type> constexpr auto
-operator!=(const multi_index_generator_type& gen, fortran_index_sentinel sentinel) {
+operator!=(const multi_index_generator_type& gen, multi_index_generator_sentinel sentinel) {
   return !(gen==sentinel);
 }
 
@@ -113,7 +113,7 @@ class multi_index_range {
       return generator;
     }
     constexpr auto
-    end() const -> fortran_index_sentinel {
+    end() const -> multi_index_generator_sentinel {
       return {cartesian_product(generator.dimensions())};
     }
   private:
