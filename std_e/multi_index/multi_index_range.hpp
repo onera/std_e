@@ -105,19 +105,25 @@ class multi_index_range {
     constexpr
     multi_index_range(Multi_index dims)
       : generator(std::move(dims))
+      , sz(cartesian_product(generator.dimensions()))
     {}
 
   // range interface
+    constexpr auto
+    size() const -> int {
+      return sz;
+    }
     constexpr auto
     begin() const -> const generator_type& {
       return generator;
     }
     constexpr auto
     end() const -> multi_index_generator_sentinel {
-      return {cartesian_product(generator.dimensions())};
+      return {sz};
     }
   private:
     generator_type  generator;
+    int sz;
 };
 
 

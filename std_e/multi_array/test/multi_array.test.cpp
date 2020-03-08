@@ -71,15 +71,11 @@ TEST_CASE("dyn_multi_array") {
   };
 
   CHECK( ma.size() == 6 );
-  CHECK( ma.extent(0) == 3 );
-  CHECK( ma.extent(1) == 2 );
+  CHECK( ma.extent(0) == 2 );
+  CHECK( ma.extent(1) == 3 );
 
-  CHECK( ma(0,0) == 1 );
-  CHECK( ma(1,0) == 2 );
-  CHECK( ma(2,0) == 3 );
-  CHECK( ma(0,1) == 4 );
-  CHECK( ma(1,1) == 5 );
-  CHECK( ma(2,1) == 6 );
+  CHECK( ma(0,0) == 1 ); CHECK( ma(0,1) == 2 ); CHECK( ma(0,2) == 3 );
+  CHECK( ma(1,0) == 4 ); CHECK( ma(1,1) == 5 ); CHECK( ma(1,2) == 6 );
 }
 
 

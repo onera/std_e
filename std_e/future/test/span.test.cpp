@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <algorithm>
-// #include <iostream>
 
 TEST_CASE("Span size") {
   constexpr auto sp1size = std_e::span_size<1>();
@@ -12,7 +11,6 @@ TEST_CASE("Span size") {
 }
 
 TEST_CASE("Span constructor") {
-
   std::vector<double>       a1  = {0 , 1, 2, 3, 4};
   const std::vector<double> ca1 = {0 , 1, 2, 3, 4};
   std::vector<double>       a2  = {-1, 6, 3,-1,-4};
@@ -78,29 +76,56 @@ TEST_CASE("Span constructor") {
   }
 
   SUBCASE("Span from container") {
-    auto sd1  = std_e::make_span(a1);
-    auto csd1 = std_e::make_span(ca1);
+    SUBCASE("explicit conversion") {
+      auto sd1  = std_e::make_span(a1);
+      auto csd1 = std_e::make_span(ca1);
 
-    CHECK( sd1[0] == a1[0] );
-    CHECK( sd1[1] == a1[1] );
-    CHECK( sd1[2] == a1[2] );
-    CHECK( sd1[3] == a1[3] );
-    CHECK( sd1[4] == a1[4] );
+      CHECK( sd1.size()  == a1.size() );
+      CHECK( csd1.size() == ca1.size() );
 
-    CHECK( csd1[0] == ca1[0] );
-    CHECK( csd1[1] == ca1[1] );
-    CHECK( csd1[2] == ca1[2] );
-    CHECK( csd1[3] == ca1[3] );
-    CHECK( csd1[4] == ca1[4] );
+      CHECK( sd1.data()  == pta1  );
+      CHECK( csd1.data() == ptca1 );
 
-    CHECK( sd1.size()  == a1.size() );
-    CHECK( csd1.size() == ca1.size() );
+      CHECK( sd1.begin()  == pta1  );
+      CHECK( csd1.begin() == ptca1 );
 
-    CHECK( sd1.data()  == pta1  );
-    CHECK( csd1.data() == ptca1 );
+      CHECK( sd1[0] == a1[0] );
+      CHECK( sd1[1] == a1[1] );
+      CHECK( sd1[2] == a1[2] );
+      CHECK( sd1[3] == a1[3] );
+      CHECK( sd1[4] == a1[4] );
 
-    CHECK( sd1.begin()  == pta1  );
-    CHECK( csd1.begin() == ptca1 );
+      CHECK( csd1[0] == ca1[0] );
+      CHECK( csd1[1] == ca1[1] );
+      CHECK( csd1[2] == ca1[2] );
+      CHECK( csd1[3] == ca1[3] );
+      CHECK( csd1[4] == ca1[4] );
+    }
+    SUBCASE("implicit conversion") {
+      std_e::span<double> sd1  = a1;
+      std_e::span<const double> csd1 = ca1;
+
+      CHECK( sd1.size()  == a1.size() );
+      CHECK( csd1.size() == ca1.size() );
+
+      CHECK( sd1.data()  == pta1  );
+      CHECK( csd1.data() == ptca1 );
+
+      CHECK( sd1.begin()  == pta1  );
+      CHECK( csd1.begin() == ptca1 );
+
+      CHECK( sd1[0] == a1[0] );
+      CHECK( sd1[1] == a1[1] );
+      CHECK( sd1[2] == a1[2] );
+      CHECK( sd1[3] == a1[3] );
+      CHECK( sd1[4] == a1[4] );
+
+      CHECK( csd1[0] == ca1[0] );
+      CHECK( csd1[1] == ca1[1] );
+      CHECK( csd1[2] == ca1[2] );
+      CHECK( csd1[3] == ca1[3] );
+      CHECK( csd1[4] == ca1[4] );
+    }
   }
 
   SUBCASE("Span comparison") {
@@ -119,5 +144,4 @@ TEST_CASE("Span constructor") {
     CHECK( st1 != st3   );
     CHECK( stc1 != stc3 );
   }
-
 }

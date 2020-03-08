@@ -95,7 +95,7 @@ class span : public span_size<N> {
       : span_size_type(last-first)
       , ptr(first)
     {}
-    template<class Range> FORCE_INLINE constexpr explicit
+    template<class Range> FORCE_INLINE constexpr
     // requires Range::data() -> T*
     span(Range&& r)
       : span_size_type(r.size())
@@ -149,16 +149,6 @@ class span : public span_size<N> {
       return ptr[i];
     }
 
-  // comparison
-    friend constexpr auto
-    operator==(const span& x, const span& y) -> bool {
-      if (x.size() != y.size()) return false;
-      return std::equal(x.begin(),x.end(),y.begin());
-    }
-    friend constexpr auto
-    operator!=(const span& x, const span& y) -> bool {
-      return !(x==y);
-    }
   private:
     T* ptr;
 };
@@ -178,6 +168,16 @@ end(span<T,N>& x) {
 template<class T, index_t N> FORCE_INLINE constexpr auto
 end(const span<T,N>& x) {
   return x.end();
+}
+
+template<class T0, class T1, index_t N0, index_t N1> constexpr auto
+operator==(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
+  if (x.size() != y.size()) return false;
+  return std::equal(x.begin(),x.end(),y.begin());
+}
+template<class T0, class T1, index_t N0, index_t N1> constexpr auto
+operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
+  return !(x==y);
 }
 
 
