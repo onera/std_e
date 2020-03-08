@@ -97,7 +97,7 @@ class span : public span_size<N> {
     {}
     template<class Range> FORCE_INLINE constexpr explicit
     // requires Range::data() -> T*
-    span(const Range& r)
+    span(Range&& r)
       : span_size_type(r.size())
       , ptr(r.data())
     {}

@@ -38,7 +38,7 @@ class multi_array : private Multi_array_shape
 
     static constexpr bool mem_is_owned = memory_is_owned<memory_ressource_type>;
 
-  // constructors
+  // constructors {
     FORCE_INLINE constexpr multi_array() = default;
 
     FORCE_INLINE constexpr
@@ -46,8 +46,12 @@ class multi_array : private Multi_array_shape
       : shape_type(std::move(sh))
       , mem(std::move(mem))
     {}
+    FORCE_INLINE constexpr
+    multi_array(memory_ressource_type mem)
+      : multi_array(std::move(mem),{})
+    {}
 
-    // ctor for owning memory
+  /// ctor for owning memory {
     template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
     template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
     template<class... ints,
@@ -57,10 +61,13 @@ class multi_array : private Multi_array_shape
       : shape_type({dims...},{0})
       , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
     {}
+  /// ctor for owning memory }
+
+  /// ctors from initializer lists {
     // ctor for rank==1, owning memory
-    multi_array(std::initializer_list<value_type> l)
+    multi_array(std::initializer_list<value_type> l, memory_ressource_type mem)
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
-      , mem(make_array_of_size<memory_ressource_type>(l.size()))
+      , mem(std::move(mem))
     {
       static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
       STD_E_ASSERT(this->rank()==1);
@@ -70,10 +77,13 @@ class multi_array : private Multi_array_shape
         ++i;
       }
     }
+    multi_array(std::initializer_list<value_type> l)
+      : multi_array(l,make_array_of_size<memory_ressource_type>(l.size()))
+    {}
     // ctor for rank==2, owning memory
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, memory_ressource_type mem)
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
-      , mem(make_array_of_size<memory_ressource_type>(ll.size()*std::begin(ll)->size()))
+      , mem(std::move(mem))
     {
       static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
       STD_E_ASSERT(this->rank()==2);
@@ -87,6 +97,12 @@ class multi_array : private Multi_array_shape
         ++i;
       }
     }
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
+      : multi_array(ll,make_array_of_size<memory_ressource_type>(ll.size() * std::begin(ll)->size()))
+    {}
+  /// ctors from initializer lists }
+  // constructors }
+
 
   // low-level
     FORCE_INLINE constexpr auto
@@ -214,6 +230,25 @@ operator!=(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool
   return !(x==y);
 }
 
+
+// conversion to the view type (useful for function arguments)
+/// Warning making a view is NOT free: it copies the shape
+template<class M0, class M1> auto
+make_view(multi_array<M0,M1>& x) {
+  using pointer = typename multi_array<M0,M1>::pointer;
+  using shape_type = M1;
+  using mem_view_type = memory_view<pointer>;
+  using multi_array_view_type = multi_array< mem_view_type , shape_type >;
+  return multi_array_view_type{ mem_view_type{x.data()} , x.shape() };
+}
+template<class M0, class M1> auto
+make_view(const multi_array<M0,M1>& x) {
+  using const_pointer = typename multi_array<M0,M1>::const_pointer;
+  using shape_type = M1;
+  using mem_view_type = memory_view<const_pointer>;
+  using const_multi_array_view_type = multi_array< mem_view_type , shape_type >;
+  return const_multi_array_view_type{ mem_view_type{x.data()} , x.shape() };
+}
 
 
 } // std_e
