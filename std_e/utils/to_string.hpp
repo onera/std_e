@@ -3,6 +3,7 @@
 
 #include <string>
 #include "std_e/utils/string.hpp"
+#include "std_e/utils/to_string_fwd.hpp"
 #include <iomanip>
 
 
@@ -31,7 +32,7 @@ to_string(Forward_iterator first, S last, const std::string& pre, const std::str
   return s;
 }
 template<class R> auto
-range_to_string(const R& x, const std::string& pre="{", const std::string& inter=";", const std::string& post="}") -> std::string {
+range_to_string(const R& x, const std::string& pre, const std::string& inter, const std::string& post) -> std::string {
   return to_string(begin(x),end(x),pre,inter,post);
 }
 
@@ -42,7 +43,7 @@ to_string_almost_exact(floating_point_type x) -> std::string {
   ss << std::setprecision(15) << std::defaultfloat << x;
   std::string x_as_str = ss.str();
   if (!contains(x_as_str,'.')) {
-    x_as_str.push_back('.'); // "123" -> "1."
+    x_as_str.push_back('.'); // "123" -> "123."
   }
   return x_as_str;
 }

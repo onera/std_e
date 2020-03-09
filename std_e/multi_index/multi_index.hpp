@@ -13,14 +13,11 @@ namespace std_e {
 
 // multi_index {
 template<class Integer, int rank>
-struct multi_index__impl
-{
+struct multi_index__impl {
   using type = std::array<Integer,rank>;
 };
-
 template<class Integer>
-struct multi_index__impl<Integer,dynamic_size>
-{
+struct multi_index__impl<Integer,dynamic_size> {
   using type = std::vector<Integer>;
 };
 
@@ -33,6 +30,23 @@ using multi_index = typename multi_index__impl<Integer,rank>::type;
 template<class Multi_index>
 using index_type_of = typename Multi_index::value_type;
 // index_type_of }
+
+
+// rank_of {
+template<class Multi_index>
+struct rank_of__impl;
+
+template<class Integer, size_t rank>
+struct rank_of__impl<std::array<Integer,rank>> {
+  static constexpr int value = rank;
+};
+template<class Integer>
+struct rank_of__impl<std::vector<Integer>> {
+  static constexpr int value = dynamic_size;
+};
+
+template<class Multi_index> inline constexpr int rank_of = rank_of__impl<Multi_index>::value;
+// rank_of }
 
 
 

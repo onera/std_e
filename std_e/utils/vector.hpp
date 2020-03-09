@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include "std_e/utils/to_string_fwd.hpp"
 
 
 namespace std_e {
@@ -76,6 +77,10 @@ sort_unique(std::vector<T>& v, Equiv_pred eq, Comp_pred cmp) -> void {
 }
 
 
+template<class T> constexpr auto
+to_string(const std::vector<T>& x) -> std::string {
+  return range_to_string(x);
+}
 
 
 } // std_e

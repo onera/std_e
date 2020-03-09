@@ -4,6 +4,7 @@
 #include <array>
 #include "std_e/base/index_t.hpp"
 #include "std_e/future/algorithm.hpp"
+#include "std_e/utils/to_string_fwd.hpp"
 
 
 namespace std_e {
@@ -23,6 +24,12 @@ default_array_except(index_t i, const T& x) -> std::array<T,N> {
   auto res = default_array<T,N>;
   res[i] = x;
   return res;
+}
+
+
+template<class T, size_t N> inline auto
+to_string(const std::array<T,N>& x) -> std::string {
+  return range_to_string(x);
 }
 
 

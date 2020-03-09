@@ -12,26 +12,76 @@
 namespace std_e {
 
 
-struct fortran_order_functor {
-  template<class Multi_index_0, class Multi_index_1> static constexpr auto
-  increment(const Multi_index_0& dims, Multi_index_1& indices) -> void {
-    increment_multi_index_fortran_order(dims,indices);
-  }
+template<class Multi_index>
+class fortran_order_functor {
+  public:
+  // type traits
+    using I = index_type_of<Multi_index>;
+    using multi_index_type = Multi_index;
+
+  // ctor
+    fortran_order_functor(Multi_index dims)
+      : dims(std::move(dims))
+    {}
+
+  // accessors
+    constexpr auto
+    rank() const -> int {
+      return dims.size();
+    }
+    constexpr auto
+    dimensions() const -> const Multi_index& {
+      return dims;
+    }
+
+  // increment
+    template<class Multi_index_0> constexpr auto
+    increment(Multi_index_0& indices) -> void {
+      increment_multi_index_fortran_order(dims,indices);
+    }
+  private:
+    Multi_index dims;
 };
 
-struct c_order_functor {
-  template<class Multi_index_0, class Multi_index_1> static constexpr auto
-  increment(const Multi_index_0& dims, Multi_index_1& indices) -> void {
-    increment_multi_index_c_order(dims,indices);
-  }
+template<class Multi_index>
+class general_order_functor {
+  public:
+  // type traits
+    using I = index_type_of<Multi_index>;
+    using multi_index_type = Multi_index;
+
+  // ctor
+    general_order_functor(Multi_index dims, Multi_index order)
+      : dims(std::move(dims))
+      , order(std::move(order))
+    {}
+
+  // accessors
+    constexpr auto
+    rank() const -> int {
+      return dims.size();
+    }
+    constexpr auto
+    dimensions() const -> const Multi_index& {
+      return dims;
+    }
+
+  // increment
+    template<class Multi_index_0> constexpr auto
+    increment(Multi_index_0& indices) -> void {
+      increment_multi_index(dims,indices,order);
+    }
+  private:
+    Multi_index dims;
+    Multi_index order;
 };
 
 
-template<class Multi_index, class order_functor_type>
-// requires order_functor_type has static method increment(const Multi_index_0& dims, Multi_index_1& indices)
+template<class order_functor_type>
+// requires order_functor_type has method increment(Multi_index_1& indices)
 class multi_index_generator {
   public:
-    using multi_index_type = Multi_index;
+    using multi_index_type = typename order_functor_type::multi_index_type;
     using index_type = index_type_of<multi_index_type>;
 
   // ctors
@@ -39,20 +89,20 @@ class multi_index_generator {
     multi_index_generator() = default;
 
     constexpr
-    multi_index_generator(multi_index_type dims)
-      : dims(std::move(dims))
-      , current_indices{make_zero_multi_index<Multi_index>(dims.size())}
+    multi_index_generator(order_functor_type func)
+      : func(std::move(func))
+      , current_indices{make_zero_multi_index<multi_index_type>(this->func.rank())}
       , current_pos{0}
     {}
 
   // basic functions
     constexpr auto
-    rank() const -> size_t {
-      return dims.size();
+    rank() const -> int {
+      return func.rank();
     }
     constexpr auto
-    dimensions() const -> const Multi_index& {
-      return dims;
+    dimensions() const -> const multi_index_type& {
+      return func.dimensions();
     }
 
   // accessor
@@ -65,7 +115,7 @@ class multi_index_generator {
     constexpr auto
     operator++() -> multi_index_generator& {
       ++current_pos;
-      order_functor_type::increment(dims,current_indices);
+      func.increment(current_indices);
       return *this;
     }
 
@@ -74,7 +124,7 @@ class multi_index_generator {
       return current_indices;
     }
   private:
-    multi_index_type dims;
+    order_functor_type func;
     multi_index_type current_indices;
     int current_pos;
 };
@@ -93,24 +143,25 @@ operator!=(const multi_index_generator_type& gen, multi_index_generator_sentinel
 }
 
 
-template<class Multi_index, class order_functor_type>
+template<class order_functor_type>
 class multi_index_range {
   public:
-    using generator_type = multi_index_generator<Multi_index,order_functor_type>;
+    using generator_type = multi_index_generator<order_functor_type>;
+    using index_type = typename generator_type::index_type;
 
   // ctor
     constexpr
     multi_index_range() = default;
 
     constexpr
-    multi_index_range(Multi_index dims)
-      : generator(std::move(dims))
+    multi_index_range(order_functor_type func)
+      : generator(std::move(func))
       , sz(cartesian_product(generator.dimensions()))
     {}
 
   // range interface
     constexpr auto
-    size() const -> int {
+    size() const -> index_type {
       return sz;
     }
     constexpr auto
@@ -123,17 +174,19 @@ class multi_index_range {
     }
   private:
     generator_type  generator;
-    int sz;
+    index_type sz;
 };
 
 
 template<class Multi_index> constexpr auto
 fortran_multi_index_range(Multi_index dims) {
-  return multi_index_range<Multi_index,fortran_order_functor>(std::move(dims));
+  fortran_order_functor func(std::move(dims));
+  return multi_index_range(std::move(func));
 }
 template<class Multi_index> constexpr auto
-c_multi_index_range(Multi_index dims) {
-  return multi_index_range<Multi_index,c_order_functor>(std::move(dims));
+multi_index_range_with_order(Multi_index dims, Multi_index order) {
+  general_order_functor func(std::move(dims),std::move(order));
+  return multi_index_range(std::move(func));
 }
 
 

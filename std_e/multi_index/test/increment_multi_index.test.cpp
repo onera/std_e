@@ -6,7 +6,7 @@
 using namespace std_e;
 
 
-TEST_CASE("multi_index_range") {
+TEST_CASE("increment_multi_index fortran order") {
   using MI = multi_index<int,2>;
   MI dims = {3,2};
 
@@ -36,6 +36,41 @@ TEST_CASE("multi_index_range") {
   CHECK( d1 == 0 );
   CHECK( d2 == 1 );
   CHECK( d3 == 0 );
+  CHECK( d4 == 0 );
+  CHECK( d5 == 2 );
+}
+
+
+TEST_CASE("increment_multi_index general order") {
+  using MI = multi_index<int,2>;
+  MI dims = {3,2};
+  MI order = {1,0}; // inverse order ...
+  // .. means C-order (row-major)
+  const MI ci0 = {0,0};    MI i0 = {0,0};
+  const MI ci1 = {0,1};    MI i1 = {0,1};
+  const MI ci2 = {1,0};    MI i2 = {1,0};
+  const MI ci3 = {1,1};    MI i3 = {1,1};
+  const MI ci4 = {2,0};    MI i4 = {2,0};
+  const MI ci5 = {2,1};    MI i5 = {2,1};
+
+  int d0 = increment_multi_index(dims,i0,order);
+  int d1 = increment_multi_index(dims,i1,order);
+  int d2 = increment_multi_index(dims,i2,order);
+  int d3 = increment_multi_index(dims,i3,order);
+  int d4 = increment_multi_index(dims,i4,order);
+  int d5 = increment_multi_index(dims,i5,order);
+
+  CHECK( i0 == ci1 );
+  CHECK( i1 == ci2 );
+  CHECK( i2 == ci3 );
+  CHECK( i3 == ci4 );
+  CHECK( i4 == ci5 );
+  CHECK( i5 == ci0 ); // not incremented (impossible)
+
+  CHECK( d0 == 0 );
+  CHECK( d1 == 1 );
+  CHECK( d2 == 0 );
+  CHECK( d3 == 1 );
   CHECK( d4 == 0 );
   CHECK( d5 == 2 );
 }
