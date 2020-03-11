@@ -10,3 +10,9 @@ TEST_CASE("sort_unique(vector)") {
   std::vector<int> expected_v = {1,3,4,7,8,9};
   CHECK( v == expected_v );
 }
+
+TEST_CASE("std::vector sub_vector") {
+  std::vector<int> a              = {3,4,5,6,7,8};
+  std::vector<int> expected_sub_a =     {5,6,7};
+  CHECK( std_e::make_sub_vector(a,2,3) == expected_sub_a );
+}

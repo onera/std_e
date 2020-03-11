@@ -12,6 +12,7 @@
 #include "std_e/multi_index/cartesian_product.hpp"
 #include "std_e/multi_array/shape/fixed_dyn_shape_common.hpp"
 #include "std_e/memory_ressource/memory_ressource.hpp"
+#include "std_e/utils/concatenate.hpp"
 
 
 namespace std_e {
@@ -236,19 +237,62 @@ operator!=(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool
 template<class M0, class M1> auto
 make_view(multi_array<M0,M1>& x) {
   using pointer = typename multi_array<M0,M1>::pointer;
-  using shape_type = M1;
   using mem_view_type = memory_view<pointer>;
-  using multi_array_view_type = multi_array< mem_view_type , shape_type >;
-  return multi_array_view_type{ mem_view_type{x.data()} , x.shape() };
+  return multi_array{ mem_view_type{x.data()} , x.shape() };
 }
 template<class M0, class M1> auto
 make_view(const multi_array<M0,M1>& x) {
   using const_pointer = typename multi_array<M0,M1>::const_pointer;
-  using shape_type = M1;
   using mem_view_type = memory_view<const_pointer>;
-  using const_multi_array_view_type = multi_array< mem_view_type , shape_type >;
-  return const_multi_array_view_type{ mem_view_type{x.data()} , x.shape() };
+  return multi_array{ mem_view_type{x.data()} , x.shape() };
 }
 
+// sub-view of contiguous memory are possible for a fortran-ordered memory
+// if the last indices are fixed (i.e. the indices at thr right)
+template<class M0, class M1, class Multi_index> auto
+make_sub_view(multi_array<M0,M1>& x, const Multi_index& right_indices) {
+  using pointer = typename multi_array<M0,M1>::pointer;
+  using index_type = typename multi_array<M0,M1>::index_type;
+  using multi_index_type = typename multi_array<M0,M1>::multi_index_type;
+  using mem_view_type = memory_view<pointer>;
+
+  constexpr int rank = multi_array<M0,M1>::rank(); // TODO dyn rank
+  constexpr int restriction_rank = rank_of<Multi_index>;
+  constexpr int sub_rank = rank - restriction_rank;
+
+  multi_index_type sub_view_start_index = std_e::concatenate(std_e::multi_index<index_type,sub_rank>{0},right_indices);
+  index_type sub_view_start_index_1d = fortran_order_from_dimensions(x.extent(),x.offset(),sub_view_start_index);
+
+  auto sub_shape = make_sub_shape<restriction_rank>(x.shape());
+
+  return multi_array{ mem_view_type{x.data()+sub_view_start_index_1d} , std::move(sub_shape) };
+}
+template<class M0, class M1, class Multi_index> auto
+make_sub_view(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
+  using const_pointer = typename multi_array<M0,M1>::const_pointer;
+  using index_type = typename multi_array<M0,M1>::index_type;
+  using multi_index_type = typename multi_array<M0,M1>::multi_index_type;
+  using mem_view_type = memory_view<const_pointer>;
+
+  constexpr int rank = multi_array<M0,M1>::rank(); // TODO dyn rank
+  constexpr int restriction_rank = rank_of<right_indices>;
+  constexpr int sub_rank = rank - restriction_rank;
+
+  multi_index_type sub_view_start_index = std_e::concatenate(std_e::multi_index<index_type,sub_rank>{0},right_indices);
+  index_type sub_view_start_index_1d = fortran_order_from_dimensions(x.extent(),x.offset(),sub_view_start_index);
+
+  auto sub_shape = make_sub_shape<restriction_rank>(x.shape());
+
+  return multi_array{ mem_view_type{x.data()+sub_view_start_index_1d} , std::move(sub_shape) };
+}
+
+template<class M0, class M1> auto
+make_sub_view(multi_array<M0,M1>& x, int i) {
+  return make_sub_view(x,std_e::multi_index<int,1>{i});
+}
+template<class M0, class M1> auto
+make_sub_view(const multi_array<M0,M1>& x, int i) {
+  return make_sub_view(x,std_e::multi_index<int,1>{i});
+}
 
 } // std_e

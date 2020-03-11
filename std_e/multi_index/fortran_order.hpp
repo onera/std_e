@@ -10,17 +10,28 @@
 namespace std_e {
 
 
+template<class strides_type, class offsets_type, class... ints> FORCE_INLINE constexpr auto
+fortran_order__impl_for_param_pack_OLD(const strides_type& strides, const offsets_type& offsets, int current_position_in_shape, int i, ints... is)
+{
+  // note: similar to Horner's algorithm
+  return 
+    (i + offsets[current_position_in_shape]) * strides[current_position_in_shape]
+  +
+    fortran_order__impl_for_param_pack_OLD(strides,offsets,current_position_in_shape+1,is...);
+}
+
+
 template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
-fortran_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index_1& indices) -> int {
-  STD_E_ASSERT(dimensions.size()>0);
-  STD_E_ASSERT(dimensions.size()==indices.size());
-  int rank = dimensions.size();
+fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& indices) -> int {
+  STD_E_ASSERT(dims.size()>0);
+  STD_E_ASSERT(dims.size()==indices.size());
+  int rank = dims.size();
   int res = indices[0];
-  int stride = dimensions[0];
+  int stride = dims[0];
   for (int k=1; k<rank; ++k) {
     res += indices[k] * stride;
-    stride *= dimensions[k];
+    stride *= dims[k];
   }
   return res;
 }
@@ -34,15 +45,15 @@ fortran_index(const T0& dims, const T1& indices) {
 template<class Multi_index_0, class Multi_index_1, class Multi_index_2> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_2>
-fortran_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index_1& offsets, const Multi_index_2& indices) -> int {
-  STD_E_ASSERT(dimensions.size()==indices.size());
-  STD_E_ASSERT(dimensions.size()==offsets.size());
-  int rank = dimensions.size();
+fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& offsets, const Multi_index_2& indices) -> int {
+  STD_E_ASSERT(dims.size()==indices.size());
+  STD_E_ASSERT(dims.size()==offsets.size());
+  int rank = dims.size();
   int res = offsets[0]+indices[0];
-  int stride = dimensions[0];
+  int stride = dims[0];
   for (int k=1; k<rank; ++k) {
     res += (offsets[k] + indices[k]) * stride;
-    stride *= dimensions[k];
+    stride *= dims[k];
   }
   return res;
 }
@@ -50,29 +61,29 @@ fortran_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index
 
 //template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
 //// requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
-//c_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index_1& indices) -> int {
-//  STD_E_ASSERT(dimensions.size()==indices.size());
-//  int last_index = dimensions.size()-1;
+//c_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& indices) -> int {
+//  STD_E_ASSERT(dims.size()==indices.size());
+//  int last_index = dims.size()-1;
 //  int res = indices[last_index];
-//  int stride = dimensions[last_index];
+//  int stride = dims[last_index];
 //  for (int k=last_index-1; k>=0; --k) {
 //    res += indices[k] * stride;
-//    stride *= dimensions[k];
+//    stride *= dims[k];
 //  }
 //  return res;
 //}
 template<class Multi_index_0, class Multi_index_1, class Multi_index_2> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_2>
-c_order_from_dimensions(const Multi_index_0& dimensions, const Multi_index_1& offsets, const Multi_index_2& indices) -> int {
-  STD_E_ASSERT(dimensions.size()==indices.size());
-  STD_E_ASSERT(dimensions.size()==offsets.size());
-  int last_index = dimensions.size()-1;
+c_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& offsets, const Multi_index_2& indices) -> int {
+  STD_E_ASSERT(dims.size()==indices.size());
+  STD_E_ASSERT(dims.size()==offsets.size());
+  int last_index = dims.size()-1;
   int res = offsets[last_index]+indices[last_index];
-  int stride = dimensions[last_index];
+  int stride = dims[last_index];
   for (int k=last_index-1; k>=0; --k) {
     res += (offsets[k] + indices[k]) * stride;
-    stride *= dimensions[k];
+    stride *= dims[k];
   }
   return res;
 }

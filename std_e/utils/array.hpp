@@ -2,6 +2,7 @@
 
 
 #include <array>
+#include <algorithm>
 #include "std_e/base/index_t.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
@@ -24,6 +25,13 @@ default_array_except(index_t i, const T& x) -> std::array<T,N> {
   auto res = default_array<T,N>;
   res[i] = x;
   return res;
+}
+
+template<int start, int sub_size, class T, size_t N> inline auto
+make_sub_array(const std::array<T,N>& x) {
+  std::array<T,sub_size> sub;
+  std::copy_n(begin(x)+start,sub_size,begin(sub));
+  return sub;
 }
 
 

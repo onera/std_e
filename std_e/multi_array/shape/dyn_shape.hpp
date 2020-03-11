@@ -3,6 +3,8 @@
 
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/utils/array_vector_common.hpp"
+#include "std_e/utils/array.hpp"
+#include "std_e/utils/vector.hpp"
 #include "std_e/base/dynamic_size.hpp"
 
 
@@ -104,6 +106,24 @@ class dyn_shape<Integer,dynamic_size> : public dyn_shape__impl<Integer,dynamic_s
       return base::extent().size();
     }
 };
+
+
+template<int right_restriction, class Integer, int N> constexpr auto
+make_sub_shape(const dyn_shape<Integer,N>& shape) {
+  if constexpr (N==dynamic_size) {
+    int sub_shape_rank = N-right_restriction;
+    return dyn_shape<Integer,dynamic_size>(
+      make_sub_array(shape.extent(),0,sub_shape_rank),
+      make_sub_array(shape.offset(),0,sub_shape_rank)
+    );
+  } else {
+    constexpr int sub_shape_rank = N-right_restriction;
+    return dyn_shape<Integer,sub_shape_rank>(
+      make_sub_array<0,sub_shape_rank>(shape.extent()),
+      make_sub_array<0,sub_shape_rank>(shape.offset())
+    );
+  }
+}
 
 
 } // std_e

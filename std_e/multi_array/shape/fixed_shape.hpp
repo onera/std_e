@@ -2,6 +2,7 @@
 
 
 #include "std_e/multi_index/multi_index.hpp"
+#include "std_e/utils/index_sequence.hpp"
 
 
 namespace std_e {
@@ -37,6 +38,20 @@ struct fixed_shape {
     return offset()[i];
   }
 };
+
+
+template<size_t... dims> constexpr auto
+fixed_shape_from_index_seq(std::index_sequence<dims...>) {
+  return fixed_shape<dims...>{};
+}
+
+template<int right_restriction, int... dims> constexpr auto
+make_sub_shape(fixed_shape<dims...>) {
+  constexpr int N = sizeof...(dims)-right_restriction;
+  auto index_seq = std::index_sequence<dims...>{};
+  auto sub_index_seq = take_n<N>(index_seq);
+  return fixed_shape_from_index_seq(sub_index_seq);
+}
 
 
 } // std_e

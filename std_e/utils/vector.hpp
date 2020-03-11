@@ -77,6 +77,13 @@ sort_unique(std::vector<T>& v, Equiv_pred eq, Comp_pred cmp) -> void {
 }
 
 
+template<class T, class I> constexpr auto
+make_sub_vector(const std::vector<T>& x, I start, I sub_size) {
+  std::vector<T> sub(sub_size);
+  std::copy_n(begin(x)+start,sub_size,begin(sub));
+  return sub;
+}
+
 template<class T> constexpr auto
 to_string(const std::vector<T>& x) -> std::string {
   return range_to_string(x);
