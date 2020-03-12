@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/algorithm_old/algorithm.hpp"
+#include "std_e/algorithm/permutation.hpp"
 #include "std_e/interval/interval.hpp"
 
 
@@ -25,9 +25,9 @@ permute_id_if_in_range(I& id, const std::vector<I>& permutation, interval<I> int
 }
 
 
-template<class I_iterable, class I> auto
-// requires I_iterable is an integer iterable (i.e. begin(), end())
-update_ids_after_permutation(I_iterable&& ids, const std::vector<I>& permutation, I offset) {
+template<class I_range, class I> auto
+// requires I_range is an integer range (i.e. begin(), end())
+update_ids_after_permutation(I_range&& ids, const std::vector<I>& permutation, I offset) {
   // Preconditions:
   //   - permutation is an index permutation (i.e. sort(permutation) == integer_range(permutation.size()))
   //   - for id in ids, offset <= id < offset + permutation.size()
@@ -36,9 +36,9 @@ update_ids_after_permutation(I_iterable&& ids, const std::vector<I>& permutation
     permute_id(id,inv_perm,offset);
   }
 }
-template<class I_iterable, class I> auto
-// requires I_iterable is an integer iterable (i.e. begin(), end())
-update_ids_in_range_after_permutation(I_iterable&& ids, const std::vector<I>& permutation, interval<I> inter) -> void {
+template<class I_range, class I> auto
+// requires I_range is an integer range (i.e. begin(), end())
+update_ids_in_range_after_permutation(I_range&& ids, const std::vector<I>& permutation, interval<I> inter) -> void {
   // Preconditions:
   //   - permutation is an index permutation (i.e. sort(permutation) == integer_range(permutation.size()))
   //   - size(inter) == permutation.size()

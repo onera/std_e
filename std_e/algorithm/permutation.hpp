@@ -9,18 +9,16 @@
 namespace std_e {
 
 
-template<class Array> constexpr auto
-invert_permutation(const Array& p) -> Array {
-  using indexing_type = typename Array::difference_type;
-  indexing_type sz = p.size();
-  Array inv_p(sz);
-  for (indexing_type i=0; i<sz; ++i) {
+template<class Random_access_container> constexpr auto
+inverse_permutation(const Random_access_container& p) -> Random_access_container {
+  using index_type = typename Random_access_container::difference_type;
+  index_type sz = p.size();
+  Random_access_container inv_p(sz);
+  for (index_type i=0; i<sz; ++i) {
     inv_p[p[i]] = i;
   }
   return inv_p;
 }
-
-
 
 
 template<class T> auto
@@ -40,34 +38,51 @@ sort_permutation(const std::vector<T>& v, Comp comp) -> std::vector<int> {
 }
 
 
-template<class T> auto
-permute_copy(const std::vector<T>& v, const std::vector<int>& p) -> std::vector<T> {
-  std::vector<T> w(v.size());
-  std::transform(p.begin(), p.end(), w.begin(), [&](int i){ return v[i]; });
+template<class Rand_it0, class Output_it, class Rand_it1, class I> auto
+// requires Rand_it0,Rand_it1 are random access iterators
+// requires Output_it is an output iterator
+permute_copy_n(Rand_it0 first, Output_it d_first, Rand_it1 perm_first, I n) -> Output_it {
+  // Write permutation of range [first,n) at [d_first,n)
+  // Preconditions:
+  //     - [first,first+n) is a valid range
+  //     - [d_first,d_first+n) is a valid range
+  //     - permutation_indices = [perm_first,n) is an index permutation (i.e. sort(permutation_indices) == iota(n))
+  return std::transform(perm_first, perm_first+n, d_first, [&](I i){ return *(first+i); });
+}
+template<class T, class I> auto
+permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T> {
+  using index_type = typename std::vector<I>::difference_type;
+  index_type n = p.size();
+  std::vector<T> w(n);
+  permute_copy_n(begin(v),begin(w),begin(p),n);
   return w;
 }
 
+
 // TODO Bruno: reference?
-template<class T> auto
-permute(std::vector<T>& vec, const std::vector<int>& p) -> void {
-  int sz = vec.size();
+template<class Rand_it, class I> auto
+permute(Rand_it it, const std::vector<I>& p) -> void {
+  int sz = p.size();
   std::vector<bool> done(sz);
-  for (int i = 0; i < sz; ++i){
+  for (I i = 0; i < sz; ++i){
     if (done[i]){
       continue;
     }
     done[i] = true;
-    int prev_j = i;
-    int j = p[i];
+    I prev_j = i;
+    I j = p[i];
     while (i != j){
-      std::swap(vec[prev_j], vec[j]);
+      std::swap(*(it+prev_j),*(it+j));
       done[j] = true;
       prev_j = j;
       j = p[j];
     }
   }
 }
-
+template<class T, class I> auto
+permute(std::vector<T>& vec, const std::vector<I>& p) -> void {
+  return permute(vec.begin(),p);
+}
 
 
 } // std_e

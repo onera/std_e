@@ -1,6 +1,6 @@
 #include "doctest/doctest.h"
 
-#include "std_e/algorithm_old/id_permutations.hpp"
+#include "std_e/algorithm/id_permutations.hpp"
 
 using namespace std;
 
