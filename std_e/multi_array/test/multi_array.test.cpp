@@ -150,3 +150,22 @@ TEST_CASE("make_sub_view") {
     CHECK( sub_ma_11(3) == 311. );
   }
 }
+
+TEST_CASE("make_span") {
+  SUBCASE("one index") {
+    dyn_multi_array<int,int32_t,2> ma = {
+      {1,2,3},
+      {4,5,6}
+    };
+
+    auto span_0 = make_span(ma,0);
+    CHECK( span_0[0] == 1 );
+    CHECK( span_0[1] == 4 );
+    auto span_1 = make_span(ma,1);
+    CHECK( span_1[0] == 2 );
+    CHECK( span_1[1] == 5 );
+    auto span_2 = make_span(ma,2);
+    CHECK( span_2[0] == 3 );
+    CHECK( span_2[1] == 6 );
+  }
+}
