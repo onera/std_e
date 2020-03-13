@@ -261,7 +261,7 @@ make_sub_view(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
 }
 
 template<class M0, class M1> auto
-make_sub_view(multi_array<M0,M1>& x, int i) {
+make_sub_view(multi_array<M0,M1>& x, int i) { // TODO C++20 Integer (complicated without concepts)
   return make_sub_view(x,std_e::multi_index<int,1>{i});
 }
 template<class M0, class M1> auto

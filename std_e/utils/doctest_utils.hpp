@@ -11,8 +11,8 @@
 namespace doctest {
 
 
-template<class T> struct StringMaker<std::vector<T>> {
-  static String convert(const std::vector<T>& v) {
+template<class T, class A> struct StringMaker<std::vector<T,A>> {
+  static String convert(const std::vector<T,A>& v) {
     std::string s = std_e::to_string(v);
     return s.c_str();
   }

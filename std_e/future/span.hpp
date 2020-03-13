@@ -2,6 +2,7 @@
 
 
 #include <algorithm>
+#include <type_traits>
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/base/macros.hpp"
 
@@ -13,6 +14,7 @@ namespace std_e {
 template<index_t N>
 struct span_size {
   constexpr span_size() {}
+  constexpr span_size(size_t) {}
 
   static FORCE_INLINE constexpr auto
   size() -> size_t {
@@ -95,7 +97,7 @@ class span : public span_size<N> {
       : span_size_type(last-first)
       , ptr(first)
     {}
-    template<class Range> FORCE_INLINE constexpr
+    template<class Range, std::enable_if_t< !std::is_pointer_v<Range> , int > =0> FORCE_INLINE constexpr
     // requires Range::data() -> T*
     span(Range&& r)
       : span_size_type(r.size())
