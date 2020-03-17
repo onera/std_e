@@ -41,67 +41,40 @@ is_empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
 }
 
 
-template<
-  class Memory_ressource, class Multi_array_shape,
-  std::enable_if_t< Multi_array_shape::fixed_rank==1 , int > =0
-> auto
-to_string_1D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  using std::to_string;
-  std::string s = "["+to_string(x[0]);
-  int n = x.extent()[0];
-  for (int i=1; i<n; ++i) {
-    s += "," + std::to_string(x(i));
-  }
-  return s + "]";
-}
-template<
-  class Memory_ressource, class Multi_array_shape,
-  std::enable_if_t< Multi_array_shape::fixed_rank==2 , int > =0
-> auto
-to_string_2D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  using std::to_string;
-  std::string s = "["+to_string(x(0,0));
-  int n_i = x.extent()[0];
-  int n_j = x.extent()[1];
-  for (int j=1; j<n_j; ++j) {
-    s += "," + std::to_string(x(0,j));
-  }
-  for (int i=1; i<n_i; ++i) {
-    s += ";" + std::to_string(x(i,0));
-    for (int j=1; j<n_j; ++j) {
-      s += "," + std::to_string(x(i,j));
-    }
-  }
-  return s + "]";
-}
-
-template<
-  class Memory_ressource, class Multi_array_shape,
-  std::enable_if_t< Multi_array_shape::fixed_rank!=1 , int > =0
-> auto
-to_string_1D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  throw;
-}
-template<
-  class Memory_ressource, class Multi_array_shape,
-  std::enable_if_t< Multi_array_shape::fixed_rank!=2 , int > =0
-> auto
-to_string_2D(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
-  throw;
-}
-
-
 template<class Memory_ressource, class Multi_array_shape> auto
 to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
   using std::to_string;
-  if (x.rank()==0) {
-    return "["+to_string(x())+"]";
-  } 
-  if (x.rank()==1) {
-    return to_string_1D(x);
+  if constexpr (Multi_array_shape::fixed_rank==0 || Multi_array_shape::fixed_rank==dynamic_size) {
+    if (x.rank()==0) {
+      return "["+to_string(x())+"]";
+    }
   }
-  if (x.rank()==2) {
-    return to_string_2D(x);
+  if constexpr (Multi_array_shape::fixed_rank==1 || Multi_array_shape::fixed_rank==dynamic_size) {
+    if (x.rank()==1) {
+      std::string s = "["+to_string(x[0]);
+      int n = x.extent(0);
+      for (int i=1; i<n; ++i) {
+        s += "," + std::to_string(x(i));
+      }
+      return s + "]";
+    }
+  }
+  if constexpr (Multi_array_shape::fixed_rank==2 || Multi_array_shape::fixed_rank==dynamic_size) {
+    if (x.rank()==2) {
+      std::string s = "["+to_string(x(0,0));
+      int n_i = x.extent(0);
+      int n_j = x.extent(1);
+      for (int j=1; j<n_j; ++j) {
+        s += "," + std::to_string(x(0,j));
+      }
+      for (int i=1; i<n_i; ++i) {
+        s += ";" + std::to_string(x(i,0));
+        for (int j=1; j<n_j; ++j) {
+          s += "," + std::to_string(x(i,j));
+        }
+      }
+      return s + "]";
+    }
   }
   throw not_implemented_exception("to_string(multi_array) implemented only for rank 1 and 2, not for rank "+std::to_string(x.rank()));
 }

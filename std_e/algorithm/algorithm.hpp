@@ -37,7 +37,7 @@ lower_bound_position(const Random_access_range& r, const T& value) {
 template<class C, class I> auto 
 // requires I is an arithmetic type
 // requires C is a container (i.e. has begin() and end()) of I
-offset(C& c, I value) -> C& {
+offset(C& c, I value) -> void {
   for (auto& elt : c) {
     elt += value;
   }

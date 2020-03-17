@@ -45,7 +45,7 @@ struct rank_of__impl<std::vector<Integer>> {
   static constexpr int value = dynamic_size;
 };
 
-template<class Multi_index> inline constexpr int rank_of = rank_of__impl<Multi_index>::value;
+template<class Multi_index> inline constexpr int rank_of = rank_of__impl<std::decay_t<Multi_index>>::value;
 // rank_of }
 
 

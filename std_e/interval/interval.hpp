@@ -25,14 +25,15 @@ is_in(I i, interval<I> r) -> bool {
 
 
 template<class Int_array> auto 
-is_interval(const Int_array& a) -> bool {
-  if (a.size()==0) return true;
-
+is_interval(const Int_array& x) -> bool {
   using I = typename Int_array::value_type;
-  I next = a[0];
-  for (I i=1; i<a.size(); ++i) {
+  I sz = x.size();
+  if (sz==0) return true;
+
+  I next = x[0];
+  for (I i=1; i<sz; ++i) {
     ++next;
-    if (a[i] != next) {
+    if (x[i] != next) {
       return false;
     }
   }

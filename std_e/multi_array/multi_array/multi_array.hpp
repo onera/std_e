@@ -59,7 +59,7 @@ class multi_array : private Multi_array_shape
       std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
     >
     multi_array(ints... dims)
-      : shape_type({dims...},{0})
+      : shape_type({dims...})
       , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
     {}
   /// ctor for owning memory }

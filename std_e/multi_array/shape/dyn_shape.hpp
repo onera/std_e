@@ -36,6 +36,16 @@ class dyn_shape__impl {
       : extent_(convert_to<multi_index_type>(std::move(ext)))
       , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
     {}
+    FORCE_INLINE constexpr
+    dyn_shape__impl(std::initializer_list<index_type> ext)
+      : extent_(convert_to<multi_index_type>(ext))
+      , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
+    {}
+    FORCE_INLINE constexpr
+    dyn_shape__impl(std::initializer_list<index_type> ext, std::initializer_list<index_type> off)
+      : extent_(convert_to<multi_index_type>(ext))
+      , offset_(convert_to<multi_index_type>(off))
+    {}
 
   // accessors
     FORCE_INLINE constexpr auto

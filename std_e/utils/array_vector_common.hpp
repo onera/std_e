@@ -108,6 +108,13 @@ convert_to(Array1&& x)
   std::copy_n(begin(x),n,begin(y));
   return y;
 }
+template<class Array, class T> constexpr auto
+convert_to(std::initializer_list<T> x) -> Array {
+  size_t n = x.size();
+  Array y = make_array_of_size<Array>(n);;
+  std::copy_n(begin(x),n,begin(y));
+  return y;
+}
 // convert_to }
 
 
