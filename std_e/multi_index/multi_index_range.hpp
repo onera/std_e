@@ -7,6 +7,7 @@
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/multi_index/cx_multi_index.hpp"
 #include "std_e/future/algorithm.hpp"
+#include <iterator>
 
 
 namespace std_e {
@@ -19,7 +20,10 @@ class fortran_order_functor {
     using I = index_type_of<Multi_index>;
     using multi_index_type = Multi_index;
 
-  // ctor
+  // ctors
+    constexpr fortran_order_functor() = default;
+
+    constexpr
     fortran_order_functor(Multi_index dims)
       : dims(std::move(dims))
     {}
@@ -39,6 +43,15 @@ class fortran_order_functor {
     increment(Multi_index_0& indices) -> void {
       increment_multi_index_fortran_order(dims,indices);
     }
+
+    friend constexpr auto
+    operator==(const fortran_order_functor& x, const fortran_order_functor& y) {
+      return x.dims==y.dims;
+    }
+    friend constexpr auto
+    operator!=(const fortran_order_functor& x, const fortran_order_functor& y) {
+      return !(x==y);
+    }
   private:
     Multi_index dims;
 };
@@ -50,7 +63,10 @@ class general_order_functor {
     using I = index_type_of<Multi_index>;
     using multi_index_type = Multi_index;
 
-  // ctor
+  // ctors
+    constexpr general_order_functor() = default;
+
+    constexpr
     general_order_functor(Multi_index dims, Multi_index order)
       : dims(std::move(dims))
       , order(std::move(order))
@@ -71,6 +87,15 @@ class general_order_functor {
     increment(Multi_index_0& indices) -> void {
       increment_multi_index(dims,indices,order);
     }
+
+    friend constexpr auto
+    operator==(const general_order_functor& x, const general_order_functor& y) {
+      return x.dims==y.dims  &&  x.order==y.order;
+    }
+    friend constexpr auto
+    operator!=(const general_order_functor& x, const general_order_functor& y) {
+      return !(x==y);
+    }
   private:
     Multi_index dims;
     Multi_index order;
@@ -83,6 +108,11 @@ class multi_index_generator {
   public:
     using multi_index_type = typename order_functor_type::multi_index_type;
     using index_type = index_type_of<multi_index_type>;
+
+  // std::iterator type traits
+    using value_type = multi_index_type;
+    using difference_type = index_type;
+    using iterator_category = std::forward_iterator_tag;
 
   // ctors
     constexpr
@@ -118,16 +148,33 @@ class multi_index_generator {
       func.increment(current_indices);
       return *this;
     }
+    constexpr auto
+    operator++(int) -> multi_index_generator {
+      //static_assert(false,"use ++it instead of it++ (implementing it would be inefficient)");
+      throw; // TODO
+    }
 
     constexpr auto
     operator*() const -> const multi_index_type& {
       return current_indices;
+    }
+
+    friend constexpr auto
+    operator==(const multi_index_generator& x, const multi_index_generator& y) {
+      return x.func==y.func  &&  x.current_pos==y.current_pos;
+    }
+    friend constexpr auto
+    operator!=(const multi_index_generator& x, const multi_index_generator& y) {
+      return !(x==y);
     }
   private:
     order_functor_type func;
     multi_index_type current_indices;
     int current_pos;
 };
+
+
+
 
 struct multi_index_generator_sentinel {
   int size;
@@ -138,9 +185,19 @@ operator==(const multi_index_generator_type& gen, multi_index_generator_sentinel
   return gen.current_position()==sentinel.size;
 }
 template<class multi_index_generator_type> constexpr auto
+operator==(multi_index_generator_sentinel sentinel, const multi_index_generator_type& gen) {
+  return gen==sentinel;
+}
+template<class multi_index_generator_type> constexpr auto
 operator!=(const multi_index_generator_type& gen, multi_index_generator_sentinel sentinel) {
   return !(gen==sentinel);
 }
+template<class multi_index_generator_type> constexpr auto
+operator!=(multi_index_generator_sentinel sentinel, const multi_index_generator_type& gen) {
+  return !(gen==sentinel);
+}
+
+
 
 
 template<class order_functor_type>
@@ -169,7 +226,15 @@ class multi_index_range {
       return generator;
     }
     constexpr auto
+    begin() -> generator_type& {
+      return generator;
+    }
+    constexpr auto
     end() const -> multi_index_generator_sentinel {
+      return {sz};
+    }
+    constexpr auto
+    end() -> multi_index_generator_sentinel {
       return {sz};
     }
   private:
