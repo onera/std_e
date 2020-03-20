@@ -11,6 +11,15 @@
 namespace std_e {
 
 
+template<class InputIt, class S, class OutputIt> constexpr auto
+copy(InputIt first, S last, OutputIt d_first) -> OutputIt
+{
+    while (first != last) {
+        *d_first++ = *first++;
+    }
+    return d_first;
+}
+
 template< class InputIt, class Size, class OutputIt>
 constexpr OutputIt
 copy_n(InputIt first, Size count, OutputIt result)
