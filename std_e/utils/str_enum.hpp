@@ -91,3 +91,38 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
       return static_cast<enum_name>(index); \
     } \
   }
+
+#define STR_ENUM_NSPACE2(nspace0, nspace1, enum_name, ... ) \
+  namespace nspace0 { namespace nspace1 { enum class enum_name { __VA_ARGS__ }; } } \
+  \
+  template<> inline const std::vector<std::string> std_e::enum_to_strings<nspace0::nspace1::enum_name> = \
+    std_e::remove_spaces_and_split( \
+      #__VA_ARGS__, \
+      ',' \
+    ); \
+  \
+  template<> inline constexpr size_t std_e::enum_size<nspace0::nspace1::enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
+  \
+  namespace nspace0 { \
+    namespace nspace1 { \
+      inline auto to_string(enum_name e) -> const std::string& { \
+        int i = std_e::to_int(e); \
+        return std_e::enum_to_strings<enum_name>[i]; \
+      } \
+    } \
+  } \
+  \
+  template<> inline const std_e::frozen_flat_map<std::string,int> \
+    std_e::strings_to_enum_index<nspace0::nspace1::enum_name> = \
+      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<nspace0::nspace1::enum_name>); \
+  \
+  namespace nspace0 { \
+    namespace nspace1 { \
+      template<class Str_enum_type> inline constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+      \
+      template<> inline constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+        int index = std_e::strings_to_enum_index<enum_name>[s]; \
+        return static_cast<enum_name>(index); \
+      } \
+    } \
+  }
