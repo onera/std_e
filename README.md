@@ -3,4 +3,4 @@
 
 
 ## Dependencies ##
-`std_e` is a C++17 library. It depends on the standard library only.
+`std_e` is a header-only C++17 library. Its functionnality depends only on the standard library. The use of Cmake for building tests and installing depends also on the `project_utils` library (can be included as a git submodule, see <https://github.com/BerengerBerthoul/project_utils>).
