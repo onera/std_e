@@ -37,23 +37,4 @@ inclusive_iota_n(Fwd_it first, Integer n, T value, const T& step) -> Fwd_it {
 }
 
 
-template<class Fwd_it, class T> constexpr auto
-uniform_distribution(Fwd_it first, Fwd_it last, T elt0, T nb_elts) {
-  T nb_slots = std::distance(first,last)-1;
-
-  STD_E_ASSERT(nb_slots>=0);
-
-  if (nb_slots==0) {
-    STD_E_ASSERT(nb_elts==0);
-    *first = elt0;
-    return;
-  }
-
-  T quotient  = nb_elts/nb_slots;
-  T remainder = nb_elts%nb_slots;
-  auto last_upper = exclusive_iota_n(first     ,remainder+1,elt0           ,quotient+1);
-                    inclusive_iota  (last_upper,last       ,*(last_upper-1),quotient  );
-}
-
-
 } // std_e
