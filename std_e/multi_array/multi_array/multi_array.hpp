@@ -34,7 +34,7 @@ class multi_array : private Multi_array_shape
     using reference = typename memory_ressource_type::reference;
     using const_reference = typename memory_ressource_type::const_reference;
 
-    static constexpr size_t fixed_rank = shape_type::fixed_rank;
+    static constexpr int ct_rank = shape_type::ct_rank;
     using multi_index_type = typename shape_type::multi_index_type;
 
     static constexpr bool mem_is_owned = memory_is_owned<memory_ressource_type>;
@@ -61,7 +61,9 @@ class multi_array : private Multi_array_shape
     multi_array(ints... dims)
       : shape_type({dims...})
       , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
-    {}
+    {
+      static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
+    }
   /// ctor for owning memory }
 
   /// ctors from initializer lists {
@@ -168,11 +170,11 @@ class multi_array : private Multi_array_shape
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) const -> const_reference {
-      return mem[fortran_linear_index(std::forward<Ts>(xs)...)];
+      return mem[linear_index(std::forward<Ts>(xs)...)];
     }
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) -> reference {
-      return mem[fortran_linear_index(std::forward<Ts>(xs)...)];
+      return mem[linear_index(std::forward<Ts>(xs)...)];
     }
     FORCE_INLINE constexpr auto
     operator[](index_type i) const -> const_reference {
@@ -185,35 +187,35 @@ class multi_array : private Multi_array_shape
       return mem[i + offset(0)];
     }
 
-  public:
+  private:
 // member functions
-  /// fortran_linear_index {
+  /// linear_index {
   // from Multi_index
     template<class Multi_index> FORCE_INLINE constexpr auto
     // requires Multi_index is an array && Multi_index::size()==rank()
-    fortran_linear_index(const Multi_index& indices) const -> index_type {
+    linear_index(const Multi_index& indices) const -> index_type {
       return fortran_order_from_dimensions(extent(),offset(),indices);
     }
   // from indices
     template<class Integer, class... Integers> FORCE_INLINE constexpr auto
     // 1 + sizeof...(Integers)==rank()
-    fortran_linear_index(Integer i, Integers... is) const -> index_type {
+    linear_index(Integer i, Integers... is) const -> index_type {
       STD_E_ASSERT(1+sizeof...(Integers)==rank()); // the number of indices must be the array rank
-      return fortran_linear_index(multi_index_type{i,is...});
+      return linear_index(multi_index_type{i,is...});
     }
     template<class... ints> FORCE_INLINE constexpr auto
     // requires ints are integers && sizeof...(ints)==rank()
-    fortran_linear_index(int i, ints... is) const -> index_type { // Note: same as above, but forcing first arg
-                                                                  // to be an integer for unsurprising overload resolution
+    linear_index(int i, ints... is) const -> index_type { // Note: same as above, but forcing first arg
+                                                          // to be an integer for unsurprising overload resolution
       STD_E_ASSERT(1+sizeof...(ints)==rank()); // the number of indices must be the array rank
-      return fortran_linear_index(multi_index_type{i,is...});
+      return linear_index(multi_index_type{i,is...});
     }
     FORCE_INLINE constexpr auto
     // requires ints are integers && sizeof...(ints)==rank()
-    fortran_linear_index() const -> index_type { // Note: rank 0 case
+    linear_index() const -> index_type { // Note: rank 0 case
       return 0;
     }
-  /// fortran_linear_index }
+  /// linear_index }
 
 // data members
     memory_ressource_type mem;
@@ -250,23 +252,23 @@ make_view(const multi_array<M0,M1>& x) {
 // sub-view of contiguous memory are possible for a fortran-ordered memory
 // if the last indices are fixed (i.e. the indices at the right)
 template<class M0, class M1, class Multi_index> auto
-make_sub_view(multi_array<M0,M1>& x, const Multi_index& right_indices) {
+make_sub_array(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return multi_array{ memory_view{x.data()+index_1d} , std::move(sub_shape) };
 }
 template<class M0, class M1, class Multi_index> auto
-make_sub_view(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
+make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return multi_array{ memory_view{x.data()+index_1d} , std::move(sub_shape) };
 }
 
 template<class M0, class M1> auto
-make_sub_view(multi_array<M0,M1>& x, int i) { // TODO C++20 Integer (complicated without concepts)
-  return make_sub_view(x,std_e::multi_index<int,1>{i});
+make_sub_array(multi_array<M0,M1>& x, int i) { // TODO C++20 Integer (complicated without concepts)
+  return make_sub_array(x,std_e::multi_index<int,1>{i});
 }
 template<class M0, class M1> auto
-make_sub_view(const multi_array<M0,M1>& x, int i) {
-  return make_sub_view(x,std_e::multi_index<int,1>{i});
+make_sub_array(const multi_array<M0,M1>& x, int i) {
+  return make_sub_array(x,std_e::multi_index<int,1>{i});
 }
 
 

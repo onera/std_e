@@ -44,12 +44,12 @@ is_empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
 template<class Memory_ressource, class Multi_array_shape> auto
 to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
   using std::to_string;
-  if constexpr (Multi_array_shape::fixed_rank==0 || Multi_array_shape::fixed_rank==dynamic_size) {
+  if constexpr (Multi_array_shape::ct_rank==0 || Multi_array_shape::ct_rank==dynamic_size) {
     if (x.rank()==0) {
       return "["+to_string(x())+"]";
     }
   }
-  if constexpr (Multi_array_shape::fixed_rank==1 || Multi_array_shape::fixed_rank==dynamic_size) {
+  if constexpr (Multi_array_shape::ct_rank==1 || Multi_array_shape::ct_rank==dynamic_size) {
     if (x.rank()==1) {
       std::string s = "["+to_string(x[0]);
       int n = x.extent(0);
@@ -59,7 +59,7 @@ to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::stri
       return s + "]";
     }
   }
-  if constexpr (Multi_array_shape::fixed_rank==2 || Multi_array_shape::fixed_rank==dynamic_size) {
+  if constexpr (Multi_array_shape::ct_rank==2 || Multi_array_shape::ct_rank==dynamic_size) {
     if (x.rank()==2) {
       std::string s = "["+to_string(x(0,0));
       int n_i = x.extent(0);

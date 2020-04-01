@@ -5,11 +5,11 @@ export CC=gcc
 export CXX=g++
 
 cd ..
-cmake -S . -Bbuild/
+cmake -S . -Bbuild/ &&
 
-cmake --build build/ -- -j24
+cmake --build build/ -- -j24 &&
 
 
 ## launch unit tests ##
-cd build
-./std_e_unit_tests
+(cd build
+./std_e_unit_tests)

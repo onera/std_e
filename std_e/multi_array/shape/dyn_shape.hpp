@@ -12,37 +12,37 @@ namespace std_e {
 
 
 template<class Integer, int N>
-class dyn_shape__impl {
+class dyn_shape_base {
   public:
   // type traits
     using index_type = Integer;
-    static constexpr int fixed_rank = N;
+    static constexpr int ct_rank = N; // ct: compile-time
 
-    using multi_index_type = multi_index<index_type,fixed_rank>;
+    using multi_index_type = multi_index<index_type,ct_rank>;
 
   // ctors
     FORCE_INLINE constexpr
-    dyn_shape__impl() = default;
+    dyn_shape_base() = default;
 
     template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
-    dyn_shape__impl(Multi_index ext, Multi_index off)
+    dyn_shape_base(Multi_index ext, Multi_index off)
       : extent_(convert_to<multi_index_type>(std::move(ext)))
       , offset_(convert_to<multi_index_type>(std::move(off)))
     {
       STD_E_ASSERT(extent().size()==offset().size());
     }
     template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
-    dyn_shape__impl(Multi_index ext)
+    dyn_shape_base(Multi_index ext)
       : extent_(convert_to<multi_index_type>(std::move(ext)))
       , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
     {}
     FORCE_INLINE constexpr
-    dyn_shape__impl(std::initializer_list<index_type> ext)
+    dyn_shape_base(std::initializer_list<index_type> ext)
       : extent_(convert_to<multi_index_type>(ext))
       , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
     {}
     FORCE_INLINE constexpr
-    dyn_shape__impl(std::initializer_list<index_type> ext, std::initializer_list<index_type> off)
+    dyn_shape_base(std::initializer_list<index_type> ext, std::initializer_list<index_type> off)
       : extent_(convert_to<multi_index_type>(ext))
       , offset_(convert_to<multi_index_type>(off))
     {}
@@ -88,10 +88,10 @@ class dyn_shape__impl {
 
 
 template<class Integer, int N>
-class dyn_shape : public dyn_shape__impl<Integer,N> {
+class dyn_shape : public dyn_shape_base<Integer,N> {
   public:
   // ctors
-    using base = dyn_shape__impl<Integer,N>;
+    using base = dyn_shape_base<Integer,N>;
     using base::base;
 
   // accessors
@@ -104,10 +104,10 @@ class dyn_shape : public dyn_shape__impl<Integer,N> {
 
 
 template<class Integer>
-class dyn_shape<Integer,dynamic_size> : public dyn_shape__impl<Integer,dynamic_size> {
+class dyn_shape<Integer,dynamic_size> : public dyn_shape_base<Integer,dynamic_size> {
   public:
   // ctors
-    using base = dyn_shape__impl<Integer,dynamic_size>;
+    using base = dyn_shape_base<Integer,dynamic_size>;
     using base::base;
 
   // accessors
@@ -133,6 +133,25 @@ make_sub_shape(const dyn_shape<Integer,N>& shape) {
       make_sub_array<0,sub_shape_rank>(shape.offset())
     );
   }
+}
+template<class Integer, int N, class Multi_index> constexpr auto
+make_sub_shape(const dyn_shape<Integer,N>& shape, const Multi_index& fixed_dim_indices) {
+  constexpr int rank = N - rank_of<Multi_index>;
+  // NOTE: zip | copy_if
+  multi_index<Integer,rank> extent = {};
+  multi_index<Integer,rank> offset = {};
+  int k0 = 0;
+  int k1 = 0;
+  for (int i=0; i<N; ++i) {
+    if (i==fixed_dim_indices[k0]) {
+      ++k0;
+    } else {
+      extent[k1] = shape.extent(i);
+      offset[k1] = shape.offset(i);
+      ++k1;
+    }
+  }
+  return dyn_shape<Integer,rank>(extent,offset);
 }
 
 

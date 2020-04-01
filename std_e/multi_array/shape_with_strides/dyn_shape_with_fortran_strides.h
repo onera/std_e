@@ -34,15 +34,6 @@ class dyn_shape_with_fortran_strides : public dyn_shape<Integer,N> {
     strides(int i) const -> index_type {
       return strides()[i];
     }
-
-    FORCE_INLINE constexpr auto
-    strides() -> multi_index_type& {
-      return strides_;
-    }
-    FORCE_INLINE auto
-    strides(int i) -> index_type& {
-      return strides()[i];
-    }
   private:
     multi_index_type strides_;
 };

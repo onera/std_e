@@ -11,15 +11,15 @@ namespace std_e {
 template<int... dims>
 struct fixed_shape {
   using index_type = int;
-  static constexpr int fixed_rank = sizeof...(dims);
+  static constexpr int ct_rank = sizeof...(dims); // ct: compile-time
 
-  using multi_index_type = multi_index<index_type,fixed_rank>;
+  using multi_index_type = multi_index<index_type,ct_rank>;
   static constexpr multi_index_type fixed_extent = {dims...};
   static constexpr multi_index_type fixed_offset = {0};
 
   static FORCE_INLINE constexpr auto
   rank() -> int {
-    return fixed_rank;
+    return ct_rank;
   }
   static FORCE_INLINE constexpr auto
   extent() -> const multi_index_type& {

@@ -39,7 +39,7 @@ struct make_shape__impl<dyn_shape<Integer,N>> {
   }
 };
 
-template<class Shape, class Multi_index = multi_index<typename Shape::index_type,Shape::fixed_rank>> constexpr auto
+template<class Shape, class Multi_index = multi_index<typename Shape::index_type,Shape::ct_rank>> constexpr auto
 make_shape(Multi_index&& ext, Multi_index&& off) -> Shape {
   return make_shape__impl<std::decay_t<Shape>>::func(FWD(ext),FWD(off));
 }

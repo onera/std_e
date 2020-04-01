@@ -101,6 +101,18 @@ fortran_strides_from_extent(const Multi_index& dims) -> Multi_index {
   }
   return strides;
 }
+// Here with no skip
+template<class Multi_index> FORCE_INLINE constexpr auto 
+fortran_strides_from_extent2(const Multi_index& dims) { // TODO replace Multi_index with multi_index (pb with int vs size_t)
+  using I = index_type_of<Multi_index>;
+  constexpr int rank = rank_of<Multi_index>;
+  multi_index<I,rank+1> strides = {};
+  strides[0] = 1;
+  for (int i=1; i<rank+1; ++i) {
+    strides[i] = strides[i-1]*dims[i-1];
+  }
+  return strides;
+}
 
 
 template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
