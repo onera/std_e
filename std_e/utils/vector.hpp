@@ -84,7 +84,7 @@ make_sub_vector(const std::vector<T>& x, I start, I sub_size) {
   return sub;
 }
 
-template<class T, class A> constexpr auto
+template<class T, class A> auto
 to_string(const std::vector<T,A>& x) -> std::string {
   return range_to_string(x);
 }
