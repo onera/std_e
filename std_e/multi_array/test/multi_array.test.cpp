@@ -138,13 +138,13 @@ TEST_CASE("make_span") {
       {4,5,6}
     };
 
-    auto span_0 = make_span(ma,0);
+    auto span_0 = column(ma,0);
     CHECK( span_0[0] == 1 );
     CHECK( span_0[1] == 4 );
-    auto span_1 = make_span(ma,1);
+    auto span_1 = column(ma,1);
     CHECK( span_1[0] == 2 );
     CHECK( span_1[1] == 5 );
-    auto span_2 = make_span(ma,2);
+    auto span_2 = column(ma,2);
     CHECK( span_2[0] == 3 );
     CHECK( span_2[1] == 6 );
   }

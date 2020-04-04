@@ -283,13 +283,20 @@ make_span(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   return make_span( x.data()+index_1d, x.extent(0) );
 }
 
-template<class M0, class M1> auto
-make_span(multi_array<M0,M1>& x, int i) {
-  return make_span(x,std_e::multi_index<int,1>{i});
+template<
+  class M0, class M1, class I,
+  std::enable_if_t< M1::rank()==2 , int > =0
+> constexpr auto
+column(multi_array<M0,M1>& x, I j) {
+  return make_span(x,std_e::multi_index<I,1>{j});
 }
-template<class M0, class M1> auto
-make_span(const multi_array<M0,M1>& x, int i) {
-  return make_span(x,std_e::multi_index<int,1>{i});
+template<
+  class M0, class M1, class I,
+  std::enable_if_t< M1::rank()==2 , int > =0
+> constexpr auto
+column(const multi_array<M0,M1>& x, I j) {
+  return make_span(x,std_e::multi_index<I,1>{j});
 }
+
 
 } // std_e

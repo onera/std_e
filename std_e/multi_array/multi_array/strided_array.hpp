@@ -209,7 +209,7 @@ make_strided_span__impl(Multi_array&& x, const Multi_index& fixed_dim_indices) {
 
   // strides
   I sz = x.extent(varying_dim_index);
-  auto strides = fortran_strides_from_extent2(x.extent()); // TODO keep fortran-order assuption private to class
+  auto strides = fortran_strides_from_extent2(x.extent()); // TODO keep fortran-order assuption private to class (e.g. make strides part of class)
   I str_len = strides[varying_dim_index];
 
   // offset
@@ -251,21 +251,21 @@ make_strided_span(const multi_array<M0,M1>& x, const Multi_index& fixed_dim_indi
 
 template<
   class M0, class M1, class I,
-  std::enable_if_t< std::is_integral_v<I> , int > =0
+  std::enable_if_t< M1::rank()==2 , int > =0
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_span(multi_array<M0,M1>& x, I fixed_index) {
-  return make_strided_span__impl<1>(x,multi_index<I,1>{fixed_index});
+row(multi_array<M0,M1>& x, I i) {
+  return make_strided_span__impl<1>(x,multi_index<I,1>{i});
 }
 template<
   class M0, class M1, class I,
-  std::enable_if_t< std::is_integral_v<I> , int > =0
+  std::enable_if_t< M1::rank()==2 , int > =0
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_span(const multi_array<M0,M1>& x, I fixed_index) {
-  return make_strided_span__impl<1>(x,multi_index<I,1>{fixed_index});
+row(const multi_array<M0,M1>& x, I i) {
+  return make_strided_span__impl<1>(x,multi_index<I,1>{i});
 }
 // strided_span }
 

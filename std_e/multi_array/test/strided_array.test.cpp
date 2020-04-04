@@ -108,24 +108,24 @@ TEST_CASE("strided_array with only one index") {
     //   fix the last direction, and for that we can ask for a column with make_span, which is contiguous
     //   for the first direction, and for that we can ask for a row with make_strided_span, which is non-contiguous
     SUBCASE("get columns") {
-      auto span_0 = make_span(ma,0);
+      auto span_0 = column(ma,0);
       CHECK( span_0[0] == 1 );
       CHECK( span_0[1] == 4 );
-      auto span_1 = make_span(ma,1);
+      auto span_1 = column(ma,1);
       CHECK( span_1[0] == 2 );
       CHECK( span_1[1] == 5 );
-      auto span_2 = make_span(ma,2);
+      auto span_2 = column(ma,2);
       CHECK( span_2[0] == 3 );
       CHECK( span_2[1] == 6 );
     }
 
     SUBCASE("get rows") {
-      auto sub_ma_0_0 = make_strided_span(ma,0);
+      auto sub_ma_0_0 = row(ma,0);
       CHECK( sub_ma_0_0.size() == 3 );
       CHECK( sub_ma_0_0[0] == 1 );
       CHECK( sub_ma_0_0[1] == 2 );
       CHECK( sub_ma_0_0[2] == 3 );
-      auto sub_ma_0_1 = make_strided_span(ma,1);
+      auto sub_ma_0_1 = row(ma,1);
       CHECK( sub_ma_0_1.size() == 3 );
       CHECK( sub_ma_0_1[0] == 4 );
       CHECK( sub_ma_0_1[1] == 5 );

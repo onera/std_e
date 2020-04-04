@@ -101,6 +101,22 @@ fortran_strides_from_extent(const Multi_index& dims) -> Multi_index {
   }
   return strides;
 }
+
+template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
+fortran_order_from_strides(const Multi_index_0& strides, const Multi_index_1& indices) -> int {
+  // Precondition:
+  //  - The stride of the first dimension is always 1, so it is skipped.
+  //  - Thus, if strides = fortran_strides_from_extent(dims), then strides[0] is actually the second stride
+  //  - The last stride is the total size
+  STD_E_ASSERT(strides.size()==indices.size());
+  int res = indices[0]; // * 1   NOTE: this is (from measurements) an IMPORTANT optimization
+  for (size_t k=1; k<strides.size(); ++k) {
+    res += indices[k] * strides[k-1];
+  }
+  return res;
+}
+
+
 // Here with no skip
 template<class Multi_index> FORCE_INLINE constexpr auto 
 fortran_strides_from_extent2(const Multi_index& dims) { // TODO replace Multi_index with multi_index (pb with int vs size_t)
@@ -113,18 +129,17 @@ fortran_strides_from_extent2(const Multi_index& dims) { // TODO replace Multi_in
   }
   return strides;
 }
-
-
 template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
-fortran_order_from_strides(const Multi_index_0& strides, const Multi_index_1& indices) -> int {
+fortran_order_from_strides2(const Multi_index_0& strides, const Multi_index_1& indices) -> int {
   // Precondition:
-  //  - The stride of the first dimension is always 1, so it is skipped.
+  //  - The stride of the first dimension is always 1
   //  - Thus, if strides = fortran_strides_from_extent(dims), then strides[0] is actually the second stride
   //  - The last stride is the total size
+  STD_E_ASSERT(strides[0]==1);
   STD_E_ASSERT(strides.size()==indices.size());
   int res = indices[0]; // * 1   NOTE: this is (from measurements) an IMPORTANT optimization
   for (size_t k=1; k<strides.size(); ++k) {
-    res += indices[k] * strides[k-1];
+    res += indices[k] * strides[k];
   }
   return res;
 }
