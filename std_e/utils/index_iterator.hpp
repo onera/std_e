@@ -73,13 +73,7 @@ class index_iterator {
     {}
 
     constexpr auto
-    operator*() -> reference {
-      return (*c_ptr)[*idx_it];
-      //return {(*c_ptr)[*idx_it],*idx_it};
-      //return {c_ptr,idx_it};
-    }
-    constexpr auto
-    operator*() const -> const reference {
+    operator*() const -> reference {
       return (*c_ptr)[*idx_it];
       //return {(*c_ptr)[*idx_it],*idx_it};
       //return {c_ptr,idx_it};

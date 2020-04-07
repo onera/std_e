@@ -8,7 +8,7 @@
 namespace std_e {
 
 
-// integer_range {
+// integer_range { // TODO factor with std_e/interval
 
 /// integer_range is a semi-open range [first,last)
 template<class I>

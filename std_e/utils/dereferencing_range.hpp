@@ -51,11 +51,7 @@ class dereferencing_iterator {
     }
 
     constexpr auto
-    operator*() -> const reference {
-      return **it_of_its;
-    }
-    constexpr auto
-    operator*() const -> const reference {
+    operator*() const -> reference {
       return **it_of_its;
     }
 

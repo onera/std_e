@@ -86,11 +86,7 @@ struct stride_iterator : private stride<I,N> {
     }
 
     FORCE_INLINE constexpr auto
-    operator*() -> T& {
-      return *ptr;
-    }
-    FORCE_INLINE constexpr auto
-    operator*() const -> const T& {
+    operator*() const -> T& {
       return *ptr;
     }
 

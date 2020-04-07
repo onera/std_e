@@ -2,6 +2,7 @@
 
 
 #include "std_e/multi_index/concept.hpp"
+#include "std_e/multi_index/cx_multi_index.hpp"
 #include "std_e/utils/array.hpp"
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/future/algorithm.hpp"
@@ -42,6 +43,10 @@ struct rank_of__impl<std::array<Integer,rank>> {
 };
 template<class Integer>
 struct rank_of__impl<std::vector<Integer>> {
+  static constexpr int value = dynamic_size;
+};
+template<>
+struct rank_of__impl<std_e::cx_multi_index> {
   static constexpr int value = dynamic_size;
 };
 

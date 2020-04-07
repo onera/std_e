@@ -34,13 +34,21 @@ lower_bound_position(const Random_access_range& r, const T& value) {
 }
 
 
-template<class C, class I> auto 
+template<class Range, class I> auto 
 // requires I is an arithmetic type
-// requires C is a container (i.e. has begin() and end()) of I
-offset(C& c, I value) -> void {
-  for (auto& elt : c) {
+// requires Range::value_type==I
+offset(Range& r, I value) -> void {
+  for (auto& elt : r) {
     elt += value;
   }
+}
+
+
+template<class Range, class T> auto
+// requires Range::value_type==T
+contains(const Range& r, const T& value) -> bool {
+  auto it = std::find(r.begin(),r.end(),value);
+  return it != r.end();
 }
 
 
