@@ -26,6 +26,22 @@ class memory_view {
       : ptr(ptr)
     {}
 
+    FORCE_INLINE constexpr memory_view(const memory_view&) = default;
+    FORCE_INLINE constexpr memory_view(memory_view&&) = default;
+    FORCE_INLINE constexpr memory_view& operator=(const memory_view&) = default;
+    FORCE_INLINE constexpr memory_view& operator=(memory_view&&) = default;
+
+    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
+    // requires std::remove_const_t<T_ptr0> = T_ptr
+    memory_view(const memory_view<T_ptr0>& mem)
+      : ptr(mem.data())
+    {}
+    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
+    // requires std::remove_const_t<T_ptr0> = T_ptr
+    memory_view(memory_view<T_ptr0>&& mem)
+      : ptr(mem.data())
+    {}
+
   // accessors
     FORCE_INLINE constexpr auto
     data() -> T_ptr {

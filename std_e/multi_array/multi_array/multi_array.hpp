@@ -52,6 +52,21 @@ class multi_array : private Multi_array_shape
       : multi_array(std::move(mem),{})
     {}
 
+    FORCE_INLINE constexpr multi_array(const multi_array&) = default;
+    FORCE_INLINE constexpr multi_array(multi_array&&) = default;
+    // assignement: not implemented
+
+    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
+    multi_array(const multi_array<memory_view<T_ptr0>,shape_type>& ma)
+      : shape_type(ma.shape())
+      , mem(ma.memory())
+    {}
+    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
+    multi_array(multi_array<memory_view<T_ptr0>,shape_type>&& ma)
+      : shape_type(std::move(ma.shape()))
+      , mem(ma.memory())
+    {}
+
   /// ctor for owning memory {
     template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
     template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
