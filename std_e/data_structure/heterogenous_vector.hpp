@@ -46,6 +46,12 @@ class hvector {
       for_each(_impl,accumulate_size);
       return sz;
     }
+  // vector-like interface
+    template<class T> auto
+    // requires T is one of the Ts...
+    push_back(const T& elt) {
+      std::get<std::vector<T>>(_impl).push_back(elt);
+    }
   private:
     impl_type _impl;
 };

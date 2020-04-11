@@ -76,6 +76,16 @@ for_each(const std::tuple<Ts...>& x, F f) -> void {
   for_each__impl_tuple<0>(x,f);
 }
 
+// implementations for std::array (follows the tuple protocol)
+template<class T, size_t N, class F> auto
+for_each(std::array<T,N>& x, F f) {
+  for_each__impl_tuple<0>(x,f);
+}
+template<class T, size_t N, class F> auto
+for_each(const std::array<T,N>& x, F f) {
+  for_each__impl_tuple<0>(x,f);
+}
+
 
 
 
