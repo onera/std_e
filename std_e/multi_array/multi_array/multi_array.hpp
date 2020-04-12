@@ -19,8 +19,7 @@ namespace std_e {
 
 
 template<class Memory_ressource, class Multi_array_shape>
-class multi_array : private Multi_array_shape
-{
+class multi_array : private Multi_array_shape {
   public:
   // type traits
     using base = Multi_array_shape;
@@ -54,7 +53,8 @@ class multi_array : private Multi_array_shape
 
     FORCE_INLINE constexpr multi_array(const multi_array&) = default;
     FORCE_INLINE constexpr multi_array(multi_array&&) = default;
-    // assignement: not implemented
+    FORCE_INLINE constexpr multi_array& operator=(const multi_array&) = default; // in case of a view: shallow copy
+    FORCE_INLINE constexpr multi_array& operator=(multi_array&&) = default;
 
     template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
     multi_array(const multi_array<memory_view<T_ptr0>,shape_type>& ma)
