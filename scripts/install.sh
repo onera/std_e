@@ -5,6 +5,7 @@ export CC=gcc
 export CXX=g++
 
 cd ..
+export PROJECT_ROOT=$(pwd)/../..
 cmake -S . -Bbuild/ &&
 
 cmake --build build/ -- -j24 &&
