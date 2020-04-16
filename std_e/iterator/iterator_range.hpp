@@ -56,13 +56,13 @@ struct iterator_range { // rename iter_span
   }
 };
 
-template<class Iterator0, class Iterator1> constexpr auto
-// requires Iterator0 and Iterator1 are comparable
-operator==(const iterator_range<Iterator0>& x, const iterator_range<Iterator1>& y) {
+template<class It0, class It1> constexpr auto
+// requires It0 and It1 are comparable
+operator==(const iterator_range<It0>& x, const iterator_range<It1>& y) {
   return x.first==y.first && x.last==y.last;
 }
-template<class Iterator0, class Iterator1> constexpr auto
-operator!=(const iterator_range<Iterator0>& x, const iterator_range<Iterator1>& y) {
+template<class It0, class It1> constexpr auto
+operator!=(const iterator_range<It0>& x, const iterator_range<It1>& y) {
   return !(x==y);
 }
 

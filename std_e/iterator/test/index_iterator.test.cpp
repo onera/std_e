@@ -1,14 +1,13 @@
-#include "doctest/doctest.h"
-
-#include "std_e/utils/index_iterator.hpp"
-#include <vector>
-
-using std::vector;
-
-// TODO
+//#include "doctest/doctest.h"
+//
+//#include "std_e/iterator/index_iterator.hpp"
+//#include <vector>
+//
+//using std::vector;
+//
 //TEST_CASE("index_iterator") {
-//  std::vector<double> v = {3.14,42.,5.1,10.001,2.7}; 
-//  std::vector<int> sub_v_indices = {0,2,4};
+//  std::vector<double> v = {3.14,42.,5.,10,7,2.7}; 
+//  std::vector<int> sub_v_indices = {0,2,5};
 //  auto sub_range = std_e::make_indexed_range(v,sub_v_indices);
 //
 //  REQUIRE(sub_range.size() == 3);
