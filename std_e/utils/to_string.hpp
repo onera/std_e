@@ -5,6 +5,7 @@
 #include "std_e/utils/string.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 #include <iomanip>
+#include <sstream>
 
 
 namespace std_e {
@@ -13,6 +14,13 @@ namespace std_e {
 inline auto
 to_string(const std::string& s) -> const std::string& {
   return s;
+}
+
+template<class T> auto
+to_string(T* ptr) -> std::string {
+  std::stringstream ss;
+  ss << ptr;
+  return ss.str();
 }
 
 

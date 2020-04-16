@@ -5,6 +5,7 @@
 #include <type_traits>
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/base/macros.hpp"
+#include "std_e/utils/to_string.hpp"
 
 
 namespace std_e {
@@ -223,6 +224,12 @@ template<class Container> FORCE_INLINE constexpr auto
 make_span(const Container& x) {
   using T = typename Container::value_type;
   return span<const T,dynamic_size>(x.data(),x.size());
+}
+
+
+template<class T, index_t N> FORCE_INLINE constexpr auto
+to_string(const span<T,N>& x) {
+  return range_to_string(x);
 }
 
 
