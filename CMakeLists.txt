@@ -46,15 +46,8 @@ set(test_files ${cpp_and_test_files})
 list(FILTER test_files INCLUDE REGEX ".*\.test\.cpp$")
 
 
-## Compiler flags ##
-# TODO move
-add_compile_options(-Wall -fmax-errors=2)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fno-math-errno -march=native -DNDEBUG -fopenmp -fPIC")
-
-
 ## Main library ##
 add_library(${PROJECT_NAME} INTERFACE)
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 target_include_directories(${PROJECT_NAME} INTERFACE 
   $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
