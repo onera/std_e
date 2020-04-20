@@ -6,9 +6,16 @@ export CXX=g++
 
 cd ..
 export PROJECT_ROOT=$(pwd)/../..
-cmake -S . -Bbuild/ &&
+cmake -S . -Bbuild/ \
+  -DCMAKE_INSTALL_PREFIX:PATH=${PREFIX_PATH} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_STANDARD=17 \
+  -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" \
+  -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" && \
 
-cmake --build build/ -- -j24 &&
+echo -e "\033[31m" && date && echo -e "\e[0m" && \
+cmake --build build/ -j 24 && \
+echo -e "\033[31m" && date && echo -e "\e[0m" && \
 
 
 ## launch unit tests ##
