@@ -1,6 +1,4 @@
-#include "doctest/doctest.h"
-#include "std_e/utils/doctest_utils.hpp"
-#include "graph/test/doctest_utils.hpp"
+#include "std_e/unit_test/doctest.hpp"
 
 #include "graph/test/io_graph.hpp"
 

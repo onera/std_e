@@ -1,15 +1,12 @@
 ## Global config ##
 cmake_minimum_required(VERSION 3.12)
 
-execute_process(COMMAND git rev-parse --show-superproject-working-tree
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  OUTPUT_VARIABLE git_root_dir_with_space
-)
-string(STRIP "${git_root_dir_with_space}" git_root_dir)
-if("${git_root_dir}" STREQUAL "")
-  set(git_root_dir ".")
+if(DEFINED ENV{PROJECT_ROOT})
+  set(PROJECT_ROOT $ENV{PROJECT_ROOT})
+else()
+  set(PROJECT_ROOT ${CMAKE_SOURCE_DIR})
 endif()
-include(${git_root_dir}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
+include(${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -33,12 +30,6 @@ set(cpp_files ${cpp_and_test_files})
 list(FILTER cpp_files EXCLUDE REGEX ".*\.test\.cpp$")
 set(test_files ${cpp_and_test_files})
 list(FILTER test_files INCLUDE REGEX ".*\.test\.cpp$")
-
-
-## Compiler flags ##
-# TODO move
-add_compile_options(-Wall -fmax-errors=2)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fno-math-errno -march=native -DNDEBUG -fopenmp -fPIC")
 
 
 ## Main library ##
@@ -72,7 +63,7 @@ install(DIRECTORY ${src_dir} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 set(TARGET_NAME ${PROJECT_NAME})
 string(REPLACE ";" " " TARGET_DEPENDENCIES_FIND_PACKAGE_STRING "${${PROJECT_NAME}_DEPENDENCIES_FIND_PACKAGE_STRING}")
 configure_file(
-  ${git_root_dir}/external/project_utils/scripts/cmake/target_config.cmake.in
+  ${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_config.cmake.in
   ${PROJECT_NAME}Config.cmake
   @ONLY
 )

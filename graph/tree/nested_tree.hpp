@@ -7,8 +7,7 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/memory_ressource/memory_ressource_provider.hpp"
 #include "std_e/utils/string.hpp"
-#include "std_e/utils/iterator.hpp"
-#include "std_e/utils/iterator_range.hpp"
+#include "std_e/iterator/iterator_range.hpp"
 #include "std_e/utils/meta.hpp"
 
 
@@ -45,8 +44,9 @@ class nested_tree {
   public:
   // traits
     using node_type = T;
-    using integer_type = std_e::type_with_other_constness<int,T>;
+    using integer_type = std_e::add_other_type_constness<int,T>;
 
+    // TODO DEL (use template param directly ?)
     using nodes_mem_type = std_e::memory_ressource_for<T,Memory_ressource>;
     using sizes_mem_type = std_e::memory_ressource_for<integer_type,Memory_ressource>;
 
