@@ -21,19 +21,19 @@ inverse_permutation(const Random_access_container& p) -> Random_access_container
 }
 
 
-template<class T> auto
-sort_permutation(const std::vector<T>& v) -> std::vector<int> {
-  std::vector<int> p(v.size());
+template<class Rng> auto
+sort_permutation(const Rng& x) -> std::vector<int> {
+  std::vector<int> p(x.size());
   std::iota(p.begin(), p.end(), 0);
-  std::sort(p.begin(), p.end(), [&](int i, int j){ return v[i] < v[j]; });
+  std::sort(p.begin(), p.end(), [&](int i, int j){ return x[i] < x[j]; });
   return p;
 }
 
-template<class T, class Comp> auto
-sort_permutation(const std::vector<T>& v, Comp comp) -> std::vector<int> {
-  std::vector<int> p(v.size());
+template<class Rng, class Comp> auto
+sort_permutation(const Rng& x, Comp comp) -> std::vector<int> {
+  std::vector<int> p(x.size());
   std::iota(p.begin(), p.end(), 0);
-  std::sort(p.begin(), p.end(), [&](int i, int j){ return comp(v[i], v[j]); });
+  std::sort(p.begin(), p.end(), [&](int i, int j){ return comp(x[i], x[j]); });
   return p;
 }
 

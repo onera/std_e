@@ -2,6 +2,7 @@
 
 #include "std_e/algorithm/merge_twin_copy.hpp"
 #include <vector>
+#include <iostream>
 using namespace std;
 
 constexpr auto
@@ -65,4 +66,38 @@ TEST_CASE("merge_twin_copy with two outputs") {
 
   CHECK( uniques == expected__uniques );
   CHECK( twins   == expected__twins   );
+}
+
+
+struct S_compress_unique_test {
+  int id;
+  std::string s;
+};
+auto
+equal_ids(const S_compress_unique_test& x, const S_compress_unique_test& y) -> bool {
+  return x.id==y.id;
+}
+template<class Fwd_it> auto
+// requires Fwd_it::value_type = S_compress_unique_test
+accumulate_equals_in_vec(Fwd_it first, Fwd_it last, vector<string>& vs) {
+  if (first==last) return first;
+
+  string s = first->s;
+  Fwd_it next = std::next(first);
+  while( next!=last && equal_ids(*first,*next) ) {
+    s += next->s;
+    ++next;
+  }
+  vs.push_back(s);
+  return next;
+}
+
+TEST_CASE("compress_unique") {
+  vector<S_compress_unique_test> v = {{1,"a"},{2,"b"},{2,"c"},{2,"d"},{3,"e"},{3,"f"},{4,"g"},{5,"h"},{5,"i"},{6,"j"}};
+  vector<string> vs = {};
+  auto compress_while = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,vs); };
+  std_e::compress_unique(begin(v),end(v),compress_while);
+
+  vector<string> expected_vs = {"a","bcd","ef","g","hi","j"};
+  CHECK( vs == expected_vs );
 }
