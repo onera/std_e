@@ -26,6 +26,19 @@ equal_n(InputIt1 first1, InputIt2 first2, Integer n, BinaryPredicate p) {
     return true;
 }
 
+template<class Fwd_it, class S, class T, class Bin_op, class Bin_pred> auto
+accumulate_while_adjacent(Fwd_it first, S last, T init, Bin_op op, Bin_pred p) -> std::pair<Fwd_it,T> {
+  if (first==last) return std::make_pair(first,init);
+
+  init = op(init,*first);
+  Fwd_it next = std::next(first);
+  while( next!=last && p(*first,*next) ) {
+    init = op(init,*next);
+    ++next;
+  }
+  return std::make_pair(next,init);
+}
+
 
 template<class Random_access_range, class T> constexpr auto
 lower_bound_position(const Random_access_range& r, const T& value) {

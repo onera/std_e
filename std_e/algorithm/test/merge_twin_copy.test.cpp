@@ -1,8 +1,9 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/algorithm/merge_twin_copy.hpp"
+#include "std_e/algorithm/algorithm.hpp"
 #include <vector>
-#include <iostream>
+#include "std_e/unit_test/id_string.hpp"
 using namespace std;
 
 constexpr auto
@@ -69,34 +70,20 @@ TEST_CASE("merge_twin_copy with two outputs") {
 }
 
 
-struct S_compress_unique_test {
-  int id;
-  std::string s;
-};
-auto
-equal_ids(const S_compress_unique_test& x, const S_compress_unique_test& y) -> bool {
-  return x.id==y.id;
-}
-template<class Fwd_it> auto
-// requires Fwd_it::value_type = S_compress_unique_test
-accumulate_equals_in_vec(Fwd_it first, Fwd_it last, vector<string>& vs) {
-  if (first==last) return first;
 
-  string s = first->s;
-  Fwd_it next = std::next(first);
-  while( next!=last && equal_ids(*first,*next) ) {
-    s += next->s;
-    ++next;
-  }
-  vs.push_back(s);
+template<class Fwd_it, class S, class T, class Bin_op, class Bin_pred> auto
+accumulate_equals_in_vec(Fwd_it first, S last, T init, Bin_op op, Bin_pred p, vector<string>& vs) -> Fwd_it {
+  auto [next,res] = std_e::accumulate_while_adjacent(first,last,init,op,p);
+  vs.push_back(res);
   return next;
 }
 
-TEST_CASE("compress_unique") {
-  vector<S_compress_unique_test> v = {{1,"a"},{2,"b"},{2,"c"},{2,"d"},{3,"e"},{3,"f"},{4,"g"},{5,"h"},{5,"i"},{6,"j"}};
+TEST_CASE("unique_compress") {
+  vector<id_string> v = {{1,"a"},{2,"b"},{2,"c"},{2,"d"},{3,"e"},{3,"f"},{4,"g"},{5,"h"},{5,"i"},{6,"j"}};
   vector<string> vs = {};
-  auto compress_while = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,vs); };
-  std_e::compress_unique(begin(v),end(v),compress_while);
+  //auto compress_while_eq = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,vs); };
+  auto compress_while_eq = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,string{},append_to_string,equal_ids,vs); };
+  std_e::unique_compress(begin(v),end(v),compress_while_eq);
 
   vector<string> expected_vs = {"a","bcd","ef","g","hi","j"};
   CHECK( vs == expected_vs );

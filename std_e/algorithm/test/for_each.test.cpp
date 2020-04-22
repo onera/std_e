@@ -16,6 +16,15 @@ TEST_CASE("for_each_if") {
   CHECK( res == expected_res );
 }
 
+TEST_CASE("for_each_until") {
+  std::vector<int> v = {100,101,2000,3};
+  auto pred = [](int i){ return i<1000; };
+  auto f = [](int& i){ i -= 100; };
+  for_each_until(begin(v),end(v),pred,f);
+  std::vector<int> expected_v = {0,1,2000,3};
+  CHECK( v == expected_v );
+}
+
 
 struct lvl_value {
   int lvl;
