@@ -70,7 +70,6 @@ TEST_CASE("merge_twin_copy with two outputs") {
 }
 
 
-
 template<class Fwd_it, class S, class T, class Bin_op, class Bin_pred> auto
 accumulate_equals_in_vec(Fwd_it first, S last, T init, Bin_op op, Bin_pred p, vector<string>& vs) -> Fwd_it {
   auto [next,res] = std_e::accumulate_while_adjacent(first,last,init,op,p);
@@ -79,12 +78,21 @@ accumulate_equals_in_vec(Fwd_it first, S last, T init, Bin_op op, Bin_pred p, ve
 }
 
 TEST_CASE("unique_compress") {
-  vector<id_string> v = {{1,"a"},{2,"b"},{2,"c"},{2,"d"},{3,"e"},{3,"f"},{4,"g"},{5,"h"},{5,"i"},{6,"j"}};
+  vector<id_string> v = {{0,"0"},{1,"a"},{2,"b"},{2,"c"},{2,"d"},{3,"e"},{3,"f"},{4,"g"},{5,"h"},{5,"i"},{6,"j"}};
   vector<string> vs = {};
   //auto compress_while_eq = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,vs); };
   auto compress_while_eq = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,string{},append_to_string,equal_ids,vs); };
-  std_e::unique_compress(begin(v),end(v),compress_while_eq);
+  auto pos = std_e::unique_compress(begin(v),end(v),compress_while_eq);
 
-  vector<string> expected_vs = {"a","bcd","ef","g","hi","j"};
+  vector<string> expected_vs = {"0","a","bcd","ef","g","hi","j"};
   CHECK( vs == expected_vs );
+
+  CHECK( (pos-begin(v)) == expected_vs.size() );
+  CHECK( v[0] == id_string{0,"0"} );
+  CHECK( v[1] == id_string{1,"a"} );
+  CHECK( v[2] == id_string{2,"b"} );
+  CHECK( v[3] == id_string{3,"e"} );
+  CHECK( v[4] == id_string{4,"g"} );
+  CHECK( v[5] == id_string{5,"h"} );
+  CHECK( v[6] == id_string{6,"j"} );
 }

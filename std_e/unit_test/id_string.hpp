@@ -36,3 +36,8 @@ append_to_string(std::string& s, const id_string& x) -> std::string& {
   s += x.s;
   return s;
 };
+
+inline auto
+to_string(const id_string& x) -> std::string {
+  return "{"+std::to_string(x.id)+","+x.s+"}";
+};

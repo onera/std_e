@@ -38,13 +38,18 @@ template<class Fwd_it, class S, class F> constexpr auto
 unique_compress(Fwd_it first, S last, F compress_while_eq) -> Fwd_it {
   Fwd_it current = first;
   Fwd_it next = compress_while_eq(first,last);
+  while (next!=last && next==std::next(first)) {
+    first = next;
+    next = compress_while_eq(first,last);
+    ++current;
+  }
   while (next!=last) {
     first = next;
     next = compress_while_eq(first,last);
     ++current;
     *current = std::move(*first);
   }
-  return first;
+  return ++current;
 }
 
 
