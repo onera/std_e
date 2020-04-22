@@ -12,6 +12,10 @@ cmake -S . -Bbuild/ \
   -DCMAKE_CXX_STANDARD=17 \
   -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" \
   -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" && \
+#cmake -S . -Bbuild/ \
+#  -DCMAKE_INSTALL_PREFIX:PATH=${PREFIX_PATH} \
+#  -DCMAKE_BUILD_TYPE=Debug \
+#  -DCMAKE_CXX_STANDARD=17 \
 
 echo -e "\033[31m" && date && echo -e "\e[0m" && \
 cmake --build build/ -j 24 && \

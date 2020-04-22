@@ -79,6 +79,14 @@ class multi_array : private Multi_array_shape {
     {
       static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
     }
+
+    template<class... ints>
+    multi_array(memory_ressource_type mem, ints... dims)
+      : shape_type({dims...})
+      , mem(mem)
+    {
+      static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
+    }
   /// ctor for owning memory }
 
   /// ctors from initializer lists {

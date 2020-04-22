@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include "std_e/utils/to_string_fwd.hpp"
+#include "std_e/algorithm/merge_twin_copy.hpp"
 
 
 namespace std_e {
@@ -90,6 +91,11 @@ template<class T, class A, class Equiv_pred, class Comp_pred> constexpr auto
 sort_unique(std::vector<T,A>& v, Equiv_pred eq, Comp_pred cmp) -> void {
   sort(v,cmp);
   unique(v,eq);
+}
+template<class T, class A, class F> constexpr auto
+unique_compress(std::vector<T,A>& v, F compress_while_eq) -> void {
+  auto new_end = unique_compress(begin(v),end(v),compress_while_eq);
+  v.erase(new_end,end(v));
 }
 
 
