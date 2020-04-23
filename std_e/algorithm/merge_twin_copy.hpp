@@ -33,23 +33,67 @@ merge_twin_copy(Fwd_it first, Fwd_it last, Output_it0 d_first_unique, Output_it1
 
 
 template<class Fwd_it, class S, class F> constexpr auto
-// requires F(Fwd_it,Fwd_it)->Fwd_it
+// requires F(Fwd_it,S)->Fwd_it
 // requires Sentinel<Fwd_it>==S
 unique_compress(Fwd_it first, S last, F compress_while_eq) -> Fwd_it {
-  Fwd_it current = first;
+  Fwd_it result = first;
   Fwd_it next = compress_while_eq(first,last);
   while (next!=last && next==std::next(first)) {
     first = next;
     next = compress_while_eq(first,last);
-    ++current;
+    ++result;
   }
   while (next!=last) {
     first = next;
     next = compress_while_eq(first,last);
-    ++current;
-    *current = std::move(*first);
+    ++result;
+    *result = std::move(*first);
   }
-  return ++current;
+  return ++result;
+}
+template<class Fwd_it, class S, class Output_it, class F> constexpr auto
+// requires F(Fwd_it,S)->Fwd_it
+// requires Sentinel<Fwd_it>==S
+unique_compress_copy(Fwd_it first, S last, Output_it result, F compress_while_eq) -> Output_it {
+  if (first==last) return result;
+
+  *result = *first;
+  Fwd_it next = compress_while_eq(first,last);
+  while (next!=last && next==std::next(first)) {
+    first = next;
+    next = compress_while_eq(first,last);
+    *result=*first;
+    ++result;
+  }
+  while (next!=last) {
+    first = next;
+    next = compress_while_eq(first,last);
+    ++result;
+    *result = *first;
+  }
+  return ++result;
+}
+
+template<class Fwd_it, class S, class Output_it0, class I, class Output_it1, class F> constexpr auto
+// requires F(Fwd_it,S)->Fwd_it
+// requires Sentinel<Fwd_it>==S
+// requires I is integer and I==Output_it1::value_type
+unique_compress_copy_with_index_position(
+    Fwd_it first, S last, 
+    Output_it0 result,
+    I current_new_position,
+    Output_it1 old_to_new_positions,
+    F compress_while_eq
+) -> Output_it0
+{
+  auto f = [&current_new_position,old_to_new_positions,compress_while_eq](auto f, auto l){
+    auto next = compress_while_eq(f,l);
+    auto n = next-f;
+    std::fill_n(old_to_new_positions,n,current_new_position);
+    ++current_new_position;
+    return next;
+  };
+  return unique_compress_copy(first,last,result,f);
 }
 
 

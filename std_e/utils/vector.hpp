@@ -97,6 +97,25 @@ unique_compress(std::vector<T,A>& v, F compress_while_eq) -> void {
   auto new_end = unique_compress(begin(v),end(v),compress_while_eq);
   v.erase(new_end,end(v));
 }
+template<class T, class A, class F> constexpr auto
+unique_compress_copy(std::vector<T,A>& v, F compress_while_eq) -> std::vector<T> {
+  std::vector<T> res;
+  unique_compress_copy(begin(v),end(v),std::back_inserter(res),compress_while_eq);
+  return res;
+}
+template<class I, class T, class A, class F> constexpr auto
+unique_compress_copy_with_index_position(std::vector<T,A>& v, F compress_while_eq) -> std::pair<std::vector<T>,std::vector<I>> {
+  std::vector<T> compress_res;
+  std::vector<I> position_res;
+  I position_init = 0;
+  unique_compress_copy_with_index_position(
+    begin(v),end(v),
+    std::back_inserter(compress_res),
+    position_init,std::back_inserter(position_res),
+    compress_while_eq
+  );
+  return std::make_pair(compress_res,position_res);
+}
 
 
 template<class T, class A, class I> constexpr auto

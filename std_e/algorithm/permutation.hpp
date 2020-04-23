@@ -20,6 +20,16 @@ inverse_permutation(const Random_access_container& p) -> Random_access_container
   return inv_p;
 }
 
+template<class array_type> constexpr auto
+compose_permutations(const array_type& p0, const array_type& p1) {
+  // Precond p0 and p1 are compatible permutations ( i.e. image(p0) in domain(p1)=[0,size(p1)[ )
+  array_type res(p0.size());
+  for (size_t i=0; i<p0.size(); ++i) {
+    res[i] = p1[p0[i]];
+  }
+  return res;
+}
+
 
 template<class Rng> auto
 sort_permutation(const Rng& x) -> std::vector<int> {

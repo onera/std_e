@@ -17,6 +17,25 @@ TEST_CASE("inverse_permutation") {
 }
 
 
+TEST_CASE("compose_permutations") {
+  vector<int> id = {0,1,2,3};
+  vector<int> perm0 = {1,2,3,0};
+  CHECK( std_e::compose_permutations(id,perm0) == perm0 );
+  CHECK( std_e::compose_permutations(perm0,id) == perm0 );
+
+
+  vector<int> perm0perm0 = {2,3,0,1};
+  CHECK( std_e::compose_permutations(perm0,perm0) == perm0perm0 );
+
+  vector<int> perm1 = {0,0,1,1};
+  vector<int> perm0perm1 = {0,1,1,0}; // 0->1->0, 1->2->1, 2->3->1, 3->0->0
+  CHECK( std_e::compose_permutations(perm0,perm1) == perm0perm1 );
+
+  vector<int> perm1perm0 = {1,1,2,2}; // 0->0->1, 1->0->1, 2->1->2, 3->1->2
+  CHECK( std_e::compose_permutations(perm1,perm0) == perm1perm0 );
+}
+
+
 TEST_CASE("permute_copy_n") {
   int sz = 3;
   vector<double> v = { 3.14 , 2.7 , 6.67};
@@ -44,14 +63,17 @@ TEST_CASE("sort and permutations") {
   vector<int> v = {100, 90, 90, 100, 80, 80, 80, 70, 60};
 
   vector<int> perm1 = std_e::sort_permutation(v);
-  vector<int> perm2 = std_e::sort_permutation(v, std::greater<int>());
-
 
   SUBCASE("sort_permutation") {
     vector<int> perm1_expected = {8, 7, 4, 5, 6, 1, 2, 0, 3};
-    vector<int> perm2_expected = {0, 3, 1, 2, 4, 5, 6, 7, 8};
 
     CHECK( perm1 == perm1_expected );
+  }
+
+  SUBCASE("sort_permutation custom comp") {
+    vector<int> perm2 = std_e::sort_permutation(v, std::greater<int>());
+    vector<int> perm2_expected = {0, 3, 1, 2, 4, 5, 6, 7, 8};
+
     CHECK( perm2 == perm2_expected );
   }
 
