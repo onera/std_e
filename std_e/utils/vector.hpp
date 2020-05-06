@@ -77,6 +77,13 @@ unique(std::vector<T,A>& v) -> void {
   auto new_end = std::unique(begin(v),end(v));
   v.erase(new_end,end(v));
 }
+
+template<class T, class A, class Equiv_pred> constexpr auto
+unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
+  auto new_end = std::unique(begin(v),end(v), eq);
+  v.erase(new_end,end(v));
+}
+
 template<class T, class A, class Equiv_pred> constexpr auto
 sort_unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
   auto new_end = std::unique(begin(v),end(v),eq);
