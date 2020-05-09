@@ -9,18 +9,10 @@
 
 namespace std_e {
 
-
 template<class Enum_type>
 constexpr auto to_int(Enum_type e) -> int {
   return static_cast<int>(e);
 };
-
-
-template<class Str_enum_type>
-const std::vector<std::string> enum_to_strings;
-
-template<class Str_enum_type>
-constexpr size_t enum_size = 0;
 
 template<class Str_enum_type>
 const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
@@ -31,98 +23,57 @@ const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
   std_e::count_char(#__VA_ARGS__, ',') + 1
 
 
-// WARNING: STR_ENUM must be declared at global scope, not in a namespace
-// If you want a namespace enum, use STR_ENUM_NSPACE (and also call the macro at global scope)
 #define STR_ENUM(enum_name, ... ) \
   enum class enum_name { __VA_ARGS__ }; \
   \
-  template<> inline const std::vector<std::string> std_e::enum_to_strings<enum_name> = \
-    std_e::remove_spaces_and_split( \
+  constexpr auto enum_size__impl(enum_name) -> size_t { \
+    return NUMBER_OF_VA_ARGS(__VA_ARGS__); \
+  } \
+  \
+  inline auto enum_to_strings__impl(enum_name) -> std::vector<std::string> { \
+    return std_e::remove_spaces_and_split( \
       #__VA_ARGS__, \
       ',' \
     ); \
-  \
-  template<> inline constexpr size_t std_e::enum_size<enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
-  \
-  inline auto to_string(enum_name e) -> const std::string& { \
-    int i = std_e::to_int(e); \
-    return std_e::enum_to_strings<enum_name>[i]; \
   } \
   \
-  template<> inline const std_e::frozen_flat_map<std::string,int> \
-    std_e::strings_to_enum_index<enum_name> = \
-      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
+  inline auto to_string(enum_name e) -> std::string { \
+    int i = std_e::to_int(e); \
+    return enum_to_strings__impl(enum_name{})[i]; \
+  } \
   \
-  template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
+  inline auto strings_to_enum_index(enum_name) -> std_e::frozen_flat_map<std::string,int> { \
+    return std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
+  } \
   \
-  template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
-    int index = std_e::strings_to_enum_index<enum_name>[s]; \
+  template<class Str_enum_type> auto to_enum(const std::string& s) -> Str_enum_type; \
+  \
+  template<> inline auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+    int index = strings_to_enum_index(enum_name{})[s]; \
     return static_cast<enum_name>(index); \
   }
 
+namespace std_e {
 
-#define STR_ENUM_NSPACE(nspace, enum_name, ... ) \
-  namespace nspace { enum class enum_name { __VA_ARGS__ }; } \
-  \
-  template<> inline const std::vector<std::string> std_e::enum_to_strings<nspace::enum_name> = \
-    std_e::remove_spaces_and_split( \
-      #__VA_ARGS__, \
-      ',' \
-    ); \
-  \
-  template<> inline constexpr size_t std_e::enum_size<nspace::enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
-  \
-  namespace nspace { \
-    inline auto to_string(enum_name e) -> const std::string& { \
-      int i = std_e::to_int(e); \
-      return std_e::enum_to_strings<enum_name>[i]; \
-    } \
-  } \
-  \
-  template<> inline const std_e::frozen_flat_map<std::string,int> \
-    std_e::strings_to_enum_index<nspace::enum_name> = \
-      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<nspace::enum_name>); \
-  \
-  namespace nspace { \
-    template<class Str_enum_type> constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
-    \
-    template<> constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
-      int index = std_e::strings_to_enum_index<enum_name>[s]; \
-      return static_cast<enum_name>(index); \
-    } \
-  }
+// enum_size {
+/// primary definition, should be replaced by specific overload
+template<class Str_enum_type> constexpr auto
+enum_size__impl(Str_enum_type) -> size_t {
+  return 0;
+}
+template<class Str_enum_type>
+constexpr size_t enum_size = enum_size__impl(Str_enum_type{}); // use ADL
+// enum_size }
 
-#define STR_ENUM_NSPACE2(nspace0, nspace1, enum_name, ... ) \
-  namespace nspace0 { namespace nspace1 { enum class enum_name { __VA_ARGS__ }; } } \
-  \
-  template<> inline const std::vector<std::string> std_e::enum_to_strings<nspace0::nspace1::enum_name> = \
-    std_e::remove_spaces_and_split( \
-      #__VA_ARGS__, \
-      ',' \
-    ); \
-  \
-  template<> inline constexpr size_t std_e::enum_size<nspace0::nspace1::enum_name> = NUMBER_OF_VA_ARGS(__VA_ARGS__); \
-  \
-  namespace nspace0 { \
-    namespace nspace1 { \
-      inline auto to_string(enum_name e) -> const std::string& { \
-        int i = std_e::to_int(e); \
-        return std_e::enum_to_strings<enum_name>[i]; \
-      } \
-    } \
-  } \
-  \
-  template<> inline const std_e::frozen_flat_map<std::string,int> \
-    std_e::strings_to_enum_index<nspace0::nspace1::enum_name> = \
-      std_e::permutation_frozen_flat_map(std_e::enum_to_strings<nspace0::nspace1::enum_name>); \
-  \
-  namespace nspace0 { \
-    namespace nspace1 { \
-      template<class Str_enum_type> inline constexpr auto to_enum(const std::string& s) -> Str_enum_type; \
-      \
-      template<> inline constexpr auto to_enum<enum_name>(const std::string& s) -> enum_name { \
-        int index = std_e::strings_to_enum_index<enum_name>[s]; \
-        return static_cast<enum_name>(index); \
-      } \
-    } \
-  }
+// enum_to_strings {
+/// primary definition, should be replaced by specific overload
+template<class Str_enum_type> auto
+enum_to_strings__impl(Str_enum_type) -> std::vector<std::string> {
+  return {};
+}
+template<class Str_enum_type>
+const std::vector<std::string> enum_to_strings = enum_to_strings__impl(Str_enum_type{}); // use ADL
+// enum_to_strings }
+
+} // std_e
+

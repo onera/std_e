@@ -3,6 +3,7 @@
 #include <iostream>
 using std::vector;
 using std::string;
+#include "std_e/utils/vector.hpp"
 
 STR_ENUM(enum_for_testing,
   value_0,
@@ -31,19 +32,13 @@ TEST_CASE("to_enum<STR_ENUM>()") {
 
 
 
-// BAD: (won't compile because of no namespace support by macros)
-// namespace testing_nspace {
-//   STR_ENUM(enum_for_testing,
-//     value_2,
-//     value_3
-//   )
-// }
-// GOOD:
-STR_ENUM_NSPACE(testing_nspace, enum_for_testing,
-  value_2,
-  value_3,
-  value_4
-)
+namespace testing_nspace {
+  STR_ENUM(enum_for_testing,
+    value_2,
+    value_3,
+    value_4
+  )
+}
 
 TEST_CASE("STR_ENUM_NSPACE enum_to_strings") {
   const vector<string>& strs = std_e::enum_to_strings<testing_nspace::enum_for_testing>;
