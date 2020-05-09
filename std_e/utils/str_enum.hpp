@@ -14,9 +14,6 @@ constexpr auto to_int(Enum_type e) -> int {
   return static_cast<int>(e);
 };
 
-template<class Str_enum_type>
-const std_e::frozen_flat_map<std::string,int> strings_to_enum_index;
-
 } // std_e
 
 #define NUMBER_OF_VA_ARGS(...) \
