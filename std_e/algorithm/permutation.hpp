@@ -69,7 +69,8 @@ permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T>
 }
 
 
-// TODO Bruno: reference?
+// REF: https://stackoverflow.com/a/17074810/1583122
+// REF: https://blog.merovius.de/2014/08/12/applying-permutation-in-constant.html
 template<class Rand_it, class I> auto
 permute(Rand_it it, const std::vector<I>& p) -> void {
   int sz = p.size();
