@@ -36,4 +36,42 @@ template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type__impl<T>();
 // to_mpi_type }
 
 
+inline auto
+rank(MPI_Comm comm) -> int {
+  int i;
+  MPI_Comm_rank(comm, &i);
+  return i;
+}
+inline auto
+nb_ranks(MPI_Comm comm) -> int {
+  int n;
+  MPI_Comm_size(comm, &n);
+  return n;
+}
+
+
+template<class T> auto
+min_global(T local_min, MPI_Comm comm) -> T {
+  T global_min = std::numeric_limits<T>::max();
+
+  int ierr = MPI_Allreduce(&local_min, &global_min, 1, to_mpi_type<T>, MPI_MIN, comm);
+  assert(ierr == 0);
+
+  return global_min;
+}
+template<class T> auto
+max_global(T local_max, MPI_Comm comm) -> T {
+  T global_max = std::numeric_limits<T>::min();
+
+  int ierr = MPI_Allreduce(&local_max, &global_max, 1, to_mpi_type<T>, MPI_MAX, comm);
+  assert(ierr == 0);
+
+  return global_max;
+}
+template<class T> auto
+minmax_global(T local_min, T local_max, MPI_Comm comm) -> std::pair<T,T> {
+  return {min_global(local_min,comm),max_global(local_max,comm)};
+}
+
+
 } // std_e
