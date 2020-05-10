@@ -10,7 +10,7 @@ namespace std_e {
 
 /*
 concept Distribution : Range of Integers
-  elts are sorted and begin at 0
+  elts are sorted
 */
 
 
@@ -43,6 +43,11 @@ uniform_distribution(Fwd_it first, Fwd_it last, T elt0, T nb_elts) {
   T remainder = nb_elts%nb_slots;
   auto last_upper = exclusive_iota_n(first     ,remainder+1,elt0           ,quotient+1);
                     inclusive_iota  (last_upper,last       ,*(last_upper-1),quotient  );
+}
+
+template<class Fwd_it, class T> constexpr auto
+uniform_distribution(Fwd_it first, Fwd_it last, T nb_elts) {
+  return uniform_distribution(first,last,T(0),nb_elts);
 }
 
 
