@@ -5,6 +5,7 @@
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
+#include "std_e/utils/macro.hpp"
 
 
 namespace std_e {
@@ -244,9 +245,8 @@ struct table_find {
 
 #define plural(x) x##s // No way to define irregular plurals!
 
-#define STD_E_TABLE(table_type, type0,attr0, type1,attr1, type2,attr2) \
+#define STD_E_TABLE_DIM_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
   using table_type = std_e::table<type0,type1,type2>; \
-  \
   auto plural(attr0)(const table_type& x) -> const auto& { return std_e::col<0>(x); } \
   auto plural(attr0)(      table_type& x) ->       auto& { return std_e::col<0>(x); } \
   auto plural(attr1)(const table_type& x) -> const auto& { return std_e::col<1>(x); } \
@@ -277,3 +277,6 @@ struct table_find {
   auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,2>(x,value); } \
   \
 
+
+#define STD_E_TABLE(table_type, ...) \
+  MACRO_NAME_SUFFIXED_BY_NB_VA_ARGS(STD_E_TABLE_DIM_,__VA_ARGS__)(table_type, __VA_ARGS__)
