@@ -245,29 +245,36 @@ struct table_find {
 
 #define plural(x) x##s // No way to define irregular plurals!
 
-#define STD_E_TABLE_DIM_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
-  using table_type = std_e::table<type0,type1,type2>; \
+#define STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1) \
   auto plural(attr0)(const table_type& x) -> const auto& { return std_e::col<0>(x); } \
   auto plural(attr0)(      table_type& x) ->       auto& { return std_e::col<0>(x); } \
   auto plural(attr1)(const table_type& x) -> const auto& { return std_e::col<1>(x); } \
   auto plural(attr1)(      table_type& x) ->       auto& { return std_e::col<1>(x); } \
-  auto plural(attr2)(const table_type& x) -> const auto& { return std_e::col<2>(x); } \
-  auto plural(attr2)(      table_type& x) ->       auto& { return std_e::col<2>(x); } \
   \
   auto find_row_from_##attr0(const table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
   auto find_row_from_##attr0(      table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
   auto find_row_from_##attr1(const table_type& x, const type1& value) { return std_e::find_row<1>(x,value); } \
   auto find_row_from_##attr1(      table_type& x, const type1& value) { return std_e::find_row<1>(x,value); } \
-  auto find_row_from_##attr2(const table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
-  auto find_row_from_##attr2(      table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
   \
   auto find_##attr0##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,0>(x,value); } \
   auto find_##attr0##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,0>(x,value); } \
-  auto find_##attr0##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,0>(x,value); } \
-  auto find_##attr0##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,0>(x,value); } \
   \
   auto find_##attr1##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,1>(x,value); } \
   auto find_##attr1##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,1>(x,value); } \
+  \
+
+#define STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
+  STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1) \
+  \
+  auto plural(attr2)(const table_type& x) -> const auto& { return std_e::col<2>(x); } \
+  auto plural(attr2)(      table_type& x) ->       auto& { return std_e::col<2>(x); } \
+  \
+  auto find_row_from_##attr2(const table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
+  auto find_row_from_##attr2(      table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
+  \
+  auto find_##attr0##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,0>(x,value); } \
+  auto find_##attr0##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,0>(x,value); } \
+  \
   auto find_##attr1##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,1>(x,value); } \
   auto find_##attr1##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,1>(x,value); } \
   \
@@ -277,6 +284,46 @@ struct table_find {
   auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,2>(x,value); } \
   \
 
+#define STD_E_GEN_TABLE_FUN_UTILS_8(table_type, type0,attr0, type1,attr1, type2,attr2, type3,attr3) \
+  STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
+  \
+  auto plural(attr3)(const table_type& x) -> const auto& { return std_e::col<3>(x); } \
+  auto plural(attr3)(      table_type& x) ->       auto& { return std_e::col<3>(x); } \
+  \
+  auto find_row_from_##attr3(const table_type& x, const type3& value) { return std_e::find_row<3>(x,value); } \
+  auto find_row_from_##attr3(      table_type& x, const type3& value) { return std_e::find_row<3>(x,value); } \
+  \
+  auto find_##attr0##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,0>(x,value); } \
+  auto find_##attr0##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,0>(x,value); } \
+  \
+  auto find_##attr1##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,1>(x,value); } \
+  auto find_##attr1##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,1>(x,value); } \
+  \
+  auto find_##attr2##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,2>(x,value); } \
+  auto find_##attr2##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,2>(x,value); } \
+  \
+  auto find_##attr3##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,3>(x,value); } \
+  auto find_##attr3##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,3>(x,value); } \
+  auto find_##attr3##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,3>(x,value); } \
+  auto find_##attr3##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,3>(x,value); } \
+  auto find_##attr3##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,3>(x,value); } \
+  auto find_##attr3##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,3>(x,value); } \
+  \
+
+#define STD_E_TABLE_4(table_type, type0,attr0, type1,attr1) \
+  using table_type = std_e::table<type0,type1>; \
+  STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1)
+
+#define STD_E_TABLE_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
+  using table_type = std_e::table<type0,type1,type2>; \
+  STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2)
+
+#define STD_E_TABLE_8(table_type, type0,attr0, type1,attr1, type2,attr2, type3,attr3) \
+  using table_type = std_e::table<type0,type1,type2>; \
+  STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2, type3,attr3)
+
 
 #define STD_E_TABLE(table_type, ...) \
-  MACRO_NAME_SUFFIXED_BY_NB_VA_ARGS(STD_E_TABLE_DIM_,__VA_ARGS__)(table_type, __VA_ARGS__)
+  static_assert(NB_VA_ARGS(__VA_ARGS__)/2 >= 2,"STD_E_TABLE implemented only for 2, 3, or 4 columns"); \
+  static_assert(NB_VA_ARGS(__VA_ARGS__)/2 <= 4,"STD_E_TABLE implemented only for 2, 3, or 4 columns"); \
+  MACRO_NAME_SUFFIXED_BY_NB_VA_ARGS(STD_E_TABLE_,__VA_ARGS__)(table_type, __VA_ARGS__)
