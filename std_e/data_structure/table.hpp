@@ -211,14 +211,33 @@ find_cell(table<Ts...>& x, const T& value) -> auto& {
 
 
 template<int found_col_index>
-struct Find_type {
-  template<int search_col_index, class table_type, class T> auto
-  from(table_type& x, const T& value) -> auto& {
-    return find_cell<search_col_index,found_col_index>(x,value);
-  }
+struct table_find {
+  template<int search_col_index>
+  struct from_type {
+    template<class table_type, class T> auto
+    operator()(table_type& x, const T& value) -> auto& {
+      return find_cell<search_col_index,found_col_index>(x,value);
+    }
+  };
+  template<int search_col_index>
+  static from_type<search_col_index> from;
 };
-template<int found_col_index> Find_type<found_col_index> find;
-
+//template<int search_col_index>
+//struct from_type {};
+//template<int search_col_index> from_type<search_col_index> from;
+//
+//template<int search_col_index, int found_col_index>
+//struct find_from_type {
+//  template<class table_type, class T> auto
+//  operator()(table_type& x, const T& value) -> auto& {
+//    return find_cell<search_col_index,found_col_index>(x,value);
+//  }
+//};
+//
+//template<int found_col_index, int search_col_idx> constexpr auto
+//find(from_type<search_col_idx>) {
+//  return find_from_type<search_col_idx,found_col_index>{};
+//}
 
 
 } // std_e
