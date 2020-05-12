@@ -54,6 +54,9 @@ TEST_CASE("table") {
     SUBCASE("find_cell") {
       double& cell_43_2 = std_e::find_cell<0,2>(s,43); // 0: search position of type "int", 2: found position of type "double"
       CHECK( cell_43_2 == 2.7 );
+
+      const double& cell_43_2_0 = std_e::Find<2>.from<0>(s,43);
+      CHECK( cell_43_2_0 == 2.7 );
     }
   }
 }

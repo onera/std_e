@@ -210,4 +210,19 @@ find_cell(table<Ts...>& x, const T& value) -> auto& {
 }
 
 
+template<int found_col_index>
+struct Find_type {
+  template<int search_col_index, class table_type, class T> auto
+  from(table_type& x, const T& value) -> auto& {
+    return find_cell<search_col_index,found_col_index>(x,value);
+  }
+};
+template<int found_col_index> Find_type<found_col_index> find;
+
+
+
 } // std_e
+
+//#define STD_E_GEN_UTILITY(table_type_name,table_type,__VA_ARGS__) \
+//  using table_type_name = table_type;
+
