@@ -242,6 +242,38 @@ struct table_find {
 
 } // std_e
 
-//#define STD_E_GEN_UTILITY(table_type_name,table_type,__VA_ARGS__) \
-//  using table_type_name = table_type;
+#define plural(x) x##s // No way to define irregular plurals!
+
+#define STD_E_TABLE(table_type, type0,attr0, type1,attr1, type2,attr2) \
+  using table_type = std_e::table<type0,type1,type2>; \
+  \
+  auto plural(attr0)(const table_type& x) -> const auto& { return std_e::col<0>(x); } \
+  auto plural(attr0)(      table_type& x) ->       auto& { return std_e::col<0>(x); } \
+  auto plural(attr1)(const table_type& x) -> const auto& { return std_e::col<1>(x); } \
+  auto plural(attr1)(      table_type& x) ->       auto& { return std_e::col<1>(x); } \
+  auto plural(attr2)(const table_type& x) -> const auto& { return std_e::col<2>(x); } \
+  auto plural(attr2)(      table_type& x) ->       auto& { return std_e::col<2>(x); } \
+  \
+  auto find_row_from_##attr0(const table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
+  auto find_row_from_##attr0(      table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
+  auto find_row_from_##attr1(const table_type& x, const type1& value) { return std_e::find_row<1>(x,value); } \
+  auto find_row_from_##attr1(      table_type& x, const type1& value) { return std_e::find_row<1>(x,value); } \
+  auto find_row_from_##attr2(const table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
+  auto find_row_from_##attr2(      table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
+  \
+  auto find_##attr0##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,0>(x,value); } \
+  auto find_##attr0##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,0>(x,value); } \
+  auto find_##attr0##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,0>(x,value); } \
+  auto find_##attr0##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,0>(x,value); } \
+  \
+  auto find_##attr1##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,1>(x,value); } \
+  auto find_##attr1##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,1>(x,value); } \
+  auto find_##attr1##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,1>(x,value); } \
+  auto find_##attr1##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,1>(x,value); } \
+  \
+  auto find_##attr2##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,2>(x,value); } \
+  auto find_##attr2##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,2>(x,value); } \
+  auto find_##attr2##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,2>(x,value); } \
+  auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,2>(x,value); } \
+  \
 

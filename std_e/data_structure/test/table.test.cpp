@@ -56,8 +56,12 @@ TEST_CASE("table") {
       CHECK( cell_43_2 == 2.7 );
 
       const double& cell_43_2_0 = std_e::table_find<2>::from<0>(s,43);
-      //const double& cell_43_2_0 = std_e::find<2>(std_e::from<0>)(s,43);
       CHECK( cell_43_2_0 == 2.7 );
+
+      constexpr int my_int = 0;
+      constexpr int my_double = 2;
+      const double& cell_43_2_1 = std_e::table_find<my_double>::from<my_int>(s,43);
+      CHECK( cell_43_2_1 == 2.7 );
     }
   }
 }
@@ -78,4 +82,30 @@ TEST_CASE("table ctor with size") {
   CHECK( col0 == expected_col0 );
   CHECK( col1 == expected_col1 );
   CHECK( col2 == expected_col2 );
+}
+
+
+STD_E_TABLE(my_test_table,
+  int, id,
+  std::string, name,
+  double, value
+)
+TEST_CASE("STD_E_TABLE") {
+  my_test_table s;
+  s.push_back(42,"X",3.14);
+  s.push_back(43,"Y",2.7);
+  s.push_back(0,"ABC",100.);
+
+  std::vector<int>& col0 = ids(s);
+  CHECK( col0[0] == 42 );
+  CHECK( col0[1] == 43 );
+  CHECK( col0[2] ==  0 );
+
+  auto row1 = find_row_from_id(s,43);
+  CHECK( std::get<0>(row1) == 43 );
+  CHECK( std::get<1>(row1) == "Y" );
+  CHECK( std::get<2>(row1) == 2.7 );
+
+  const double& cell_43_2 = find_value_from_id(s,43);
+  CHECK( cell_43_2 == 2.7 );
 }
