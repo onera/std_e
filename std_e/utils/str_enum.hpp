@@ -20,8 +20,8 @@ constexpr auto to_int(Enum_type e) -> int {
   std_e::count_char(#__VA_ARGS__, ',') + 1
 
 
-#define STR_ENUM(enum_name, ... ) \
-  enum class enum_name { __VA_ARGS__ }; \
+#define STR_ENUM__IMPL(enum_category,enum_name, ... ) \
+  enum_category enum_name { __VA_ARGS__ }; \
   \
   constexpr auto enum_size__impl(enum_name) -> size_t { \
     return NUMBER_OF_VA_ARGS(__VA_ARGS__); \
@@ -49,6 +49,12 @@ constexpr auto to_int(Enum_type e) -> int {
     int index = strings_to_enum_index(enum_name{})[s]; \
     return static_cast<enum_name>(index); \
   }
+
+// DEPRECATED NAME (use STR_ENUM_CLASS)
+#define STR_ENUM(enum_name, ... ) STR_ENUM__IMPL(enum class,enum_name,__VA_ARGS__)
+
+#define STR_ENUM_CLASS(enum_name, ... ) STR_ENUM__IMPL(enum class,enum_name,__VA_ARGS__)
+#define PLAIN_STR_ENUM(enum_name, ... ) STR_ENUM__IMPL(enum,enum_name,__VA_ARGS__)
 
 namespace std_e {
 
