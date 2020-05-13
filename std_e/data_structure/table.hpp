@@ -210,46 +210,68 @@ find_cell(table<Ts...>& x, const T& value) -> auto& {
   return x.template find_cell<search_col_index,found_col_index>(value);
 }
 
+/// find when only two columns {
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_row(const table<T0,T1>& x, const T0& value) {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_row<0>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_row(table<T0,T1>& x, const T0& value) {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_row<0>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_row(const table<T0,T1>& x, const T1& value) {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_row<1>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_row(table<T0,T1>& x, const T1& value) {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_row<1>(x,value);
+}
 
-template<int found_col_index>
-struct table_find {
-  template<int search_col_index>
-  struct from_type {
-    template<class table_type, class T> auto
-    operator()(table_type& x, const T& value) -> auto& {
-      return find_cell<search_col_index,found_col_index>(x,value);
-    }
-  };
-  template<int search_col_index>
-  static from_type<search_col_index> from;
-};
-//template<int search_col_index>
-//struct from_type {};
-//template<int search_col_index> from_type<search_col_index> from;
-//
-//template<int search_col_index, int found_col_index>
-//struct find_from_type {
-//  template<class table_type, class T> auto
-//  operator()(table_type& x, const T& value) -> auto& {
-//    return find_cell<search_col_index,found_col_index>(x,value);
-//  }
-//};
-//
-//template<int found_col_index, int search_col_idx> constexpr auto
-//find(from_type<search_col_idx>) {
-//  return find_from_type<search_col_idx,found_col_index>{};
-//}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_associate(const table<T0,T1>& x, const T0& value) -> const T1& {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_cell<0,1>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_associate(table<T0,T1>& x, const T0& value) -> T1& {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_cell<0,1>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_associate(const table<T0,T1>& x, const T1& value) -> const T0& {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_cell<1,0>(x,value);
+}
+template<class T0, class T1> constexpr auto
+// requires T==Ts[col_index]
+find_associate(table<T0,T1>& x, const T1& value) -> T0& {
+  static_assert(!std::is_same_v<T0,T1>);
+  return find_cell<1,0>(x,value);
+}
+/// find when only two columns }
 
 
 } // std_e
 
-#define plural(x) x##s // No way to define irregular plurals!
+#define PLURAL(x) x##s // No way to define irregular plurals!
 
 #define STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1) \
-  auto plural(attr0)(const table_type& x) -> const auto& { return std_e::col<0>(x); } \
-  auto plural(attr0)(      table_type& x) ->       auto& { return std_e::col<0>(x); } \
-  auto plural(attr1)(const table_type& x) -> const auto& { return std_e::col<1>(x); } \
-  auto plural(attr1)(      table_type& x) ->       auto& { return std_e::col<1>(x); } \
+  auto PLURAL(attr0)(const table_type& x) -> const auto& { return std_e::col<0>(x); } \
+  auto PLURAL(attr0)(      table_type& x) ->       auto& { return std_e::col<0>(x); } \
+  auto PLURAL(attr1)(const table_type& x) -> const auto& { return std_e::col<1>(x); } \
+  auto PLURAL(attr1)(      table_type& x) ->       auto& { return std_e::col<1>(x); } \
   \
   auto find_row_from_##attr0(const table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
   auto find_row_from_##attr0(      table_type& x, const type0& value) { return std_e::find_row<0>(x,value); } \
@@ -266,8 +288,8 @@ struct table_find {
 #define STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
   STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1) \
   \
-  auto plural(attr2)(const table_type& x) -> const auto& { return std_e::col<2>(x); } \
-  auto plural(attr2)(      table_type& x) ->       auto& { return std_e::col<2>(x); } \
+  auto PLURAL(attr2)(const table_type& x) -> const auto& { return std_e::col<2>(x); } \
+  auto PLURAL(attr2)(      table_type& x) ->       auto& { return std_e::col<2>(x); } \
   \
   auto find_row_from_##attr2(const table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
   auto find_row_from_##attr2(      table_type& x, const type2& value) { return std_e::find_row<2>(x,value); } \
@@ -287,8 +309,8 @@ struct table_find {
 #define STD_E_GEN_TABLE_FUN_UTILS_8(table_type, type0,attr0, type1,attr1, type2,attr2, type3,attr3) \
   STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
   \
-  auto plural(attr3)(const table_type& x) -> const auto& { return std_e::col<3>(x); } \
-  auto plural(attr3)(      table_type& x) ->       auto& { return std_e::col<3>(x); } \
+  auto PLURAL(attr3)(const table_type& x) -> const auto& { return std_e::col<3>(x); } \
+  auto PLURAL(attr3)(      table_type& x) ->       auto& { return std_e::col<3>(x); } \
   \
   auto find_row_from_##attr3(const table_type& x, const type3& value) { return std_e::find_row<3>(x,value); } \
   auto find_row_from_##attr3(      table_type& x, const type3& value) { return std_e::find_row<3>(x,value); } \
