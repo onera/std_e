@@ -56,6 +56,24 @@ TEST_CASE("table") {
       CHECK( cell_43_2 == 2.7 );
     }
   }
+  SUBCASE("sort") {
+    CHECK( t.sorted_column_index() == -1 ); // means invalid
+
+    std_e::sort_by_col<0>(t);
+
+    CHECK( t.sorted_column_index() == 0 );
+
+    std::vector<int>         expected_col0 = {0,42,43};
+    std::vector<std::string> expected_col1 = {"ABC","X","Y"};
+    std::vector<double>      expected_col2 = {100.,3.14,2.7};
+
+    std::vector<int>         col0 = std_e::col<0>(t);
+    std::vector<std::string> col1 = std_e::col<1>(t);
+    std::vector<double>      col2 = std_e::col<2>(t);
+    CHECK( col0 == expected_col0 );
+    CHECK( col1 == expected_col1 );
+    CHECK( col2 == expected_col2 );
+  }
 }
 
 TEST_CASE("table ctor with size") {

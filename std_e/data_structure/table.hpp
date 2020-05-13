@@ -6,11 +6,19 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/utils/macro.hpp"
+#include "std_e/algorithm/permutation.hpp"
 
 
 namespace std_e {
 
 
+// spreadsheet-like class 
+//   fixed column size 
+//   variable-length rows
+//   possible different column types
+// Invariants:
+//   (1) all columns have the same length
+//   (2) if a column has been sorted, calls to find on it will use a binary search
 template<class... Ts>
 class table {
   public:
@@ -37,13 +45,18 @@ class table {
       return get<0>(_impl).size();
     }
 
+    auto
+    sorted_column_index() const -> int {
+      return sorted_col_index;
+    }
+
     template<int col_index> auto
     col() const -> const auto& {
       return get<col_index>(_impl);
     }
     template<int col_index> auto
     col() -> auto& {
-      return get<col_index>(_impl);
+      return get<col_index>(_impl); // TODO return span to enforce invariant (1)
     }
     template<class T> auto
     col() const -> const auto& {
@@ -59,7 +72,7 @@ class table {
       return this->subscript_op__impl(i,std::make_index_sequence<nb_cols()>());
     }
     auto
-    operator[](index_type i) -> row_ref {
+    operator[](index_type i) -> row_ref { // TODO how to enforce invariant (2) ?
       return this->subscript_op__impl(i,std::make_index_sequence<nb_cols()>());
     }
 
@@ -78,8 +91,13 @@ class table {
     find_row_index(const T& x) const -> index_type {
       static_assert(col_index < nb_cols());
       const auto& col = get<col_index>(_impl);
-      auto it = std::find(begin(col),end(col),x);
-      return it-begin(col);
+      if (col_index==sorted_col_index) {
+        auto it = std::lower_bound(begin(col),end(col),x);
+        return it-begin(col);
+      } else {
+        auto it = std::find(begin(col),end(col),x);
+        return it-begin(col);
+      }
     }
     template<int col_index, class T> constexpr auto
     // requires T==Ts[col_index]
@@ -90,7 +108,7 @@ class table {
     }
     template<int col_index, class T> constexpr auto
     // requires T==Ts[col_index]
-    find_row(T& x) -> row_ref {
+    find_row(T& x) -> row_ref { // TODO how to enforce invariant (2) ?
       static_assert(col_index < nb_cols());
       index_type i = this->template find_row_index<col_index>(x);
       return (*this)[i];
@@ -105,7 +123,7 @@ class table {
     }
     template<int search_col_index, int found_col_index, class T> constexpr auto
     // requires T==Ts[search_col_index]
-    find_cell(const T& x) -> auto& {
+    find_cell(const T& x) -> auto& { // TODO how to enforce invariant (2) ?
       static_assert(search_col_index < nb_cols());
       static_assert(found_col_index < nb_cols());
       index_type i = find_row_index<search_col_index>(x);
@@ -115,9 +133,15 @@ class table {
   // vector-like interface
     template<class... Ts0> auto
     // requires Ts0 is Ts
-    push_back(const Ts0&... elts) {
-      constexpr size_t nnn = size_t(nb_cols());
-      return push_back__impl(std::forward_as_tuple(elts...),std::make_index_sequence<nnn>());
+    push_back(const Ts0&... elts) { // TODO how to enforce invariant (2) ?
+      return push_back__impl(std::forward_as_tuple(elts...),std::make_index_sequence<nb_cols()>());
+    }
+
+    template<int col_index> auto
+    sort_by_col() -> void {
+      auto perm = std_e::sort_permutation(get<col_index>(_impl));
+      apply_permutation__impl(perm,std::make_index_sequence<nb_cols()>());
+      sorted_col_index = col_index;
     }
   private:
   // methods
@@ -138,10 +162,15 @@ class table {
     template<class args_tuple_type, size_t... Is> auto
     // requires args_tuple_type is tuple<Ts...>
     push_back__impl(const args_tuple_type& elts, std::index_sequence<Is...>) {
-      (get<Is>(_impl).push_back(std::get<Is>(elts)),...);
+      ( get<Is>(_impl).push_back(std::get<Is>(elts)) , ... );
     }
-  // data member
+    template<class Int_range, size_t... Is> auto
+    apply_permutation__impl(const Int_range& perm, std::index_sequence<Is...>) -> void {
+      ( std_e::permute(get<Is>(_impl),perm) , ... );
+    }
+  // data members
     hvector<Ts...> _impl;
+    int sorted_col_index = -1; // no column sorted by default
 };
 
 
@@ -208,6 +237,11 @@ template<int search_col_index, int found_col_index, class... Ts, class T> conste
 // requires T==Ts[col_index]
 find_cell(table<Ts...>& x, const T& value) -> auto& {
   return x.template find_cell<search_col_index,found_col_index>(value);
+}
+
+template<int col_index, class... Ts> auto
+sort_by_col(table<Ts...>& x) -> void {
+  return x.template sort_by_col<col_index>();
 }
 
 /// find when only two columns {
@@ -284,6 +318,9 @@ find_associate(table<T0,T1>& x, const T1& value) -> T0& {
   auto find_##attr1##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,1>(x,value); } \
   auto find_##attr1##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,1>(x,value); } \
   \
+  auto sort_by_##attr0(table_type& x) -> void { return std_e::sort_by_col<0>(x); } \
+  auto sort_by_##attr1(table_type& x) -> void { return std_e::sort_by_col<1>(x); } \
+  \
 
 #define STD_E_GEN_TABLE_FUN_UTILS_6(table_type, type0,attr0, type1,attr1, type2,attr2) \
   STD_E_GEN_TABLE_FUN_UTILS_4(table_type, type0,attr0, type1,attr1) \
@@ -304,6 +341,8 @@ find_associate(table<T0,T1>& x, const T1& value) -> T0& {
   auto find_##attr2##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,2>(x,value); } \
   auto find_##attr2##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,2>(x,value); } \
   auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,2>(x,value); } \
+  \
+  auto sort_by_##attr2(table_type& x) -> void { return std_e::sort_by_col<2>(x); } \
   \
 
 #define STD_E_GEN_TABLE_FUN_UTILS_8(table_type, type0,attr0, type1,attr1, type2,attr2, type3,attr3) \
@@ -330,6 +369,8 @@ find_associate(table<T0,T1>& x, const T1& value) -> T0& {
   auto find_##attr3##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,3>(x,value); } \
   auto find_##attr3##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,3>(x,value); } \
   auto find_##attr3##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,3>(x,value); } \
+  \
+  auto sort_by_##attr3(table_type& x) -> void { return std_e::sort_by_col<3>(x); } \
   \
 
 #define STD_E_TABLE_4(table_type, type0,attr0, type1,attr1) \
