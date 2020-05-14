@@ -18,17 +18,17 @@ TEST_CASE("table") {
     std::vector<double>      expected_col2 = {3.14,2.7,100.};
 
     SUBCASE("by index") {
-      std::vector<int>         col0 = std_e::col<0>(t);
-      std::vector<std::string> col1 = std_e::col<1>(t);
-      std::vector<double>      col2 = std_e::col<2>(t);
+      std::vector<int>&         col0 = std_e::col<0>(t);
+      std::vector<std::string>& col1 = std_e::col<1>(t);
+      std::vector<double>&      col2 = std_e::col<2>(t);
       CHECK( col0 == expected_col0 );
       CHECK( col1 == expected_col1 );
       CHECK( col2 == expected_col2 );
     }
     SUBCASE("by type") {
-      std::vector<int>         col0 = std_e::col<int>(t);
-      std::vector<std::string> col1 = std_e::col<std::string>(t);
-      std::vector<double>      col2 = std_e::col<double>(t);
+      std::vector<int>&         col0 = std_e::col<int>(t);
+      std::vector<std::string>& col1 = std_e::col<std::string>(t);
+      std::vector<double>&      col2 = std_e::col<double>(t);
       CHECK( col0 == expected_col0 );
       CHECK( col1 == expected_col1 );
       CHECK( col2 == expected_col2 );
@@ -139,4 +139,19 @@ TEST_CASE("STD_E_TABLE") {
 
   const double& cell_43_2 = find_value_from_id(t,43);
   CHECK( cell_43_2 == 2.7 );
+}
+TEST_CASE("table ctor from vectors") {
+  std::vector<int>         x = {42,43,0};
+  std::vector<std::string> y = {"X","Y","ABC"};
+  std_e::table<int,std::string> t(x,y);
+  //std_e::table<int,std::string> t(std::vector<int>{42,43,0},std::vector<std::string>{"X","Y","ABC"});
+
+  std::vector<int>         expected_col0 = {42,43,0};
+  std::vector<std::string> expected_col1 = {"X","Y","ABC"};
+
+  std::vector<int>         col0 = std_e::col<0>(t);
+  std::vector<std::string> col1 = std_e::col<1>(t);
+
+  CHECK( col0 == expected_col0 );
+  CHECK( col1 == expected_col1 );
 }

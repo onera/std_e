@@ -34,6 +34,11 @@ class table {
     table(index_type sz)
       : table(sz,std::make_index_sequence<nb_cols()>())
     {}
+    template<class... Ts0> constexpr
+    // requires Ts0 == Ts
+    table(std::vector<Ts0>... xs)
+      : _impl(FWD(xs)...)
+    {}
 
   // size
     static constexpr auto

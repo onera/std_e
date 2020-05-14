@@ -20,6 +20,7 @@ class hvector {
     hvector() = default;
 
     template<class... Ts0> constexpr
+    // requires Ts0 == Ts
     hvector(std::vector<Ts0>... xs)
       : _impl({std::move(xs)...})
     {}
