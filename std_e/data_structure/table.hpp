@@ -108,14 +108,16 @@ class table {
     // requires T==Ts[col_index]
     find_row(const T& x) const -> row_const_ref {
       static_assert(col_index < nb_cols());
-      index_type i = this->template find_row_index<col_index>(x);
+      index_type i = find_row_index<col_index>(x);
+      STD_E_ASSERT(i<nb_rows());
       return (*this)[i];
     }
     template<int col_index, class T> constexpr auto
     // requires T==Ts[col_index]
     find_row(T& x) -> row_ref { // TODO how to enforce invariant (2) ?
       static_assert(col_index < nb_cols());
-      index_type i = this->template find_row_index<col_index>(x);
+      index_type i = find_row_index<col_index>(x);
+      STD_E_ASSERT(i<nb_rows());
       return (*this)[i];
     }
     template<int search_col_index, int found_col_index, class T> constexpr auto
@@ -124,6 +126,7 @@ class table {
       static_assert(search_col_index < nb_cols());
       static_assert(found_col_index < nb_cols());
       index_type i = find_row_index<search_col_index>(x);
+      STD_E_ASSERT(i<nb_rows());
       return get<found_col_index>(_impl)[i];
     }
     template<int search_col_index, int found_col_index, class T> constexpr auto
@@ -132,6 +135,7 @@ class table {
       static_assert(search_col_index < nb_cols());
       static_assert(found_col_index < nb_cols());
       index_type i = find_row_index<search_col_index>(x);
+      STD_E_ASSERT(i<nb_rows());
       return get<found_col_index>(_impl)[i];
     }
 
