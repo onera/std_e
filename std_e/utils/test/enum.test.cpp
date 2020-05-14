@@ -57,7 +57,7 @@ TEST_CASE("to_string(STD_E_ENUM_CLASS within namespace)") {
 }
 
 TEST_CASE("to_enum<STD_E_ENUM_CLASS within namespace>()") {
-  CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_2") == testing_nspace::enum_for_testing::value_2 );
-  CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_3") == testing_nspace::enum_for_testing::value_3 );
-  CHECK( testing_nspace::to_enum<testing_nspace::enum_for_testing>("value_4") == testing_nspace::enum_for_testing::value_4 );
+  CHECK( std_e::to_enum<testing_nspace::enum_for_testing>("value_2") == testing_nspace::enum_for_testing::value_2 );
+  CHECK( std_e::to_enum<testing_nspace::enum_for_testing>("value_3") == testing_nspace::enum_for_testing::value_3 );
+  CHECK( std_e::to_enum<testing_nspace::enum_for_testing>("value_4") == testing_nspace::enum_for_testing::value_4 );
 }

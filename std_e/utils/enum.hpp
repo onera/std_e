@@ -43,9 +43,14 @@ constexpr auto to_int(Enum_type e) -> int {
     return std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
   } \
   \
-  template<class Str_enum_type> auto to_enum(const std::string& s) -> Str_enum_type; \
+  template<class Str_enum_type> auto to_enum(const std::string& s) -> Str_enum_type; /* TODO DEL */ \
   \
-  template<> inline auto to_enum<enum_name>(const std::string& s) -> enum_name { \
+  template<> inline auto to_enum<enum_name>(const std::string& s) -> enum_name { /* TODO DEL */ \
+    int index = strings_to_enum_index(enum_name{})[s]; \
+    return static_cast<enum_name>(index); \
+  } \
+  \
+  inline auto to_enum__impl(const std::string& s, enum_name) -> enum_name { \
     int index = strings_to_enum_index(enum_name{})[s]; \
     return static_cast<enum_name>(index); \
   }
@@ -75,5 +80,16 @@ template<class Str_enum_type>
 const std::vector<std::string> enum_to_strings = enum_to_strings__impl(Str_enum_type{}); // use ADL
 // enum_to_strings }
 
-} // std_e
+// to_enum {
+/// primary definition, should be replaced by specific overload
+template<class Str_enum_type> constexpr auto
+to_enum(const std::string& s, Str_enum_type) -> size_t {
+  return 0;
+}
+template<class Str_enum_type> auto
+to_enum(const std::string& s) -> Str_enum_type {
+  return to_enum__impl(s,Str_enum_type{}); // use ADL
+}
+// to_enum }
 
+} // std_e
