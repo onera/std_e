@@ -27,7 +27,10 @@ cmake -S . -Bbuild/ \
 
 echo -e "\033[31m" && date && echo -e "\e[0m" && \
 #cmake --build build/ -j 24 && \
-(cd build && make -j24 && make docs)
+(cd build && \
+make -j24 && \
+make docs
+)
 echo -e "\033[31m" && date && echo -e "\e[0m" && \
 
 

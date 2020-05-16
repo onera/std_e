@@ -16,8 +16,8 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ## Project ##
 project(
   std_e VERSION 0.1.0
-  DESCRIPTION	"std extended"
-  LANGUAGES	CXX
+  DESCRIPTION "std extended"
+  LANGUAGES CXX
 )
 
 
@@ -78,10 +78,13 @@ option(STD_E_ENABLE_TEST "Enable testing for std_e " ON)
 if(STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
-  add_executable(${PROJECT_NAME}_unit_tests ${test_files})
+  add_executable(${PROJECT_NAME}_unit_tests
+    ${test_files}
+    ${PROJECT_ROOT}/external/project_utils/src/unit_test_main.cpp
+  )
   target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
   target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
-  add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND  ${PROJECT_NAME}_unit_tests)
+  add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
 endif()
 
 option(STD_E_ENABLE_COVERAGE "Enable coverage for std_e " OFF)
