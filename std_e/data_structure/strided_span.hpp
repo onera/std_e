@@ -9,10 +9,13 @@
 
 namespace std_e {
 
-
-// stride {
+/*!
+ *  \brief  stride for span_stride
+ */
 template<class I, int N>
 struct stride {
+
+  //! Default constructor
   constexpr stride() {}
   constexpr stride(int) {}
 
@@ -77,7 +80,7 @@ struct stride_iterator : private stride<I,N> {
       : base(str)
       , ptr(ptr)
     {}
-    
+
   // iterator interface
     FORCE_INLINE constexpr auto
     operator++() -> stride_iterator& {

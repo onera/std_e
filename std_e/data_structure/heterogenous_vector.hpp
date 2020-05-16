@@ -1,45 +1,49 @@
 #pragma once
 
-
 #include <algorithm>
 #include "std_e/utils/vector.hpp"
 #include "std_e/utils/tuple.hpp"
 
-
 namespace std_e {
 
-
+/*!
+ *  \brief  hvector is a specific structure to store vector of multiple type
+ */
 template<class... Ts>
 class hvector {
   public:
-  // traits
+    //! \brief TODO
     using impl_type = std::tuple<std::vector<Ts>...>;
 
-  // ctors
+    //! Default constructor
     constexpr
     hvector() = default;
 
+    //! Construtor from variadic template
     template<class... Ts0> constexpr
     // requires Ts0 == Ts
     hvector(std::vector<Ts0>... xs)
-      : _impl({std::move(xs)...})
-    {}
+      : _impl({std::move(xs)...}){}
 
-  // low-level access
+    //! \brief low-level access
     constexpr auto
     impl() -> impl_type& {
       return _impl;
     }
+
+    //! \brief low-level access
     constexpr auto
     impl() const -> const impl_type& {
       return _impl;
     }
 
-  // size
+    //! Retun the total size : number of type in hvector
     static constexpr auto
     hsize() -> size_t {
       return sizeof...(Ts);
     }
+
+    //! Return The current size of hvector : sum(vector.size())
     constexpr auto
     size() const -> size_t {
       size_t sz = 0;
@@ -47,14 +51,14 @@ class hvector {
       for_each(_impl,accumulate_size);
       return sz;
     }
-  // vector-like interface
+
+    //! vector-like interface : requires T is one of the Ts...
     template<class T> auto
-    // requires T is one of the Ts...
     push_back(const T& elt) {
       std::get<std::vector<T>>(_impl).push_back(elt);
     }
   private:
-    impl_type _impl;
+    impl_type _impl;    /*!< The current implementation  */
 };
 
 // TODO Test
@@ -70,14 +74,22 @@ template<class T0, class T1, class T2, class T3>
 hvector(std::vector<T0>,std::vector<T1>,std::vector<T2>,std::vector<T3>) -> hvector<T0,T1,T2,T3>;
 
 
+/*!
+ *  \brief Get vector in current hvector from type in tuple
+ */
 template<class T, class... Ts> constexpr auto
 get(hvector<Ts...>& x) -> std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
 }
+
+/*!
+ *  \brief Same as const
+ */
 template<class T, class... Ts> constexpr auto
 get(const hvector<Ts...>& x) -> const std::vector<T>& {
   return std::get<std::vector<T>>(x.impl());
 }
+
 template<size_t I, class... Ts> constexpr auto
 get(hvector<Ts...>& x) -> auto& {
   return std::get<I>(x.impl());
@@ -122,11 +134,27 @@ for_each_vector(const hvector<Ts...>& hv, F f) -> void {
 }
 
 // for each element {
+/*!
+ *  \brief  Apply function for each element in the vector and for all type contains by hvector
+ *
+ *  Example :
+ *  \code
+ *     std_e::hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
+ *     double total = 0;
+ *     auto f = [&sz](auto& val){ total += val; };
+ *     for_each_element(hv,f);
+ *     assert(val == 1+2+3+4+3.14+2.7);
+ *  \endcode
+ */
 template<class... Ts, class F> constexpr auto
 for_each_element(hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
   for_each_vector(hv,f_for_each);
 }
+
+/*!
+ *  \brief Same but const
+ */
 template<class... Ts, class F> constexpr auto
 for_each_element(const hvector<Ts...>& hv, F f) -> void {
   auto f_for_each = [f](auto&& v){ for_each(v,f); };
@@ -182,10 +210,18 @@ find_apply__impl2(hvector_type&& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return std::make_pair(pos_in_tuple,pos_in_vec);
 }
 
+
+/*!
+ *  \brief  TODO
+ */
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
 }
+
+/*!
+ *  \brief  TODO
+ */
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(const hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
@@ -198,6 +234,19 @@ find_position(const hvector<Ts...>& hv, Unary_pred p) -> std::pair<int,int> {
 }
 
 
+/*!
+ *  \brief  Apply function on each element in hvector that verify a predicate
+ *
+ *  Example :
+ *  \code
+ *     std_e::hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
+ *     double total = 0;
+ *     auto p = [](auto& x){return x > 3;}
+ *     auto f = [&sz](auto& val){ total += val; };
+ *     for_each_if(hv,p,f);
+ *     assert(val == 3.14+4);
+ *  \endcode
+ */
 template<class... Ts, class Unary_pred, class F> constexpr auto
 for_each_if(hvector<Ts...>& hv, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
@@ -211,3 +260,4 @@ for_each_if(const hvector<Ts...>& hv, Unary_pred p, F f) -> void {
 
 
 } // std_e
+
