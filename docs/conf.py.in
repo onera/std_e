@@ -91,7 +91,6 @@ html_theme = 'sphinxdoc'
 html_theme = 'bootstrap'
 
 html_theme_path = ["@sphinx_bootstrap_theme_SOURCE_DIR@/sphinx_bootstrap_theme/", ]
-html_split_index = True
 # bootswatch_theme : "cosmo", "united","flatly"
 
 # inspired by seaborn library :
@@ -105,11 +104,11 @@ html_theme_options = {
   'navbar_fixed_top': "true",
   'navbar_links': [
     ("Quick start", "quick_start"),
-    ("User manual", "contents"),
+    ("User manual", "user_manual"),
     ("Installation", "installation"),
-    # TODO Index to source-generated documentation
+    ("Reference", "source_generated_documentation"),
     ("Design documents", "design_documents"),
-    ("License", "/scratchm/bberthou/travail/tmp/std_e/license.rst"),
+    ("License", "license"),
     ("Release notes", "release_notes"),
   ],
 }

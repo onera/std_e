@@ -15,7 +15,6 @@
         :ref:`design_documents`
 
     .. container:: rightside
-
         
         :ref:`source_generated_documentation`
         
