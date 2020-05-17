@@ -72,7 +72,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['build']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -91,26 +91,28 @@ html_theme = 'sphinxdoc'
 html_theme = 'bootstrap'
 
 html_theme_path = ["@sphinx_bootstrap_theme_SOURCE_DIR@/sphinx_bootstrap_theme/", ]
+html_split_index = True
 # bootswatch_theme : "cosmo", "united","flatly"
 
 # inspired by seaborn library :
 html_theme_options = {
-    'source_link_position': "footer",
-    'bootswatch_theme': "lumen",
-    # 'bootswatch_theme': "cosmo",
-    'navbar_sidebarrel': False,
-    "navbar_site_name": "Contents",
-    'bootstrap_version': "3",
-    "navbar_fixed_top": "true",
-    'navbar_links': [
-                     ("Contents", "contents"),
-                     ("Installation", "installation"),
-                     ("Tutorial", "tutorial"),
-                     ("Release notes", "release_notes"),
-                     ("License", "license"),
-                     ],
-
-    }
+  'source_link_position': "footer",
+  'bootswatch_theme': "lumen",
+  #'bootswatch_theme': "cosmo",
+  'navbar_sidebarrel': False,
+  'navbar_site_name': "Contents",
+  'bootstrap_version': "3",
+  'navbar_fixed_top': "true",
+  'navbar_links': [
+    ("Quick start", "quick_start"),
+    ("User manual", "contents"),
+    ("Installation", "installation"),
+    # TODO Index to source-generated documentation
+    ("Design documents", "design_documents"),
+    ("License", "/scratchm/bberthou/travail/tmp/std_e/license.rst"),
+    ("Release notes", "release_notes"),
+  ],
+}
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -144,29 +146,29 @@ htmlhelp_basename = 'std_edoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
+  # The paper size ('letterpaper' or 'a4paper').
+  #
+  # 'papersize': 'letterpaper',
 
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
+  # The font size ('10pt', '11pt' or '12pt').
+  #
+  # 'pointsize': '10pt',
 
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
+  # Additional stuff for the LaTeX preamble.
+  #
+  # 'preamble': '',
 
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
+  # Latex figure (float) alignment
+  #
+  # 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'std_e.tex', 'std_e Documentation',
-     'Berenger Berthoul', 'manual'),
+  (master_doc, 'std_e.tex', 'std_e Documentation',
+   author, 'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------
@@ -181,28 +183,25 @@ man_pages = [(master_doc, 'std_e', 'std_e Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'std_e', 'std_e Documentation', author, 'std_e',
-     'One line description of project.', 'Miscellaneous'),
+  (master_doc, 'std_e', 'std_e Documentation', author, 'std_e',
+   'One line description of project.', 'Miscellaneous'),
 ]
 
 breathe_projects = {'std_e': '@BREATHE_DOC_BUILD_DIR@/xml'}
 
 
 def run_doxygen(folder):
-    """Run the doxygen make command in the designated folder"""
-
-    try:
-        retcode = subprocess.call("cd {}; doxygen".format(folder), shell=True)
-        if retcode < 0:
-            sys.stderr.write(
-                "doxygen terminated by signal {}".format(-retcode))
-    except OSError as e:
-        sys.stderr.write("doxygen execution failed: {}".format(e))
-
-# fortran_src = ['src/bc/mod_bc.f90']
+  """Run the doxygen make command in the designated folder"""
+  try:
+    retcode = subprocess.call("cd {}; doxygen".format(folder), shell=True)
+    if retcode < 0:
+      sys.stderr.write(
+        "doxygen terminated by signal {}".format(-retcode))
+  except OSError as e:
+    sys.stderr.write("doxygen execution failed: {}".format(e))
 
 def setup(app):
-    run_doxygen('@BREATHE_DOC_BUILD_DIR@')
-    # app.add_css_file("function.css")
-    app.add_css_file("my-style.css")
-    # app.add_css_file("breathe.css")
+  run_doxygen('@BREATHE_DOC_BUILD_DIR@')
+  # app.add_css_file("function.css")
+  app.add_css_file("my-style.css")
+  # app.add_css_file("breathe.css")

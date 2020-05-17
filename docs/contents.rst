@@ -1,4 +1,7 @@
-.. _contents:
+.. _user_manual:
+
+User Manual
+===========
 
 .. currentmodule:: std_e
 
@@ -9,9 +12,9 @@ Contents
 .. toctree::
    :maxdepth: 4
 
-   quick-start
-   code-reference/data_structure
-   code-reference/algorithm
+   quick_start
+   user_manual/data_structure
+   user_manual/algorithm
 
 #########
 Automatic

@@ -125,6 +125,23 @@
   /*border-bottom: 2px solid #d0d0d0;*/
 }
 
+div.indexpage {
+  font-size: 3.5em;
+}
+
+div.leftside {
+  width: 35%;
+  padding: 0px 3px 0px 0px;
+  font-size: 2em;
+  float: left;
+}
+
+div.rightside {
+  margin-left: 40%;
+  font-size: 2em;
+  /* float: right; */
+}
+
 
 /*// Indent descriptions of classes, functions and macros.
 .class dd, .function dd, .macro dd {

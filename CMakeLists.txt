@@ -74,7 +74,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 ## Unit tests ##
 # TODO main.test.cpp
-option(STD_E_ENABLE_TEST "Enable testing for std_e " ON)
+option(STD_E_ENABLE_TEST "Enable testing for std_e" ON)
 if(STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
@@ -87,10 +87,10 @@ if(STD_E_ENABLE_TEST)
   add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
 endif()
 
-option(STD_E_ENABLE_COVERAGE "Enable coverage for std_e " OFF)
+option(STD_E_ENABLE_COVERAGE "Enable coverage for std_e" OFF)
 if(STD_E_ENABLE_COVERAGE)
   if(NOT STD_E_ENABLE_TEST)
-    message(FATAL_ERROR "You need to enable testing to enable coverage: STD_E_ENABLE_TEST is OFF ")
+    message(FATAL_ERROR "You need to enable testing to enable coverage: STD_E_ENABLE_TEST is OFF")
   endif()
   # TODO -> Make a correct exclude directory
   # NOTE : not working with gcc-9.2
@@ -109,10 +109,9 @@ endif()
 # --------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
-option(STD_E_BUILD_DOCUMENTATION "Build ${PROJECT_NAME} documentation ." OFF)
+option(STD_E_BUILD_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
 if(STD_E_BUILD_DOCUMENTATION)
-  # message("Build docs ... ")
-
+  # Download bootstrap style
   FetchContent_Declare(
     sphinx_bootstrap_theme
     GIT_REPOSITORY https://github.com/ryan-roemer/sphinx-bootstrap-theme.git
@@ -124,16 +123,15 @@ if(STD_E_BUILD_DOCUMENTATION)
   endif()
 
   include(UseBreathe)
-
-  add_breathe_doc(SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/docs
-                  BUILD_DIR   ${CMAKE_CURRENT_BINARY_DIR}/_build
-                  CACHE_DIR   ${CMAKE_CURRENT_BINARY_DIR}/_doctrees
-                  HTML_DIR    ${CMAKE_CURRENT_BINARY_DIR}/html
-                  DOXY_FILE   ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
-                  CONF_FILE   ${CMAKE_CURRENT_SOURCE_DIR}/docs/conf.py.in
-                  TARGET_NAME docs
-                  COMMENT      "HTML documentation"
-                  )
+  add_breathe_doc(TARGET_NAME docs
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/docs
+    DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
+    CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/docs/conf.py.in
+    BUILD_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_build
+    CACHE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_doctrees
+    HTML_DIR   ${CMAKE_CURRENT_BINARY_DIR}/html
+    COMMENT "HTML documentation"
+  )
 
   install(DIRECTORY   ${CMAKE_CURRENT_BINARY_DIR}/html
           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc)

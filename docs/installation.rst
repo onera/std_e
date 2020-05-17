@@ -1,3 +1,5 @@
+.. _installation:
+
 Installation
 ============
 
@@ -8,15 +10,14 @@ Dependencies
 
 The unit tests use `doctest` and the build process requires :
 
-* Git>=2.14
-* Cmake>=3.12.
-* GCC>=8
+* Cmake >= 3.12
+* GCC >= 8
 
 The documentation build requires :
 
-* Doxygen 1.8.19
+* Doxygen >= 1.8.19
 * Breathe >= 4.15 (python package)
-* Sphinx == 3.00 (python package)
+* Sphinx >= 3.00 (python package)
 
 Build and install
 -----------------

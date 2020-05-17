@@ -1,10 +1,7 @@
-#module load cmake/3.12.3
-#module load gcc/8.3
-##module load python/3.6.1
-#module load python/2.7.13
-##module load cppcheck/1.90-gnu-5.2.0 
-#module load CFD/5.0-intel-19.impi-19
 source /home/bmaugars/ENVSPIROFORDOCS8.3PY3
+export PATH=/scratchm/bmaugars/opt-doxygen/bin:$PATH
+#pip3 install sphinxcontrib-applehelp --user
+#pip3 install breathe==4.17 --user
 
 export CC=gcc
 export CXX=g++
@@ -29,6 +26,7 @@ echo -e "\033[31m" && date && echo -e "\e[0m" && \
 #cmake --build build/ -j 24 && \
 (cd build && \
 make -j24 && \
+#make clean && \
 make docs
 )
 echo -e "\033[31m" && date && echo -e "\e[0m" && \
