@@ -1,6 +1,9 @@
-# Multi-dimensional arrays #
+Multi-dimensional arrays
+========================
 
-## Introduction ##
+Introduction
+------------
+
 There are many sources of variability regarding multi-dimensional arrays:
  * Type of the values stored
  * Memory allocation of the values
@@ -15,7 +18,10 @@ There are many sources of variability regarding multi-dimensional arrays:
  * Conversions
  * Supported operations
 
-## Concepts and base class ##
+
+Concepts and base class
+-----------------------
+
 [Note: we use "base" in the sense of "fundational", NOT inheritance]
 In `std_e`, we define three core concepts, `Multi_array`, `Memory_ressource` and `Multi_array_shape`.
 
@@ -29,7 +35,10 @@ Other parameters are fixed:
  * there is always an offset (0 by default), it needs to be stored if the dimensions are dynamic (even if not used)
  * `multi_array` does not support strides/non-contiguous memory (see below for alternatives)
 
-## Usage ##
+
+Usage
+-----
+
 `multi_array` is not very friendly to use. More convenient multi-dimensional arrays are defined from it:
  * `fixed_multi_array<T,Dim0,Dim1,...>>`
     * multi-array of type T
@@ -47,9 +56,14 @@ Other parameters are fixed:
       * maybe the "view" word should have been avoided. But it seems to be the natural way to use external memory multi-arrays, because the memory of the coefficients is really a (critical) ressource, and it makes sense to manage it carefully, whereas it is not the case for the dimensions themselves (a few integers)
       * the main reason `dyn_multi_array_view` is not a "pure" view is to be able to create a view from external memory (regarding the coefficients), without needing to refer to exteral memory for its shape (this would imply complex memory management if both external memories are not related)
 
-## Other classes TODO ##
-Strided multi-dimensional array views can be used with `smulti_array_view`. Owning not contiguous memory doesn't really make sense, so strided multi-array do not owned memory.
 
-## Miscellaneous ##
+Other classes TODO
+------------------
+
+Strided multi-dimensional array views can be used with `smulti_array_view`. Owning non-contiguous memory doesn't really make sense, so strided multi-array do not own memory.
+
+
+Miscellaneous
+-------------
  * There is no implicit conversion between `multi_array` classes. To create a view, use `make_view`.
  * C-order is just Fortran-order with reversed indices, so use of C-order can be done by wrapping `multi_array` into a class where accessors do reverse the indices. Same for other "hybrid" orders: just permute the indices.

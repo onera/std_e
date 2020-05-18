@@ -5,6 +5,9 @@
 #include <vector>
 #include "std_e/unit_test/id_string.hpp"
 using namespace std;
+using std_e::id_string;
+using std_e::append_to_string;
+using std_e::equal_ids;
 
 constexpr auto
 equals(int i, int j) -> bool {
@@ -102,7 +105,7 @@ TEST_CASE("unique_compress_copy") {
   auto compress_while_eq = [&vs](auto f, auto l){ return accumulate_equals_in_vec(f,l,string{},append_to_string,equal_ids,vs); };
 
   vector<id_string> res;
-  auto pos = std_e::unique_compress_copy(begin(v),end(v),std::back_inserter(res),compress_while_eq);
+  std_e::unique_compress_copy(begin(v),end(v),std::back_inserter(res),compress_while_eq);
 
   vector<string> expected_vs = {"0","a","bcd","ef","g","hi","j"};
   CHECK( vs == expected_vs );

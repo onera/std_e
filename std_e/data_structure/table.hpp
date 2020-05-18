@@ -42,11 +42,11 @@ class table {
 
   // size
     static constexpr auto
-    nb_cols() {
+    nb_cols() -> int {
       return sizeof...(Ts);
     }
     auto
-    nb_rows() const {
+    nb_rows() const -> std::ptrdiff_t {
       return get<0>(_impl).size();
     }
 

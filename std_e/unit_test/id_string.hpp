@@ -4,6 +4,9 @@
 #include <string>
 
 
+namespace std_e {
+
+
 // simple type, rich enough to unit test many things
 struct id_string {
   int id;
@@ -41,3 +44,6 @@ inline auto
 to_string(const id_string& x) -> std::string {
   return "{"+std::to_string(x.id)+","+x.s+"}";
 };
+
+
+} // std_e

@@ -1,0 +1,18 @@
+************************
+v0.1.0 (May 2020)
+************************
+First documented release
+
+Features
+""""""""
+Recent:
+- std_e::table
+- STR_ENUM and STR_ENUM_CLASS
+
+API changes
+"""""""""""
+STR_ENUM as been renamed STR_ENUM_CLASS
+
+Documentation improvements
+""""""""""""""""""""""""""
+Using Sphinx with Breathe and Doxygen
