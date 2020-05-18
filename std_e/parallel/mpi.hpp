@@ -3,6 +3,7 @@
 
 #include "std_e/utils/tuple.hpp"
 #include "std_e/future/make_array.hpp"
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {
@@ -55,7 +56,7 @@ min_global(T local_min, MPI_Comm comm) -> T {
   T global_min = std::numeric_limits<T>::max();
 
   int ierr = MPI_Allreduce(&local_min, &global_min, 1, to_mpi_type<T>, MPI_MIN, comm);
-  assert(ierr == 0);
+  STD_E_ASSERT(ierr == 0);
 
   return global_min;
 }
@@ -64,7 +65,7 @@ max_global(T local_max, MPI_Comm comm) -> T {
   T global_max = std::numeric_limits<T>::min();
 
   int ierr = MPI_Allreduce(&local_max, &global_max, 1, to_mpi_type<T>, MPI_MAX, comm);
-  assert(ierr == 0);
+  STD_E_ASSERT(ierr == 0);
 
   return global_max;
 }
