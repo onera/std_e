@@ -3,6 +3,9 @@ export PATH=/scratchm/bmaugars/opt-doxygen/bin:$PATH
 #pip3 install sphinxcontrib-applehelp --user
 #pip3 install breathe==4.17 --user
 
+#export PATH=/scratchm/bmaugars/opt-cppcheck/bin/:$PATH
+#module load gcc/5.2 cppcheck/1.90-gnu-5.2.0
+
 export CC=gcc
 export CXX=g++
 
@@ -15,8 +18,10 @@ cmake -S . -Bbuild/ \
   -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" \
   -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" \
   -DSTD_E_ENABLE_TEST=ON \
-  -DSTD_E_ENABLE_COVERAGE=ON \
-  -DSTD_E_BUILD_DOCUMENTATION=ON && \
+  -DSTD_E_ENABLE_COVERAGE=OFF \
+  -DSTD_E_BUILD_DOCUMENTATION=ON \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
+  && \
 #cmake -S . -Bbuild/ \
 #  -DCMAKE_INSTALL_PREFIX:PATH=${PREFIX_PATH} \
 #  -DCMAKE_BUILD_TYPE=Debug \
@@ -28,7 +33,10 @@ echo -e "\033[31m" && date && echo -e "\e[0m" && \
 #make clean && \
 make -j24 && \
 make doc
-)
+#make std_e_coverage
+#cppcheck --enable=all --project=compile_commands.json --xml
+echo "make done"
+) && \
 echo -e "\033[31m" && date && echo -e "\e[0m" && \
 
 

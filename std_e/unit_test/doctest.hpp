@@ -6,6 +6,11 @@
 #include "std_e/utils/vector.hpp"
 #include "std_e/future/span.hpp"
 
+// TODO: DEL?
+// When unit tests are extracted in the documentation,
+// using "SECTION" instead of "SUBCASE" feels more natural
+// #define SECTION SUBCASE
+
 
 namespace doctest {
 

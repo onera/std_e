@@ -14,11 +14,20 @@ Table of contents
 .. toctree::
   :maxdepth: 4
 
-  data_structure
 
 *****************
 Design philosophy
 *****************
+
+TODO
+
+.. _unit_tests:
+
+Unit tests
+==========
+
+TODO
+
 
 ******************
 Folder description
@@ -39,38 +48,64 @@ These are utility folders with mainly unrelated content.
 algorithm
 ================
 
+TODO
+
+
 data_structure
 ================
+
+TODO
+
 
 graph
 ================
 
-TODO
+TODO/UNFINISHED
 
 interval
 ================
 
+TODO
+
+
 iterator
-================
-
-memory_ressource
-================
-
-multi_index and multi_array
-==============================
-
-operation
-================
-
-parallel
-================
-
-polynomial
 ================
 
 TODO
 
+
+memory_ressource
+================
+
+TODO
+
+
+multi_index and multi_array
+==============================
+
+TODO
+
+
+operation
+================
+
+TODO
+
+
+parallel
+================
+
+TODO
+
+
+polynomial
+================
+
+TODO/UNFINISHED
+
 unit_test
 ================
+
+TODO
 
 Unit test utilities with doctest.

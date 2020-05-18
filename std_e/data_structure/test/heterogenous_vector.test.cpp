@@ -4,18 +4,9 @@
 using namespace std;
 using namespace std_e;
 
-//! [Test]
-//! \brief a unit test for M. Berthoul
-void unit_test()
-{
-}
-//! [Test]
-
+// [Sphinx Doc] hvector {
 TEST_CASE("hvector") {
-
-//! [Test2]
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
-//! [Test2]
 
   SUBCASE("hsize") {
     CHECK( hvector<int,double>::hsize() == 2 );
@@ -34,23 +25,32 @@ TEST_CASE("hvector") {
     CHECK( std_e::get<1>(hv) == vector{3.14,2.7} );
   }
 
-  SUBCASE("mutators") {
+  SUBCASE("mutable accessors") {
     std_e::get<int>(hv)[0] = 100;
-    std_e::get<double>(hv).push_back(10000.);
+
+    CHECK( std_e::get<int>(hv) == vector{100,2,3,4} );
+  }
+
+  SUBCASE("push_back") {
+    hv.push_back(10000.);
 
     CHECK( hv.size() == 4+3 );
 
-    CHECK( std_e::get<int>(hv) == vector{100,2,3,4} );
+    CHECK( std_e::get<int>(hv) == vector{1,2,3,4} );
     CHECK( std_e::get<double>(hv) == vector{3.14,2.7,10000.} );
   }
+}
+// [Sphinx Doc] hvector }
+
+// [Sphinx Doc] hvector for_each algorithms {
+TEST_CASE("hvector for_each algorithms") {
+  hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
 
   SUBCASE("for_each_vector") {
-//! [Test3]
-    int sz = 0;
-    auto f = [&sz](auto v){ sz += v.size(); };
+    int res = 0;
+    auto f = [&res](auto v){ res += 2*v.size(); };
     for_each_vector(hv,f);
-    CHECK( sz == 4+2 );
-//! [Test3]
+    CHECK( res == 2*4+2*2 );
   }
   SUBCASE("for_each_element") {
     double sum = 0;
@@ -59,6 +59,19 @@ TEST_CASE("hvector") {
     CHECK( sum == 1+2+3+4 + 3.14+2.7 );
   }
 
+  SUBCASE("for_each_element_if") {
+    std::vector<double> res;
+    auto pred = [](auto x){ return x<3; };
+    auto f = [&res](auto x){ res.push_back(2.*x); };
+    for_each_element_if(hv,pred,f);
+    CHECK( res == vector{2., 4., 5.4} );
+  }
+}
+// [Sphinx Doc] hvector for_each algorithms }
+
+// [Sphinx Doc] hvector find algorithms {
+TEST_CASE("hvector find algorithms") {
+  hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
   SUBCASE("find_apply") {
     double value;
     auto f = [&value](auto x){ value = 10*x; };
@@ -93,13 +106,5 @@ TEST_CASE("hvector") {
     CHECK( pos_in_tuple == 1 );
     CHECK( pos_in_vec == 0 );
   }
-
-  SUBCASE("for_each_if") {
-    std::vector<double> res;
-    auto pred = [](auto x){ return x<3; };
-    auto f = [&res](auto x){ res.push_back(2.*x); };
-    for_each_if(hv,pred,f);
-    std::vector<double> expected_res = {2.,4.,5.4};
-    CHECK( res == expected_res );
-  }
 }
+// [Sphinx Doc] hvector find algorithms }

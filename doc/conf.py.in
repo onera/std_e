@@ -98,6 +98,7 @@ html_theme_options = {
   'source_link_position': "footer",
   'bootswatch_theme': "lumen",
   #'bootswatch_theme': "cosmo",
+  #'bootswatch_theme': "spacelab",
   'navbar_sidebarrel': False,
   'navbar_site_name': "Contents",
   'navbar_pagenav': False,

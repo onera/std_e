@@ -1,7 +1,7 @@
 std_e
 =====
 
-`std_e` (for "std extended") is a C++17 library. It contains general-purpose data structures and algorithms (multi-dimensional array, constexpr std algorithms, utilities...). Hopefully, one day, these functionnalities will be provided by the C++ standard library.
+`std_e` (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms (multi-dimensional array, constexpr std algorithms, utilities...). Hopefully, one day, these functionnalities will be provided by the C++ standard library.
 
 ## Dependencies ##
 `std_e` is a header-only C++17 library. It depends only on the standard library. The unit tests use `doctest` and the build process requires GCC>=8 and Cmake>=3.12.

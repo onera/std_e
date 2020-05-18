@@ -101,10 +101,10 @@ if(STD_E_ENABLE_COVERAGE)
                         "/opt/tools/gcc-8.3/include/c++/8.3.0/*"
                         "/opt/tools/gcc-8.3/include/c++/8.3.0/bits/*")
   SETUP_TARGET_FOR_COVERAGE_LCOV(
-          NAME ${PROJECT_NAME}_coverage
-          DEPENDENCIES ${PROJECT_NAME}_unit_tests
-          EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
-          )
+    NAME ${PROJECT_NAME}_coverage
+    DEPENDENCIES ${PROJECT_NAME}_unit_tests
+    EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
+  )
 endif()
 # --------------------------------------------------------------------------------
 

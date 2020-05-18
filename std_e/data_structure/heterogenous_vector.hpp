@@ -8,9 +8,6 @@ namespace std_e {
 
 /**
  *  \brief  hvector is a specific structure to store vector of multiple type
- *
- *  \snippet test/heterogenous_vector.test.cpp Test2
- *  \snippet test/heterogenous_vector.test.cpp Test3
  */
 template<class... Ts>
 class hvector {
@@ -237,25 +234,24 @@ find_position(const hvector<Ts...>& hv, Unary_pred p) -> std::pair<int,int> {
 }
 
 
-/*!
- *  \brief  Apply function on each element in hvector that verify a predicate
- *
- *  Example :
- *  \code
- *     std_e::hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
- *     double total = 0;
- *     auto p = [](auto& x){return x > 3;}
- *     auto f = [&sz](auto& val){ total += val; };
- *     for_each_if(hv,p,f);
- *     assert(val == 3.14+4);
- *  \endcode
- */
 template<class... Ts, class Unary_pred, class F> constexpr auto
-for_each_if(hvector<Ts...>& hv, Unary_pred p, F f) -> void {
+for_each_element_if(hvector<Ts...>& hv, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
   for_each_element(hv,f_cond);
 }
 template<class... Ts, class Unary_pred, class F> constexpr auto
+for_each_element_if(const hvector<Ts...>& hv, Unary_pred p, F f) -> void {
+  auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
+  for_each_element(hv,f_cond);
+}
+
+// TODO REMOVE
+template<class... Ts, class Unary_pred, class F> [[deprecated("use for_each_element_if instead")]] constexpr auto
+for_each_if(hvector<Ts...>& hv, Unary_pred p, F f) -> void {
+  auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
+  for_each_element(hv,f_cond);
+}
+template<class... Ts, class Unary_pred, class F> [[deprecated("use for_each_element_if instead")]] constexpr auto
 for_each_if(const hvector<Ts...>& hv, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
   for_each_element(hv,f_cond);
