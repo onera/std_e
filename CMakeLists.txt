@@ -123,10 +123,10 @@ if(STD_E_BUILD_DOCUMENTATION)
   endif()
 
   include(UseBreathe)
-  add_breathe_doc(TARGET_NAME docs
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/docs
-    DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
-    CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/docs/conf.py.in
+  add_breathe_doc(TARGET_NAME doc
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc
+    DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
+    CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in
     BUILD_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_build
     CACHE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_doctrees
     HTML_DIR   ${CMAKE_CURRENT_BINARY_DIR}/html

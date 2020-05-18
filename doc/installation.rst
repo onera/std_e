@@ -8,12 +8,12 @@ Dependencies
 
 `std_e` is a header-only C++17 library. It depends only on the standard library.
 
-The unit tests use `doctest` and the build process requires :
+The unit tests use `doctest` and the build process requires:
 
 * Cmake >= 3.12
 * GCC >= 8
 
-The documentation build requires :
+The documentation build requires:
 
 * Doxygen >= 1.8.19
 * Breathe >= 4.15 (python package)

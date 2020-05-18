@@ -4,9 +4,19 @@
 using namespace std;
 using namespace std_e;
 
+//! [Test]
+//! \brief a unit test for M. Berthoul
+void unit_test()
+{
+}
+//! [Test]
+
 TEST_CASE("hvector") {
+
+//! [Test2]
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
-   
+//! [Test2]
+
   SUBCASE("hsize") {
     CHECK( hvector<int,double>::hsize() == 2 );
     CHECK( hv.hsize() == 2 );
@@ -35,10 +45,12 @@ TEST_CASE("hvector") {
   }
 
   SUBCASE("for_each_vector") {
+//! [Test3]
     int sz = 0;
     auto f = [&sz](auto v){ sz += v.size(); };
     for_each_vector(hv,f);
     CHECK( sz == 4+2 );
+//! [Test3]
   }
   SUBCASE("for_each_element") {
     double sum = 0;

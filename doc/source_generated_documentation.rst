@@ -4,3 +4,6 @@ Source-generated documentation
 ==============================
 
 TODO
+
+.. .. doxygenindex::
+..    :project: std_e

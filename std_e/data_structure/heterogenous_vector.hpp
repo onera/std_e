@@ -6,8 +6,11 @@
 
 namespace std_e {
 
-/*!
+/**
  *  \brief  hvector is a specific structure to store vector of multiple type
+ *
+ *  \snippet test/heterogenous_vector.test.cpp Test2
+ *  \snippet test/heterogenous_vector.test.cpp Test3
  */
 template<class... Ts>
 class hvector {
@@ -20,7 +23,7 @@ class hvector {
     hvector() = default;
 
     //! Construtor from variadic template
-    template<class... Ts0> constexpr
+    template <class... Ts0> constexpr
     // requires Ts0 == Ts
     hvector(std::vector<Ts0>... xs)
       : _impl({std::move(xs)...}){}

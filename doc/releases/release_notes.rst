@@ -9,4 +9,4 @@ Release notes
 
 This page contains information about what has changed in each new version of ``std_e``.
 
-.. include:: releases/v0.1.0.rst
+.. include:: v0.1.0.rst
