@@ -1,7 +1,7 @@
 std_e
 =====
 
-`std_e` (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms (multi-dimensional array, constexpr std algorithms, utilities...). Hopefully, one day, these functionnalities will be provided by the C++ standard library.
+`std_e` (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms (multi-dimensional array, constexpr std algorithms, utilities...). Hopefully, one day, these functionalities will be provided by the C++ standard library.
 
 ## Dependencies ##
 `std_e` is a header-only C++17 library. It depends only on the standard library. The unit tests use `doctest` and the build process requires GCC>=8 and Cmake>=3.12.
@@ -17,3 +17,6 @@ The documentation root is file `doc/index.rst`.
 
 ## Development ##
 The `std_e` repository is compatible with the development process described in `external/project_utils/doc/main.md`. It uses git submodules to ease the joint development with other repositories compatible with this organization. TL;DR: configure the git repository with `cd external/project_utils/scripts && configure_top_level_repo.sh`.
+
+## License ##
+`std_e` is available under the MPL-2.0 licence.
