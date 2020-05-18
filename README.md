@@ -19,4 +19,4 @@ The documentation root is file `doc/index.rst`.
 The `std_e` repository is compatible with the development process described in `external/project_utils/doc/main.md`. It uses git submodules to ease the joint development with other repositories compatible with this organization. TL;DR: configure the git repository with `cd external/project_utils/scripts && configure_top_level_repo.sh`.
 
 ## License ##
-`std_e` is available under the MPL-2.0 licence.
+`std_e` is available under the MPL-2.0 license (https://mozilla.org/MPL/2.0/).
