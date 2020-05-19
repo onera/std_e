@@ -77,25 +77,27 @@ There is two levels possible levels for iterating an :cpp:`hvector`: :cpp:`for_e
 Finally, :cpp:`for_each_element_if` iterates through an individual element only if it satisfies a predicate.
 
 .. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+  :language: C++
   :start-after: [Sphinx Doc] hvector for_each algorithms {
   :end-before: [Sphinx Doc] hvector for_each algorithms }
 
 2.3.2. find algorithms
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Ideally, :cpp:class:`hvector` algorithms should be similar to the one used with any container, e.g. with :cpp:`std::vector`. However, when iterating over an :cpp:class:`hvector`, the underlying type of an element varies. That is why many standard algorithms are not directly applicable to an heterogenous vector.
+Ideally, algorithms on :cpp:class:`hvector` should be similar to the one used with any container, e.g. with :cpp:`std::vector`. However, when iterating over an :cpp:class:`hvector`, the underlying type of an element varies. That is why many standard algorithms are not directly applicable to an heterogenous vector.
 
 This is the case with :cpp:`std::find_if`. Suppose we want to apply :cpp:`find_if` to :cpp:`hvector<int,string>`. The return value would be an iterator pointing to either an :cpp:`int` or a :cpp:`string`, which is not possible.
 
 One way to get around this limitation is to apply the wanted operation as soon as we are iterating over the elements. This is the :cpp:`find_apply` algorithm:
 
 .. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+  :language: C++
   :start-after: [Sphinx Doc] hvector find algorithms {
   :end-before: [Sphinx Doc] hvector find algorithms }
 
 3. STD_E_ENUM
 ^^^^^^^^^^^^^
-C/C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
+C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
 
 .. literalinclude::  /../std_e/utils/test/enum.test.cpp
   :language: C++

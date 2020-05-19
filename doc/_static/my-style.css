@@ -181,6 +181,10 @@ div.body {
     max-width: 1000px; /* old: 800px */
 }
 
+/*div.cpp-class {
+  background-color: #f9f2f4;
+}*/
+
 /*// Indent descriptions of classes, functions and macros.
 .class dd, .function dd, .macro dd {
   margin-left: 500px;
