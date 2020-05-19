@@ -8,6 +8,7 @@
 Quick start
 ===========
 
+.. contents:: :local:
 
 Introduction
 ------------
@@ -19,16 +20,16 @@ The following documentation assumes a good knowledge of the C++ standard library
 Installation
 ------------
 
-**std_e** is header-only. To build the tests, build the documentation or install the library, see :ref:`installation`.
+**std_e** is header-only. See :ref:`installation` to build the tests, build the documentation or install the library.
 
 Highlights
 ----------
 
-Here is a succinct presentation of the main facilities of `std_e`. For a more detailed presentation, see :ref:`user_manual`.
+Below is a succinct presentation of the main facilities of **std_e**. For a more detailed presentation, see the :ref:`user_manual`.
 
-Everything in **std_e** is defined withing the :cpp:`std_e` namespace, except macros. Generally, macros names are starting with :cpp:`STD_E_`.
+Everything in **std_e** is defined within the :cpp:`std_e` namespace, except macros. Generally, macros names are starting with :cpp:`STD_E_`.
 
-In the examples below, when there is no abiguity, we will assume that we are using the :cpp:`std` and :cpp:`std_e` namespace:
+In the examples below, when there is no abiguity, we will assume that we are using the :cpp:`std` and :cpp:`std_e` namespaces:
 
 .. code:: c++
 
@@ -61,6 +62,7 @@ A :cpp:class:`std_e::hvector`\ :cpp:`<Ts...>` (short for heterogenous vector) is
 """"""""""""""""
 
 .. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+  :language: C++
   :start-after: [Sphinx Doc] hvector {
   :end-before: [Sphinx Doc] hvector }
 

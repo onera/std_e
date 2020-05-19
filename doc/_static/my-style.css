@@ -163,6 +163,24 @@ div.rightside {
   /* float: right; */
 }
 
+/* gray note boxes */
+.alert-info {
+  color: #505050;
+  background-color: #cccccc;
+  border-color: #aaaaaa;
+}
+
+/* center body */
+.col-md-12 {
+  margin: 0 auto;
+  float: unset;
+}
+/* larger body */
+div.body {
+    min-width: 450px;
+    max-width: 1000px; /* old: 800px */
+}
+
 /*// Indent descriptions of classes, functions and macros.
 .class dd, .function dd, .macro dd {
   margin-left: 500px;

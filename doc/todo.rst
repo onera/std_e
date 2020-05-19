@@ -8,7 +8,7 @@ Doc
 
 source_generated_documentation
 
-Change the "note" directive display style
+literalinclude: link to the original source file
 
 
 Build and CI
