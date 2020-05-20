@@ -10,7 +10,7 @@ export CC=gcc
 export CXX=g++
 
 cd ..
-#export PROJECT_ROOT=$(pwd)/../..
+export PROJECT_ROOT=$(pwd)/../..
 cmake -S . -Bbuild/ \
   -DCMAKE_INSTALL_PREFIX:PATH=${PREFIX_PATH} \
   -DCMAKE_BUILD_TYPE=Debug \

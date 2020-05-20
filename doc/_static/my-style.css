@@ -144,6 +144,9 @@ h5 {
 h6 {
   font-size: 1.2em;
 }
+.navbar-default .navbar-nav {
+  font-size: 1.3em;
+}
 
 
 div.indexpage {
@@ -181,9 +184,11 @@ div.body {
     max-width: 1000px; /* old: 800px */
 }
 
-/*div.cpp-class {
+/* same background color for referenced inline code */
+code.xref, a code {
   background-color: #f9f2f4;
-}*/
+  font-weight: bolder;
+}
 
 /*// Indent descriptions of classes, functions and macros.
 .class dd, .function dd, .macro dd {
