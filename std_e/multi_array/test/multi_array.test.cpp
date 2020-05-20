@@ -21,7 +21,7 @@ TEST_CASE("multi_arrays of rank 0 are scalars") {
     // because it would require special cases
     // whereas it seems not very useful
 
-    dyn_multi_array<int,int32_t,0> f_no_alloc;
+    dyn_multi_array<int,0> f_no_alloc;
     CHECK( f_no_alloc.rank() == 0 );
     CHECK( f_no_alloc.size() == 1 ); 
 
@@ -32,12 +32,13 @@ TEST_CASE("multi_arrays of rank 0 are scalars") {
 }
 
 
+using MI = multi_index<int32_t,2>;
 TEST_CASE("dyn_multi_array_view") {
   vector<int> v = {1,2,3,4,5,6};
   std_e::memory_view<int*> external_memory(v.data());
-  multi_index<int32_t,2> shape_dims = {3,2};
+  MI shape_dims = {3,2};
   
-  dyn_multi_array_view<int,int32_t,2> mav = {external_memory,{shape_dims}};
+  dyn_multi_array_view<int,2> mav = {external_memory,{shape_dims}};
 
   SUBCASE("basic_tests") {
 
@@ -66,7 +67,7 @@ TEST_CASE("dyn_multi_array_view") {
 
 
 TEST_CASE("dyn_multi_array") {
-  dyn_multi_array<int,int32_t,2> ma = {
+  dyn_multi_array<int,2> ma = {
     {1,2,3},
     {4,5,6}
   };
@@ -83,12 +84,12 @@ TEST_CASE("dyn_multi_array") {
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
   memory_view<int*> external_memory(v.data());
-  multi_index<int32_t,2> shape_dims = {3,2};
+  MI shape_dims = {3,2};
   
-  dyn_multi_array_view<int,int32_t,2> x = {external_memory,{shape_dims}};
+  dyn_multi_array_view<int,2> x = {external_memory,{shape_dims}};
 
-  dyn_multi_array<int,int32_t,2> y({1,2,3,4,5,6},{shape_dims});
-  dyn_multi_array<int,int32_t,2> z({1,2,3,4,0,6},{shape_dims});
+  dyn_multi_array<int,2> y({1,2,3,4,5,6},{shape_dims});
+  dyn_multi_array<int,2> z({1,2,3,4,0,6},{shape_dims});
 
   CHECK(x==y);
   CHECK(x!=z);
@@ -97,7 +98,7 @@ TEST_CASE("dyn_multi_array equality") {
 
 TEST_CASE("make_sub_array") {
   SUBCASE("one index") {
-    dyn_multi_array<int,int32_t,2> ma = {
+    dyn_multi_array<int,2> ma = {
       {1,2,3},
       {4,5,6}
     };
@@ -113,17 +114,17 @@ TEST_CASE("make_sub_array") {
     CHECK( sub_ma_2(1) == 6 );
   }
   SUBCASE("multi-index") {
-    dyn_multi_array<double,int32_t,3> ma(4,3,2);
+    dyn_multi_array<double,3> ma(4,3,2);
     for (const auto& is : fortran_multi_index_range(ma.extent())) {
       ma(is) = 100*is[0] + 10*is[1] + is[2];
     }
 
-    auto sub_ma_00 = make_sub_array(ma,std_e::multi_index<int,2>{0,0});
+    auto sub_ma_00 = make_sub_array(ma,MI{0,0});
     CHECK( sub_ma_00(0) ==   0. );
     CHECK( sub_ma_00(1) == 100. );
     CHECK( sub_ma_00(2) == 200. );
     CHECK( sub_ma_00(3) == 300. );
-    auto sub_ma_11 = make_sub_array(ma,std_e::multi_index<int,2>{1,1});
+    auto sub_ma_11 = make_sub_array(ma,MI{1,1});
     CHECK( sub_ma_11(0) ==  11. );
     CHECK( sub_ma_11(1) == 111. );
     CHECK( sub_ma_11(2) == 211. );
@@ -133,7 +134,7 @@ TEST_CASE("make_sub_array") {
 
 TEST_CASE("make_span") {
   SUBCASE("one index") {
-    dyn_multi_array<int,int32_t,2> ma = {
+    dyn_multi_array<int,2> ma = {
       {1,2,3},
       {4,5,6}
     };
@@ -150,16 +151,16 @@ TEST_CASE("make_span") {
   }
 
   SUBCASE("multi-index") {
-    dyn_multi_array<double,int32_t,3> ma(4,3,2);
+    dyn_multi_array<double,3> ma(4,3,2);
     for (const auto& is : fortran_multi_index_range(ma.extent())) {
       ma(is) = 100*is[0] + 10*is[1] + is[2];
     }
-    auto sub_ma_00 = make_span(ma,std_e::multi_index<int,2>{0,0});
+    auto sub_ma_00 = make_span(ma,MI{0,0});
     CHECK( sub_ma_00[0] ==   0. );
     CHECK( sub_ma_00[1] == 100. );
     CHECK( sub_ma_00[2] == 200. );
     CHECK( sub_ma_00[3] == 300. );
-    auto sub_ma_11 = make_span(ma,std_e::multi_index<int,2>{1,1});
+    auto sub_ma_11 = make_span(ma,MI{1,1});
     CHECK( sub_ma_11[0] ==  11. );
     CHECK( sub_ma_11[1] == 111. );
     CHECK( sub_ma_11[2] == 211. );

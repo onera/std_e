@@ -3,6 +3,7 @@
 
 #include "std_e/future/contract.hpp"
 #include "std_e/multi_index/concept.hpp"
+#include "std_e/multi_index/multi_index.hpp"
 #include "std_e/utils/array_vector_common.hpp"
 // TODO RENAME file, test (offsets!)
 
@@ -118,10 +119,9 @@ fortran_order_from_strides(const Multi_index_0& strides, const Multi_index_1& in
 
 
 // Here with no skip
-template<class Multi_index> FORCE_INLINE constexpr auto 
-fortran_strides_from_extent2(const Multi_index& dims) { // TODO replace Multi_index with multi_index (pb with int vs size_t)
-  using I = index_type_of<Multi_index>;
-  constexpr int rank = rank_of<Multi_index>;
+template<class I, int rank> FORCE_INLINE constexpr auto 
+fortran_strides_from_extent2(const array<I,rank>& dims) { // TODO replace Multi_index with multi_index (pb with int vs size_t)
+  static_assert(rank != dynamic_size);
   multi_index<I,rank+1> strides = {};
   strides[0] = 1;
   for (int i=1; i<rank+1; ++i) {

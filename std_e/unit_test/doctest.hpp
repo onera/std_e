@@ -39,6 +39,14 @@ template<class T, size_t N> struct StringMaker<std::array<T,N>> {
     return s.c_str();
   }
 };
+template<class T, int N> struct StringMaker<std_e::array<T,N>> {
+  static String convert(const std_e::array<T,N>& v) {
+    using std::to_string;
+    using std_e::to_string;
+    std::string s = to_string(v);
+    return s.c_str();
+  }
+};
 
 
 } // doctest

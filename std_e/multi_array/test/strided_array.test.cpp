@@ -8,7 +8,7 @@ using namespace std;
 using namespace std_e;
 
 TEST_CASE("strided_array") {
-  dyn_multi_array<double,int32_t,4> ma(5,4,3,2);
+  dyn_multi_array<double,4> ma(5,4,3,2);
   for (const auto& is : fortran_multi_index_range(ma.extent())) {
     ma(is) = 1000*is[0] + 100*is[1] + 10*is[2] + is[3];
   }
@@ -56,7 +56,7 @@ TEST_CASE("strided_array") {
 
 
 TEST_CASE("strided_array with only one index") {
-  dyn_multi_array<int,int32_t,2> ma = {
+  dyn_multi_array<int,2> ma = {
     {1,2,3},
     {4,5,6}
   };

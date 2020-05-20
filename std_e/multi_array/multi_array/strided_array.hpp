@@ -154,10 +154,10 @@ template<
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array&& x, Multi_index_0 fixed_dim_indices, Multi_index_1 fixed_is) {
-  using T = typename std::decay_t<Multi_array>::value_type;
-  using origin_shape_type = typename std::decay_t<Multi_array>::shape_type;
-  constexpr int origin_rank = std::decay_t<Multi_array>::rank();
+make_strided_array(Multi_array& x, Multi_index_0 fixed_dim_indices, Multi_index_1 fixed_is) {
+  using T = typename Multi_array::value_type;
+  using origin_shape_type = typename Multi_array::shape_type;
+  constexpr int origin_rank = Multi_array::rank();
   constexpr int fixed_dims_rank = rank_of<Multi_index_1>;
   constexpr int rank = origin_rank - fixed_dims_rank;
   using index_type = typename origin_shape_type::index_type;
@@ -202,10 +202,10 @@ template<int varying_dim_index, class Multi_array, class Multi_index> constexpr 
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
 // requires Multi_array::ct_rank = rank_of<Multi_index> + 1
-make_strided_span__impl(Multi_array&& x, const Multi_index& fixed_dim_indices) {
+make_strided_span__impl(Multi_array& x, const Multi_index& fixed_dim_indices) {
   // traits
   using I = index_type_of<Multi_index>;
-  constexpr int rank = std::decay_t<Multi_array>::ct_rank;
+  constexpr int rank = Multi_array::ct_rank;
 
   // strides
   I sz = x.extent(varying_dim_index);

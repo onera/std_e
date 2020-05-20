@@ -15,7 +15,7 @@ TEST_CASE("multi_array is_empty") {
     }
     SUBCASE("dyn arrays") {
       // NOTE: not well supported
-      dyn_multi_array<int,int32_t,0> f;
+      dyn_multi_array<int,0> f;
       CHECK( f.size() == 1 );
       // WARNING: nothing has been allocated!
       // The following would segfault
@@ -33,10 +33,10 @@ TEST_CASE("multi_array is_empty") {
     CHECK( !is_empty(f_4_3) );
   }
   SUBCASE("dyn arrays") {
-    dyn_multi_array<int,int32_t,2> f_0_0(0,0);
+    dyn_multi_array<int,2> f_0_0(0,0);
     CHECK( is_empty(f_0_0) );
 
-    dyn_multi_array<int,int32_t,2> f_4_3(4,3);
+    dyn_multi_array<int,2> f_4_3(4,3);
     CHECK( !is_empty(f_4_3) );
   }
 }
@@ -46,7 +46,7 @@ TEST_CASE("reshape") {
     std::vector<int> v = {1,2,3,4,5,6};
     std_e::memory_view<int*> external_memory(v.data());
 
-    dyn_multi_array_view<int,int32_t,2> mav = {external_memory,dyn_shape<int32_t,2>({3,2})};
+    dyn_multi_array_view<int,2> mav = {external_memory,dyn_shape<int32_t,2>({3,2})};
 
     reshape(mav,{2,2});
     CHECK( mav(0,0) == 1 ); // the view is still valid...
@@ -86,7 +86,7 @@ TEST_CASE("multi_array to_string") {
   CHECK( to_string(f5) == "[42]" );
 
   SUBCASE("dynamic rank") {
-    dyn_multi_array<int,int32_t,dynamic_size> a = {{1,2,3},{4,5,6}};
+    dyn_multi_array<int,dynamic_size> a = {{1,2,3},{4,5,6}};
     CHECK( to_string(a) == "[1,2,3;4,5,6]" );
   }
 }

@@ -15,7 +15,7 @@ namespace std_e {
 
 // fixed_multi_array {
 template<int... dims> constexpr size_t cartesian_prod = cartesian_product(std_e::multi_index<int,sizeof...(dims)>{dims...});
-template<class T, int... dims> using fixed_multi_array_container = std::array<T,cartesian_prod<dims...>>;
+template<class T, int... dims> using fixed_multi_array_container = std_e::array<T,cartesian_prod<dims...>>;
 
 template<class T, int... dims>
 using fixed_multi_array = multi_array< fixed_multi_array_container<T,dims...> , fixed_shape<dims...>>;
@@ -23,10 +23,13 @@ using fixed_multi_array = multi_array< fixed_multi_array_container<T,dims...> , 
 
 
 // dyn_multi_array {
-template<class T, class Integer, int rank>
+using default_index_type = int; // int is sometimes faster. Arrays with size > 2^31 are rare
+                                // (because when arrays are this big, they better be distributed)
+
+template<class T, int rank, class Integer = default_index_type>
 using dyn_multi_array = multi_array< std::vector<T> , dyn_shape<Integer,rank>>;
 
-template<class T, class Integer, int rank>
+template<class T, int rank, class Integer = default_index_type>
 using dyn_multi_array_view = multi_array< std_e::memory_view<T*> , dyn_shape<Integer,rank>>;
 // dyn_multi_array }
 

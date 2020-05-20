@@ -4,42 +4,42 @@
 
 using namespace std_e;
 
-
+using MI = multi_index<int,3>;
 TEST_CASE("fortran_order_from_dimensions") {
-  multi_index<int> dims = {2,3,4};
-  multi_index<int> i000 = {0,0,0};
+  MI dims = {2,3,4};
+  MI i000 = {0,0,0};
   CHECK( fortran_order_from_dimensions(dims, i000) == 0 );
 
-  multi_index<int> i100 = {1,0,0};
+  MI i100 = {1,0,0};
   CHECK( fortran_order_from_dimensions(dims, i100) == 1 );
 
-  multi_index<int> i123 = {1,2,3};
+  MI i123 = {1,2,3};
   CHECK( fortran_order_from_dimensions(dims, i123) == 1 + 2*2 + 3*2*3 );
 }
 
 TEST_CASE("fortran_order_from_dimensions with offset") {
-  multi_index<int> dims = {2,3,4};
-  multi_index<int> offsets = {1,1,1};
+  MI dims = {2,3,4};
+  MI offsets = {1,1,1};
 
-  multi_index<int> i_111 = {-1,-1,-1};
+  MI i_111 = {-1,-1,-1};
   CHECK( fortran_order_from_dimensions(dims, offsets, i_111) == 0 );
 
-  multi_index<int> i000 = {0,0,0};
+  MI i000 = {0,0,0};
   CHECK( fortran_order_from_dimensions(dims, offsets, i000) == 1 + 2 + 2*3 );
 }
 
 TEST_CASE("fortran_strides_from_extent") {
-  multi_index<int> dims = {2,3,4};
+  MI dims = {2,3,4};
 
-  multi_index<int> expected_f_strides_from_extent = {2,2*3,2*3*4};
+  MI expected_f_strides_from_extent = {2,2*3,2*3*4};
   CHECK( fortran_strides_from_extent(dims) == expected_f_strides_from_extent );
 }
 
 TEST_CASE("fortran_order_from_strides") {
-  multi_index<int> dims = {2,3,4};
-  multi_index<int> strides = fortran_strides_from_extent(dims);
+  MI dims = {2,3,4};
+  MI strides = fortran_strides_from_extent(dims);
 
-  CHECK( fortran_order_from_strides(strides,multi_index<int>{0,0,0}) == 0 );
-  CHECK( fortran_order_from_strides(strides,multi_index<int>{1,0,0}) == 1 );
-  CHECK( fortran_order_from_strides(strides,multi_index<int>{1,2,3}) == 1 + 2*2 + 3*2*3 );
+  CHECK( fortran_order_from_strides(strides,MI{0,0,0}) == 0 );
+  CHECK( fortran_order_from_strides(strides,MI{1,0,0}) == 1 );
+  CHECK( fortran_order_from_strides(strides,MI{1,2,3}) == 1 + 2*2 + 3*2*3 );
 }

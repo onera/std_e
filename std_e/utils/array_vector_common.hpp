@@ -5,7 +5,7 @@
 #include "std_e/base/macros.hpp"
 #include <algorithm>
 #include <vector>
-#include <array>
+#include "std_e/base/array.hpp"
 #include "std_e/future/constexpr_vector.hpp"
 
 
@@ -23,10 +23,10 @@ template<class Array>
 struct make_array_of_size__impl;
 
 
-template<class T, size_t ct_size>
-struct make_array_of_size__impl<std::array<T,ct_size>> {
+template<class T, int ct_size>
+struct make_array_of_size__impl<std_e::array<T,ct_size>> {
   static constexpr auto
-  func(size_t sz) -> std::array<T,ct_size> {
+  func(size_t sz) -> std_e::array<T,ct_size> {
     STD_E_ASSERT(sz==ct_size);
     return {};
   }
@@ -60,10 +60,10 @@ template<class... Arrays>
 struct concatenated_array__impl;
 
 
-template<class T, size_t... ct_sizes>
-struct concatenated_array__impl<std::array<T,ct_sizes>...> {
-  static constexpr size_t sum_ct_sizes = (ct_sizes + ...);
-  using type = std::array<T,sum_ct_sizes>;
+template<class T, int... ct_sizes>
+struct concatenated_array__impl<std_e::array<T,ct_sizes>...> {
+  static constexpr int sum_ct_sizes = (ct_sizes + ...);
+  using type = std_e::array<T,sum_ct_sizes>;
 };
 
 template<class T, class... Ts>

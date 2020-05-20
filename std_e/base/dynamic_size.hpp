@@ -7,7 +7,7 @@
 namespace std_e {
 
 
-constexpr index_t dynamic_size = -1;
+constexpr int dynamic_size = -1;
 
 
 } // std_e
