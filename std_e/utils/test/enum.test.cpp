@@ -20,8 +20,8 @@ TEST_CASE("STD_E_ENUM_CLASS") {
     CHECK( to_string(my_enum_example_name::value_1) == "value_1" );
   }
   SUBCASE("to_enum<enum_type>(value_as_string)") {
-    CHECK( to_enum<my_enum_example_name>("value_0") == my_enum_example_name::value_0 );
-    CHECK( to_enum<my_enum_example_name>("value_1") == my_enum_example_name::value_1 );
+    CHECK( std_e::to_enum<my_enum_example_name>("value_0") == my_enum_example_name::value_0 );
+    CHECK( std_e::to_enum<my_enum_example_name>("value_1") == my_enum_example_name::value_1 );
   }
 
   SUBCASE("enum_to_strings<enum_type>") {

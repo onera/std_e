@@ -50,7 +50,8 @@ template<class Multi_array_shape, class Multi_index> auto
 shape_restriction_start_index_1d(const Multi_array_shape& x, const Multi_index& right_indices) {
   using index_type = index_type_of<Multi_index>;
 
-  constexpr int rank = Multi_array_shape::rank(); // TODO dyn rank
+  constexpr int rank = Multi_array_shape::rank();
+  static_assert(rank != dynamic_size);
   constexpr int restriction_rank = rank_of<Multi_index>;
   constexpr int sub_rank = rank - restriction_rank;
 
