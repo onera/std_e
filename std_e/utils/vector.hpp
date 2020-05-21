@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include "std_e/utils/to_string_fwd.hpp"
-#include "std_e/algorithm/merge_twin_copy.hpp"
+#include "std_e/algorithm/unique_compress.hpp"
 
 
 namespace std_e {
