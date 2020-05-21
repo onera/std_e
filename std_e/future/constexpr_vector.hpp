@@ -5,7 +5,6 @@
 /// This file implements a vector compatible with constexpr
 
 
-#include "std_e/base/index_t.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
 #include <array>
@@ -72,11 +71,11 @@ class constexpr_vector {
 
   // accessors
     FORCE_INLINE constexpr auto
-    operator[](index_t i) const -> const T& {
+    operator[](int i) const -> const T& {
       return elts[i];
     }
     FORCE_INLINE constexpr auto
-    operator[](index_t i) -> T& {
+    operator[](int i) -> T& {
       return elts[i];
     }
     FORCE_INLINE constexpr auto
@@ -169,7 +168,7 @@ operator<(const constexpr_vector<T,N>& x, const constexpr_vector<T,N>& y) -> boo
 
 /// C++ < C++20 hack {
 /// (give linkage to constexpr sub-object so it can be passed as template reference)
-template<const auto& x, index_t i>
+template<const auto& x, int i>
 // requires decltype(t)==constexpr_tree<T>
 struct get_element__with_linkage {
   static constexpr auto value = x[i];

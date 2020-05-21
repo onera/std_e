@@ -12,7 +12,7 @@ namespace std_e {
 
 
 // span_size {
-template<index_t N>
+template<ptrdiff_t N>
 struct span_size {
   constexpr span_size() {}
   constexpr span_size(size_t) {}
@@ -44,7 +44,7 @@ class span_size<dynamic_size> {
       : n(n)
     {}
     FORCE_INLINE constexpr
-    span_size(index_t n)
+    span_size(ptrdiff_t n)
       : n(n)
     {}
 
@@ -68,7 +68,7 @@ class span_size<dynamic_size> {
 // span_size }
 
 
-template<class T, index_t N=dynamic_size>
+template<class T, ptrdiff_t N=dynamic_size>
 class span : public span_size<N> {
   public:
   // type traits
@@ -87,7 +87,7 @@ class span : public span_size<N> {
 
     // dynamic span ctor
     FORCE_INLINE constexpr explicit
-    span(T* ptr, index_t n)
+    span(T* ptr, ptrdiff_t n)
       // Precondition: [ptr,ptr+N) is valid range
       : span_size_type(n)
       , ptr(ptr)
@@ -156,29 +156,29 @@ class span : public span_size<N> {
     T* ptr;
 };
 
-template<class T, index_t N> FORCE_INLINE constexpr auto
+template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 begin(span<T,N>& x) {
   return x.begin();
 }
-template<class T, index_t N> FORCE_INLINE constexpr auto
+template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 begin(const span<T,N>& x) {
   return x.begin();
 }
-template<class T, index_t N> FORCE_INLINE constexpr auto
+template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 end(span<T,N>& x) {
   return x.end();
 }
-template<class T, index_t N> FORCE_INLINE constexpr auto
+template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 end(const span<T,N>& x) {
   return x.end();
 }
 
-template<class T0, class T1, index_t N0, index_t N1> constexpr auto
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator==(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
   if (x.size() != y.size()) return false;
   return std::equal(x.begin(),x.end(),y.begin());
 }
-template<class T0, class T1, index_t N0, index_t N1> constexpr auto
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
   return !(x==y);
 }
@@ -186,32 +186,32 @@ operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
 
 
 
-template<index_t N, class T> FORCE_INLINE constexpr auto
+template<ptrdiff_t N, class T> FORCE_INLINE constexpr auto
 make_span(T* ptr) {
   static_assert(N!=dynamic_size,"can't create dynamic span with no size given");
   return span<T,N>(ptr);
 }
-template<index_t N, class T> FORCE_INLINE constexpr auto
+template<ptrdiff_t N, class T> FORCE_INLINE constexpr auto
 make_span(const T* ptr) {
   static_assert(N!=dynamic_size,"can't create dynamic span with no size given");
   return span<const T,N>(ptr);
 }
 
 template<class T> FORCE_INLINE constexpr auto
-make_span(T* ptr, index_t n) {
+make_span(T* ptr, ptrdiff_t n) {
   return span<T,dynamic_size>(ptr,n);
 }
 template<class T> FORCE_INLINE constexpr auto
-make_span(const T* ptr, index_t n) {
+make_span(const T* ptr, ptrdiff_t n) {
   return span<const T,dynamic_size>(ptr,n);
 }
 
 template<class T> FORCE_INLINE constexpr auto
-make_span(T* ptr, index_t offset, index_t n) {
+make_span(T* ptr, ptrdiff_t offset, ptrdiff_t n) {
   return span<T,dynamic_size>(ptr+offset,n);
 }
 template<class T> FORCE_INLINE constexpr auto
-make_span(const T* ptr, index_t offset, index_t n) {
+make_span(const T* ptr, ptrdiff_t offset, ptrdiff_t n) {
   return span<const T,dynamic_size>(ptr+offset,n);
 }
 
@@ -227,7 +227,7 @@ make_span(const Container& x) {
 }
 
 
-template<class T, index_t N> FORCE_INLINE constexpr auto
+template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 to_string(const span<T,N>& x) {
   return range_to_string(x);
 }
@@ -238,7 +238,7 @@ to_string(const span<T,N>& x) {
 
 namespace std {
 
-template<class T, index_t N>
+template<class T, ptrdiff_t N>
 struct tuple_size<std_e::span<T,N>> {
   static const size_t value = N;
 };

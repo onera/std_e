@@ -6,11 +6,6 @@
 #include "std_e/utils/vector.hpp"
 #include "std_e/future/span.hpp"
 
-// TODO: DEL?
-// When unit tests are extracted in the documentation,
-// using "SECTION" instead of "SUBCASE" feels more natural
-// #define SECTION SUBCASE
-
 
 namespace doctest {
 
@@ -23,7 +18,7 @@ template<class T, class A> struct StringMaker<std::vector<T,A>> {
     return s.c_str();
   }
 };
-template<class T, index_t N> struct StringMaker<std_e::span<T,N>> {
+template<class T, ptrdiff_t N> struct StringMaker<std_e::span<T,N>> {
   static String convert(const std_e::span<T,N>& x) {
     using std::to_string;
     using std_e::to_string;

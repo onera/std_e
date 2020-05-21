@@ -1,13 +1,7 @@
 #pragma once
 
-
-#include "std_e/base/index_t.hpp"
-
+#include <cstddef>
 
 namespace std_e {
-
-
-constexpr int dynamic_size = -1;
-
-
-} // std_e
+  constexpr std::ptrdiff_t dynamic_size = -1;
+}

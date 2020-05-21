@@ -4,7 +4,7 @@
 
 
 struct inline_for_callable_for_test {
-  template<index_t i> FORCE_INLINE static constexpr auto
+  template<int i> FORCE_INLINE static constexpr auto
   call(std::vector<int>& v) -> void {
     v[i] = 42 + i;
   }

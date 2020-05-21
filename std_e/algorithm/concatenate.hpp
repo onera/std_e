@@ -8,23 +8,22 @@
 namespace std_e {
 
 
-// TODO DEL
-//template<class Fwd_it, class Output_it> constexpr auto
-//// requires Fwd_it::operator* return Fwd_it with value_type==Output_it::value_type
-//concatenate(Fwd_it first, Fwd_it last, Output_it d_first) -> Output_it {
-//  while (first!=last) {
-//    d_first = std::copy(begin(*first),end(*first),d_first);
-//    ++first;
-//  }
-//  return d_first;
-//}
-//
-//template<class input_ranges_type, class output_range_type> constexpr auto
-//// requires input_ranges_type is a Range of Ranges
-//// requires output_range is a Range
-//concatenate(const input_ranges_type& in_rs, output_range_type& out_r) -> void {
-//  concatenate(begin(in_rs), end(in_rs), begin(out_r));
-//}
+template<class Fwd_it, class Output_it> constexpr auto
+// requires Fwd_it::operator* return Fwd_it with value_type==Output_it::value_type
+concatenate_at(Output_it d_first, Fwd_it first, Fwd_it last) -> Output_it {
+  while (first!=last) {
+    d_first = std::copy(begin(*first),end(*first),d_first);
+    ++first;
+  }
+  return d_first;
+}
+
+template<class input_ranges_type, class output_range_type> constexpr auto
+// requires input_ranges_type is a Range of Ranges
+// requires output_range is a Range
+concatenate_in(output_range_type& out_r, const input_ranges_type& in_rs) -> void {
+  concatenate_at(begin(out_r), begin(in_rs), end(in_rs));
+}
 
 
 template<class Multi_arrays, class Multi_array> constexpr auto
@@ -39,10 +38,7 @@ concatenate_on_axis(int axis, const Multi_arrays& in_arrays, Multi_array& out_ar
   int offset = 0;
   for (auto& in_array : in_arrays) {
     auto gen = fortran_multi_index_range(in_array.extent());
-    int sz = gen.size();
-    for (int i=0; i<sz; ++i, ++gen) {
-      const auto& indices = *gen;
-
+    for (const auto& indices : gen) {
       auto cat_indices = indices;
       cat_indices[axis] += offset;
 

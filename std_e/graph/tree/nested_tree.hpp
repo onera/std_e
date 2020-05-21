@@ -227,12 +227,12 @@ class child_iterator {
 
     constexpr auto
     operator*() -> tree_view<value_type> {
-      index_t n = size();
+      auto n = size();
       return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     constexpr auto
     operator*() const -> const_tree_view<value_type> {
-      index_t n = size();
+      auto n = size();
       return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     //constexpr auto
