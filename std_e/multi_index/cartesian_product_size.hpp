@@ -10,7 +10,7 @@ namespace std_e {
 
 
 template<class Multi_index> FORCE_INLINE constexpr auto
-cartesian_product(const Multi_index& a) {
+cartesian_product_size(const Multi_index& a) {
   return std_e::accumulate(begin(a),end(a),1,std::multiplies<>());
 }
 

@@ -2,6 +2,7 @@
 
 
 #include "std_e/multi_index/multi_index.hpp"
+#include "std_e/multi_index/cartesian_product_size.hpp"
 #include "std_e/utils/array_vector_common.hpp"
 #include "std_e/utils/array.hpp"
 #include "std_e/utils/vector.hpp"
@@ -48,6 +49,11 @@ class dyn_shape_base {
     {}
 
   // accessors
+    FORCE_INLINE constexpr auto
+    size() const -> index_type {
+      return cartesian_product_size(this->extent());
+    }
+
     FORCE_INLINE constexpr auto
     extent() const -> const multi_index_type& {
       return extent_;

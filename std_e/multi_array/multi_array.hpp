@@ -7,14 +7,14 @@
 #include "std_e/multi_array/shape/dyn_shape.hpp"
 #include "std_e/base/memory_view.hpp"
 #include "std_e/base/dynamic_size.hpp"
-#include "std_e/multi_index/cartesian_product.hpp"
+#include "std_e/multi_index/cartesian_product_size.hpp"
 
 
 namespace std_e {
 
 
 // fixed_multi_array {
-template<int... dims> constexpr size_t cartesian_prod = cartesian_product(std_e::multi_index<int,sizeof...(dims)>{dims...});
+template<int... dims> constexpr size_t cartesian_prod = cartesian_product_size(std_e::multi_index<int,sizeof...(dims)>{dims...});
 template<class T, int... dims> using fixed_multi_array_container = std_e::array<T,cartesian_prod<dims...>>;
 
 template<class T, int... dims>

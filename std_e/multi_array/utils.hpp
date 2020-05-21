@@ -30,14 +30,14 @@ resize_memory(memory_view<T_ptr>& x, size_t n) -> void {
 template<class Memory_ressource, class Multi_array_shape> auto
 reshape(multi_array<Memory_ressource,Multi_array_shape>& x, const typename Multi_array_shape::multi_index_type& dims) {
   reshape(x.shape(),dims);
-  size_t total_size = std_e::cartesian_product(dims);
+  size_t total_size = std_e::cartesian_product_size(dims);
   resize_memory(x.memory(),total_size);
 }
 
 
 template<class Memory_ressource, class Multi_array_shape> auto
 is_empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
-  return std_e::cartesian_product(x.extent())==0;
+  return std_e::cartesian_product_size(x.extent())==0;
 }
 
 

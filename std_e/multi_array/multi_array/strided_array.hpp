@@ -95,7 +95,7 @@ class strided_array : private Multi_array_shape {
     using base::offset;
     constexpr auto
     size() const -> index_type {
-      return cartesian_product(this->extent());
+      return cartesian_product_size(this->extent());
     }
 
   // element access

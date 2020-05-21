@@ -9,7 +9,7 @@
 #include "std_e/multi_index/fortran_order.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/multi_array/multi_array/concept.hpp"
-#include "std_e/multi_index/cartesian_product.hpp"
+#include "std_e/multi_index/cartesian_product_size.hpp"
 #include "std_e/multi_array/shape/fixed_dyn_shape_common.hpp"
 #include "std_e/memory_ressource/memory_ressource.hpp"
 #include "std_e/future/span.hpp"
@@ -75,7 +75,7 @@ class multi_array : private Multi_array_shape {
     >
     multi_array(ints... dims)
       : shape_type({dims...})
-      , mem(std_e::cartesian_product(multi_index<int,sizeof...(ints)>{dims...}))
+      , mem(std_e::cartesian_product_size(multi_index<int,sizeof...(ints)>{dims...}))
     {
       static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
     }
@@ -158,10 +158,7 @@ class multi_array : private Multi_array_shape {
     using base::rank;
     using base::extent;
     using base::offset;
-    constexpr auto
-    size() const -> index_type {
-      return cartesian_product(this->extent());
-    }
+    using base::size;
 
   // range interface
     FORCE_INLINE auto

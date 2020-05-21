@@ -2,7 +2,7 @@
 
 
 #include "std_e/multi_index/concept.hpp"
-#include "std_e/multi_index/cartesian_product.hpp"
+#include "std_e/multi_index/cartesian_product_size.hpp"
 #include "std_e/multi_index/increment_multi_index.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/multi_index/cx_multi_index.hpp"
@@ -213,7 +213,7 @@ class multi_index_range {
     constexpr
     multi_index_range(order_functor_type func)
       : generator(std::move(func))
-      , sz(cartesian_product(generator.dimensions()))
+      , sz(cartesian_product_size(generator.dimensions()))
     {}
 
   // range interface

@@ -3,6 +3,7 @@
 
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/utils/index_sequence.hpp"
+#include "std_e/multi_index/cartesian_product_size.hpp"
 
 
 namespace std_e {
@@ -20,6 +21,10 @@ struct fixed_shape {
   static FORCE_INLINE constexpr auto
   rank() -> int {
     return ct_rank;
+  }
+  static FORCE_INLINE constexpr auto
+  size() -> int {
+    return cartesian_product_size(fixed_extent);
   }
   static FORCE_INLINE constexpr auto
   extent() -> const multi_index_type& {
