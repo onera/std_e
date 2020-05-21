@@ -92,12 +92,12 @@ TEST_CASE("operation_functor for user-defined type") {
   tensor_like_type_for_test y = {44.,45.};
 
   constexpr auto op_pipe = std_e::operation_functor<std_e::operation_kind::pipe>;
-  //constexpr auto op_tensor_prod = std_e::operation_functor<std_e::operation_kind::tensor_prod>;
+  constexpr auto op_tensor_prod = std_e::operation_functor<std_e::operation_kind::tensor_prod>;
   constexpr auto op_t = std_e::operation_functor<std_e::operation_kind::t>;
   constexpr auto op_tr = std_e::operation_functor<std_e::operation_kind::tr>;
 
   CHECK ( op_pipe(x,y) == 42.*44. + 43.*45. );
-  // CHECK ( op_tensor_prod(x,y) == tensor_order(x,y) ); // TODO uncomment
+  CHECK ( op_tensor_prod(x,y) == 42.*44. * 43.*45. );
   CHECK ( op_t(x) == tensor_like_type_for_test{43.,42.} );
   CHECK ( op_tr(x) == 42.+43. );
 }

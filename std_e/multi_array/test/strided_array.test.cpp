@@ -2,7 +2,6 @@
 #include "std_e/multi_array/multi_array/strided_array.hpp"
 #include "std_e/multi_array/multi_array.hpp"
 #include "std_e/multi_index/multi_index_range.hpp"
-#include <iostream> // TODO
 
 using namespace std;
 using namespace std_e;

@@ -10,7 +10,7 @@ namespace std_e {
 
 template<class Memory_ressource>
 struct memory_is_owned__impl {
-  static constexpr bool value = true; // unless using memory_view<T*> (see below) memory is owned be the ressource (std::array, std::vector...)
+  static constexpr bool value = true; // by default, memory is owned by the ressource (std::array, std::vector...)
 };
 template<class T>
 struct memory_is_owned__impl<memory_view<T*>> {

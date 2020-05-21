@@ -95,7 +95,7 @@ class multi_array : private Multi_array_shape {
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
       , mem(std::move(mem))
     {
-      static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
+      static_assert(mem_is_owned);
       STD_E_ASSERT(this->rank()==1);
       index_type i=0;
       for (const value_type& x : l) {
@@ -111,7 +111,7 @@ class multi_array : private Multi_array_shape {
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
       , mem(std::move(mem))
     {
-      static_assert(mem_is_owned,"can't create a view from aggregate initialization (no memory!)");
+      static_assert(mem_is_owned);
       STD_E_ASSERT(this->rank()==2);
       index_type i=0;
       for (const auto& l : ll) {

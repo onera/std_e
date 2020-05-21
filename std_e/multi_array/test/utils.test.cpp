@@ -78,7 +78,7 @@ TEST_CASE("multi_array to_string") {
   fixed_multi_array<int,1,3> f3 = {{1,2,3}};
   CHECK( to_string(f3) == "[1,2,3]" );
 
-  // TODO DOES NOT WORK: ambiguous
+  // DOES NOT WORK: ambiguous
   //fixed_multi_array<int,3,1> f4 = {{1},{2},{3}};
   //CHECK( to_string(f4) == "[1;2;3]" );
 

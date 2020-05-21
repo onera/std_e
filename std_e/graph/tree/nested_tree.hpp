@@ -5,7 +5,6 @@
 #include "std_e/future/algorithm.hpp"
 #include "std_e/algorithm/algorithm.hpp"
 #include "std_e/future/contract.hpp"
-#include "std_e/memory_ressource/memory_ressource_provider.hpp"
 #include "std_e/utils/string.hpp"
 #include "std_e/iterator/iterator_range.hpp"
 #include "std_e/utils/meta.hpp"
@@ -30,15 +29,14 @@ namespace graph {
     - since everything must be stored contiguously, insertions are O(n)...
     - ...except for the special case where a new sub-tree is appended to root (could be std::vector push_back-like efficient)
 */
-
-template<class T, class Memory_ressource> class nested_tree;
-template<class T> using tree = nested_tree<T,std_e::dyn_size_owned_memory_ressource>;
-template<class T> using tree_view = nested_tree<T,std_e::dyn_size_external_memory_ressource>;
-template<class T> using const_tree_view = nested_tree<const T,std_e::dyn_size_external_memory_ressource>;
+template<class T, template<class> class Memory_ressource> class nested_tree;
+template<class T> using tree = nested_tree<T,std::vector>;
+template<class T> using tree_view = nested_tree<T,std_e::span>;
+template<class T> using const_tree_view = nested_tree<const T,std_e::span>;
 
 template<class T_ptr, class I_ptr> class child_iterator;
 
-template<class T, class Memory_ressource>
+template<class T, template<class> class Memory_ressource>
 // requires T is Regular, Memory_ressource with max_size
 class nested_tree {
   public:
@@ -46,9 +44,8 @@ class nested_tree {
     using node_type = T;
     using integer_type = std_e::add_other_type_constness<int,T>;
 
-    // TODO DEL (use template param directly ?)
-    using nodes_mem_type = std_e::memory_ressource_for<T,Memory_ressource>;
-    using sizes_mem_type = std_e::memory_ressource_for<integer_type,Memory_ressource>;
+    using nodes_mem_type = Memory_ressource<T>;
+    using sizes_mem_type = Memory_ressource<integer_type>;
 
     using iterator = child_iterator<T*,integer_type*>;
     using const_iterator = child_iterator<const T*,const integer_type*>;
@@ -59,7 +56,7 @@ class nested_tree {
     using node_adj_type = const_tree_view<T>; // TODO DEL
 
     static constexpr size_t is_nested_tree = true;
-    template<class T0, class M0> friend class nested_tree;
+    template<class T0, template<class> class M0> friend class nested_tree;
 
   // ctors
     FORCE_NO_INLINE constexpr
@@ -77,13 +74,13 @@ class nested_tree {
       , sizes(sizes)
     {}
 
-    template<class T0, class M0> FORCE_NO_INLINE constexpr
+    template<class T0, template<class> class M0> FORCE_NO_INLINE constexpr
     nested_tree(const nested_tree<T0,M0>& t)
       : nodes(t.nodes.data(),t.nodes.data()+t.nodes.size())
       , sizes(t.sizes.data(),t.sizes.data()+t.sizes.size())
     {}
 
-    template<class T0, class M0> FORCE_NO_INLINE constexpr auto
+    template<class T0, template<class> class M0> FORCE_NO_INLINE constexpr auto
     operator=(const nested_tree<T0,M0>& t) -> nested_tree& {
       nodes = nodes_mem_type(t.nodes.data(),t.nodes.data()+t.nodes.size());
       sizes = sizes_mem_type(t.sizes.data(),t.sizes.data()+t.sizes.size());
@@ -153,7 +150,7 @@ class nested_tree {
 
     constexpr auto
     append_child(const nested_tree& t) -> void {
-      static_assert(Memory_ressource::owns_memory,"Can't append child to non-owning tree");
+      //static_assert(Memory_ressource::owns_memory);
       size_t old_size = size();
       size_t new_size = old_size+t.size();
       nodes.resize(new_size);
@@ -330,7 +327,7 @@ template<
 children(nested_tree_type&& t) {
   return FWD(t).children();
 }
-template<class T, class M> constexpr auto
+template<class T, template<class> class M> constexpr auto
 nb_children(const nested_tree<T,M>& t) -> int {
   return children(t).size();
 }
@@ -342,7 +339,7 @@ child(nested_tree_type&& t, int i) {
   return children(FWD(t))[i];
 }
 
-template<class T, class M> constexpr auto
+template<class T, template<class> class M> constexpr auto
 is_leaf(const nested_tree<T,M>& t) -> bool {
   return t.size()==1;
 }
@@ -422,7 +419,7 @@ class to_string_dfs_visitor {
     std::string s = "";
     std::string indent = "";
 };
-template<class T, class M> auto
+template<class T, template<class> class M> auto
 to_string(const nested_tree<T,M>& t) -> std::string {
   to_string_dfs_visitor f;
   nested_tree_dfs_with_preordering(t,f);

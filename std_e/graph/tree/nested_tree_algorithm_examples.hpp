@@ -7,7 +7,7 @@
 namespace graph {
 
 
-template<class T, class M> auto
+template<class T, template<class> class M> auto
 to_string__recursive_dfs_with_preordering(const nested_tree<T,M>& t, std::string indent = "") -> std::string {
   using std::to_string;
   std::string s = indent+to_string(root(t))+"\n";
@@ -16,7 +16,7 @@ to_string__recursive_dfs_with_preordering(const nested_tree<T,M>& t, std::string
   }
   return s;
 }
-template<class T, class M> auto
+template<class T, template<class> class M> auto
 to_string__recursive_dfs_with_postordering(const nested_tree<T,M>& t, std::string indent = "") -> std::string {
   using std::to_string;
   std::string s = "";

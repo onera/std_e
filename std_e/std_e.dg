@@ -7,6 +7,8 @@ multi_index -> base
 multi_index -> future
 multi_index -> utils
 
+multi_array -> multi_index
+
 operation -> base
 
 memory_ressource -> future
@@ -14,5 +16,3 @@ memory_ressource -> future
 tree -> future
 tree -> memory_ressource
 tree -> utils
-
-TODO multi_array
