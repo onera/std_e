@@ -44,7 +44,7 @@ TEST_CASE("multi_array is_empty") {
 TEST_CASE("reshape") {
   SUBCASE("dyn_multi_array_view") {
     std::vector<int> v = {1,2,3,4,5,6};
-    std_e::memory_view<int*> external_memory(v.data());
+    std_e::span<int> external_memory(v.data());
 
     dyn_multi_array_view<int,2> mav = {external_memory,dyn_shape<int32_t,2>({3,2})};
 

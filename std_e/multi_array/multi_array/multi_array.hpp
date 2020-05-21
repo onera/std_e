@@ -34,6 +34,7 @@ class multi_array : private Multi_array_shape {
     using const_reference = typename memory_ressource_type::const_reference;
 
     static constexpr int ct_rank = shape_type::ct_rank;
+    static constexpr int ct_size = shape_type::ct_size;
     using multi_index_type = typename shape_type::multi_index_type;
 
     static constexpr bool mem_is_owned = memory_is_owned<memory_ressource_type>;
@@ -56,13 +57,13 @@ class multi_array : private Multi_array_shape {
     FORCE_INLINE constexpr multi_array& operator=(const multi_array&) = default; // in case of a view: shallow copy
     FORCE_INLINE constexpr multi_array& operator=(multi_array&&) = default;
 
-    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
-    multi_array(const multi_array<memory_view<T_ptr0>,shape_type>& ma)
+    template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
+    multi_array(const multi_array<span<T0,N>,shape_type>& ma)
       : shape_type(ma.shape())
       , mem(ma.memory())
     {}
-    template<class T_ptr0> FORCE_INLINE constexpr // conversion from non-const to const
-    multi_array(multi_array<memory_view<T_ptr0>,shape_type>&& ma)
+    template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
+    multi_array(multi_array<span<T0,N>,shape_type>&& ma)
       : shape_type(std::move(ma.shape()))
       , mem(ma.memory())
     {}
@@ -258,14 +259,16 @@ operator!=(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool
 /// Warning making a view is NOT free: it copies the shape
 template<class M0, class M1> auto
 make_view(multi_array<M0,M1>& x) {
-  using pointer = typename multi_array<M0,M1>::pointer;
-  using mem_view_type = memory_view<pointer>;
+  using value_type = typename multi_array<M0,M1>::value_type;
+  constexpr int ct_size = multi_array<M0,M1>::ct_size;
+  using mem_view_type = span<value_type,ct_size>;
   return multi_array{ mem_view_type{x.data()} , x.shape() };
 }
 template<class M0, class M1> auto
 make_view(const multi_array<M0,M1>& x) {
-  using const_pointer = typename multi_array<M0,M1>::const_pointer;
-  using mem_view_type = memory_view<const_pointer>;
+  using value_type = typename multi_array<M0,M1>::value_type;
+  constexpr int ct_size = multi_array<M0,M1>::ct_size;
+  using mem_view_type = span<const value_type,ct_size>;
   return multi_array{ mem_view_type{x.data()} , x.shape() };
 }
 
@@ -274,12 +277,12 @@ make_view(const multi_array<M0,M1>& x) {
 template<class M0, class M1, class Multi_index> auto
 make_sub_array(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
-  return multi_array{ memory_view{x.data()+index_1d} , std::move(sub_shape) };
+  return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
 }
 template<class M0, class M1, class Multi_index> auto
 make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
-  return multi_array{ memory_view{x.data()+index_1d} , std::move(sub_shape) };
+  return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
 }
 
 template<class M0, class M1> auto

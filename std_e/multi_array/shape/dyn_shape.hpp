@@ -18,6 +18,7 @@ class dyn_shape_base {
   // type traits
     using index_type = Integer;
     static constexpr int ct_rank = N; // ct: compile-time
+    static constexpr int ct_size = dynamic_size;
 
     using multi_index_type = multi_index<index_type,ct_rank>;
 

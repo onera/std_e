@@ -3,7 +3,7 @@
 
 #include "std_e/base/not_implemented_exception.hpp"
 #include "std_e/multi_array/shape/dyn_shape.hpp"
-#include "std_e/base/memory_view.hpp"
+#include "std_e/future/span.hpp"
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 
 
@@ -22,8 +22,8 @@ template<class Memory_ressource> auto
 resize_memory(Memory_ressource& x, size_t n) -> void {
   x.resize(n);
 }
-template<class T_ptr> auto
-resize_memory(memory_view<T_ptr>& x, size_t n) -> void {
+template<class T, ptrdiff_t N> auto
+resize_memory(span<T,N>& x, size_t n) -> void {
   // ASSERT same as or less than old size
 }
 

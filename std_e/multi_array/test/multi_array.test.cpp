@@ -35,7 +35,7 @@ TEST_CASE("multi_arrays of rank 0 are scalars") {
 using MI = multi_index<int32_t,2>;
 TEST_CASE("dyn_multi_array_view") {
   vector<int> v = {1,2,3,4,5,6};
-  std_e::memory_view<int*> external_memory(v.data());
+  std_e::span<int> external_memory(v.data());
   MI shape_dims = {3,2};
   
   dyn_multi_array_view<int,2> mav = {external_memory,{shape_dims}};
@@ -83,7 +83,7 @@ TEST_CASE("dyn_multi_array") {
 
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
-  memory_view<int*> external_memory(v.data());
+  span<int> external_memory(v.data());
   MI shape_dims = {3,2};
   
   dyn_multi_array_view<int,2> x = {external_memory,{shape_dims}};

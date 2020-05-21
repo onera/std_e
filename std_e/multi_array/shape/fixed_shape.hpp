@@ -18,13 +18,15 @@ struct fixed_shape {
   static constexpr multi_index_type fixed_extent = {dims...};
   static constexpr multi_index_type fixed_offset = {0};
 
+  static constexpr int ct_size = cartesian_product_size(fixed_extent);
+
   static FORCE_INLINE constexpr auto
   rank() -> int {
     return ct_rank;
   }
   static FORCE_INLINE constexpr auto
   size() -> int {
-    return cartesian_product_size(fixed_extent);
+    return ct_size;
   }
   static FORCE_INLINE constexpr auto
   extent() -> const multi_index_type& {

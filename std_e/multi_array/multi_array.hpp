@@ -3,9 +3,10 @@
 
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include <array>
+#include <vector>
+#include "std_e/future/span.hpp"
 #include "std_e/multi_array/shape/fixed_shape.hpp"
 #include "std_e/multi_array/shape/dyn_shape.hpp"
-#include "std_e/base/memory_view.hpp"
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/multi_index/cartesian_product_size.hpp"
 
@@ -30,7 +31,7 @@ template<class T, int rank, class Integer = default_index_type>
 using dyn_multi_array = multi_array< std::vector<T> , dyn_shape<Integer,rank>>;
 
 template<class T, int rank, class Integer = default_index_type>
-using dyn_multi_array_view = multi_array< std_e::memory_view<T*> , dyn_shape<Integer,rank>>;
+using dyn_multi_array_view = multi_array< std_e::span<T,dynamic_size> , dyn_shape<Integer,rank>>;
 // dyn_multi_array }
 
 
