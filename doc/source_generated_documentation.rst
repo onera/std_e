@@ -1,7 +1,8 @@
 .. _source_generated_documentation:
 
+##############################
 Source-generated documentation
-==============================
+##############################
 
 TODO
 
@@ -63,15 +64,6 @@ Accessor on hvector
 .. doxygenfunction:: std_e::get(hvector< Ts... > &x) -> std::vector< T > &
    :project: std_e
 
-
-Span
-====
-
-.. doxygenstruct:: std_e::stride
-   :project: std_e
-   :protected-members:
-   :private-members:
-   :members:
 
 
 Indices and tables

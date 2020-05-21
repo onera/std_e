@@ -9,13 +9,9 @@
 
 namespace std_e {
 
-/*!
- *  \brief  stride for span_stride
- */
 template<class I, int N>
 struct stride {
 
-  //! Default constructor
   constexpr stride() {}
   constexpr stride(int) {}
 

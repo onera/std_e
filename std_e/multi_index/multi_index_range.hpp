@@ -6,6 +6,7 @@
 #include "std_e/multi_index/increment_multi_index.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/multi_index/cx_multi_index.hpp"
+#include "std_e/base/not_implemented_exception.hpp"
 #include "std_e/future/algorithm.hpp"
 #include <iterator>
 
@@ -150,8 +151,7 @@ class multi_index_generator {
     }
     constexpr auto
     operator++(int) -> multi_index_generator {
-      //static_assert(false,"use ++it instead of it++ (implementing it would be inefficient)");
-      throw; // TODO
+      throw not_implemented_exception("don't use postfix operator++");
     }
 
     constexpr auto
