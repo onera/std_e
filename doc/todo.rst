@@ -10,7 +10,7 @@ source_generated_documentation
 
 literalinclude: link to the original source file
 
-Document: constexpr static trick
+Document: static inheritance trick
 
 
 Build and CI

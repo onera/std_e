@@ -8,6 +8,7 @@
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
 #include <array>
+#include "std_e/concept/array.hpp"
 
 
 namespace std_e {
@@ -175,4 +176,19 @@ struct get_element__with_linkage {
 };
 /// C++ < C++20 hack }
 
+
+// Array concept activation
+template<class T, size_t N>
+struct enable_is_array<constexpr_vector<T,N>> : std::true_type {};
+template<class T, size_t N>
+struct enable_is_dyn_size_array<constexpr_vector<T,N>> : std::true_type {};
+
+
 } // std_e
+
+namespace std {
+template<class T, size_t N>
+struct tuple_size<std_e::constexpr_vector<T,N>> {
+  static constexpr size_t value = N;
+};
+}
