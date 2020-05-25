@@ -16,7 +16,7 @@ namespace std_e {
 
 // fixed_multi_array {
 template<int... dims> constexpr size_t cartesian_prod = cartesian_product_size(std_e::multi_index<int,sizeof...(dims)>{dims...});
-template<class T, int... dims> using fixed_multi_array_container = std_e::array<T,cartesian_prod<dims...>>;
+template<class T, int... dims> using fixed_multi_array_container = std::array<T,cartesian_prod<dims...>>;
 
 template<class T, int... dims>
 using fixed_multi_array = multi_array< fixed_multi_array_container<T,dims...> , fixed_shape<dims...>>;

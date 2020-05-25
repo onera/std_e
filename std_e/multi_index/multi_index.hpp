@@ -3,11 +3,11 @@
 
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/cx_multi_index.hpp"
-#include "std_e/utils/array.hpp"
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
-#include "std_e/utils/array_vector_common.hpp"
+#include "std_e/utils/array.hpp"
+#include "std_e/utils/std_array.hpp"
 
 
 namespace std_e {
@@ -24,7 +24,7 @@ namespace std_e {
 //       in particular regarding overloading
 //       (and we will need to define a fair number of multi_index functions)
 template<class Int, int rank>
-struct multi_index : std_e::array<Int,rank>
+struct multi_index : std::array<Int,rank>
 {};
 
 template<class Int>
@@ -85,18 +85,6 @@ template<class Int>
 struct rank_of__impl<std_e::multi_index<Int,dynamic_size>> {
   static constexpr int value = dynamic_size;
 };
-//template<class Int, int rank>
-//struct rank_of__impl<std_e::array<Int,rank>> {
-//  static constexpr int value = rank;
-//};
-//template<class Int>
-//struct rank_of__impl<std::vector<Int>> {
-//  static constexpr int value = dynamic_size;
-//};
-//template<>
-//struct rank_of__impl<std_e::cx_multi_index> {
-//  static constexpr int value = dynamic_size;
-//};
 
 template<class Multi_index> inline constexpr int rank_of = rank_of__impl<std::decay_t<Multi_index>>::value;
 // rank_of }

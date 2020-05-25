@@ -1,10 +1,9 @@
 #pragma once
 
 
-#include "std_e/base/array.hpp"
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
-#include "std_e/utils/array_vector_common.hpp"
+#include "std_e/utils/array.hpp"
 
 
 namespace std_e {

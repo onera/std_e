@@ -4,7 +4,7 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/multi_index.hpp"
-#include "std_e/utils/array_vector_common.hpp"
+#include "std_e/utils/array.hpp"
 // TODO RENAME file, test (offsets!)
 
 
@@ -120,7 +120,7 @@ fortran_order_from_strides(const Multi_index_0& strides, const Multi_index_1& in
 
 // Here with no skip
 template<class I, int rank> FORCE_INLINE constexpr auto 
-fortran_strides_from_extent2(const array<I,rank>& dims) { // TODO replace Multi_index with multi_index (pb with int vs size_t)
+fortran_strides_from_extent2(const multi_index<I,rank>& dims) {
   static_assert(rank != dynamic_size);
   multi_index<I,rank+1> strides = {};
   strides[0] = 1;

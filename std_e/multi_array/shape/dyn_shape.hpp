@@ -3,7 +3,6 @@
 
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/multi_index/cartesian_product_size.hpp"
-#include "std_e/utils/array_vector_common.hpp"
 #include "std_e/utils/array.hpp"
 #include "std_e/utils/vector.hpp"
 #include "std_e/base/dynamic_size.hpp"

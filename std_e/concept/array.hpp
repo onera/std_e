@@ -49,9 +49,9 @@ template<class T> inline constexpr bool is_dyn_size_array = enable_is_dyn_size_a
 
 
 // std::array activations
-template<class T, int N>
+template<class T, size_t N>
 struct enable_is_array<std::array<T,N>> : std::true_type {};
-template<class T, int N>
+template<class T, size_t N>
 struct enable_is_fixed_size_array<std::array<T,N>> : std::true_type {};
 
 // std::vector activations
