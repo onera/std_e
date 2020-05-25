@@ -140,7 +140,7 @@ class strided_span : private stride<I,N> {
       static_assert(N!=dynamic_size,"stride of dynamic length: a length must be specified");
     }
 
-  // inherited behavior
+  // inherited behavior (constexpr static trick)
     using base::stride_length;
 
   // basic accessors
