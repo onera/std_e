@@ -25,3 +25,9 @@ TEST_CASE("Default std_e::array except for one index") {
   std_e::array<int,4> expected_a = {0,0,42,0};
   CHECK( a == expected_a );
 }
+
+TEST_CASE("same_array_type_except_size") {
+  using type = std_e::same_array_type_except_size< std::array<int,3> , 4>;
+  using expected_type =                            std::array<int,     4>;
+  static_assert( std::is_same_v<type,expected_type> );
+}

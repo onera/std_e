@@ -2,21 +2,19 @@
 
 
 #include "std_e/base/array.hpp"
+#include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
+#include "std_e/utils/array_vector_common.hpp"
 
 
 namespace std_e {
 
 
-template<class T, int... Ns> constexpr auto
-create_array_for_concatenation(const std_e::array<T,Ns>&...) {
-  constexpr int N = (Ns + ...);
-  return std_e::array<T,N>{};
-}
 template<class... Arrays> constexpr auto
 create_array_for_concatenation(const Arrays&... xs) {
   size_t n = (xs.size() + ...);
-  return std::common_type_t<Arrays...>(n);
+  using cat_array_type = concatenated_array<Arrays...>;
+  return make_array_of_size<cat_array_type>(n);
 }
 
 

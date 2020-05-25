@@ -4,9 +4,11 @@
 #include "std_e/base/array.hpp"
 #include <algorithm>
 #include "std_e/future/algorithm.hpp"
+#include "std_e/concept/array.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 
 
+// TODO rename fixed_size_array.hpp
 namespace std_e {
 
 
@@ -32,6 +34,16 @@ make_sub_array(const std_e::array<T,N>& x) {
   std::copy_n(begin(x)+start,sub_size,begin(sub));
   return sub;
 }
+
+
+// same_array_type_except_size {
+template<auto N_new, template<class,auto> class Fixed_size_array_template, class T, auto N> constexpr auto
+make_same_array_type_except_size(Fixed_size_array_template<T,N>) {
+  return Fixed_size_array_template<T,N_new>{};
+}
+template<class Fixed_size_array, auto N_new>
+using same_array_type_except_size = decltype(make_same_array_type_except_size<N_new>(Fixed_size_array{}));
+// same_array_type_except_size }
 
 
 template<class T, size_t N> inline auto

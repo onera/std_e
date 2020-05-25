@@ -8,6 +8,7 @@
 #include "std_e/base/array.hpp"
 #include "std_e/future/constexpr_vector.hpp"
 #include "std_e/concept/array.hpp"
+#include "std_e/utils/array.hpp"
 
 
 // The idea of these function is to provide a common interface
@@ -53,26 +54,15 @@ template<class Enable, class... Arrays>
 struct concatenated_array__impl;
 
 
-//template<template<class T, auto sz> class Fixed_size_array_template, auto new_sz>
-//struct Same_array_type_but_different_size {
-//  using type = Fixed_size_array_template<T
-//};
-
-
-template<class T, int... ct_sizes>
-struct concatenated_array__impl< std::enable_if_t<is_fixed_size_array<std_e::array<T,3>>> , std_e::array<T,ct_sizes>... > {
-  static constexpr int sum_ct_sizes = (ct_sizes + ...);
-  using type = std_e::array<T,sum_ct_sizes>;
+template<class Array, class... Arrays>
+struct concatenated_array__impl<
+  std::enable_if_t<is_fixed_size_array<Array>>,
+  Array,Arrays... 
+>
+{
+  static constexpr int sum_sizes = std::tuple_size_v<Array> + (std::tuple_size_v<Arrays> + ...);
+  using type = same_array_type_except_size<Array,sum_sizes>;
 };
-
-//template<class Array, class... Arrays>
-//struct concatenated_array__impl<
-//  std::enable_if_t<is_fixed_size_array<Array>>,
-//  Array,Arrays... 
-//>
-//{
-//  using type = Array;
-//};
 
 template<class Array, class... Arrays>
 struct concatenated_array__impl<
