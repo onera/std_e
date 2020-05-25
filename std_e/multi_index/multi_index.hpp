@@ -53,19 +53,16 @@ template<class Int       > struct enable_is_dyn_size_array  <multi_index<Int,dyn
 // multi_index }
 
 
-//// is_multi_index {
-//template<class T>
-//struct is_multi_index__impl {
-//  static constexpr bool value = false;
-//};
-//template<class Int, int rank>
-//struct is_multi_index__impl<multi_index<Int,rank>> {
-//  static constexpr bool value = true;
-//};
-//
-//template<class T>
-//constexpr bool is_multi_index = is_multi_index__impl<T>::value;
-//// is_multi_index }
+// is_multi_index {
+template<class T>
+struct enable_is_multi_index : std::false_type {};
+
+template<class Int, int rank>
+struct enable_is_multi_index<multi_index<Int,rank>> : std::true_type {};
+
+template<class T>
+constexpr bool is_multi_index = enable_is_multi_index<T>::value;
+// is_multi_index }
 
 // index_type_of {
 template<class Multi_index>

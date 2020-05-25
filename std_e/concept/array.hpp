@@ -3,9 +3,11 @@
 
 #include <array>
 #include <vector>
+#include "std_e/future/span.hpp"
 
 
 namespace std_e {
+// TODO rename Array -> Array_like, create Array : Array_like + owns memory (ctor from bunch of values)
 
 /*
 concept Array : Regular
@@ -59,6 +61,11 @@ template<class T>
 struct enable_is_array<std::vector<T>> : std::true_type {};
 template<class T>
 struct enable_is_dyn_size_array<std::vector<T>> : std::true_type {};
+
+// std_e::span activations
+template<class T, ptrdiff_t N>
+struct enable_is_array<std_e::span<T,N>> : std::true_type {};
+// NOTE: span is not a Fixed_size_array or Dyn_size_array because it has no own memory
 
 
 } // std_e

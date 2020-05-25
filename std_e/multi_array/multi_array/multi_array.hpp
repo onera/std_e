@@ -273,12 +273,18 @@ make_view(const multi_array<M0,M1>& x) {
 // sub views of contiguous memory {
 // sub-view of contiguous memory are possible for a fortran-ordered memory
 // if the last indices are fixed (i.e. the indices at the right)
-template<class M0, class M1, class Multi_index> auto
+template<
+  class M0, class M1, class Multi_index,
+  std::enable_if_t< is_multi_index<Multi_index> , int > =0
+> auto
 make_sub_array(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
 }
-template<class M0, class M1, class Multi_index> auto
+template<
+  class M0, class M1, class Multi_index,
+  std::enable_if_t< is_multi_index<Multi_index> , int > =0
+> auto
 make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
@@ -286,7 +292,7 @@ make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
 
 template<
   class M0, class M1, class Multi_index,
-  std::enable_if_t< !std::is_integral_v<Multi_index> , int > =0
+  std::enable_if_t< is_multi_index<Multi_index> , int > =0
 > auto
 make_span(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,_] = shape_restriction_start_index_1d(x.shape(),right_indices);
@@ -294,7 +300,7 @@ make_span(multi_array<M0,M1>& x, const Multi_index& right_indices) {
 }
 template<
   class M0, class M1, class Multi_index,
-  std::enable_if_t< !std::is_integral_v<Multi_index> , int > =0
+  std::enable_if_t< is_multi_index<Multi_index> , int > =0
 > auto
 make_span(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,_] = shape_restriction_start_index_1d(x.shape(),right_indices);
@@ -302,11 +308,17 @@ make_span(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
 }
 
 /// special case of fixing only one index {
-template<class M0, class M1> auto
-make_sub_array(multi_array<M0,M1>& x, int i) { // TODO C++20 Integer (complicated without concepts)
+template<
+  class M0, class M1, class I,
+  std::enable_if_t< std::is_integral_v<I> , int > =0
+> auto
+make_sub_array(multi_array<M0,M1>& x, I i) {
   return make_sub_array(x,std_e::multi_index<int,1>{i});
 }
-template<class M0, class M1> auto
+template<
+  class M0, class M1, class I,
+  std::enable_if_t< std::is_integral_v<I> , int > =0
+> auto
 make_sub_array(const multi_array<M0,M1>& x, int i) {
   return make_sub_array(x,std_e::multi_index<int,1>{i});
 }
