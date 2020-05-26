@@ -72,29 +72,49 @@ TEST_CASE("hvector for_each algorithms") {
 // [Sphinx Doc] hvector find algorithms {
 TEST_CASE("hvector find algorithms") {
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
+
+  SUBCASE("apply_first") {
+    double value;
+    auto f = [&value](auto x){ value = 10*x; };
+
+    SUBCASE("case found") {
+      auto p = [](auto x){ return double(x)==3.14; };
+      bool found = apply_first(hv,p,f);
+      CHECK( value == 3.14*10 );
+      CHECK( found );
+    }
+    SUBCASE("case not found") {
+      value = 42.5;
+      auto p = [](auto){ return false; };
+      bool found = apply_first(hv,p,f);
+      CHECK( value == 42.5 ); // unchanged
+      CHECK( !found );
+    }
+  }
+
   SUBCASE("find_apply") {
     double value;
     auto f = [&value](auto x){ value = 10*x; };
 
-    SUBCASE("case 1") {
-      auto p = [](auto x){ return double(x)==3.14; };
-      auto [pos_in_tuple,pos_in_vec] = find_apply(hv,p,f);
-      CHECK( value == 3.14*10 );
-      CHECK( pos_in_tuple == 1 );
-      CHECK( pos_in_vec == 0 );
-    }
-    SUBCASE("case 2") {
+    SUBCASE("case found as first type") {
       auto p = [](auto x){ return double(x)==3.; };
       auto [pos_in_tuple,pos_in_vec] = find_apply(hv,p,f);
       CHECK( value == 3*10 );
       CHECK( pos_in_tuple == 0 );
       CHECK( pos_in_vec == 2 );
     }
+    SUBCASE("case found as second type") {
+      auto p = [](auto x){ return double(x)==3.14; };
+      auto [pos_in_tuple,pos_in_vec] = find_apply(hv,p,f);
+      CHECK( value == 3.14*10 );
+      CHECK( pos_in_tuple == 1 );
+      CHECK( pos_in_vec == 0 );
+    }
     SUBCASE("case not found") {
       value = 42.5;
       auto p = [](auto){ return false; };
       auto [pos_in_tuple,pos_in_vec] = find_apply(hv,p,f);
-      CHECK( value == 42.5 );
+      CHECK( value == 42.5 ); // unchanged
       CHECK( pos_in_tuple == 2 );
       CHECK( pos_in_vec == 2 );
     }

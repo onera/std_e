@@ -100,6 +100,8 @@ namespace std {
     using type = tuple_element_t<I, impl_type>;
   };
 } // std
+
+// TODO DEL or RENAME (not clear if we apply to vectors or elts in vectors
 namespace std_e {
 template <class F, class... Ts> constexpr auto
 apply(F&& f, hvector<Ts...>& x) -> decltype(auto) {
@@ -145,10 +147,10 @@ for_each_element(const std::vector<T>& v, F f) -> void {
 
 template<class hvector_type, class Unary_pred, class F> constexpr auto
 find_apply__impl(hvector_type& hv, Unary_pred p, F f) -> std::pair<int,int> {
-  int pos_in_vec = 0;
-  auto f_tuple = [&p,&f,&pos_in_vec](auto& vec){
+  int index_in_vector = 0;
+  auto f_tuple = [&p,&f,&index_in_vector](auto& vec){
     auto it = std::find_if(begin(vec),end(vec),p);
-    pos_in_vec = it-begin(vec);
+    index_in_vector = it-begin(vec);
     if (it!=end(vec)) {
       f(*it);
       return true;
@@ -157,28 +159,28 @@ find_apply__impl(hvector_type& hv, Unary_pred p, F f) -> std::pair<int,int> {
     }
   };
 
-  int pos_in_tuple = for_each_until(hv.impl(),f_tuple);
-  return std::make_pair(pos_in_tuple,pos_in_vec);
+  int index_in_types = for_each_until(hv.impl(),f_tuple);
+  return std::make_pair(index_in_types,index_in_vector);
 }
 // TODO choose between find_apply__impl and find_apply__impl2
 template<class hvector_type, class Unary_pred, class F> constexpr auto
 find_apply__impl2(hvector_type& hv, Unary_pred p, F f) -> std::pair<int,int> {
-  int pos_in_vec = 0;
-  auto p_tuple = [&p,&pos_in_vec](auto& vec){
+  int index_in_vector = 0;
+  auto p_tuple = [&p,&index_in_vector](auto& vec){
     auto it = std::find_if(begin(vec),end(vec),p);
-    pos_in_vec = it-begin(vec);
+    index_in_vector = it-begin(vec);
     if (it!=end(vec)) {
       return true;
     } else {
       return false;
     }
   };
-  auto f_tuple = [&f,&pos_in_vec](auto& vec){
-    f(vec[pos_in_vec]);
+  auto f_tuple = [&f,&index_in_vector](auto& vec){
+    f(vec[index_in_vector]);
   };
 
-  int pos_in_tuple = find_apply(hv.impl(),p_tuple,f_tuple);
-  return std::make_pair(pos_in_tuple,pos_in_vec);
+  int index_in_types = find_apply(hv.impl(),p_tuple,f_tuple);
+  return std::make_pair(index_in_types,index_in_vector);
 }
 
 
@@ -186,7 +188,6 @@ template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
 }
-
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(const hvector<Ts...>& hv, Unary_pred p, F f) -> std::pair<int,int> {
   return find_apply__impl(hv,p,f);
@@ -196,6 +197,17 @@ template<class... Ts, class Unary_pred> constexpr auto
 find_position(const hvector<Ts...>& hv, Unary_pred p) -> std::pair<int,int> {
   auto no_op = [](auto&&){};
   return find_apply__impl(hv,p,no_op);
+}
+
+template<class... Ts, class Unary_pred, class F> constexpr auto
+apply_first(hvector<Ts...>& hv, Unary_pred p, F f) -> bool {
+  auto [index_in_types,_] = find_apply(hv,p,f);
+  return index_in_types != hv.hsize();
+}
+template<class... Ts, class Unary_pred, class F> constexpr auto
+apply_first(const hvector<Ts...>& hv, Unary_pred p, F f) -> bool {
+  auto [index_in_types,_] = find_apply(hv,p,f);
+  return index_in_types != hv.hsize();
 }
 
 
