@@ -123,7 +123,7 @@ if(STD_E_BUILD_DOCUMENTATION)
   endif()
 
   include(UseBreathe)
-  add_breathe_doc(TARGET_NAME doc
+  add_breathe_doc(TARGET_NAME ${PROJECT_NAME}_doc
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc
     DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
     CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in
