@@ -5,40 +5,49 @@
 
 using namespace std;
 using namespace std_e;
+using MI = multi_index<int,2>;
 
 
-TEST_CASE("multi_arrays of rank 0 are scalars") {
-  SUBCASE("fixed array") {
-    fixed_multi_array<int> f;
-    CHECK( f.rank() == 0 );
-    CHECK( f.size() == 1 );
+// [Sphinx Doc] dyn_multi_array {
+TEST_CASE("dyn_multi_array") {
+  dyn_multi_array<int,2> ma = {
+    {1,2,3},
+    {4,5,6}
+  };
 
-    f() = 42;
-    CHECK( f() == 42 );
-  }
-  SUBCASE("dyn array") {
-    // The handling of dyn arrays of rank 0 is not well supported
-    // because it would require special cases
-    // whereas it seems not very useful
+  CHECK( ma.rank() == 2 );
 
-    dyn_multi_array<int,0> f_no_alloc;
-    CHECK( f_no_alloc.rank() == 0 );
-    CHECK( f_no_alloc.size() == 1 ); 
+  CHECK( ma.size() == 6 );
+  CHECK( ma.extent(0) == 2 );
+  CHECK( ma.extent(1) == 3 );
 
-    // WARNING: nothing has been allocated!
-    // The following would segfault
-    // f_no_alloc() = 42; // BAD: SEGFAULT
-  }
+  CHECK( ma(0,0) == 1 ); CHECK( ma(0,1) == 2 ); CHECK( ma(0,2) == 3 );
+  CHECK( ma(1,0) == 4 ); CHECK( ma(1,1) == 5 ); CHECK( ma(1,2) == 6 );
 }
+// [Sphinx Doc] dyn_multi_array }
 
 
-using MI = multi_index<int32_t,2>;
+// [Sphinx Doc] dyn_multi_array from dimensions {
+TEST_CASE("dyn_multi_array from dimensions") {
+  dyn_multi_array<int,2> ma(2,3);
+
+  CHECK( ma.extent(0) == 2 );
+  CHECK( ma.extent(1) == 3 );
+
+  ma(0,0) = 1;    ma(0,1) = 2;    ma(0,2) = 3;
+  ma(1,0) = 4;    ma(1,1) = 5;    ma(1,2) = 6;
+
+  CHECK( ma(0,0) == 1 ); CHECK( ma(0,1) == 2 ); CHECK( ma(0,2) == 3 );
+  CHECK( ma(1,0) == 4 ); CHECK( ma(1,1) == 5 ); CHECK( ma(1,2) == 6 );
+}
+// [Sphinx Doc] dyn_multi_array from dimensions }
+
+
 TEST_CASE("dyn_multi_array_view") {
+  // [Sphinx Doc] dyn_multi_array_view {
   vector<int> v = {1,2,3,4,5,6};
-  std_e::span<int> external_memory(v.data());
-  MI shape_dims = {3,2};
-  
-  dyn_multi_array_view<int,2> mav = {external_memory,{shape_dims}};
+  dyn_multi_array_view<int,2> mav = {v.data(),{3,2}};
+  // [Sphinx Doc] dyn_multi_array_view }
 
   SUBCASE("basic_tests") {
 
@@ -66,33 +75,42 @@ TEST_CASE("dyn_multi_array_view") {
 }
 
 
-TEST_CASE("dyn_multi_array") {
-  dyn_multi_array<int,2> ma = {
-    {1,2,3},
-    {4,5,6}
-  };
-
-  CHECK( ma.size() == 6 );
-  CHECK( ma.extent(0) == 2 );
-  CHECK( ma.extent(1) == 3 );
-
-  CHECK( ma(0,0) == 1 ); CHECK( ma(0,1) == 2 ); CHECK( ma(0,2) == 3 );
-  CHECK( ma(1,0) == 4 ); CHECK( ma(1,1) == 5 ); CHECK( ma(1,2) == 6 );
-}
-
-
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
-  span<int> external_memory(v.data());
-  MI shape_dims = {3,2};
+  MI dims = {3,2};
   
-  dyn_multi_array_view<int,2> x = {external_memory,{shape_dims}};
+  dyn_multi_array_view<int,2> x = {v.data(),dims};
 
-  dyn_multi_array<int,2> y({1,2,3,4,5,6},{shape_dims});
-  dyn_multi_array<int,2> z({1,2,3,4,0,6},{shape_dims});
+  dyn_multi_array<int,2> y({1,2,3,4,5,6},dims);
+  dyn_multi_array<int,2> z({1,2,3,4,0,6},dims);
 
   CHECK(x==y);
   CHECK(x!=z);
+}
+
+
+TEST_CASE("multi_arrays of rank 0 are scalars") {
+  SUBCASE("fixed array") {
+    fixed_multi_array<int> f;
+    CHECK( f.rank() == 0 );
+    CHECK( f.size() == 1 );
+
+    f() = 42;
+    CHECK( f() == 42 );
+  }
+  SUBCASE("dyn array") {
+    // The handling of dyn arrays of rank 0 is not well supported
+    // because it would require special cases
+    // whereas it seems not very useful
+
+    dyn_multi_array<int,0> f_no_alloc;
+    CHECK( f_no_alloc.rank() == 0 );
+    CHECK( f_no_alloc.size() == 1 ); 
+
+    // WARNING: nothing has been allocated!
+    // The following would segfault
+    // f_no_alloc() = 42; // BAD: SEGFAULT
+  }
 }
 
 

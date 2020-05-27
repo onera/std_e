@@ -10,7 +10,9 @@ source_generated_documentation
 
 literalinclude: link to the original source file
 
-Document: static inheritance trick
+Document: 
+static inheritance trick
+init trick, see https://stackoverflow.com/a/38679907/1583122
 
 
 Build and CI

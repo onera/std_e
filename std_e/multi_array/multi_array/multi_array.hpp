@@ -18,38 +18,38 @@
 namespace std_e {
 
 
-template<class Memory_ressource, class Multi_array_shape>
+template<class Random_access_range, class Multi_array_shape>
 class multi_array : private Multi_array_shape {
   public:
   // type traits
     using base = Multi_array_shape;
-    using memory_ressource_type = Memory_ressource;
+    using underlying_range_type = Random_access_range;
     using shape_type = Multi_array_shape;
     using index_type = typename shape_type::index_type;
 
-    using value_type = typename memory_ressource_type::value_type;
-    using pointer = typename memory_ressource_type::pointer;
-    using const_pointer = typename memory_ressource_type::const_pointer;
-    using reference = typename memory_ressource_type::reference;
-    using const_reference = typename memory_ressource_type::const_reference;
+    using value_type = typename underlying_range_type::value_type;
+    using pointer = typename underlying_range_type::pointer;
+    using const_pointer = typename underlying_range_type::const_pointer;
+    using reference = typename underlying_range_type::reference;
+    using const_reference = typename underlying_range_type::const_reference;
 
     static constexpr int ct_rank = shape_type::ct_rank;
     static constexpr int ct_size = shape_type::ct_size;
     using multi_index_type = typename shape_type::multi_index_type;
 
-    static constexpr bool mem_is_owned = memory_is_owned<memory_ressource_type>;
+    static constexpr bool mem_is_owned = memory_is_owned<underlying_range_type>;
 
   // constructors {
     FORCE_INLINE constexpr multi_array() = default;
 
     FORCE_INLINE constexpr
-    multi_array(memory_ressource_type mem, shape_type sh)
+    multi_array(underlying_range_type rng, shape_type sh)
       : shape_type(std::move(sh))
-      , mem(std::move(mem))
+      , rng(std::move(rng))
     {}
     FORCE_INLINE constexpr
-    multi_array(memory_ressource_type mem)
-      : multi_array(std::move(mem),{})
+    multi_array(underlying_range_type rng)
+      : multi_array(std::move(rng),{})
     {}
 
     FORCE_INLINE constexpr multi_array(const multi_array&) = default;
@@ -60,31 +60,40 @@ class multi_array : private Multi_array_shape {
     template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
     multi_array(const multi_array<span<T0,N>,shape_type>& ma)
       : shape_type(ma.shape())
-      , mem(ma.memory())
+      , rng(ma.underlying_range())
     {}
     template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
     multi_array(multi_array<span<T0,N>,shape_type>&& ma)
       : shape_type(std::move(ma.shape()))
-      , mem(ma.memory())
+      , rng(ma.underlying_range())
+    {}
+
+    FORCE_INLINE constexpr
+    multi_array(value_type* rng, multi_index_type dims)
+      : shape_type({std::move(dims)})
+      , rng(make_span(rng,size()))
     {}
 
   /// ctors with dimensions {
     template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
     template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
+
     template<class... ints,
       std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
     >
     multi_array(ints... dims)
       : shape_type({dims...})
-      , mem(std_e::cartesian_product_size(multi_index<int,sizeof...(ints)>{dims...}))
+      , rng(std_e::cartesian_product_size(multi_index<int,sizeof...(ints)>{dims...}))
     {
       static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
     }
 
-    template<class... ints>
-    multi_array(memory_ressource_type mem, ints... dims)
+    template<class... ints,
+      std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
+    >
+    multi_array(underlying_range_type rng, ints... dims)
       : shape_type({dims...})
-      , mem(mem)
+      , rng(rng)
     {
       static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
     }
@@ -92,9 +101,9 @@ class multi_array : private Multi_array_shape {
 
   /// ctors from initializer lists {
     // ctor for rank==1
-    multi_array(std::initializer_list<value_type> l, memory_ressource_type mem)
+    multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
-      , mem(std::move(mem))
+      , rng(std::move(rng))
     {
       STD_E_ASSERT(this->rank()==1);
       index_type i=0;
@@ -104,12 +113,12 @@ class multi_array : private Multi_array_shape {
       }
     }
     multi_array(std::initializer_list<value_type> l)
-      : multi_array(l,make_array_of_size<memory_ressource_type>(l.size()))
+      : multi_array(l,make_array_of_size<underlying_range_type>(l.size()))
     {}
     // ctor for rank==2
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, memory_ressource_type mem)
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
-      , mem(std::move(mem))
+      , rng(std::move(rng))
     {
       STD_E_ASSERT(this->rank()==2);
       index_type i=0;
@@ -123,7 +132,7 @@ class multi_array : private Multi_array_shape {
       }
     }
     multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
-      : multi_array(ll,make_array_of_size<memory_ressource_type>(ll.size() * std::begin(ll)->size()))
+      : multi_array(ll,make_array_of_size<underlying_range_type>(ll.size() * std::begin(ll)->size()))
     {}
   /// ctors from initializer lists }
   // constructors }
@@ -140,12 +149,12 @@ class multi_array : private Multi_array_shape {
     }
 
     FORCE_INLINE constexpr auto
-    memory() const -> const memory_ressource_type& {
-      return mem;
+    underlying_range() const -> const underlying_range_type& {
+      return rng;
     }
     FORCE_INLINE auto
-    memory() -> memory_ressource_type& {
-      return mem;
+    underlying_range() -> underlying_range_type& {
+      return rng;
     }
 
   // dimensions
@@ -162,11 +171,11 @@ class multi_array : private Multi_array_shape {
   // range interface
     FORCE_INLINE auto
     data() -> pointer {
-      return mem.data();
+      return rng.data();
     }
     FORCE_INLINE constexpr auto
     data() const -> const_pointer {
-      return mem.data();
+      return rng.data();
     }
     FORCE_INLINE auto
     begin() -> pointer {
@@ -189,21 +198,21 @@ class multi_array : private Multi_array_shape {
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) const -> const_reference {
-      return mem[linear_index(std::forward<Ts>(xs)...)];
+      return rng[linear_index(std::forward<Ts>(xs)...)];
     }
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) -> reference {
-      return mem[linear_index(std::forward<Ts>(xs)...)];
+      return rng[linear_index(std::forward<Ts>(xs)...)];
     }
     FORCE_INLINE constexpr auto
     operator[](index_type i) const -> const_reference {
       // Precondition: rank()==1
-      return mem[i + offset(0)];
+      return rng[i + offset(0)];
     }
     FORCE_INLINE constexpr auto
     operator[](index_type i) -> reference {
       // Precondition: rank()==1
-      return mem[i + offset(0)];
+      return rng[i + offset(0)];
     }
 
   private:
@@ -237,7 +246,7 @@ class multi_array : private Multi_array_shape {
   /// linear_index }
 
 // data members
-    memory_ressource_type mem;
+    underlying_range_type rng;
 };
 
 template<class M00, class M01, class M10, class M11> constexpr auto

@@ -9,7 +9,8 @@ namespace std_e {
 
 
 /*
-  concept Multi_array:
+concept Multi_array {
+  // type traits
     index_type
     multi_index_type
     shape_type
@@ -20,9 +21,9 @@ namespace std_e {
     reference
     const_reference
 
-    static constexpr size_t fixed_rank
-
-    rank() -> size_t
+  // member functions
+    rank() -> int
+    size() -> index_type
     extent() -> Multi_index
     offset() -> Multi_index
 
@@ -30,7 +31,8 @@ namespace std_e {
 
     shape() -> shape_type
 
-    operator() -> reference
+    operator()(multi_index_type) -> reference
+}
 */
 
 

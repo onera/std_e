@@ -18,8 +18,8 @@ reshape(dyn_shape<Integer,rank>& x, const multi_index<Integer,rank>& dims) {
   x.offset() = make_zero_multi_index<multi_index_type>(dims.size());
 }
 
-template<class Memory_ressource> auto
-resize_memory(Memory_ressource& x, size_t n) -> void {
+template<class Dynamic_contaier> auto
+resize_memory(Dynamic_contaier& x, size_t n) -> void {
   x.resize(n);
 }
 template<class T, ptrdiff_t N> auto
@@ -27,29 +27,29 @@ resize_memory(span<T,N>& x, size_t n) -> void {
   // ASSERT same as or less than old size
 }
 
-template<class Memory_ressource, class Multi_array_shape> auto
-reshape(multi_array<Memory_ressource,Multi_array_shape>& x, const typename Multi_array_shape::multi_index_type& dims) {
+template<class R, class Shape> auto
+reshape(multi_array<R,Shape>& x, const typename Shape::multi_index_type& dims) {
   reshape(x.shape(),dims);
   size_t total_size = std_e::cartesian_product_size(dims);
-  resize_memory(x.memory(),total_size);
+  resize_memory(x.underlying_range(),total_size);
 }
 
 
-template<class Memory_ressource, class Multi_array_shape> auto
-is_empty(const multi_array<Memory_ressource,Multi_array_shape>& x) -> bool {
-  return std_e::cartesian_product_size(x.extent())==0;
+template<class R, class Shape> auto
+is_empty(const multi_array<R,Shape>& x) -> bool {
+  return x.size()==0;
 }
 
 
-template<class Memory_ressource, class Multi_array_shape> auto
-to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::string {
+template<class R, class Shape> auto
+to_string(const multi_array<R,Shape>& x) -> std::string {
   using std::to_string;
-  if constexpr (Multi_array_shape::ct_rank==0 || Multi_array_shape::ct_rank==dynamic_size) {
+  if constexpr (Shape::ct_rank==0 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==0) {
       return "["+to_string(x())+"]";
     }
   }
-  if constexpr (Multi_array_shape::ct_rank==1 || Multi_array_shape::ct_rank==dynamic_size) {
+  if constexpr (Shape::ct_rank==1 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==1) {
       std::string s = "["+to_string(x[0]);
       int n = x.extent(0);
@@ -59,7 +59,7 @@ to_string(const multi_array<Memory_ressource,Multi_array_shape>& x) -> std::stri
       return s + "]";
     }
   }
-  if constexpr (Multi_array_shape::ct_rank==2 || Multi_array_shape::ct_rank==dynamic_size) {
+  if constexpr (Shape::ct_rank==2 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==2) {
       std::string s = "["+to_string(x(0,0));
       int n_i = x.extent(0);

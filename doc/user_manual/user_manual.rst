@@ -20,6 +20,9 @@ Design philosophy
 *****************
 
 TODO
+Concepts
+Integers: int and signed
+Defaults: 0 and intervals
 
 .. _unit_tests:
 
@@ -79,11 +82,12 @@ memory_ressource
 
 TODO
 
+.. _multi_array_user_manual:
 
 multi_index and multi_array
-==============================
+===========================
 
-TODO
+Multi-dimensional arrays can be created with the :cpp:class:`std_e::multi_array` template class. :cpp:class:`std_e::multi_array` is not meant to be used directly, it can be specialized for different use cases. The most common uses are dynamic multi-dimensional arrays. :cpp:`std_e::dyn_multi_array<T,2>` is a multi-dimensional container which onw
 
 
 operation

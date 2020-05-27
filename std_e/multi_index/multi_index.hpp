@@ -40,6 +40,10 @@ template<class Int, int rank>
 struct std::tuple_size<std_e::multi_index<Int,rank>> {
   static constexpr size_t value = rank;
 };
+template<size_t I, class Int, int rank>
+struct std::tuple_element<I,std_e::multi_index<Int,rank>> {
+  using type = Int;
+};
 /* re-open std_e */ namespace std_e {
 /// tuple protocol }
 

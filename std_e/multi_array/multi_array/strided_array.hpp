@@ -3,19 +3,15 @@
 
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include "std_e/data_structure/strided_span.hpp"
-#include <iostream>
 
 
 namespace std_e {
 
 
-template<class Multi_array_0, class Multi_array_1, class Multi_array_2> constexpr auto
-origin_indices(const Multi_array_0& fixed_dim_indices, const Multi_array_1& fixed_indices, const Multi_array_2& indices) {
-  constexpr int fixed_rank = rank_of<Multi_array_0>;
-  constexpr int rank = rank_of<Multi_array_1>;
+template<int fixed_rank, class Int, int rank> constexpr auto
+origin_indices(const multi_index<int,fixed_rank>& fixed_dim_indices, const multi_index<Int,fixed_rank>& fixed_indices, const multi_index<Int,rank>& indices) {
   constexpr int origin_rank = fixed_rank + rank;
-  using index_type = index_type_of<Multi_array_1>;
-  multi_index<index_type,origin_rank> origin_is = {};
+  multi_index<Int,origin_rank> origin_is = {};
   int k0=0;
   int k1=0;
   for (int i=0; i<origin_rank; ++i) {
@@ -58,7 +54,7 @@ class strided_array : private Multi_array_shape {
     // requires Multi_array::value_type==T
     // requires Multi_array::shape_type==Multi_array_shape,
     // requires rank = Multi_array::rank - rank_of<Multi_index>
-    strided_array(Multi_array&& x, multi_index<int,ct_fixed_rank> fixed_dim_is, Multi_index fixed_is)
+    strided_array(Multi_array& x, multi_index<int,ct_fixed_rank> fixed_dim_is, Multi_index fixed_is)
       : shape_type(make_sub_shape(x.shape(),fixed_dim_is))
       , ptr(x.data())
       , origin_shape(x.shape())
@@ -101,10 +97,12 @@ class strided_array : private Multi_array_shape {
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) const -> const_reference {
+      static_assert(sizeof...(Ts)==rank());
       return ptr[linear_index(std::forward<Ts>(xs)...)];
     }
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) -> reference {
+      static_assert(sizeof...(Ts)==rank());
       return ptr[linear_index(std::forward<Ts>(xs)...)];
     }
 
@@ -133,7 +131,7 @@ class strided_array : private Multi_array_shape {
     }
     FORCE_INLINE constexpr auto
     // requires ints are integers && sizeof...(ints)==rank()
-    linear_index() const -> index_type { // Note: rank 0 case
+    linear_index() const -> index_type { // Note: rank==0 case
       return 0;
     }
   /// linear_index }
@@ -142,44 +140,54 @@ class strided_array : private Multi_array_shape {
     T* ptr;
     origin_shape_type origin_shape;
     multi_index<int,ct_fixed_rank> fixed_dim_indices;
-    multi_index_type fixed_indices;
+    multi_index<index_type,ct_fixed_rank> fixed_indices;
 };
 
 
 // TODO strided array of strided_array
 // make_strided_array {
 template<
-  class Multi_array, class Multi_index_0, class Multi_index_1,
-  std::enable_if_t< !std::is_same_v<Multi_index_0,int> , int > =0
+  class Multi_array, int fixed_dims_rank,
+  class index_type = typename Multi_array::index_type
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array& x, Multi_index_0 fixed_dim_indices, Multi_index_1 fixed_is) {
+make_strided_array(Multi_array& x, multi_index<int,fixed_dims_rank> fixed_dim_indices, multi_index<index_type,fixed_dims_rank> fixed_is) {
   using T = typename Multi_array::value_type;
   using origin_shape_type = typename Multi_array::shape_type;
   constexpr int origin_rank = Multi_array::rank();
-  constexpr int fixed_dims_rank = rank_of<Multi_index_1>;
-  constexpr int rank = origin_rank - fixed_dims_rank;
-  using index_type = typename origin_shape_type::index_type;
-  using shape_type = dyn_shape<index_type,rank>;
+  constexpr int strided_rank = origin_rank - fixed_dims_rank;
+  using shape_type = dyn_shape<index_type,strided_rank>;
   return strided_array<T,shape_type,origin_shape_type>(x,std::move(fixed_dim_indices),std::move(fixed_is));
 }
+
+/// NOTE: overload to match a initialization list of dimensions
+template<
+  class Multi_array, int fixed_dims_rank,
+  class index_type = typename Multi_array::index_type
+> constexpr auto
+make_strided_array(Multi_array& x, const index_type(&fixed_dim_indices)[fixed_dims_rank], multi_index<index_type,fixed_dims_rank> fixed_is) {
+  multi_index<index_type,fixed_dims_rank> is = {};
+  std::copy_n(fixed_dim_indices,fixed_dims_rank,begin(is));
+  return make_strided_array(x,is,fixed_is);
+}
+
 template<class Multi_array, class I> constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array&& x, int fixed_dim_index, I fixed_index) {
+make_strided_array(Multi_array& x, int fixed_dim_index, I fixed_index) {
   return make_strided_array(x,multi_index<int,1>{fixed_dim_index},multi_index<I,1>{fixed_index});
 }
 
 
 template<
-  int... fixed_dim_is, class Multi_array, class Multi_index,
-  std::enable_if_t< !std::is_integral_v<Multi_index> , int > =0
+  int... fixed_dim_is, class Multi_array,
+  class index_type = typename Multi_array::index_type,
+  int fixed_rank = sizeof...(fixed_dim_is)
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array&& x, Multi_index fixed_is) {
-  constexpr int fixed_rank = sizeof...(fixed_dim_is);
+make_strided_array(Multi_array& x, multi_index<index_type,fixed_rank> fixed_is) {
   // Here, just delegate to run-time version
   // TODO compile-time version
   multi_index<int,fixed_rank> fixed_dim_indices = {fixed_dim_is...};
@@ -191,7 +199,7 @@ template<
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array&& x, I fixed_index) {
+make_strided_array(Multi_array& x, I fixed_index) {
   return make_strided_array<fixed_dim_index>(x,multi_index<I,1>{fixed_index});
 }
 // make_strided_array }
@@ -228,24 +236,30 @@ make_strided_span__impl(Multi_array& x, const Multi_index& fixed_dim_indices) {
 }
 
 template<
-  int varying_dim_index, class M0, class M1, class Multi_index,
-  std::enable_if_t< !std::is_integral_v<Multi_index> , int > =0
+  int varying_dim_index, class Multi_array,
+  class index_type = typename Multi_array::index_type,
+  int fixed_dims_rank
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
 // requires Multi_array::ct_rank = rank_of<Multi_index> + 1
-make_strided_span(multi_array<M0,M1>& x, const Multi_index& fixed_dim_indices) {
+make_strided_span(Multi_array& x, const multi_index<index_type,fixed_dims_rank>& fixed_dim_indices) {
   return make_strided_span__impl<varying_dim_index>(x,fixed_dim_indices);
 }
+
+/// NOTE: overload to match a initialization list of dimensions
 template<
-  int varying_dim_index, class M0, class M1, class Multi_index,
-  std::enable_if_t< !std::is_integral_v<Multi_index> , int > =0
+  int varying_dim_index, class Multi_array,
+  class index_type = typename Multi_array::index_type,
+  int fixed_dims_rank
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
 // requires Multi_array::ct_rank = rank_of<Multi_index> + 1
-make_strided_span(const multi_array<M0,M1>& x, const Multi_index& fixed_dim_indices) {
-  return make_strided_span__impl<varying_dim_index>(x,fixed_dim_indices);
+make_strided_span(Multi_array& x, const index_type(&fixed_dim_indices)[fixed_dims_rank]) {
+  multi_index<index_type,fixed_dims_rank> is = {};
+  std::copy_n(fixed_dim_indices,fixed_dims_rank,begin(is));
+  return make_strided_span<varying_dim_index>(x,is);
 }
 
 

@@ -6,43 +6,155 @@
 using namespace std;
 using namespace std_e;
 
-TEST_CASE("strided_array") {
+TEST_CASE("origin indices") {
+  SUBCASE("one index fixed") {
+    multi_index<int,1> fixed_dim_indices = {1};
+    multi_index<int,1> fixed_indices = {15};
+    multi_index<int,2> indices = {10,20};
+
+    multi_index<int,3> complete_indices = origin_indices(fixed_dim_indices,fixed_indices,indices);
+    multi_index<int,3> expected_complete_indices = {10,15,20};
+    CHECK( complete_indices == expected_complete_indices );
+  }
+  SUBCASE("two indices fixed") {
+    multi_index<int,2> fixed_dim_indices = {0,2};
+    multi_index<int,2> fixed_indices = {10,20};
+    multi_index<int,1> indices = {15};
+
+    multi_index<int,3> complete_indices = origin_indices(fixed_dim_indices,fixed_indices,indices);
+    multi_index<int,3> expected_complete_indices = {10,15,20};
+    CHECK( complete_indices == expected_complete_indices );
+  }
+}
+
+// [Sphinx Doc] 2D array sub-views {
+TEST_CASE("2D array sub-views") {
+  dyn_multi_array<double,2> ma = {
+    {1.,2.,3.},
+    {4.,5.,6.}
+  };
+  SUBCASE("get columns") {
+    auto col_0 = column(ma,0);
+    CHECK( col_0[0] == 1. );
+    CHECK( col_0[1] == 4. );
+    auto col_1 = column(ma,1);
+    CHECK( col_1[0] == 2. );
+    CHECK( col_1[1] == 5. );
+    auto col_2 = column(ma,2);
+    CHECK( col_2[0] == 3. );
+    CHECK( col_2[1] == 6. );
+  }
+  SUBCASE("get rows") {
+    auto row_0 = row(ma,0);
+    CHECK( row_0.size() == 3 );
+    CHECK( row_0[0] == 1. );
+    CHECK( row_0[1] == 2. );
+    CHECK( row_0[2] == 3. );
+    auto row_1 = row(ma,1);
+    CHECK( row_1.size() == 3 );
+    CHECK( row_1[0] == 4. );
+    CHECK( row_1[1] == 5. );
+    CHECK( row_1[2] == 6. );
+  }
+}
+// [Sphinx Doc] 2D array sub-views }
+
+
+// [Sphinx Doc] strided_array with one index {
+TEST_CASE("strided_array with one index") {
+  dyn_multi_array<double,3> ma(4,3,2);
+  for (auto [i,j,k] : fortran_multi_index_range(ma.extent())) {
+    ma(i,j,k) = 100*i + 10*j + k;
+  }
+
+  SUBCASE("compile time axis") {
+    auto sub_ma_1_2 = make_strided_array<1>(ma,2); // fix axis 1 at index 2
+
+    CHECK( sub_ma_1_2.rank() == 2 );
+    CHECK( sub_ma_1_2.extent(0) == 4 );
+    CHECK( sub_ma_1_2.extent(1) == 2 );
+
+    CHECK( sub_ma_1_2(0,0) ==  20. );
+    CHECK( sub_ma_1_2(1,0) == 120. );
+    CHECK( sub_ma_1_2(2,0) == 220. );
+    CHECK( sub_ma_1_2(3,0) == 320. );
+    CHECK( sub_ma_1_2(0,1) ==  21. );
+    CHECK( sub_ma_1_2(1,1) == 121. );
+    CHECK( sub_ma_1_2(2,1) == 221. );
+    CHECK( sub_ma_1_2(3,1) == 321. );
+                          //   ^ 
+                          // fixed
+  }
+  SUBCASE("run time axis") {
+    auto sub_ma_1_2 = make_strided_array(ma,1,2); // fix axis 1 at index 2
+
+    CHECK( sub_ma_1_2.rank() == 2 );
+    CHECK( sub_ma_1_2.extent(0) == 4 );
+    CHECK( sub_ma_1_2.extent(1) == 2 );
+
+    CHECK( sub_ma_1_2(0,0) ==  20. );
+    CHECK( sub_ma_1_2(1,0) == 120. );
+    CHECK( sub_ma_1_2(2,0) == 220. );
+    CHECK( sub_ma_1_2(3,0) == 320. );
+    CHECK( sub_ma_1_2(0,1) ==  21. );
+    CHECK( sub_ma_1_2(1,1) == 121. );
+    CHECK( sub_ma_1_2(2,1) == 221. );
+    CHECK( sub_ma_1_2(3,1) == 321. );
+  }
+}
+// [Sphinx Doc] strided_array with one index }
+
+
+// [Sphinx Doc] strided_array with multiple indices {
+TEST_CASE("strided_array with multiple indices") {
   dyn_multi_array<double,4> ma(5,4,3,2);
-  for (const auto& is : fortran_multi_index_range(ma.extent())) {
-    ma(is) = 1000*is[0] + 100*is[1] + 10*is[2] + is[3];
+  for (auto [i,j,k,l] : fortran_multi_index_range(ma.extent())) {
+    ma(i,j,k,l) = 1000*i + 100*j + 10*k + l;
   }
 
-  SUBCASE("run time fixed positions") {
-    auto ma_02_31 = make_strided_array(ma,multi_index<int,2>{0,2},multi_index<int,2>{3,1}); // fix extent 0 and 2 at positions 3 and 1
-    CHECK( ma_02_31.rank() == 2 );
-    CHECK( ma_02_31.extent(0) == 4 );
-    CHECK( ma_02_31.extent(1) == 2 );
-    CHECK( ma_02_31(0,0) == 3010. );
-    CHECK( ma_02_31(1,0) == 3110. );
-    CHECK( ma_02_31(2,0) == 3210. );
-    CHECK( ma_02_31(3,0) == 3310. );
-    CHECK( ma_02_31(0,1) == 3011. );
-    CHECK( ma_02_31(1,1) == 3111. );
-    CHECK( ma_02_31(2,1) == 3211. );
-    CHECK( ma_02_31(3,1) == 3311. );
-  }
-  SUBCASE("compile time fixed positions") {
-    auto ma_02_31 = make_strided_array<0,2>(ma,multi_index<int,2>{3,1}); // fix extent 0 and 2 at positions 3 and 1
-    CHECK( ma_02_31.rank() == 2 );
-    CHECK( ma_02_31.extent(0) == 4 );
-    CHECK( ma_02_31.extent(1) == 2 );
-    CHECK( ma_02_31(0,0) == 3010. );
-    CHECK( ma_02_31(1,0) == 3110. );
-    CHECK( ma_02_31(2,0) == 3210. );
-    CHECK( ma_02_31(3,0) == 3310. );
-    CHECK( ma_02_31(0,1) == 3011. );
-    CHECK( ma_02_31(1,1) == 3111. );
-    CHECK( ma_02_31(2,1) == 3211. );
-    CHECK( ma_02_31(3,1) == 3311. );
+  SUBCASE("resulting sub-array is multi-dimensional") {
+    SUBCASE("compile time axis") {
+                           // fix axes 0 and 2...
+                           //           \   /
+                           //            | | ... at respective indices
+                           //            | |    3 and 1
+                           //            | |     \   /
+                           //            | |      | |
+                           //            v v      v v
+      auto ma_02_31 = make_strided_array<0,2>(ma,{3,1});
+      CHECK( ma_02_31.rank() == 2 );
+      CHECK( ma_02_31.extent(0) == 4 );
+      CHECK( ma_02_31.extent(1) == 2 );
+
+      CHECK( ma_02_31(0,0) == 3010. );
+      CHECK( ma_02_31(1,0) == 3110. );
+      CHECK( ma_02_31(2,0) == 3210. );
+      CHECK( ma_02_31(3,0) == 3310. );
+      CHECK( ma_02_31(0,1) == 3011. );
+      CHECK( ma_02_31(1,1) == 3111. );
+      CHECK( ma_02_31(2,1) == 3211. );
+      CHECK( ma_02_31(3,1) == 3311. );
+                          //  ^ ^
+                          // fixed
+    }
+    SUBCASE("run time axis") {
+      auto ma_02_31 = make_strided_array(ma,{0,2},{3,1}); // fix axes 0 and 2 at indices 3 and 1
+      CHECK( ma_02_31.rank() == 2 );
+      CHECK( ma_02_31.extent(0) == 4 );
+      CHECK( ma_02_31.extent(1) == 2 );
+      CHECK( ma_02_31(0,0) == 3010. );
+      CHECK( ma_02_31(1,0) == 3110. );
+      CHECK( ma_02_31(2,0) == 3210. );
+      CHECK( ma_02_31(3,0) == 3310. );
+      CHECK( ma_02_31(0,1) == 3011. );
+      CHECK( ma_02_31(1,1) == 3111. );
+      CHECK( ma_02_31(2,1) == 3211. );
+      CHECK( ma_02_31(3,1) == 3311. );
+    }
   }
 
-  SUBCASE("ct fixed position span") {
-    auto ma_012_320 = make_strided_span<1>(ma,multi_index<int,3>{3,2,1}); // fix all except direction 1, at positions 3,2 and 1
+  SUBCASE("special case: only one direction not fixed, so the resulting sub-array is 1D") {
+    auto ma_012_320 = make_strided_span<1>(ma,{3,2,1}); // fix all except axis 1, at indices 3,2 and 1
     CHECK( ma_012_320.size() == 4 );
     CHECK( ma_012_320.stride_length() == 5 );
     CHECK( ma_012_320.data() - ma.data() == 3 + 5*0 + (5*4)*2 + (5*4*3)*1 );
@@ -50,85 +162,8 @@ TEST_CASE("strided_array") {
     CHECK( ma_012_320[1] == 3121. );
     CHECK( ma_012_320[2] == 3221. );
     CHECK( ma_012_320[3] == 3321. );
+                        //  ^ ^^
+                        // fixed
   }
 }
-
-
-TEST_CASE("strided_array with only one index") {
-  dyn_multi_array<int,2> ma = {
-    {1,2,3},
-    {4,5,6}
-  };
-
-  SUBCASE("run time fixed positions") {
-    auto sub_ma_0_0 = make_strided_array(ma,0,0);
-    CHECK( sub_ma_0_0(0) == 1 );
-    CHECK( sub_ma_0_0(1) == 2 );
-    CHECK( sub_ma_0_0(2) == 3 );
-    auto sub_ma_0_1 = make_strided_array(ma,0,1);
-    CHECK( sub_ma_0_1(0) == 4 );
-    CHECK( sub_ma_0_1(1) == 5 );
-    CHECK( sub_ma_0_1(2) == 6 );
-
-    auto sub_ma_1_0 = make_strided_array(ma,1,0);
-    CHECK( sub_ma_1_0(0) == 1 );
-    CHECK( sub_ma_1_0(1) == 4 );
-    auto sub_ma_1_1 = make_strided_array(ma,1,1);
-    CHECK( sub_ma_1_1(0) == 2 );
-    CHECK( sub_ma_1_1(1) == 5 );
-    auto sub_ma_1_2 = make_strided_array(ma,1,2);
-    CHECK( sub_ma_1_2(0) == 3 );
-    CHECK( sub_ma_1_2(1) == 6 );
-  }
-  SUBCASE("compile time fixed positions") {
-    auto sub_ma_0_0 = make_strided_array<0>(ma,0);
-    CHECK( sub_ma_0_0(0) == 1 );
-    CHECK( sub_ma_0_0(1) == 2 );
-    CHECK( sub_ma_0_0(2) == 3 );
-    auto sub_ma_0_1 = make_strided_array<0>(ma,1);
-    CHECK( sub_ma_0_1(0) == 4 );
-    CHECK( sub_ma_0_1(1) == 5 );
-    CHECK( sub_ma_0_1(2) == 6 );
-
-    auto sub_ma_1_0 = make_strided_array<1>(ma,0);
-    CHECK( sub_ma_1_0(0) == 1 );
-    CHECK( sub_ma_1_0(1) == 4 );
-    auto sub_ma_1_1 = make_strided_array<1>(ma,1);
-    CHECK( sub_ma_1_1(0) == 2 );
-    CHECK( sub_ma_1_1(1) == 5 );
-    auto sub_ma_1_2 = make_strided_array<1>(ma,2);
-    CHECK( sub_ma_1_2(0) == 3 );
-    CHECK( sub_ma_1_2(1) == 6 );
-  }
-
-  SUBCASE("strided_span") {
-    // make_strided_span for 2D multi arrays is a special case and does not have exactly the same interface as in the general case
-    // For 2D arrays, we either want to
-    //   fix the last direction, and for that we can ask for a column with make_span, which is contiguous
-    //   for the first direction, and for that we can ask for a row with make_strided_span, which is non-contiguous
-    SUBCASE("get columns") {
-      auto span_0 = column(ma,0);
-      CHECK( span_0[0] == 1 );
-      CHECK( span_0[1] == 4 );
-      auto span_1 = column(ma,1);
-      CHECK( span_1[0] == 2 );
-      CHECK( span_1[1] == 5 );
-      auto span_2 = column(ma,2);
-      CHECK( span_2[0] == 3 );
-      CHECK( span_2[1] == 6 );
-    }
-
-    SUBCASE("get rows") {
-      auto sub_ma_0_0 = row(ma,0);
-      CHECK( sub_ma_0_0.size() == 3 );
-      CHECK( sub_ma_0_0[0] == 1 );
-      CHECK( sub_ma_0_0[1] == 2 );
-      CHECK( sub_ma_0_0[2] == 3 );
-      auto sub_ma_0_1 = row(ma,1);
-      CHECK( sub_ma_0_1.size() == 3 );
-      CHECK( sub_ma_0_1[0] == 4 );
-      CHECK( sub_ma_0_1[1] == 5 );
-      CHECK( sub_ma_0_1[2] == 6 );
-    }
-  }
-}
+// [Sphinx Doc] strided_array with multiple indices }
