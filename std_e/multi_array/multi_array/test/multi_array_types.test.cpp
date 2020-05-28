@@ -93,6 +93,41 @@ TEST_CASE("fixed_multi_array") {
 }
 // [Sphinx Doc] fixed_multi_array }
 
+// [Sphinx Doc] multi_array range interface {
+TEST_CASE("multi_array range interface") {
+  dyn_multi_array<double,2> ma = {
+    {1.,2.,3.},
+    {4.,5.,6.}
+  };
+
+  SUBCASE("iteration") {
+    for (double& elt : ma) {
+      elt += 10.;
+    }
+
+    CHECK( ma(0,0) == 11. ); CHECK( ma(0,1) == 12. ); CHECK( ma(0,2) == 13. );
+    CHECK( ma(1,0) == 14. ); CHECK( ma(1,1) == 15. ); CHECK( ma(1,2) == 16. );
+  }
+
+  SUBCASE("random access") {
+    CHECK( ma[3] == 5. );
+  }
+
+  SUBCASE("data()") {
+    double* ptr = ma.data();
+    CHECK( *(ptr+3) == 5. );
+  }
+
+  SUBCASE("underlying_range()") {
+    std::vector<double>& v = ma.underlying_range();
+    CHECK( v[3] == 5. );
+    
+    v[0] = 100.;
+    CHECK( ma(0,0) == 100. );
+  }
+}
+// [Sphinx Doc] multi_array range interface }
+
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
   multi_index<int,2> dims = {3,2};

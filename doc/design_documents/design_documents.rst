@@ -8,6 +8,5 @@ Design documents
   :maxdepth: 1
 
   development
-  multi_dimensional_arrays
   value_reference_and_view_types
 
