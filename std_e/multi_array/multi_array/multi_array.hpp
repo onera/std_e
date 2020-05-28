@@ -2,7 +2,6 @@
 
 
 #include "std_e/base/macros.hpp"
-#include "std_e/memory_ressource/concept.hpp"
 #include "std_e/multi_array/shape/concept.hpp"
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/multi_index.hpp"
@@ -26,6 +25,7 @@ class multi_array : private Multi_array_shape {
     using underlying_range_type = Random_access_range;
     using shape_type = Multi_array_shape;
     using index_type = typename shape_type::index_type;
+    using multi_index_type = typename shape_type::multi_index_type;
 
     using value_type = typename underlying_range_type::value_type;
     using pointer = typename underlying_range_type::pointer;
@@ -35,12 +35,15 @@ class multi_array : private Multi_array_shape {
 
     static constexpr int ct_rank = shape_type::ct_rank;
     static constexpr int ct_size = shape_type::ct_size;
-    using multi_index_type = typename shape_type::multi_index_type;
 
     static constexpr bool mem_is_owned = memory_is_owned<underlying_range_type>;
 
   // constructors {
     FORCE_INLINE constexpr multi_array() = default;
+    FORCE_INLINE constexpr multi_array(const multi_array& ) = default;
+    FORCE_INLINE constexpr multi_array(      multi_array&&) = default;
+    FORCE_INLINE constexpr multi_array& operator=(const multi_array& ) = default;
+    FORCE_INLINE constexpr multi_array& operator=(      multi_array&&) = default;
 
     FORCE_INLINE constexpr
     multi_array(underlying_range_type rng, shape_type sh)
@@ -51,11 +54,6 @@ class multi_array : private Multi_array_shape {
     multi_array(underlying_range_type rng)
       : multi_array(std::move(rng),{})
     {}
-
-    FORCE_INLINE constexpr multi_array(const multi_array&) = default;
-    FORCE_INLINE constexpr multi_array(multi_array&&) = default;
-    FORCE_INLINE constexpr multi_array& operator=(const multi_array&) = default; // in case of a view: shallow copy
-    FORCE_INLINE constexpr multi_array& operator=(multi_array&&) = default;
 
     template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
     multi_array(const multi_array<span<T0,N>,shape_type>& ma)
@@ -100,7 +98,7 @@ class multi_array : private Multi_array_shape {
   /// ctors with dimensions }
 
   /// ctors from initializer lists {
-    // ctor for rank==1
+    //// ctor for rank==1
     multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
       : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
       , rng(std::move(rng))
@@ -115,7 +113,7 @@ class multi_array : private Multi_array_shape {
     multi_array(std::initializer_list<value_type> l)
       : multi_array(l,make_array_of_size<underlying_range_type>(l.size()))
     {}
-    // ctor for rank==2
+    //// ctor for rank==2
     multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
       : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
       , rng(std::move(rng))
@@ -137,27 +135,10 @@ class multi_array : private Multi_array_shape {
   /// ctors from initializer lists }
   // constructors }
 
+  // shape interface
+    FORCE_INLINE constexpr auto shape() const -> const shape_type& { return *this; }
+    FORCE_INLINE constexpr auto shape()       ->       shape_type& { return *this; }
 
-  // low-level
-    FORCE_INLINE constexpr auto
-    shape() const -> const shape_type& {
-      return *this;
-    }
-    FORCE_INLINE constexpr auto
-    shape() -> shape_type& {
-      return *this;
-    }
-
-    FORCE_INLINE constexpr auto
-    underlying_range() const -> const underlying_range_type& {
-      return rng;
-    }
-    FORCE_INLINE auto
-    underlying_range() -> underlying_range_type& {
-      return rng;
-    }
-
-  // dimensions
     // Note: there is a trick here:
     // These functions can be static (depending on type of Multi_array_shape).
     // In the case they are, they can be called
@@ -168,32 +149,20 @@ class multi_array : private Multi_array_shape {
     using base::offset;
     using base::size;
 
-  // range interface
-    FORCE_INLINE auto
-    data() -> pointer {
-      return rng.data();
-    }
-    FORCE_INLINE constexpr auto
-    data() const -> const_pointer {
-      return rng.data();
-    }
-    FORCE_INLINE auto
-    begin() -> pointer {
-      return data();
-    }
-    FORCE_INLINE constexpr auto
-    begin() const -> const_pointer {
-      return data();
-    }
-    FORCE_INLINE auto
-    end() -> pointer {
-      return begin()+size();
-    }
-    FORCE_INLINE constexpr auto
-    end() const -> const_pointer {
-      return begin()+size();
-    }
+  // contiguous range interface
+    FORCE_INLINE constexpr auto underlying_range() const -> const underlying_range_type& { return rng; }
+    FORCE_INLINE constexpr auto underlying_range()       ->       underlying_range_type& { return rng; }
 
+    FORCE_INLINE constexpr auto data() const -> const_pointer { return rng.data(); }
+    FORCE_INLINE constexpr auto data()       ->       pointer { return rng.data(); }
+
+    FORCE_INLINE constexpr auto begin()       ->       pointer { return data();        }
+    FORCE_INLINE constexpr auto begin() const -> const_pointer { return data();        }
+    FORCE_INLINE constexpr auto end()         ->       pointer { return data()+size(); }
+    FORCE_INLINE constexpr auto end()   const -> const_pointer { return data()+size(); }
+
+    //FORCE_INLINE constexpr auto operator[](index_type i) const -> const_reference { return rng[i]; }
+    //FORCE_INLINE constexpr auto operator[](index_type i)       ->       reference { return rng[i]; }
 
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
@@ -204,27 +173,17 @@ class multi_array : private Multi_array_shape {
     operator()(Ts&&... xs) -> reference {
       return rng[linear_index(std::forward<Ts>(xs)...)];
     }
-    FORCE_INLINE constexpr auto
-    operator[](index_type i) const -> const_reference {
-      // Precondition: rank()==1
-      return rng[i + offset(0)];
-    }
-    FORCE_INLINE constexpr auto
-    operator[](index_type i) -> reference {
-      // Precondition: rank()==1
-      return rng[i + offset(0)];
-    }
 
   private:
-// member functions
-  /// linear_index {
-  // from Multi_index
+  // member functions
+    // linear_index {
+    /// from Multi_index
     template<class Multi_index> FORCE_INLINE constexpr auto
     // requires Multi_index is an array && Multi_index::size()==rank()
     linear_index(const Multi_index& indices) const -> index_type {
       return fortran_order_from_dimensions(extent(),offset(),indices);
     }
-  // from indices
+    /// from indices
     template<class Integer, class... Integers> FORCE_INLINE constexpr auto
     // 1 + sizeof...(Integers)==rank()
     linear_index(Integer i, Integers... is) const -> index_type {
@@ -243,9 +202,9 @@ class multi_array : private Multi_array_shape {
     linear_index() const -> index_type { // Note: rank 0 case
       return 0;
     }
-  /// linear_index }
+    // linear_index }
 
-// data members
+  // data members
     underlying_range_type rng;
 };
 

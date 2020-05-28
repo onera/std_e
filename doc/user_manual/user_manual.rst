@@ -23,6 +23,8 @@ TODO
 Concepts
 Integers: int and signed
 Defaults: 0 and intervals
+Convention: snake_case
+enable_XXX
 
 .. _unit_tests:
 

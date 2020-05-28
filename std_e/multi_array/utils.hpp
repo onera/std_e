@@ -51,7 +51,7 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
   }
   if constexpr (Shape::ct_rank==1 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==1) {
-      std::string s = "["+to_string(x[0]);
+      std::string s = "["+to_string(x(0));
       int n = x.extent(0);
       for (int i=1; i<n; ++i) {
         s += "," + std::to_string(x(i));

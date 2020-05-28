@@ -44,7 +44,14 @@ In the examples below, when there is no abiguity, we will assume that we are usi
 1. Multi-dimensional array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1. Basics
+1.1. Include file
+"""""""""""""""""
+
+.. code:: c++
+
+  #include "std_e/multi_array/multi_array.hpp"
+
+1.2. Basics
 """""""""""
 
 Multi-dimensional arrays of dynamic size can be created with :cpp:`std_e::dyn_multi_array<T,rank>`:
@@ -68,12 +75,12 @@ Multi-dimensional arrays can be constructed from dimensions and filled afterward
   :start-after: [Sphinx Doc] dyn_multi_array from dimensions {
   :end-before: [Sphinx Doc] dyn_multi_array from dimensions }
 
-1.2. Sub-arrays
+1.3. Sub-arrays
 """""""""""""""
 
 We often want to extract a sub-array of multi-dimensional array. Depending on the shape of the original array and the shape wanted for the sub-array to be extracted, several interfaces are offered.
 
-1.2.1. Sub-arrays of 2D arrays
+1.3.1. Sub-arrays of 2D arrays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
@@ -82,7 +89,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
   :end-before: [Sphinx Doc] 2D array sub-views }
 
 
-1.2.2. Sub-arrays along one axis
+1.3.2. Sub-arrays along one axis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
@@ -90,7 +97,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
   :start-after: [Sphinx Doc] strided_array with one index {
   :end-before: [Sphinx Doc] strided_array with one index }
 
-1.2.3. Sub-arrays along multiple axes
+1.3.3. Sub-arrays along multiple axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
@@ -98,7 +105,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
   :start-after: [Sphinx Doc] strided_array with multiple indices {
   :end-before: [Sphinx Doc] strided_array with multiple indices }
 
-1.1. Miscellaneous topics
+1.4. Miscellaneous topics
 """""""""""""""""""""""""
 
 The multi-dimensional array functionnalities offered by **std_e** are described in more depth in :ref:`multi_array_user_manual`. We briefly mention here some important points.

@@ -36,11 +36,11 @@ struct fixed_shape {
   offset() -> const multi_index_type& {
     return fixed_offset;
   }
-  static FORCE_INLINE auto 
+  static FORCE_INLINE constexpr auto 
   extent(int i) -> index_type {
     return extent()[i];
   }
-  static FORCE_INLINE auto 
+  static FORCE_INLINE constexpr auto 
   offset(int i) -> index_type {
     return offset()[i];
   }

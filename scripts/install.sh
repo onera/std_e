@@ -32,7 +32,7 @@ echo -e "\033[31m" && date && echo -e "\e[0m" && \
 (cd build && \
 #make clean && \
 make -j24 && \
-make doc
+make std_e_doc
 #make std_e_coverage
 #cppcheck --enable=all --project=compile_commands.json --xml
 echo "make done"

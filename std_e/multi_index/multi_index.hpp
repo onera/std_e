@@ -23,14 +23,36 @@ namespace std_e {
 //       hence, they often feel like second-citizen types,
 //       in particular regarding overloading
 //       (and we will need to define a fair number of multi_index functions)
-template<class Int, int rank>
-struct multi_index : std::array<Int,rank>
-{};
+template<class Int, int N>
+struct multi_index : std::array<Int,N> {
+  static constexpr auto
+  rank() -> int {
+    return N;
+  }
+};
+
+template<class Int, int N> constexpr auto
+operator==(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
+  // NOTE: operator==(std::array) is constexpr only in C++20
+  for (int i=0; i<N; ++i) {
+    if (x[i] != y[i]) return false;
+  }
+  return true;
+}
+template<class Int, int N> constexpr auto
+operator!=(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
+  return !(x==y);
+}
 
 template<class Int>
 struct multi_index<Int,dynamic_size> : std::vector<Int> {
   using base = std::vector<Int>;
   using base::base; // inherit ctors too
+
+  constexpr auto
+  rank() const -> int {
+    return base::size();
+  }
 };
 
 
@@ -94,7 +116,7 @@ template<class Multi_index> inline constexpr int rank_of = rank_of__impl<std::de
 
 
 // zero multi_index {
-template<class Int, int N> constexpr multi_index<Int,N> zero_multi_index = default_array<Int,N>;
+template<class Int, int N> constexpr multi_index<Int,N> zero_multi_index = default_array<multi_index<Int,N>>;
 
 template<class Multi_index> constexpr auto
 make_zero_multi_index(int rank) {

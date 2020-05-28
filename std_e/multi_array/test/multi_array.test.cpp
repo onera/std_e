@@ -74,6 +74,25 @@ TEST_CASE("dyn_multi_array_view") {
   }
 }
 
+// [Sphinx Doc] fixed_multi_array {
+TEST_CASE("fixed_multi_array") {
+  using ma_type = fixed_multi_array<int,2,3>;
+  ma_type ma = {{1,2,3},{4,5,6}};
+
+  CHECK( ma_type::rank() == 2 );
+  CHECK( ma_type::size() == 6 );
+  CHECK( ma_type::extent(0) == 2 );
+  CHECK( ma_type::extent(1) == 3 );
+
+  CHECK( ma.rank() == 2 );
+  CHECK( ma.size() == 6 );
+  CHECK( ma.extent(0) == 2 );
+  CHECK( ma.extent(1) == 3 );
+
+  CHECK( ma(0,0) == 1 ); CHECK( ma(0,1) == 2 ); CHECK( ma(0,2) == 3 );
+  CHECK( ma(1,0) == 4 ); CHECK( ma(1,1) == 5 ); CHECK( ma(1,2) == 6 );
+}
+// [Sphinx Doc] fixed_multi_array }
 
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
@@ -113,6 +132,31 @@ TEST_CASE("multi_arrays of rank 0 are scalars") {
   }
 }
 
+// [Sphinx Doc] make_view {
+TEST_CASE("make_view") {
+  dyn_multi_array<int,2> ma = {
+    {1,2,3},
+    {4,5,6}
+  };
+
+  auto view = make_view(ma);
+
+  CHECK( ma.extent(0) == 2 );
+  CHECK( ma.extent(1) == 3 );
+  CHECK( view(0,0) == 1 ); CHECK( view(0,1) == 2 ); CHECK( view(0,2) == 3 );
+  CHECK( view(1,0) == 4 ); CHECK( view(1,1) == 5 ); CHECK( view(1,2) == 6 );
+
+  SUBCASE("changing the view changes the parent array") {
+    view(0,1) = 42;
+    CHECK( ma(0,1) == 42 );
+  }
+
+  SUBCASE("changing the parent array changes the view") {
+    ma(1,2) = 1000;
+    CHECK( view(1,2) == 1000 );
+  }
+}
+// [Sphinx Doc] make_view }
 
 TEST_CASE("make_sub_array") {
   SUBCASE("one index") {

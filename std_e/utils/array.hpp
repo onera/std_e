@@ -123,4 +123,22 @@ convert_to(std::initializer_list<T> x) -> Array {
 // convert_to }
 
 
+template<class Array, class T> constexpr auto
+// requires Array::value_type == T
+constant_array(const T& x) -> Array {
+  Array constant_a = {};
+  std_e::fill(begin(constant_a),end(constant_a),x);
+  return constant_a;
+}
+
+template<class Array> constexpr Array default_array = constant_array<Array>(typename Array::value_type());
+
+template<class Array, class T> constexpr auto
+default_array_except(int i, const T& x) -> Array {
+  auto res = default_array<Array>;
+  res[i] = x;
+  return res;
+}
+
+
 } // std_e
