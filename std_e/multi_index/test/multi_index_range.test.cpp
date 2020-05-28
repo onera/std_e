@@ -6,89 +6,87 @@
 using namespace std_e;
 
 
+// [Sphinx Doc] multi_index_range fortran order {
 TEST_CASE("multi_index_range fortran order") {
-  using MI = multi_index<int,3>;
-  MI dims = {4,3,2};
-
-  auto all_indices_range = fortran_multi_index_range(dims);
-
-  std::vector<MI> all_indices(4*3*2);
-  int k=0;
-  for(const auto& is : all_indices_range) {
-    all_indices[k] = is;
-    ++k;
+  std::vector<int> v;
+  for (auto [i,j,k] : fortran_multi_index_range({4,3,2})) {
+    v.push_back( 100*i + 10*j + k );
   }
-  CHECK( k == 4*3*2 );
+  CHECK( v.size() == 4*3*2 );
 
-  std::vector<MI> expected_all_indices = {
-    {0,0,0},
-    {1,0,0},
-    {2,0,0},
-    {3,0,0},
-    {0,1,0},
-    {1,1,0},
-    {2,1,0},
-    {3,1,0},
-    {0,2,0},
-    {1,2,0},
-    {2,2,0},
-    {3,2,0},
-    {0,0,1},
-    {1,0,1},
-    {2,0,1},
-    {3,0,1},
-    {0,1,1},
-    {1,1,1},
-    {2,1,1},
-    {3,1,1},
-    {0,2,1},
-    {1,2,1},
-    {2,2,1},
-    {3,2,1},
+  std::vector<int> expected_v = {
+//  ijk
+//  |||
+//  vvv
+      0,
+    100,
+    200,
+    300,
+     10,
+    110,
+    210,
+    310,
+     20,
+    120,
+    220,
+    320,
+      1,
+    101,
+    201,
+    301,
+     11,
+    111,
+    211,
+    311,
+     21,
+    121,
+    221,
+    321
   };
-  CHECK( all_indices == expected_all_indices );
+  CHECK( v == expected_v );
 }
+// [Sphinx Doc] multi_index_range fortran order }
 
 
-TEST_CASE("multi_index_range general order") {
-  using MI = multi_index<int,3>;
-  MI dims = {4,3,2};
-  MI order = {1,2,0};
+// [Sphinx Doc] multi_index_range arbitrary order {
+TEST_CASE("multi_index_range arbitrary order") {
+  auto all_indices_range = multi_index_range_with_order({4,3,2},{1,2,0});
 
-  auto all_indices_range = multi_index_range_with_order(dims,order);
-
-  std::vector<MI> all_indices(4*3*2);
-  int k=0;
-  for(const auto& is : all_indices_range) {
-    all_indices[k] = is;
-    ++k;
+  std::vector<int> v;
+  for (auto [i,j,k] : all_indices_range) {
+    v.push_back( 100*i + 10*j + k );
   }
-  CHECK( k == 4*3*2 );
-  std::vector<MI> expected_all_indices = {
-    {0,0,0},
-    {0,1,0},
-    {0,2,0},
-    {0,0,1},
-    {0,1,1},
-    {0,2,1},
-    {1,0,0},
-    {1,1,0},
-    {1,2,0},
-    {1,0,1},
-    {1,1,1},
-    {1,2,1},
-    {2,0,0},
-    {2,1,0},
-    {2,2,0},
-    {2,0,1},
-    {2,1,1},
-    {2,2,1},
-    {3,0,0},
-    {3,1,0},
-    {3,2,0},
-    {3,0,1},
-    {3,1,1},
-    {3,2,1},
+  CHECK( v.size() == 4*3*2 );
+
+  std::vector<int> expected_v = {
+//  ijk
+//  |||
+//  vvv
+      0,
+     10,
+     20,
+      1,
+     11,
+     21,
+    100,
+    110,
+    120,
+    101,
+    111,
+    121,
+    200,
+    210,
+    220,
+    201,
+    211,
+    221,
+    300,
+    310,
+    320,
+    301,
+    311,
+    321,
   };
-  CHECK( all_indices == expected_all_indices );
+  CHECK( v == expected_v );
 }
+// [Sphinx Doc] multi_index_range arbitrary order }

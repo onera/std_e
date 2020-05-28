@@ -99,6 +99,10 @@ class dyn_shape : public dyn_shape_base<Integer,N> {
   // ctors
     using base = dyn_shape_base<Integer,N>;
     using base::base;
+    FORCE_INLINE constexpr
+    dyn_shape()
+      : base(zero_multi_index<Integer,N>)
+    {}
 
   // accessors
     static FORCE_INLINE constexpr auto

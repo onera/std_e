@@ -38,6 +38,10 @@ class multi_array : private Multi_array_shape {
 
     static constexpr bool mem_is_owned = memory_is_owned<underlying_range_type>;
 
+    // meta-progamming stuff for constraints
+    template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
+    template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
+
   // constructors {
     FORCE_INLINE constexpr multi_array() = default;
     FORCE_INLINE constexpr multi_array(const multi_array& ) = default;
@@ -45,92 +49,68 @@ class multi_array : private Multi_array_shape {
     FORCE_INLINE constexpr multi_array& operator=(const multi_array& ) = default;
     FORCE_INLINE constexpr multi_array& operator=(      multi_array&&) = default;
 
+  /// low-level {
     FORCE_INLINE constexpr
     multi_array(underlying_range_type rng, shape_type sh)
       : shape_type(std::move(sh))
       , rng(std::move(rng))
     {}
+
+    template<class... Integers,
+      std::enable_if_t<std::conjunction_v<is_index_type_t<Integers>...>,int> =0
+    >
+    multi_array(underlying_range_type rng, Integers... dims)
+      : shape_type({dims...})
+      , rng(std::move(rng))
+    {
+      static_assert(ct_rank==dynamic_size || sizeof...(Integers)==ct_rank);
+    }
+
     FORCE_INLINE constexpr
     multi_array(underlying_range_type rng)
       : multi_array(std::move(rng),{})
     {}
+  /// low-level }
 
-    template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
+  /// multi_array-view: conversion from non-const to const
+    template<class T0, ptrdiff_t N> FORCE_INLINE constexpr
     multi_array(const multi_array<span<T0,N>,shape_type>& ma)
       : shape_type(ma.shape())
       , rng(ma.underlying_range())
     {}
-    template<class T0, ptrdiff_t N> FORCE_INLINE constexpr // conversion from non-const to const
-    multi_array(multi_array<span<T0,N>,shape_type>&& ma)
-      : shape_type(std::move(ma.shape()))
-      , rng(ma.underlying_range())
-    {}
+
+  /// ctors with dimensions {
+    template<class... Integers,
+      std::enable_if_t<std::conjunction_v<is_index_type_t<Integers>...>,int> =0
+    >
+    multi_array(Integers... dims)
+      : shape_type({dims...})
+      , rng(std_e::cartesian_product_size(multi_index<int,sizeof...(Integers)>{dims...}))
+    {
+      static_assert(ct_rank==dynamic_size || sizeof...(Integers)==ct_rank);
+    }
 
     FORCE_INLINE constexpr
     multi_array(value_type* rng, multi_index_type dims)
       : shape_type({std::move(dims)})
       , rng(make_span(rng,size()))
     {}
-
-  /// ctors with dimensions {
-    template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
-    template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
-
-    template<class... ints,
-      std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
-    >
-    multi_array(ints... dims)
-      : shape_type({dims...})
-      , rng(std_e::cartesian_product_size(multi_index<int,sizeof...(ints)>{dims...}))
-    {
-      static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
-    }
-
-    template<class... ints,
-      std::enable_if_t<std::conjunction_v<is_index_type_t<ints>...>,int> =0
-    >
-    multi_array(underlying_range_type rng, ints... dims)
-      : shape_type({dims...})
-      , rng(rng)
-    {
-      static_assert(ct_rank==dynamic_size || sizeof...(ints)==ct_rank, "Initialization of multi_array with wrong number of dims");
-    }
   /// ctors with dimensions }
 
   /// ctors from initializer lists {
     //// ctor for rank==1
-    multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
-      : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
-      , rng(std::move(rng))
-    {
-      STD_E_ASSERT(this->rank()==1);
-      index_type i=0;
-      for (const value_type& x : l) {
-        (*this)(i) = x;
-        ++i;
-      }
-    }
     multi_array(std::initializer_list<value_type> l)
       : multi_array(l,make_array_of_size<underlying_range_type>(l.size()))
     {}
+    multi_array(std::initializer_list<value_type> l, value_type* ptr)
+      : multi_array(l,span<value_type>(ptr,l.size()))
+    {}
     //// ctor for rank==2
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
-      : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
-      , rng(std::move(rng))
-    {
-      STD_E_ASSERT(this->rank()==2);
-      index_type i=0;
-      for (const auto& l : ll) {
-        index_type j=0;
-        for (const value_type& x : l) {
-          (*this)(i,j) = x;
-          ++j;
-        }
-        ++i;
-      }
-    }
     multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
       : multi_array(ll,make_array_of_size<underlying_range_type>(ll.size() * std::begin(ll)->size()))
+    {}
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, value_type* ptr)
+      : multi_array(ll,span<value_type>(ptr,ll.size() * std::begin(ll)->size()))
     {}
   /// ctors from initializer lists }
   // constructors }
@@ -153,16 +133,16 @@ class multi_array : private Multi_array_shape {
     FORCE_INLINE constexpr auto underlying_range() const -> const underlying_range_type& { return rng; }
     FORCE_INLINE constexpr auto underlying_range()       ->       underlying_range_type& { return rng; }
 
-    FORCE_INLINE constexpr auto data() const -> const_pointer { return rng.data(); }
-    FORCE_INLINE constexpr auto data()       ->       pointer { return rng.data(); }
+    FORCE_INLINE constexpr auto data() const  -> const_pointer { return rng.data(); }
+    FORCE_INLINE constexpr auto data()        ->       pointer { return rng.data(); }
 
-    FORCE_INLINE constexpr auto begin()       ->       pointer { return data();        }
     FORCE_INLINE constexpr auto begin() const -> const_pointer { return data();        }
-    FORCE_INLINE constexpr auto end()         ->       pointer { return data()+size(); }
+    FORCE_INLINE constexpr auto begin()       ->       pointer { return data();        }
     FORCE_INLINE constexpr auto end()   const -> const_pointer { return data()+size(); }
+    FORCE_INLINE constexpr auto end()         ->       pointer { return data()+size(); }
 
-    //FORCE_INLINE constexpr auto operator[](index_type i) const -> const_reference { return rng[i]; }
-    //FORCE_INLINE constexpr auto operator[](index_type i)       ->       reference { return rng[i]; }
+    FORCE_INLINE constexpr auto operator[](index_type i) const -> const_reference { return rng[i]; }
+    FORCE_INLINE constexpr auto operator[](index_type i)       ->       reference { return rng[i]; }
 
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
@@ -178,31 +158,59 @@ class multi_array : private Multi_array_shape {
   // member functions
     // linear_index {
     /// from Multi_index
-    template<class Multi_index> FORCE_INLINE constexpr auto
-    // requires Multi_index is an array && Multi_index::size()==rank()
+    template<
+      class Multi_index,
+      std::enable_if_t< is_multi_index<Multi_index> , int > =0
+    > FORCE_INLINE constexpr auto
+    // requires Multi_index::size()==rank()
     linear_index(const Multi_index& indices) const -> index_type {
       return fortran_order_from_dimensions(extent(),offset(),indices);
     }
     /// from indices
-    template<class Integer, class... Integers> FORCE_INLINE constexpr auto
-    // 1 + sizeof...(Integers)==rank()
-    linear_index(Integer i, Integers... is) const -> index_type {
-      STD_E_ASSERT(1+sizeof...(Integers)==rank()); // the number of indices must be the array rank
-      return linear_index(multi_index_type{i,is...});
-    }
-    template<class... ints> FORCE_INLINE constexpr auto
-    // requires ints are integers && sizeof...(ints)==rank()
-    linear_index(int i, ints... is) const -> index_type { // Note: same as above, but forcing first arg
-                                                          // to be an integer for unsurprising overload resolution
-      STD_E_ASSERT(1+sizeof...(ints)==rank()); // the number of indices must be the array rank
-      return linear_index(multi_index_type{i,is...});
+    template<
+      class... Integers,
+      std::enable_if_t< std::conjunction_v< std::bool_constant<std::is_integral_v<Integers>> ... > , int > =0
+    > FORCE_INLINE constexpr auto
+    // requires sizeof...(Integers)==rank()
+    linear_index(Integers... is) const -> index_type {
+      STD_E_ASSERT(sizeof...(Integers)==rank());
+      return linear_index(multi_index_type{is...});
     }
     FORCE_INLINE constexpr auto
     // requires ints are integers && sizeof...(ints)==rank()
-    linear_index() const -> index_type { // Note: rank 0 case
+    linear_index() const -> index_type { // Note: rank 0 case // TODO why fortran_order_from_dimensions does not return 0?
       return 0;
     }
     // linear_index }
+
+    // initialization list ctors {
+    multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
+      : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
+      , rng(std::move(rng))
+    {
+      STD_E_ASSERT(this->rank()==1);
+      index_type i=0;
+      for (const value_type& x : l) {
+        (*this)(i) = x;
+        ++i;
+      }
+    }
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
+      : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
+      , rng(std::move(rng))
+    {
+      STD_E_ASSERT(this->rank()==2);
+      index_type i=0;
+      for (const auto& l : ll) {
+        index_type j=0;
+        for (const value_type& x : l) {
+          (*this)(i,j) = x;
+          ++j;
+        }
+        ++i;
+      }
+    }
+    // initialization list ctors }
 
   // data members
     underlying_range_type rng;

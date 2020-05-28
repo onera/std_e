@@ -56,21 +56,21 @@ In the examples below, when there is no abiguity, we will assume that we are usi
 
 Multi-dimensional arrays of dynamic size can be created with :cpp:`std_e::dyn_multi_array<T,rank>`:
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_multi_array {
   :end-before: [Sphinx Doc] dyn_multi_array }
 
 If only a multi-dimensional array *view* over some memory is needed, :cpp:`dyn_multi_array_view<T,rank>` can be used:
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_multi_array_view {
   :end-before: [Sphinx Doc] dyn_multi_array_view }
 
 Multi-dimensional arrays can be constructed from dimensions and filled afterwards:
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_multi_array from dimensions {
   :end-before: [Sphinx Doc] dyn_multi_array from dimensions }
@@ -83,7 +83,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
 1.3.1. Sub-arrays of 2D arrays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] 2D array sub-views {
   :end-before: [Sphinx Doc] 2D array sub-views }
@@ -92,7 +92,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
 1.3.2. Sub-arrays along one axis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with one index {
   :end-before: [Sphinx Doc] strided_array with one index }
@@ -100,7 +100,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
 1.3.3. Sub-arrays along multiple axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude::  /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with multiple indices {
   :end-before: [Sphinx Doc] strided_array with multiple indices }
@@ -130,7 +130,7 @@ A :cpp:class:`std_e::hvector`\ :cpp:`<Ts...>` (short for heterogenous vector) is
 2.2. Basic usage
 """"""""""""""""
 
-.. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+.. literalinclude:: /../std_e/data_structure/test/heterogenous_vector.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] hvector {
   :end-before: [Sphinx Doc] hvector }
@@ -145,7 +145,7 @@ There is two levels possible levels for iterating an :cpp:`hvector`: :cpp:`for_e
 
 Finally, :cpp:`for_each_element_if` iterates through an individual element only if it satisfies a predicate.
 
-.. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+.. literalinclude:: /../std_e/data_structure/test/heterogenous_vector.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] hvector for_each algorithms {
   :end-before: [Sphinx Doc] hvector for_each algorithms }
@@ -163,7 +163,7 @@ One way to get around this limitation is to apply the wanted operation as soon a
 2. :cpp:`find_apply(hv,p,f)` does the same thing, but returns a pair :cpp:`[index_in_types,index_in_vector]` giving the postion of the element found.
 3. :cpp:`find_position(hv,p)` is similar but it just returns the position and does not apply any function.
 
-.. literalinclude::  /../std_e/data_structure/test/heterogenous_vector.test.cpp
+.. literalinclude:: /../std_e/data_structure/test/heterogenous_vector.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] hvector find algorithms {
   :end-before: [Sphinx Doc] hvector find algorithms }
@@ -172,7 +172,7 @@ One way to get around this limitation is to apply the wanted operation as soon a
 ^^^^^^^^^^^^^
 C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
 
-.. literalinclude::  /../std_e/utils/test/enum.test.cpp
+.. literalinclude:: /../std_e/utils/test/enum.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] STD_E_ENUM_CLASS {
   :end-before: [Sphinx Doc] STD_E_ENUM_CLASS }

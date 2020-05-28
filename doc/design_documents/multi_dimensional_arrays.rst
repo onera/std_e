@@ -49,14 +49,14 @@ multi_index<Int,N>
 ==================
 The :cpp:class:`multi_index`\ :cpp:`<Int,N>` class models the :cpp:`Multi_index` concept.
 
-.. literalinclude::  /../std_e/multi_index/test/multi_index.test.cpp
+.. literalinclude:: /../std_e/multi_index/test/multi_index.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] multi_index {
   :end-before: [Sphinx Doc] multi_index }
 
 The multi-index rank can be defined at run-time with :cpp:`multi_index<Int,std_e::dynamic_size>`.
 
-.. literalinclude::  /../std_e/multi_index/test/multi_index.test.cpp
+.. literalinclude:: /../std_e/multi_index/test/multi_index.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dynamic multi_index {
   :end-before: [Sphinx Doc] dynamic multi_index }
@@ -74,7 +74,7 @@ dyn_shape<Int,rank>
 
 A :cpp:class:`dyn_shape`\ :cpp:`<Int,rank>` is a :cpp:`Multi_array_shape` with a dynamic **extent**. If :cpp:`rank == std_e::dynamic_size`, its **rank** is also dynamic.
 
-.. literalinclude::  /../std_e/multi_array/shape/test/dyn_shape.test.cpp
+.. literalinclude:: /../std_e/multi_array/shape/test/dyn_shape.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_shape {
   :end-before: [Sphinx Doc] dyn_shape }
@@ -84,7 +84,7 @@ fixed_shape<Ns...>
 
 A :cpp:class:`fixed_shape`\ :cpp:`<Ns...>` is a :cpp:`Multi_array_shape` with a fixed **extent**.
 
-.. literalinclude::  /../std_e/multi_array/shape/test/fixed_shape.test.cpp
+.. literalinclude:: /../std_e/multi_array/shape/test/fixed_shape.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] fixed_shape {
   :end-before: [Sphinx Doc] fixed_shape }
@@ -120,7 +120,7 @@ fixed_multi_array, dyn_multi_array and dyn_multi_array_view
   * fixed rank and fixed dimensions
   * owns memory, allocated on the stack
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] fixed_multi_array {
   :end-before: [Sphinx Doc] fixed_multi_array }
@@ -131,7 +131,7 @@ fixed_multi_array, dyn_multi_array and dyn_multi_array_view
   * owns memory (uses a :cpp:`std::vector<T>`)
   * :cpp:`index_type` must be chosen according to the size requirements (:cpp:`int32` or :cpp:`int64`). If not specified, it defaults to :cpp:`int` (:cpp:`int32` on most platforms)
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_multi_array {
   :end-before: [Sphinx Doc] dyn_multi_array }
@@ -142,19 +142,17 @@ fixed_multi_array, dyn_multi_array and dyn_multi_array_view
   * ...but the :cpp:`Contigous_range` is a :cpp:`span<T>` (i.e. a pointer to external memory)
   * hence it is a **view**: it does not owns its elements, they are modified for the view if the owner modifies them, and vice-versa.
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] dyn_multi_array_view {
   :end-before: [Sphinx Doc] dyn_multi_array_view }
 
-constructors
-============
 
 views
 =====
 :cpp:`dyn_multi_array_view` is just an example of a multi-dimensional array view. A view can be created from any :cpp:class:`multi_array` by calling `make_view`:
 
-.. literalinclude::  /../std_e/multi_array/test/multi_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] make_view {
   :end-before: [Sphinx Doc] make_view }
@@ -163,7 +161,37 @@ We will see later how we can create views for sub-arrays.
 
 .. note::
 
-Performance note: creating a **view** is cheap because it only refers to coefficients and does not copy them. Hovewer, it is **not** free because creating a view requires to create/copy its **shape**. 
+  Performance note: creating a **view** is cheap because it only refers to coefficients and does not copy them. Hovewer, it is **not** free because creating a view requires to create/copy its **shape**. 
+
+
+constructors
+============
+
+from extent
+-----------
+
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_ctors.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] multi_array constructors - from extent {
+  :end-before: [Sphinx Doc] multi_array constructors - from extent }
+
+
+from initialization list
+------------------------
+
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_ctors.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] multi_array constructors - init lists {
+  :end-before: [Sphinx Doc] multi_array constructors - init lists }
+
+
+low-level constructors
+----------------------
+
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_ctors.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] multi_array constructors - low-level {
+  :end-before: [Sphinx Doc] multi_array constructors - low-level }
 
 
 Sub-arrays
@@ -173,12 +201,37 @@ TODO
 Strided multi-dimensional array views can be used with `smulti_array_view`. Owning non-contiguous memory doesn't really make sense, so strided multi-array do not own memory.
 
 Other classes
-******************
+*************
 
-TODO multi_index_range
+multi_index_range
+-----------------
+
+Fortran order
+^^^^^^^^^^^^^
+
+.. literalinclude:: /../std_e/multi_index/test/multi_index_range.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] multi_index_range fortran order {
+  :end-before: [Sphinx Doc] multi_index_range fortran order }
+
+
+Arbitrary order
+^^^^^^^^^^^^^^^
+
+.. literalinclude:: /../std_e/multi_index/test/multi_index_range.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] multi_index_range arbitrary order {
+  :end-before: [Sphinx Doc] multi_index_range arbitrary order }
+
+Alternative memory order adapters
+---------------------------------
+
+TODO: multi_array_permuted_view.hpp
 
 Algorithms
-******************
+**********
+
+TODO: fortran_order.hpp, increment_multi_index.hpp and strided_array/origin_indices
 
 
 Miscellaneous

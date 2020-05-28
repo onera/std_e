@@ -25,6 +25,7 @@ Integers: int and signed
 Defaults: 0 and intervals
 Convention: snake_case
 enable_XXX
+to_string
 
 .. _unit_tests:
 

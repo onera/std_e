@@ -5,7 +5,7 @@
 using namespace std_e;
 
 
-TEST_CASE("Cartesian product") {
+TEST_CASE("Cartesian product size") {
   multi_index<int,2> is0 = {2,3};
   CHECK( std_e::cartesian_product_size(is0) == 2*3 );
 

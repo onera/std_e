@@ -18,19 +18,19 @@ reshape(dyn_shape<Integer,rank>& x, const multi_index<Integer,rank>& dims) {
   x.offset() = make_zero_multi_index<multi_index_type>(dims.size());
 }
 
-template<class Dynamic_contaier> auto
-resize_memory(Dynamic_contaier& x, size_t n) -> void {
+template<class Dynamic_container, class Integer> auto
+resize_memory(Dynamic_container& x, Integer n) -> void {
   x.resize(n);
 }
-template<class T, ptrdiff_t N> auto
-resize_memory(span<T,N>& x, size_t n) -> void {
+template<class T, ptrdiff_t N, class Integer> auto
+resize_memory(span<T,N>& x, Integer n) -> void {
   // ASSERT same as or less than old size
 }
 
 template<class R, class Shape> auto
 reshape(multi_array<R,Shape>& x, const typename Shape::multi_index_type& dims) {
   reshape(x.shape(),dims);
-  size_t total_size = std_e::cartesian_product_size(dims);
+  auto total_size = std_e::cartesian_product_size(dims);
   resize_memory(x.underlying_range(),total_size);
 }
 

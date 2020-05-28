@@ -16,7 +16,7 @@ struct fixed_shape {
 
   using multi_index_type = multi_index<index_type,ct_rank>;
   static constexpr multi_index_type fixed_extent = {dims...};
-  static constexpr multi_index_type fixed_offset = {0};
+  static constexpr multi_index_type fixed_offset = zero_multi_index<int,ct_rank>;
 
   static constexpr int ct_size = cartesian_product_size(fixed_extent);
 
