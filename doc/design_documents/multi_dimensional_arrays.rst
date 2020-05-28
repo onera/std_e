@@ -161,7 +161,7 @@ We will see later how we can create views for sub-arrays.
 
 .. note::
 
-  Performance note: creating a **view** is cheap because it only refers to coefficients and does not copy them. Hovewer, it is **not** free because creating a view requires to create/copy its **shape**. 
+  Creating a **view** is cheap because it only **refers** to coefficients and does not copy them. Hovewer, it is **not free**: creating a view requires to create/copy its **shape**. It can be detrimental in an inner loop. As an alternative, use a range of views (see :ref:`multi_array_iteration`)
 
 
 constructors
@@ -197,17 +197,93 @@ low-level constructors
 Sub-arrays
 **********
 
+Rank-reducing views
+===================
+
+A **rank-reducing view** is created from a multi-dimensional array by **fixing one or several axes** at a specific (multi-)index. The most common examples would be to take a **row** or a **column** of a two-dimensional array.
+
+Depending on the memory ordering of the multi-dimensional array, rank-reducing views can be **contiguous-memory preserving** or **strided**. For example, with Fortran order, columns are contiguous in memory, while rows are strided.
+
+Contiguous-memory views
+-----------------------
+
+With Fortran order, contiguous (non-strided) sub-arrays are possible if the fixed axes are the rightmost ones. In **std_e**, contiguous-memory sub-arrays are created with the :cpp:`make_sub_array` function.
+
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] make_sub_array {
+  :end-before: [Sphinx Doc] make_sub_array }
+
+1D sub-arrays views
+^^^^^^^^^^^^^^^^^^^
+
+If the number of fixed axes is equal to :cpp:`rank-1`, then the resulting view is 1D. That is, in case of a contiguous-memory view, we can create a :cpp:`span`. It can be done with the :cpp:`make_span` function.
+
+.. literalinclude:: /../std_e/multi_array/multi_array/test/multi_array_types.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] make_span {
+  :end-before: [Sphinx Doc] make_span }
+
+.. note::
+
+  Use :cpp:`make_span` when you are getting a 1D sub-array. More generally, always prefer "traditional" ranges (:cpp:`std::vector`, :cpp:`span`...) for 1D-arrays: their API is better-suited to range operations than a 1D multi-dimensional array is.
+
+Strided-memory views
+--------------------
+
+When creating a contiguous view is not possible because the fixed axes are not the one compatible with the memory layout, then we can fall back on strided views.
+
+.. note::
+
+  When you can, create contiguous sub-arrays with :cpp:`make_sub_array`. Adressing contiguous memory is always more efficient.
+
+
+Strided view along one axis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] strided_array with one index {
+  :end-before: [Sphinx Doc] strided_array with one index }
+
+Strided view along multiple axes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] strided_array with multiple indices {
+  :end-before: [Sphinx Doc] strided_array with multiple indices }
+
+Columns and rows of 2D arrays
+-----------------------------
+
+.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] 2D array sub-views {
+  :end-before: [Sphinx Doc] 2D array sub-views }
+
+Rank-preserving views
+=====================
+
+Blocks
+------
+
 TODO
-Strided multi-dimensional array views can be used with `smulti_array_view`. Owning non-contiguous memory doesn't really make sense, so strided multi-array do not own memory.
+
+Filters
+-------
+
+TODO
+
 
 Other classes
 *************
 
 multi_index_range
------------------
+=================
 
 Fortran order
-^^^^^^^^^^^^^
+-------------
 
 .. literalinclude:: /../std_e/multi_index/test/multi_index_range.test.cpp
   :language: C++
@@ -216,7 +292,7 @@ Fortran order
 
 
 Arbitrary order
-^^^^^^^^^^^^^^^
+---------------
 
 .. literalinclude:: /../std_e/multi_index/test/multi_index_range.test.cpp
   :language: C++
@@ -224,9 +300,17 @@ Arbitrary order
   :end-before: [Sphinx Doc] multi_index_range arbitrary order }
 
 Alternative memory order adapters
----------------------------------
+=================================
 
 TODO: multi_array_permuted_view.hpp
+
+
+.. _multi_array_iteration:
+
+Iteration
+*********
+
+TODO
 
 Algorithms
 **********
@@ -237,5 +321,5 @@ TODO: fortran_order.hpp, increment_multi_index.hpp and strided_array/origin_indi
 Miscellaneous
 *************
 
-* There is no implicit conversion between `multi_array` classes. To create a view, use `make_view`.
-* C-order is just Fortran-order with reversed indices, so use of C-order can be done by wrapping `multi_array` into a class where accessors do reverse the indices. Same for other "hybrid" orders: just permute the indices.
+* There is no implicit conversion between :cpp:`multi_array` classes. To create a view, use :cpp:`make_view`.
+* C-order is just Fortran-order with reversed indices, so use of C-order can be done by wrapping :cpp:`multi_array` into a class where accessors do reverse the indices. Same for other "hybrid" orders: just permute the indices.

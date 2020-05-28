@@ -265,20 +265,40 @@ make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
 }
+// overloads matching initialization lists {
+template<
+  class M0, class M1, int fixed_rank,
+  class index_type = typename M1::index_type
+> auto
+make_sub_array(multi_array<M0,M1>& x, const index_type(&right_indices)[fixed_rank]) {
+  multi_index<index_type,fixed_rank> right_is = {};  std::copy_n(right_indices,fixed_rank,begin(right_is));
+  return make_sub_array(x,right_is);
+}
+template<
+  class M0, class M1, int fixed_rank,
+  class index_type = typename M1::index_type
+> auto
+make_sub_array(const multi_array<M0,M1>& x, const index_type(&right_indices)[fixed_rank]) {
+  multi_index<index_type,fixed_rank> right_is = {};  std::copy_n(right_indices,fixed_rank,begin(right_is));
+  return make_sub_array(x,right_is);
+}
+// overloads matching initialization lists }
 
 template<
-  class M0, class M1, class Multi_index,
-  std::enable_if_t< is_multi_index<Multi_index> , int > =0
+  class M0, class M1,
+  class index_type = typename M1::index_type,
+  int rank = M1::rank()
 > auto
-make_span(multi_array<M0,M1>& x, const Multi_index& right_indices) {
+make_span(multi_array<M0,M1>& x, const multi_index<index_type,rank-1>& right_indices) {
   auto [index_1d,_] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return make_span( x.data()+index_1d, x.extent(0) );
 }
 template<
-  class M0, class M1, class Multi_index,
-  std::enable_if_t< is_multi_index<Multi_index> , int > =0
+  class M0, class M1,
+  class index_type = typename M1::index_type,
+  int rank = M1::rank()
 > auto
-make_span(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
+make_span(const multi_array<M0,M1>& x, const multi_index<index_type,rank-1>& right_indices) {
   auto [index_1d,_] = shape_restriction_start_index_1d(x.shape(),right_indices);
   return make_span( x.data()+index_1d, x.extent(0) );
 }

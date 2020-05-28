@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace std_e;
-using MI = multi_index<int,2>;
 
 
 // [Sphinx Doc] dyn_multi_array {
@@ -96,7 +95,7 @@ TEST_CASE("fixed_multi_array") {
 
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
-  MI dims = {3,2};
+  multi_index<int,2> dims = {3,2};
   
   dyn_multi_array_view<int,2> x = {v.data(),dims};
 
@@ -158,6 +157,7 @@ TEST_CASE("make_view") {
 }
 // [Sphinx Doc] make_view }
 
+// [Sphinx Doc] make_sub_array {
 TEST_CASE("make_sub_array") {
   SUBCASE("one index") {
     dyn_multi_array<int,2> ma = {
@@ -181,19 +181,21 @@ TEST_CASE("make_sub_array") {
       ma(is) = 100*is[0] + 10*is[1] + is[2];
     }
 
-    auto sub_ma_00 = make_sub_array(ma,MI{0,0});
+    auto sub_ma_00 = make_sub_array(ma,{0,0});
     CHECK( sub_ma_00(0) ==   0. );
     CHECK( sub_ma_00(1) == 100. );
     CHECK( sub_ma_00(2) == 200. );
     CHECK( sub_ma_00(3) == 300. );
-    auto sub_ma_11 = make_sub_array(ma,MI{1,1});
+    auto sub_ma_11 = make_sub_array(ma,{1,1});
     CHECK( sub_ma_11(0) ==  11. );
     CHECK( sub_ma_11(1) == 111. );
     CHECK( sub_ma_11(2) == 211. );
     CHECK( sub_ma_11(3) == 311. );
   }
 }
+// [Sphinx Doc] make_sub_array }
 
+// [Sphinx Doc] make_span {
 TEST_CASE("make_span") {
   SUBCASE("one index") {
     dyn_multi_array<int,2> ma = {
@@ -217,15 +219,16 @@ TEST_CASE("make_span") {
     for (const auto& is : fortran_multi_index_range(ma.extent())) {
       ma(is) = 100*is[0] + 10*is[1] + is[2];
     }
-    auto sub_ma_00 = make_span(ma,MI{0,0});
+    auto sub_ma_00 = make_span(ma,{0,0});
     CHECK( sub_ma_00[0] ==   0. );
     CHECK( sub_ma_00[1] == 100. );
     CHECK( sub_ma_00[2] == 200. );
     CHECK( sub_ma_00[3] == 300. );
-    auto sub_ma_11 = make_span(ma,MI{1,1});
+    auto sub_ma_11 = make_span(ma,{1,1});
     CHECK( sub_ma_11[0] ==  11. );
     CHECK( sub_ma_11[1] == 111. );
     CHECK( sub_ma_11[2] == 211. );
     CHECK( sub_ma_11[3] == 311. );
   }
 }
+// [Sphinx Doc] make_span }
