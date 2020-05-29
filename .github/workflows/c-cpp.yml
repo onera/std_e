@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ master ]
 
-checkout:
-  post:
-    git submodule sync --recursive
-    git submodule update --init --recursive
-
 jobs:
   build:
 
@@ -18,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: 'project_utils'
     - name: Build & Test Debug x64
       run: |
         cmake -E remove_directory build
