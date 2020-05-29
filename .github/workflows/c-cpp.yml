@@ -6,25 +6,67 @@ on:
   pull_request:
     branches: [ master ]
 
-jobs:
-  build:
 
-    include:
-      - name: ubuntu-18.04-gcc-9
-          os: ubuntu-18.04
-          compiler: gcc
-          version: "9"
-        
-    runs-on: ubuntu-18.04-gcc-9
+jobs:
+  ci:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    env:
+      CMAKE_GENERATOR: Make
+      ASAN_OPTIONS: strict_string_checks=true:detect_odr_violation=2:detect_stack_use_after_return=true:check_initialization_order=true:strict_init_order=true
+      TSAN_OPTIONS: force_seq_cst_atomics=1
+      CTEST_OUTPUT_ON_FAILURE: ON
+      CTEST_PARALLEL_LEVEL: 1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Github Actions requires a single row to be added to the build matrix.
+        # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
+        name: [
+          ubuntu-18.04-gcc-9,
+        ]
+
+        include:
+          - name: ubuntu-18.04-gcc-9
+            os: ubuntu-18.04
+            compiler: gcc
+            version: "9"
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Build & Test Debug x64
-      run: |
-        cmake -E remove_directory build
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF 
-        cmake --build build
-        cd build
-        ctest
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Build & Test Debug x64
+        run: |
+          cmake -E remove_directory build
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+          cmake --build build
+          cd build
+          ctest
+
+
+# jobs:
+#   build:
+
+#     include:
+#       - name: ubuntu-18.04-gcc-9
+#           os: ubuntu-18.04
+#           compiler: gcc
+#           version: "9"
+
+#     runs-on: ubuntu-18.04-gcc-9
+
+#     steps:
+#     - uses: actions/checkout@v2
+#       with:
+#         submodules: true
+#     - name: Build & Test Debug x64
+#       run: |
+#         cmake -E remove_directory build
+#         cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+#         cmake --build build
+#         cd build
+#         ctest
