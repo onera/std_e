@@ -114,11 +114,11 @@ jobs:
           ctest
 
 
-      - name: Build & Test Debug and Coverage x64
-        run: |
-          cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=ON -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-          cmake --build build
-          cd build
-          ctest
-          make std_e_coverage
+      # - name: Build & Test Debug and Coverage x64
+      #   run: |
+      #     cmake -E remove_directory build
+      #     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=ON -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+      #     cmake --build build
+      #     cd build
+      #     ctest
+      #     make std_e_coverage
