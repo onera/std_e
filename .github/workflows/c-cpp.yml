@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: 'project_utils'
+        submodules: true
     - name: Build & Test Debug x64
       run: |
         cmake -E remove_directory build
