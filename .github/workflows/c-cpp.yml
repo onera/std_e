@@ -26,12 +26,18 @@ jobs:
         # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
         name: [
           ubuntu-18.04-gcc-9,
+          ubuntu-18.04-clang-9,
         ]
 
         include:
           - name: ubuntu-18.04-gcc-9
             os: ubuntu-18.04
             compiler: gcc
+            version: "9"
+
+          - name: ubuntu-18.04-clang-9
+            os: ubuntu-18.04
+            compiler: clang
             version: "9"
 
     steps:
@@ -84,27 +90,3 @@ jobs:
           cmake --build build
           cd build
           ctest
-
-
-# jobs:
-#   build:
-
-#     include:
-#       - name: ubuntu-18.04-gcc-9
-#           os: ubuntu-18.04
-#           compiler: gcc
-#           version: "9"
-
-#     runs-on: ubuntu-18.04-gcc-9
-
-#     steps:
-#     - uses: actions/checkout@v2
-#       with:
-#         submodules: true
-#     - name: Build & Test Debug x64
-#       run: |
-#         cmake -E remove_directory build
-#         cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-#         cmake --build build
-#         cd build
-#         ctest
