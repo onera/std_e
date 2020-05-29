@@ -5,9 +5,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-  post:
-    git submodule sync --recursive
-    git submodule update --init --recursive
+
+post:
+  git submodule sync --recursive
+  git submodule update --init --recursive
 
 jobs:
   build:
