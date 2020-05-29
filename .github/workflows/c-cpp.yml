@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      CMAKE_GENERATOR: Make
+      CMAKE_GENERATOR: Unix Makefiles
       ASAN_OPTIONS: strict_string_checks=true:detect_odr_violation=2:detect_stack_use_after_return=true:check_initialization_order=true:strict_init_order=true
       TSAN_OPTIONS: force_seq_cst_atomics=1
       CTEST_OUTPUT_ON_FAILURE: ON
