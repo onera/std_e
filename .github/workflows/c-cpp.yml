@@ -9,6 +9,12 @@ on:
 jobs:
   build:
 
+    include:
+      - name: ubuntu-18.04-gcc-9
+          os: ubuntu-18.04
+          compiler: gcc
+          version: "9"
+        
     runs-on: ubuntu-18.04-gcc-9
 
     steps:
