@@ -80,6 +80,7 @@ jobs:
           fi
 
           sudo apt-get update
+          sudo apt-get install lcov
 
           # libc6-dbg:i386 is required for running valgrind on x86.
           sudo apt-get install -y ninja-build valgrind libc6-dbg:i386
@@ -111,3 +112,13 @@ jobs:
           cmake --build build
           cd build
           ctest
+
+
+      - name: Build & Test Debug and Coverage x64
+        run: |
+          cmake -E remove_directory build
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fopenmp -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=ON -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+          cmake --build build
+          cd build
+          ctest
+          make std_e_coverage
