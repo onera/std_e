@@ -29,7 +29,7 @@ Below is a succinct presentation of the main facilities of **std_e**. For a more
 
 Everything in **std_e** is defined within the :cpp:`std_e` namespace, except macros. Generally, macros names are starting with :cpp:`STD_E_`.
 
-In the examples below, when there is no abiguity, we will assume that we are using the :cpp:`std` and :cpp:`std_e` namespaces:
+In the examples below, when there is no ambiguity, we will assume that we are using the :cpp:`std` and :cpp:`std_e` namespaces:
 
 .. code:: c++
 

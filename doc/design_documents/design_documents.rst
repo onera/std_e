@@ -8,5 +8,3 @@ Design documents
   :maxdepth: 1
 
   development
-  value_reference_and_view_types
-
