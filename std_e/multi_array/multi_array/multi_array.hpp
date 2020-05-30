@@ -115,35 +115,6 @@ class multi_array : private Multi_array_shape {
   /// ctors from initializer lists }
   // constructors }
 
-    // initialization list ctors {
-    multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
-      : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
-      , rng(std::move(rng))
-    {
-      STD_E_ASSERT(this->rank()==1);
-      index_type i=0;
-      for (const value_type& x : l) {
-        (*this)(i) = x;
-        ++i;
-      }
-    }
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
-      : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
-      , rng(std::move(rng))
-    {
-      STD_E_ASSERT(this->rank()==2);
-      index_type i=0;
-      for (const auto& l : ll) {
-        index_type j=0;
-        for (const value_type& x : l) {
-          (*this)(i,j) = x;
-          ++j;
-        }
-        ++i;
-      }
-    }
-    // initialization list ctors }
-
   // shape interface
     FORCE_INLINE constexpr auto shape() const -> const shape_type& { return *this; }
     FORCE_INLINE constexpr auto shape()       ->       shape_type& { return *this; }
@@ -212,6 +183,34 @@ class multi_array : private Multi_array_shape {
     }
     // linear_index }
 
+    // initialization list ctors {
+    multi_array(std::initializer_list<value_type> l, underlying_range_type rng)
+      : shape_type(make_shape<shape_type>({index_type(l.size())},{0}))
+      , rng(std::move(rng))
+    {
+      STD_E_ASSERT(this->rank()==1);
+      index_type i=0;
+      for (const value_type& x : l) {
+        (*this)(i) = x;
+        ++i;
+      }
+    }
+    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, underlying_range_type rng)
+      : shape_type(make_shape<shape_type>({index_type(ll.size()),index_type(std::begin(ll)->size())},{0,0}))
+      , rng(std::move(rng))
+    {
+      STD_E_ASSERT(this->rank()==2);
+      index_type i=0;
+      for (const auto& l : ll) {
+        index_type j=0;
+        for (const value_type& x : l) {
+          (*this)(i,j) = x;
+          ++j;
+        }
+        ++i;
+      }
+    }
+    // initialization list ctors }
 
   // data members
     underlying_range_type rng;
