@@ -1,6 +1,3 @@
-.. role:: cpp(code)
-   :language: c++
-
 .. _val_ref_view:
 
 Value, reference and view types

@@ -1,6 +1,3 @@
-.. role:: cpp(code)
-   :language: c++
-
 .. _type_traits_constraints:
 
 Type traits constraints

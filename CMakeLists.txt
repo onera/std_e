@@ -6,9 +6,9 @@ if(DEFINED ENV{PROJECT_ROOT})
 else()
   set(PROJECT_ROOT ${CMAKE_SOURCE_DIR})
 endif()
-include(${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_add_dependency.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_ROOT}/external/project_utils/scripts/cmake)
+include(target_add_dependency)
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -73,8 +73,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 
 ## Unit tests ##
-# TODO main.test.cpp
-option(STD_E_ENABLE_TEST "Enable testing for std_e" ON)
+option(STD_E_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
 if(STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
@@ -82,12 +81,16 @@ if(STD_E_ENABLE_TEST)
     ${test_files}
     ${PROJECT_ROOT}/external/project_utils/src/unit_test_main.cpp
   )
-  target_link_libraries(${PROJECT_NAME}_unit_tests PUBLIC ${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME}_unit_tests PRIVATE doctest::doctest)
+  target_link_libraries(${PROJECT_NAME}_unit_tests
+    PUBLIC
+      ${PROJECT_NAME}
+    PRIVATE
+      doctest::doctest
+  )
   add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
 endif()
 
-option(STD_E_ENABLE_COVERAGE "Enable coverage for std_e" OFF)
+option(STD_E_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
 if(STD_E_ENABLE_COVERAGE)
   if(NOT STD_E_ENABLE_TEST)
     message(FATAL_ERROR "You need to enable testing to enable coverage: STD_E_ENABLE_TEST is OFF")

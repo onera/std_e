@@ -36,7 +36,7 @@ template<class T>
 struct make_array_of_size__impl< T , std::enable_if_t<is_fixed_size_array<T>> > {
   static constexpr auto
   func(int sz) -> T {
-    constexpr int array_sz = std::tuple_size_v<T>;
+    [[maybe_unused]] constexpr int array_sz = std::tuple_size_v<T>;
     STD_E_ASSERT(sz==array_sz);
     return {};
   }

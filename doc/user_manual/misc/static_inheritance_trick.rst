@@ -1,4 +1,3 @@
-
 .. _static_trick:
 
 Static inheritance trick

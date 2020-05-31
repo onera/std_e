@@ -1,4 +1,3 @@
-
 .. _aliases_etc:
 
 Aliases vs strong typing vs inheritance

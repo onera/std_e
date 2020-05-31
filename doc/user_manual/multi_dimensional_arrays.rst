@@ -1,8 +1,5 @@
 .. contents:: :local:
 
-.. role:: cpp(code)
-   :language: c++
-
 .. _multi_dimensional_arrays:
 
 Multi-dimensional arrays
@@ -327,6 +324,8 @@ Alternative memory order adapters
 
 TODO: multi_array_permuted_view.hpp
 
+C-order is just Fortran-order with reversed indices, so use of C-order can be done by wrapping :cpp:`multi_array` into a class where accessors do reverse the indices. Same for other "hybrid" orders: just permute the indices.
+
 
 .. _multi_array_iteration:
 
@@ -345,4 +344,3 @@ Miscellaneous
 -------------
 
 * There is no implicit conversion between :cpp:`multi_array` classes. To create a view, use :cpp:`make_view`.
-* C-order is just Fortran-order with reversed indices, so use of C-order can be done by wrapping :cpp:`multi_array` into a class where accessors do reverse the indices. Same for other "hybrid" orders: just permute the indices.

@@ -1,6 +1,3 @@
-.. role:: cpp(code)
-   :language: c++
-
 Member initialization list without std::initializer_list
 ========================================================
 

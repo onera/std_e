@@ -2,9 +2,6 @@
 
 .. currentmodule:: std_e
 
-.. role:: cpp(code)
-   :language: c++
-
 Quick start
 ===========
 
@@ -108,7 +105,7 @@ We often want to extract a sub-array of multi-dimensional array. Depending on th
 1.4. Miscellaneous topics
 """""""""""""""""""""""""
 
-The multi-dimensional array functionnalities offered by **std_e** are described in more depth in :ref:`multi_array_user_manual`. We briefly mention here some important points.
+The multi-dimensional array functionnalities offered by **std_e** are described in more depth in :ref:`multi_dimensional_arrays`. We briefly mention here some important points.
 
 1. Only :cpp:`std_e::dyn_multi_array<T,rank>` has been presented here. But other classes are available with more parametrization. In particular, :cpp:`std_e::fixed_multi_array<T,N0,N1...>` can be used for compile-time fixed size multi-dimensional arrays. 
 2. Arrays values are by default contiguous in memory and Fortran-ordered (also called "column major" or "co-lexicographic order"). Alternatives are available.

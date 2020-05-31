@@ -6,8 +6,9 @@ First documented release
 Features
 """"""""
 Recent:
-- std_e::table
-- STR_ENUM and STR_ENUM_CLASS
+
+* std_e::table
+* STR_ENUM and STR_ENUM_CLASS
 
 API changes
 """""""""""
