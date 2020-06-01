@@ -100,9 +100,12 @@ if(STD_E_ENABLE_COVERAGE)
   include(CodeCoverage)
   APPEND_COVERAGE_COMPILER_FLAGS()
 
-  set(COVERAGE_EXCLUDES "/opt/tools/gcc-8.3/include/c++/8.3.0/ext"
-                        "/opt/tools/gcc-8.3/include/c++/8.3.0/*"
-                        "/opt/tools/gcc-8.3/include/c++/8.3.0/bits/*")
+  # set(COVERAGE_EXCLUDES "/opt/tools/gcc-8.3/include/c++/8.3.0/ext"
+  #                       "/opt/tools/gcc-8.3/include/c++/8.3.0/*"
+  #                       "/opt/tools/gcc-8.3/include/c++/8.3.0/bits/*")
+  set(COVERAGE_INCLUDES "${PROJECT_SOURCE_DIR}/src/*"
+                        "${PROJECT_SOURCE_DIR}/external/*")
+
   SETUP_TARGET_FOR_COVERAGE_LCOV(
     NAME ${PROJECT_NAME}_coverage
     DEPENDENCIES ${PROJECT_NAME}_unit_tests
