@@ -29,10 +29,13 @@ namespace graph {
     - since everything must be stored contiguously, insertions are O(n)...
     - ...except for the special case where a new sub-tree is appended to root (could be std::vector push_back-like efficient)
 */
+template<class T> using std_alloc_vector = std::vector<T>;
+template<class T> using dyn_span = std_e::span<T>;
+
 template<class T, template<class> class Memory_ressource> class nested_tree;
-template<class T> using tree = nested_tree<T,std::vector>;
-template<class T> using tree_view = nested_tree<T,std_e::span>;
-template<class T> using const_tree_view = nested_tree<const T,std_e::span>;
+template<class T> using tree = nested_tree<T,std_alloc_vector>;
+template<class T> using tree_view = nested_tree<T,dyn_span>;
+template<class T> using const_tree_view = nested_tree<const T,dyn_span>;
 
 template<class T_ptr, class I_ptr> class child_iterator;
 
