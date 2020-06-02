@@ -30,4 +30,12 @@ TEST_CASE("rotated_position") {
 
   r = std_e::rotated_position(19, first,n_first,last);
   CHECK( r == 15 );
+
+  SUBCASE("not in interval") {
+    r = std_e::rotated_position(7, first,n_first,last);
+    CHECK( r == 7 );
+
+    r = std_e::rotated_position(27, first,n_first,last);
+    CHECK( r == 27 );
+  }
 }

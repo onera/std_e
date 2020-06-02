@@ -58,7 +58,7 @@ constexpr bool tuple_contains_type = tuple_contains_type__impl<T, Tuple>::value;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
 template<int I, class tuple_type, class F> constexpr auto
-for_each__impl_tuple(tuple_type&& x, F f) -> void {
+for_each__impl_tuple(tuple_type& x, F f) -> void {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
   if constexpr (I<sz) {
     f(std::get<I>(x));
@@ -99,7 +99,7 @@ accumulate(const std::tuple<Ts...>& x, T& init, bin_op op) -> void {
 
 
 template<int I, class tuple_type, class Unary_pred, class F>  constexpr auto
-find_apply__impl(tuple_type&& x, Unary_pred p, F f) -> int {
+find_apply__impl(tuple_type& x, Unary_pred p, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
   if constexpr (I<sz) {
     if (p(std::get<I>(x))) {
@@ -125,7 +125,7 @@ find_apply(const std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
 
 
 template<int I, class tuple_type, class F>  constexpr auto
-for_each_until__impl_tuple(tuple_type&& x, F f) -> int {
+for_each_until__impl_tuple(tuple_type& x, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
   if constexpr (I<sz) {
     if (f(std::get<I>(x))) {

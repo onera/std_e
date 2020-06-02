@@ -75,4 +75,19 @@ TEST_CASE("strided_span") {
     std::vector<int> expected_v = {1000,1,2,3, 1004,5,6,7, 1008,9,10,11};
     CHECK( v == expected_v );
   }
+
+  SUBCASE("equality") {
+    std::vector<int> w = v;
+    w[3] += 1;
+
+    REQUIRE( v != w );
+
+    auto sv_evens = std_e::make_strided_span(v.data(),6,2);
+    auto sw_evens = std_e::make_strided_span(w.data(),6,2);
+    CHECK( sv_evens == sw_evens );
+
+    auto sv_odds = std_e::make_strided_span(v.data()+1,6,2);
+    auto sw_odds = std_e::make_strided_span(w.data()+1,6,2);
+    CHECK( sv_odds != sw_odds );
+  }
 }

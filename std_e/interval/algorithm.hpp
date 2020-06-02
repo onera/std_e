@@ -12,7 +12,6 @@ template<class I> auto
 rotated_position(I index, I first, I n_first, I last) -> I {
   // Returns the new index of a sequence [first,last) having been rotated around n_first
   // Preconditions:
-  // - first <= index <= last
   // - first <= n_first <= last
   I first_range_size = n_first-first;
   I second_range_size = last-n_first;

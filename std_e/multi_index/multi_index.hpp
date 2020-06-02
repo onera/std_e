@@ -7,7 +7,6 @@
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/utils/array.hpp"
-#include "std_e/utils/std_array.hpp"
 
 
 namespace std_e {

@@ -213,7 +213,7 @@ end(const strided_span<T,I,N>& x) {
 template<class T0, class T1, class I0, class I1, int N0, int N1> constexpr auto
 operator==(const strided_span<T0,I0,N0>& x, const strided_span<T1,I1,N1>& y) -> bool {
   if (x.size() != y.size()) return false;
-  return std::equal(x.begin(),x.end(),y.begin());
+  return std_e::equal(x.begin(),x.end(),y.begin());
 }
 template<class T0, class T1, class I0, class I1, int N0, int N1> constexpr auto
 operator!=(const strided_span<T0,I0,N0>& x, const strided_span<T1,I1,N1>& y) -> bool {

@@ -1,4 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
+#include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/for_each.hpp"
 #include <vector>
 #include <algorithm>
@@ -26,114 +27,100 @@ TEST_CASE("for_each_until") {
 }
 
 
-struct lvl_value {
-  int lvl;
-  double d;
-};
-constexpr auto
-operator==(const lvl_value& x, const lvl_value& y) -> bool {
-  return x.lvl==y.lvl && x.d==y.d;
-}
-auto
-to_string(const lvl_value& x) -> std::string {
-  return "("+std::to_string(x.lvl) + "," + std::to_string(x.d)+")";
-}
-
-
-class lvl_comparison_generator {
+class id_comparison_generator {
   public:
     constexpr
-    lvl_comparison_generator(int lvl)
-      : lvl(lvl)
+    id_comparison_generator(int id)
+      : id(id)
     {}
 
     constexpr auto
     operator++() {
-      ++lvl;
+      ++id;
       return *this;
     }
     constexpr auto
     operator*() const {
-      return [lvl = this->lvl](const lvl_value& x){ return x.lvl==lvl; };
+      return [id = this->id](const id_string& x){ return x.id==id; };
     }
   private:
-    int lvl;
+    int id;
 };
 
 TEST_CASE("for_each_partition") {
-  std::vector<lvl_value> v_sorted_by_lvl = {
-    {0,10},
-    {0,11},
-    {0,12},
+  std::vector<id_string> v_sorted_by_id = {
+    {0,"10"},
+    {0,"11"},
+    {0,"12"},
 
-    {1,20},
-    {1,21},
-    {1,22},
-    {1,23},
+    {1,"20"},
+    {1,"21"},
+    {1,"22"},
+    {1,"23"},
 
-    {2,30},
-    {2,31},
+    {2,"30"},
+    {2,"31"},
   };
   for_each_partition(
-    begin(v_sorted_by_lvl),end(v_sorted_by_lvl),
-    lvl_comparison_generator(0),
+    begin(v_sorted_by_id),end(v_sorted_by_id),
+    id_comparison_generator(0),
     [](auto f, auto l){ return std::reverse(f,l); }
   );
 
-  std::vector<lvl_value> expected_res = {
-    {0,12},
-    {0,11},
-    {0,10},
-         
-    {1,23},
-    {1,22},
-    {1,21},
-    {1,20},
-         
-    {2,31},
-    {2,30},
+  std::vector<id_string> expected_res = {
+    {0,"12"},
+    {0,"11"},
+    {0,"10"},
+
+    {1,"23"},
+    {1,"22"},
+    {1,"21"},
+    {1,"20"},
+
+    {2,"31"},
+    {2,"30"},
   };
 
-  CHECK( v_sorted_by_lvl == expected_res );
+  CHECK( v_sorted_by_id == expected_res );
 }
 
 
 TEST_CASE("for_each_equivalent_ref") {
-  std::vector<lvl_value> v_sorted_by_lvl = {
-    {0,10},
-    {0,11},
-    {0,12},
+  std::vector<id_string> v_sorted_by_id = {
+    {0,"10"},
+    {0,"11"},
+    {0,"12"},
 
-    {1,20},
-    {1,21},
-    {1,22},
-    {1,23},
+    {1,"20"},
+    {1,"21"},
+    {1,"22"},
+    {1,"23"},
 
-    {2,30},
-    {2,31},
+    {2,"30"},
+    {2,"31"},
   };
-  auto replace_value_if_same_lvl = [](lvl_value& x, lvl_value& x_eq){
-    if (x.lvl==x_eq.lvl) {
-      x.d = x_eq.d;
+  auto replace_value_if_same_id = [](id_string& x, id_string& x_eq){
+    if (x.id==x_eq.id) {
+      x.s = x_eq.s;
       return true;
     }
     return false;
   };
-  for_each_equivalent_ref(begin(v_sorted_by_lvl),end(v_sorted_by_lvl), replace_value_if_same_lvl);
+  for_each_equivalent_ref(begin(v_sorted_by_id),end(v_sorted_by_id), replace_value_if_same_id);
 
-  std::vector<lvl_value> expected_res = {
-    {0,10},
-    {0,10},
-    {0,10},
+  std::vector<id_string> expected_res = {
+    {0,"10"},
+    {0,"10"},
+    {0,"10"},
          
-    {1,20},
-    {1,20},
-    {1,20},
-    {1,20},
+    {1,"20"},
+    {1,"20"},
+    {1,"20"},
+    {1,"20"},
          
-    {2,30},
-    {2,30},
+    {2,"30"},
+    {2,"30"},
   };
 
-  CHECK( v_sorted_by_lvl == expected_res );
+  CHECK( v_sorted_by_id == expected_res );
 }

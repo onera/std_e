@@ -89,4 +89,19 @@ TEST_CASE("multi_array to_string") {
     dyn_multi_array<int,dynamic_size> a = {{1,2,3},{4,5,6}};
     CHECK( to_string(a) == "[1,2,3;4,5,6]" );
   }
+
+  SUBCASE("rank > 2") {
+    std::vector<int> v = {1,2,3,4,5,6,7,8};
+    dyn_multi_array_view<int,3> a(v.data(),{2,2,2});
+    std::string expected_res =
+      "{0;0;0} => 1\n"
+      "{1;0;0} => 2\n"
+      "{0;1;0} => 3\n"
+      "{1;1;0} => 4\n"
+      "{0;0;1} => 5\n"
+      "{1;0;1} => 6\n"
+      "{0;1;1} => 7\n"
+      "{1;1;1} => 8\n";
+    CHECK( to_string(a) == expected_res );
+  }
 }

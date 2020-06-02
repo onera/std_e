@@ -5,6 +5,17 @@
 
 using namespace std_e;
 
+TEST_CASE("to_string(std::string)") {
+  // NOTE: only useful for genericity of to_string()
+  std::string s = "abc";
+  CHECK( std_e::to_string(s) == "abc" );
+}
+
+TEST_CASE("to_string(ptr)") {
+  int* ptr = nullptr;
+  CHECK( std_e::to_string(ptr) == "0" );
+}
+
 TEST_CASE("range_to_string") {
   std::vector<int> v0 = {};
   CHECK( range_to_string(v0)==std::string("{}") );

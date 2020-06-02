@@ -5,6 +5,7 @@
 #include "std_e/multi_array/shape/dyn_shape.hpp"
 #include "std_e/future/span.hpp"
 #include "std_e/multi_array/multi_array/multi_array.hpp"
+#include "std_e/multi_index/multi_index_range.hpp"
 
 
 namespace std_e {
@@ -76,7 +77,13 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
       return s + "]";
     }
   }
-  throw not_implemented_exception("to_string(multi_array) implemented only for rank 1 and 2, not for rank "+std::to_string(x.rank()));
+
+  // rank > 2
+  std::string s;
+  for (const auto& is : fortran_multi_index_range(x.extent())) {
+    s += to_string(is) + " => " + to_string(x(is)) + "\n";
+  }
+  return s;
 }
 
 

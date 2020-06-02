@@ -27,4 +27,6 @@ TEST_CASE("switch") {
 
   auto case_43 = std_e::switch_<dispatch_indices>(43).apply(f,v,d);
   CHECK( case_43 == "case 43 with 78/101" );
+
+  CHECK_THROWS_AS(std_e::switch_<dispatch_indices>(44),std_e::case_is_not_available_error);
 }

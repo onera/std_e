@@ -7,6 +7,7 @@
 #include "std_e/base/macros.hpp"
 #include <algorithm>
 #include "std_e/future/constexpr_vector.hpp"
+#include "std_e/utils/to_string_fwd.hpp"
 
 
 // The idea of these functions is to provide a common interface
@@ -138,6 +139,27 @@ default_array_except(int i, const T& x) -> Array {
   auto res = default_array<Array>;
   res[i] = x;
   return res;
+}
+
+
+template<
+  int start, int sub_size, class Array,
+  std::enable_if_t< is_fixed_size_array<Array> , int > =0
+> auto
+make_sub_array(const Array& x) {
+  using sub_array_type = same_array_type_except_size<Array,sub_size>;
+  sub_array_type sub;
+  std::copy_n(begin(x)+start,sub_size,begin(sub));
+  return sub;
+}
+
+
+template<
+  class Array,
+  std::enable_if_t< is_array<Array> , int > =0
+> auto
+to_string(const Array& x) -> std::string {
+  return range_to_string(x);
 }
 
 
