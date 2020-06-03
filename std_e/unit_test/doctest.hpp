@@ -2,8 +2,8 @@
 
 
 #include "doctest/doctest.h"
-#include "std_e/utils/array.hpp"
 #include "std_e/utils/vector.hpp"
+#include "std_e/utils/array.hpp"
 #include "std_e/future/span.hpp"
 
 

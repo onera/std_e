@@ -13,7 +13,7 @@ class assertion_failure : public std::exception {
   public:
     assertion_failure(const std::string& file, int line, const std::string& assertion_test) noexcept
     {
-      msg = "assertion failure at file " + file + ", line " + std::to_string(line) + "\n failed assertion: " + assertion_test;
+      msg = "assertion failure at file " + file + ", line " + std::to_string(line) + "\nfailed assertion: " + assertion_test;
     }
 
     const char* what() const noexcept override {
@@ -21,24 +21,6 @@ class assertion_failure : public std::exception {
     }
   private:
     std::string msg;
-};
-
-
-class precondition_violation : public std::exception {
-  public:
-    precondition_violation() noexcept
-      : msg(nullptr)
-    {}
-
-    precondition_violation(const char* msg) noexcept
-      : msg(msg)
-    {}
-
-    const char* what() const noexcept override {
-      return msg;
-    }
-  private:
-    const char* msg;
 };
 
 

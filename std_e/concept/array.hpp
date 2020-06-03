@@ -57,10 +57,10 @@ template<class T, size_t N>
 struct enable_is_fixed_size_array<std::array<T,N>> : std::true_type {};
 
 // std::vector activations
-template<class T>
-struct enable_is_array<std::vector<T>> : std::true_type {};
-template<class T>
-struct enable_is_dyn_size_array<std::vector<T>> : std::true_type {};
+template<class T, class A>
+struct enable_is_array<std::vector<T,A>> : std::true_type {};
+template<class T, class A>
+struct enable_is_dyn_size_array<std::vector<T,A>> : std::true_type {};
 
 // std_e::span activations
 template<class T, ptrdiff_t N>

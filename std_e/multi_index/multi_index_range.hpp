@@ -176,25 +176,25 @@ class multi_index_generator {
 
 
 
-
+template<class Integer>
 struct multi_index_generator_sentinel {
-  int size;
+  Integer size;
 };
 
-template<class multi_index_generator_type> constexpr auto
-operator==(const multi_index_generator_type& gen, multi_index_generator_sentinel sentinel) {
+template<class multi_index_generator_type, class Integer> constexpr auto
+operator==(const multi_index_generator_type& gen, multi_index_generator_sentinel<Integer> sentinel) {
   return gen.current_position()==sentinel.size;
 }
-template<class multi_index_generator_type> constexpr auto
-operator==(multi_index_generator_sentinel sentinel, const multi_index_generator_type& gen) {
+template<class multi_index_generator_type, class Integer> constexpr auto
+operator==(multi_index_generator_sentinel<Integer> sentinel, const multi_index_generator_type& gen) {
   return gen==sentinel;
 }
-template<class multi_index_generator_type> constexpr auto
-operator!=(const multi_index_generator_type& gen, multi_index_generator_sentinel sentinel) {
+template<class multi_index_generator_type, class Integer> constexpr auto
+operator!=(const multi_index_generator_type& gen, multi_index_generator_sentinel<Integer> sentinel) {
   return !(gen==sentinel);
 }
-template<class multi_index_generator_type> constexpr auto
-operator!=(multi_index_generator_sentinel sentinel, const multi_index_generator_type& gen) {
+template<class multi_index_generator_type, class Integer> constexpr auto
+operator!=(multi_index_generator_sentinel<Integer> sentinel, const multi_index_generator_type& gen) {
   return !(gen==sentinel);
 }
 
@@ -206,6 +206,7 @@ class multi_index_range {
   public:
     using generator_type = multi_index_generator<order_functor_type>;
     using index_type = typename generator_type::index_type;
+    using sentinel_type = multi_index_generator_sentinel<index_type>;
 
   // ctor
     constexpr
@@ -231,11 +232,11 @@ class multi_index_range {
       return generator;
     }
     constexpr auto
-    end() const -> multi_index_generator_sentinel {
+    end() const -> sentinel_type {
       return {sz};
     }
     constexpr auto
-    end() -> multi_index_generator_sentinel {
+    end() -> sentinel_type {
       return {sz};
     }
   private:
