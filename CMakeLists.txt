@@ -49,8 +49,8 @@ list(FILTER test_files INCLUDE REGEX ".*\.test\.cpp$")
 
 
 ## Main library ##
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE
+add_library(${PROJECT_NAME} SHARED ${cpp_files})
+target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )

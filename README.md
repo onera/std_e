@@ -4,7 +4,7 @@ std_e
 `std_e` (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms (multi-dimensional array, constexpr std algorithms, utilities...). Hopefully, one day, these functionalities will be provided by the C++ standard library.
 
 ## Dependencies ##
-`std_e` is a header-only C++17 library. It depends only on the standard library. The unit tests use `doctest` and the build process requires GCC>=8 and Cmake>=3.12.
+`std_e` only depends on the standard library. The unit tests use `doctest` and the build process requires GCC>=8 and Cmake>=3.12.
 
 ## Build and install ##
 1. `git clone https://github.com/BerengerBerthoul/std_e`

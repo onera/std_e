@@ -64,4 +64,10 @@ count_char(std::string_view s, char c) -> int {
 }
 
 
+inline auto
+begins_with(const std::string& s, const std::string& prefix) -> bool {
+  return s.rfind(prefix,0)==0;
+}
+
+
 } // std_e
