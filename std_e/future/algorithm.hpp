@@ -203,14 +203,14 @@ find(InputIt first, InputIt last, const T& value) {
     return last;
 }
 
-template<class InputIt, class UnaryPredicate> constexpr InputIt
-find_if(InputIt first, InputIt last, UnaryPredicate p) {
+template<class InputIt, class S, class UnaryPredicate> constexpr InputIt
+find_if(InputIt first, S last, UnaryPredicate p) {
     for (; first != last; ++first) {
         if (p(*first)) {
             return first;
         }
     }
-    return last;
+    return first;
 }
 
 
