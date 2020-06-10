@@ -39,4 +39,13 @@ using remove_rvalue_reference = typename remove_rvalue_reference__impl<T>::type;
 // remove_rvalue_reference }
 
 
+// from https://quuxplusone.github.io/blog/2019/02/06/arrow-proxy/
+template<class Reference>
+struct arrow_proxy {
+  Reference r;
+  Reference *operator->() {
+    return &r;
+  }
+};
+
 } // std_e
