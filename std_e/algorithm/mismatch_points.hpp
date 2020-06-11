@@ -21,7 +21,7 @@ for_each_mismatch(Input_it first, Input_it last, Binary_pred p, F f) -> void {
   }
 }
 
-template<class Random_access_rng, class Binary_pred = std::equal_to<>> constexpr auto
+template<class Random_access_rng, class Binary_pred = std::equal_to<>> auto
 mismatch_indices(const Random_access_rng& rng, Binary_pred p = {}) -> std::vector<int> {
   auto first = begin(rng);
   std::vector<int> res;

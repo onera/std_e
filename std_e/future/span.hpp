@@ -202,8 +202,8 @@ make_span(T* ptr, ptrdiff_t n) {
   return span<T,dynamic_size>(ptr,n);
 }
 template<class T> FORCE_INLINE constexpr auto
-make_span(const T* ptr, ptrdiff_t n) {
-  return span<const T,dynamic_size>(ptr,n);
+make_span(T* start, T* finish) {
+  return span<T,dynamic_size>(start,finish-start);
 }
 
 template<class T> FORCE_INLINE constexpr auto
@@ -230,6 +230,24 @@ make_span(const Container& x) {
 template<class T, ptrdiff_t N> FORCE_INLINE constexpr auto
 to_string(const span<T,N>& x) {
   return range_to_string(x);
+}
+
+
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator==(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
+  return x==make_span(y);
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator!=(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator==(const std::vector<T1,A>& y, const span<T0,N>& x) -> bool {
+  return x==y;
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator!=(const std::vector<T1,A>& y, const span<T0,N>& x) -> bool {
+  return !(x==y);
 }
 
 
