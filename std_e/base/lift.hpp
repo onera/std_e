@@ -11,8 +11,12 @@
 
 // C++ requires you to type out the same function body three times to obtain
 // SFINAE-friendliness and noexcept-correctness. That's unacceptable.
+#if __GNUC__ > 7
 #define RETURNS(...) noexcept(noexcept(__VA_ARGS__)) \
      -> decltype(__VA_ARGS__){ return __VA_ARGS__; }
+#else
+#define RETURNS(...) -> decltype(__VA_ARGS__){ return __VA_ARGS__; }
+#endif
 
 
 // The name of overload sets can be legally used as part of a function call -

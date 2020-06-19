@@ -236,14 +236,22 @@ make_view(multi_array<M0,M1>& x) {
   using value_type = typename multi_array<M0,M1>::value_type;
   constexpr int ct_size = multi_array<M0,M1>::ct_size;
   using mem_view_type = span<value_type,ct_size>;
+#if __GNUC__ > 7
   return multi_array{ mem_view_type{x.data()} , x.shape() };
+#else
+  return multi_array<mem_view_type,M1>{ mem_view_type{x.data()} , x.shape() };
+#endif
 }
 template<class M0, class M1> auto
 make_view(const multi_array<M0,M1>& x) {
   using value_type = typename multi_array<M0,M1>::value_type;
   constexpr int ct_size = multi_array<M0,M1>::ct_size;
   using mem_view_type = span<const value_type,ct_size>;
+#if __GNUC__ > 7
   return multi_array{ mem_view_type{x.data()} , x.shape() };
+#else
+  return multi_array<mem_view_type,M1>{ mem_view_type{x.data()} , x.shape() };
+#endif
 }
 
 // sub views of contiguous memory {
@@ -255,7 +263,12 @@ template<
 > auto
 make_sub_array(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
+#if __GNUC__ > 7
   return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
+#else
+  using T = typename M0::value_type;
+  return multi_array<span<T>,decltype(sub_shape)>{ span{x.data()+index_1d} , std::move(sub_shape) };
+#endif
 }
 template<
   class M0, class M1, class Multi_index,
@@ -263,7 +276,12 @@ template<
 > auto
 make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
+#if __GNUC__ > 7
   return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
+#else
+  using T = typename M0::value_type;
+  return multi_array<span<T>,decltype(sub_shape)>{ span{x.data()+index_1d} , std::move(sub_shape) };
+#endif
 }
 // overloads matching initialization lists {
 template<
