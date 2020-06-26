@@ -1,6 +1,6 @@
 stages: # Ici on déclare toutes nos étapes
   - build
-  # - test
+  - test
   # - deploy
 
 job:build:
