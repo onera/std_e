@@ -1,6 +1,13 @@
+before_script:
+ - apt-get update --yes
+ - apt-get install --yes cmake
+ 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 stages: # Ici on déclare toutes nos étapes
   - build
-  - test
+  # - test
   # - deploy
 
 job:build:
@@ -9,6 +16,11 @@ job:build:
     - echo "HELLLO"
     - hostname
     - echo "HELLLO2"
+    - echo "HELLLO2"
+    - whoami
+    - ls -lrt /home/bmaugars
+    - apt-get update --yes
+    - apt-get install --yes gcc
     - pwd
     - module av
     - echo $PWD
