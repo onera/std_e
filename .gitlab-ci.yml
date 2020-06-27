@@ -1,6 +1,6 @@
-# before_script:
-#  - apt-get update --yes
-#  - apt-get install --yes cmake
+before_script:
+ - sudo apt-get update --yes
+ - sudo apt-get install --yes cmake
  
 # variables:
 # GIT_SUBMODULE_STRATEGY: recursive
