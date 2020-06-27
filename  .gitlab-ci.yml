@@ -1,3 +1,10 @@
+before_script:
+ - apt-get update --yes
+ - apt-get install --yes cmake
+ 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 stages: # Ici on déclare toutes nos étapes
   - build
   # - test
