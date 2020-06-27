@@ -1,7 +1,7 @@
 before_script:
  - lsb_release -a
- - sudo apt-get update --yes
- - sudo apt-get install --yes cmake
+ - yum update
+ - yum -y install gcc-c++
  
 # variables:
 # GIT_SUBMODULE_STRATEGY: recursive
