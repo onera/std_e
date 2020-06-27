@@ -16,6 +16,9 @@ job:build:
     - echo "HELLLO"
     - hostname
     - echo "HELLLO2"
+    - echo "HELLLO2"
+    - whoami
+    - ls -lrt /home/bmaugars
     - apt-get update --yes
     - apt-get install --yes gcc
     - pwd
