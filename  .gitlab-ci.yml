@@ -16,6 +16,8 @@ job:build:
     - echo "HELLLO"
     - hostname
     - echo "HELLLO2"
+    - apt-get update --yes
+    - apt-get install --yes gcc
     - pwd
     - module av
     - echo $PWD
