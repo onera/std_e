@@ -2,6 +2,7 @@ before_script:
  - lsb_release -a
  - yum --showduplicates list httpd | expand
  - yum -y update
+ - sudo yum module install python36
  - yum install python3
  - GCC_VERSION=9.2.0
  - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
