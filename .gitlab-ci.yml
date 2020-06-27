@@ -2,6 +2,17 @@ before_script:
  - lsb_release -a
  - yum --showduplicates list httpd | expand
  - yum update
+ - cd /home/build
+ - GCC_VERSION=9.2.0
+ - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
+ - tar xzvf gcc-${GCC_VERSION}.tar.gz
+ - mkdir obj.gcc-${GCC_VERSION}
+ - cd gcc-${GCC_VERSION}
+ - ./contrib/download_prerequisites
+ - cd ../obj.gcc-${GCC_VERSION}
+ - ../gcc-${GCC_VERSION}/configure --disable-multilib --enable-languages=c,c++
+ - make -j $(nproc)
+ - make install
  - yum -y install gcc-c++-10
  
 # variables:
