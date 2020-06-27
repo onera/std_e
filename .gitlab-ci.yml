@@ -19,8 +19,6 @@ job:build:
     - echo "HELLLO2"
     - whoami
     - ls -lrt /home/bmaugars
-    - apt-get update --yes
-    - apt-get install --yes gcc
     - pwd
     - module av
     - echo $PWD
