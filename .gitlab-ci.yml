@@ -2,7 +2,6 @@ before_script:
  - lsb_release -a
  - yum --showduplicates list httpd | expand
  - yum update
- - cd /home/build
  - GCC_VERSION=9.2.0
  - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
  - tar xzvf gcc-${GCC_VERSION}.tar.gz
