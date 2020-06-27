@@ -1,7 +1,8 @@
 before_script:
  - lsb_release -a
+ - yum --showduplicates list httpd | expand
  - yum update
- - yum -y install gcc-c++
+ - yum -y install gcc-c++-10
  
 # variables:
 # GIT_SUBMODULE_STRATEGY: recursive
