@@ -98,6 +98,8 @@ accumulate(const std::tuple<Ts...>& x, T& init, bin_op op) -> void {
 
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
 template<int I, class tuple_type, class Unary_pred, class F>  constexpr auto
 find_apply__impl(tuple_type& x, Unary_pred p, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
@@ -111,6 +113,7 @@ find_apply__impl(tuple_type& x, Unary_pred p, F f) -> int {
   }
   return sz;
 }
+#pragma GCC diagnostic pop
 
 template<class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
@@ -124,6 +127,8 @@ find_apply(const std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
 
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
 template<int I, class tuple_type, class F>  constexpr auto
 for_each_until__impl_tuple(tuple_type& x, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
@@ -136,6 +141,7 @@ for_each_until__impl_tuple(tuple_type& x, F f) -> int {
   }
   return sz;
 }
+#pragma GCC diagnostic pop
 
 template<class... Ts, class F> constexpr auto
 for_each_until(std::tuple<Ts...>& x, F f) -> decltype(auto) {
