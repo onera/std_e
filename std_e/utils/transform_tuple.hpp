@@ -27,7 +27,6 @@ auto tuple_transform(Fn&& fn, const std::tuple<Ts...>& tuple) {
                               std::make_index_sequence<sizeof...(Ts)>());
 }
 
-// && necessaire je pense pour perfect forwarding
 template <typename Fn, typename... Ts>
 auto tuple_transform(Fn&& fn, std::tuple<Ts...>& tuple) {
   return tuple_transform_impl(std::forward<Fn>(fn), tuple,
