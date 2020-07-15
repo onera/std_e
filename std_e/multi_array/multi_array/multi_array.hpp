@@ -227,6 +227,10 @@ template<class M00, class M01, class M10, class M11> constexpr auto
 operator!=(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool {
   return !(x==y);
 }
+template<class M0, class M1> FORCE_INLINE constexpr auto begin(const multi_array<M0,M1>& x) { return x.begin(); }
+template<class M0, class M1> FORCE_INLINE constexpr auto begin(      multi_array<M0,M1>& x) { return x.begin(); }
+template<class M0, class M1> FORCE_INLINE constexpr auto end  (const multi_array<M0,M1>& x) { return x.end()  ; }
+template<class M0, class M1> FORCE_INLINE constexpr auto end  (      multi_array<M0,M1>& x) { return x.end()  ; }
 
 
 // conversion to the view type (useful for function arguments)
