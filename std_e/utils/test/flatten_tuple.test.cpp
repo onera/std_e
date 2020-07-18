@@ -3,8 +3,8 @@
 
 #include <algorithm>
 
-TEST_CASE("flatten tuple static ") {
-  SUBCASE(" simple ") {
+TEST_CASE("flatten tuple static") {
+  SUBCASE("simple") {
 
     constexpr auto bare = 42;
 
