@@ -27,24 +27,22 @@ permute_id_if_in_range(I& id, const std::vector<I>& permutation, interval<I> int
 
 template<class I_range, class I> auto
 // requires I_range is an integer range (i.e. begin(), end())
-update_ids_after_permutation(I_range&& ids, const std::vector<I>& permutation, I offset) {
+update_ids_after_permutation(I_range& ids, const std::vector<I>& permutation, I offset) {
   // Preconditions:
   //   - permutation is an index permutation (i.e. sort(permutation) == iota(permutation.size()))
   //   - for id in ids, offset <= id < offset + permutation.size()
-  auto inv_perm = inverse_permutation(permutation);
   for (auto& id : ids) {
-    permute_id(id,inv_perm,offset);
+    permute_id(id,permutation,offset);
   }
 }
 template<class I_range, class I> auto
 // requires I_range is an integer range (i.e. begin(), end())
-update_ids_in_range_after_permutation(I_range&& ids, const std::vector<I>& permutation, interval<I> inter) -> void {
+update_ids_in_range_after_permutation(I_range& ids, const std::vector<I>& permutation, interval<I> inter) -> void {
   // Preconditions:
   //   - permutation is an index permutation (i.e. sort(permutation) == iota(permutation.size()))
   //   - size(inter) == permutation.size()
-  auto inv_perm = inverse_permutation(permutation);
   for (auto& id : ids) {
-    permute_id_if_in_range(id,inv_perm,inter);
+    permute_id_if_in_range(id,permutation,inter);
   }
 }
 

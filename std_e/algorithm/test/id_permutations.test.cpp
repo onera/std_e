@@ -53,7 +53,7 @@ TEST_CASE("permute_id_if_in_range") {
 }
 
 TEST_CASE("update_ids_after_permutation__involutive") {
-  vector<int> permutation = {2,1,0}; // permutation is involutive
+  vector<int> permutation = {2,1,0}; // involutive permutation
   int offset = 42;
 
   vector<int> ids = {42,44,43};
@@ -64,7 +64,7 @@ TEST_CASE("update_ids_after_permutation__involutive") {
 }
 
 TEST_CASE("update_ids_after_permutation__non_involutive") {
-  vector<int> permutation = {1,2,0}; // permutation is non involutive
+  vector<int> permutation = {2,0,1}; // non-involutive permutation
   int offset = 42;
 
   vector<int> ids = {42,44,43};
@@ -75,10 +75,10 @@ TEST_CASE("update_ids_after_permutation__non_involutive") {
 }
 
 TEST_CASE("update_ids_in_range_after_permutation__non_involutive") {
-  vector<int> permutation = {1,2,0}; // permutation is non involutive
+  vector<int> permutation = {2,0,1}; // non-involutive permutation
   std_e::interval<int> inter = {42,42+3};
 
-  vector<int> ids = {41,42,44,43,45};
+  vector<int> ids = {41, 42,44,43, 45};
 
   std_e::update_ids_in_range_after_permutation(ids,permutation,inter);
   
