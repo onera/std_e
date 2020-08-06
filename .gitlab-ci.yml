@@ -22,6 +22,7 @@ job:build:
     # - cd ..
     # - ls -lrt
     # - rm -rf build
+    - cd ..
     - mkdir -p build
     - cd build
     - module purge
