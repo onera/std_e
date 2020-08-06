@@ -1,4 +1,7 @@
-#before_script:
+before_script:
+  - export no_proxy=.onera.net,.onera.fr
+  - export export https_proxy=proxy.onecert.fr:80
+
 # - lsb_release -a
 # - yum --showduplicates list httpd | expand
 # - yum -y update
