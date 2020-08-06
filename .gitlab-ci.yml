@@ -8,6 +8,7 @@ variables:
 stages: # Ici on déclare toutes nos étapes
   - build
   - test
+  - pages
   # - deploy
 
 job:build:
@@ -38,13 +39,6 @@ job:build:
     - ls -lrt ..
     - ls -lrt ../public
     
-  artifacts:
-    paths:
-      - public
-    reports:
-      junit: report.xml
-
-
 
 job:test:
   stage: test # On déclare que ce `job` fait partie de l'étape build
@@ -54,3 +48,11 @@ job:test:
     - echo $PWD
     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
     - make test
+    
+pages:
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+    
