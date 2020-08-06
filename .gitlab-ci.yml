@@ -1,0 +1,78 @@
+#before_script:
+#  - export no_proxy=.onera.net,.onera.fr
+#  - export https_proxy=proxy.onecert.fr:80
+#  - echo "OOOOOOOOOOOOO"
+
+# - lsb_release -a
+# - yum --showduplicates list httpd | expand
+# - yum -y update
+# - sudo yum module install python36
+# - yum install python3
+# - GCC_VERSION=9.2.0
+# - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
+# - tar xzvf gcc-${GCC_VERSION}.tar.gz
+# - mkdir obj.gcc-${GCC_VERSION}
+# - cd gcc-${GCC_VERSION}
+# - ./contrib/download_prerequisites
+# - cd ../obj.gcc-${GCC_VERSION}
+# - ../gcc-${GCC_VERSION}/configure --disable-multilib --enable-languages=c,c++
+# - make -j $(nproc)
+# - make install
+# - yum -y install gcc-c++-10
+ 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  no_proxy: .onera.net,.onera.fr
+  https_proxy: proxy.onecert.fr:80
+
+stages: # Ici on déclare toutes nos étapes
+  - build
+  - test
+  # - deploy
+
+job:build:
+  stage: build # On déclare que ce `job` fait partie de l'étape build
+  script:
+    - echo "HELLLO"
+    - hostname
+    - echo "HELLLO2"
+    - echo "HELLLO2"
+    - whoami
+    - ls -lrt /opt/tools/gcc-8.3/bin
+    # - ls -lrt /home/bmaugars
+    - pwd
+    - module av
+    - echo $PWD
+    - ls -lrt
+    - cd ..
+    - ls -lrt
+    - rm -rf build
+    - mkdir build
+    - cd build
+    - module purge
+    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
+    - export https_proxy=proxy:80
+    - cmake ../std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+    - make
+    - make test
+    - ./std_e_unit_tests -r=junit > report.xml
+    - ls -lrt
+    - cp report.xml ..
+    
+
+  artifacts:
+    paths:
+      - public
+    reports:
+      junit: report.xml
+
+
+
+job:test:
+  stage: test # On déclare que ce `job` fait partie de l'étape build
+  script:
+    - ls -lrt
+    - cd ../build
+    - echo $PWD
+    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
+    - make test
