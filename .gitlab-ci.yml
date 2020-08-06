@@ -57,7 +57,9 @@ job:build:
     - make test
     - ./std_e_unit_tests -r=junit > report.xml
     - ls -lrt
+    - mkdir ../public
     - cp report.xml ..
+    - cp report.xml ../public
     
 
   artifacts:
