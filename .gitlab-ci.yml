@@ -40,6 +40,7 @@ job:build:
     - ls -lrt
     - cd ..
     - ls -lrt
+    - rm -rf build
     - mkdir build
     - cd build
     - module purge
