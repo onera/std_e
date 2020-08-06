@@ -55,6 +55,18 @@ job:build:
     - cmake ../std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
     - make
     - make test
+    - ./std_e_unit_tests -r=junit > report.xml
+    - ls -lrt
+    - cp report.xml ..
+    
+
+  artifacts:
+    paths:
+      - public
+    reports:
+      junit: report.xml
+
+
 
 job:test:
   stage: test # On déclare que ce `job` fait partie de l'étape build
