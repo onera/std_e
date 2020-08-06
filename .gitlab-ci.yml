@@ -21,7 +21,7 @@
 # - yum -y install gcc-c++-10
  
 variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_STRATEGY: normal
   no_proxy: .onera.net,.onera.fr
   https_proxy: proxy.onecert.fr:80
 
@@ -60,8 +60,9 @@ job:build:
     - mkdir ../public
     - cp report.xml ..
     - cp report.xml ../public
+    - ls -lrt ..
+    - ls -lrt ../public
     
-
   artifacts:
     paths:
       - public
