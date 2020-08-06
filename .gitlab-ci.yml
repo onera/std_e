@@ -32,8 +32,8 @@ job:build:
     - echo "HELLLO2"
     - echo "HELLLO2"
     - whoami
-    - ls -lrt /home/bmaugars
     - ls -lrt /opt/tools/gcc-8.3/bin
+    # - ls -lrt /home/bmaugars
     - pwd
     - module av
     - echo $PWD
