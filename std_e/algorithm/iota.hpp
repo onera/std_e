@@ -7,6 +7,16 @@
 
 namespace std_e {
 
+template<class Fwd_it, class Integer, class T> constexpr auto
+iota_n(Fwd_it first, Integer n, T value) -> Fwd_it {
+  while (n--) {
+    *first = value;
+    ++value;
+    ++first;
+  }
+  return first;
+}
+
 
 template<class Fwd_it, class T> constexpr auto
 exclusive_iota(Fwd_it first, Fwd_it last, T value, const T& step) {

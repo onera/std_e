@@ -4,6 +4,15 @@
 
 using namespace std_e;
 
+TEST_CASE("iota_n") {
+  std::vector<int> v;
+
+  std_e::iota_n(std::back_inserter(v),4,10);
+
+  std::vector<int> v_expected = {10,11,12,13};
+  CHECK( v == v_expected );
+}
+
 TEST_CASE("exclusive_iota") {
   SUBCASE("full, start 0") {
     std::vector<int> v(4);

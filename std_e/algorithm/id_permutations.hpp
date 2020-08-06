@@ -8,6 +8,7 @@
 namespace std_e {
 
 
+// TODO deprecate {
 template<class I> auto
 permute_id(I& id, const std::vector<I>& permutation, I offset) -> void {
   // Precondition: offset <= id < offset + permutation.size()
@@ -43,6 +44,41 @@ update_ids_in_range_after_permutation(I_range& ids, const std::vector<I>& permut
   //   - size(inter) == permutation.size()
   for (auto& id : ids) {
     permute_id_if_in_range(id,permutation,inter);
+  }
+}
+// TODO end deprecate }
+
+
+/* concept Permutation: operator()(Integer)->Integer */
+
+template<class I>
+class offset_permutation {
+  public:
+    constexpr offset_permutation() = default;
+    constexpr offset_permutation(I offset, std::vector<I> perm)
+      : offset(offset)
+      , perm(std::move(perm))
+    {}
+
+    constexpr auto
+    operator()(I i) const {
+      return perm[i-offset] + offset;
+    }
+
+    // for compatibility with integer ranges which are also permutations
+    constexpr auto
+    operator[](I i) const {
+      return (*this)(i);
+    }
+  private:
+    I offset;
+    std::vector<I> perm;
+};
+
+template<class Permutation, class Range> constexpr auto
+apply(const Permutation& p, Range& r) -> void {
+  for (auto& i : r) {
+    i = p(i);
   }
 }
 

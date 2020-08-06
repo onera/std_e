@@ -12,8 +12,26 @@ TEST_CASE("inverse_permutation") {
 
   vector<int> expected_inv_perm = {2,3,4,1,0};
   CHECK( inv_perm == expected_inv_perm );
+}
 
-  CHECK( std_e::inverse_permutation(std_e::inverse_permutation(perm)) == perm );
+TEST_CASE("inverse_partial_permutation") {
+  int size = 5;
+  vector<int> perm = {4,0,3};
+
+  /*
+      [A][B][C]
+       \  |  |
+        \_|__|___     content of 0 (i.e. A) goes into 4
+          /  \   \    content of 1 (i.e. B) goes into 0
+         /    \   \   content of 2 (i.e. C) goes into 3
+        /      \   \
+      [B][_][_][C][A]
+  */
+
+  vector<int> inv_perm = std_e::inverse_partial_permutation(perm,size,-1);
+
+  vector<int> expected_inv_perm = {1,-1,-1,2,0};
+  CHECK( inv_perm == expected_inv_perm );
 }
 
 

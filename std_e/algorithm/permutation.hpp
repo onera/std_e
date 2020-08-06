@@ -19,6 +19,15 @@ inverse_permutation(const Random_access_container& p) -> Random_access_container
   }
   return inv_p;
 }
+template<class Random_access_container, class index_type> constexpr auto
+inverse_partial_permutation(const Random_access_container& p, index_type sz, index_type invalid_value) -> Random_access_container {
+  index_type p_sz = p.size();
+  Random_access_container inv_p(sz,invalid_value);
+  for (index_type i=0; i<p_sz; ++i) {
+    inv_p[p[i]] = i;
+  }
+  return inv_p;
+}
 
 template<class array_type> constexpr auto
 compose_permutations(const array_type& p0, const array_type& p1) {
