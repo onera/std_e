@@ -40,7 +40,7 @@ job:build:
     - ls -lrt
     - cd ..
     - ls -lrt
-    - make build
+    - mkdir build
     - cd build
     - module purge
     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
