@@ -16,8 +16,8 @@
 # - make install
 # - yum -y install gcc-c++-10
  
-# variables:
-# GIT_SUBMODULE_STRATEGY: recursive
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages: # Ici on déclare toutes nos étapes
   - build
