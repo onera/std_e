@@ -1,6 +1,7 @@
 before_script:
   - export no_proxy=.onera.net,.onera.fr
-  - export export https_proxy=proxy.onecert.fr:80
+  - export https_proxy=proxy.onecert.fr:80
+  - echo "OOOOOOOOOOOOO"
 
 # - lsb_release -a
 # - yum --showduplicates list httpd | expand
@@ -21,6 +22,8 @@ before_script:
  
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  no_proxy: .onera.net,.onera.fr
+  https_proxy: proxy.onecert.fr:80
 
 stages: # Ici on déclare toutes nos étapes
   - build
