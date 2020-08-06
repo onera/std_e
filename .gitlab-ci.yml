@@ -39,7 +39,7 @@ pages:
     - ls -lrt
     - pwd
     - ./std_e_unit_tests -r=junit > report.xml
-    - make std_e_doc
+    # - make std_e_doc
     - ls -lrt
     - cp report.xml ..
     # - mv html ../public
