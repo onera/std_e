@@ -1,7 +1,7 @@
-before_script:
-  - export no_proxy=.onera.net,.onera.fr
-  - export https_proxy=proxy.onecert.fr:80
-  - echo "OOOOOOOOOOOOO"
+#before_script:
+#  - export no_proxy=.onera.net,.onera.fr
+#  - export https_proxy=proxy.onecert.fr:80
+#  - echo "OOOOOOOOOOOOO"
 
 # - lsb_release -a
 # - yum --showduplicates list httpd | expand
@@ -52,7 +52,7 @@ job:build:
     - module purge
     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
     - export https_proxy=proxy:80
-    - cmake ../std_e
+    - cmake ../std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
     - make
     - make test
 
