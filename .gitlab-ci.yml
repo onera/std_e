@@ -40,7 +40,9 @@ job:build:
     - ls -lrt
     - cd ..
     - ls -lrt
+    - make build
     - cd build
+    - module purge
     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
     - cmake ../std_e
     - make
@@ -52,5 +54,5 @@ job:test:
     - ls -lrt
     - cd ../build
     - echo $PWD
-    - module load gcc/5.2 cmake/3.12.3 impi/17 python/2.7.8
+    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
     - make test
