@@ -1,25 +1,5 @@
 #before_script:
-#  - export no_proxy=.onera.net,.onera.fr
-#  - export https_proxy=proxy.onecert.fr:80
-#  - echo "OOOOOOOOOOOOO"
 
-# - lsb_release -a
-# - yum --showduplicates list httpd | expand
-# - yum -y update
-# - sudo yum module install python36
-# - yum install python3
-# - GCC_VERSION=9.2.0
-# - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
-# - tar xzvf gcc-${GCC_VERSION}.tar.gz
-# - mkdir obj.gcc-${GCC_VERSION}
-# - cd gcc-${GCC_VERSION}
-# - ./contrib/download_prerequisites
-# - cd ../obj.gcc-${GCC_VERSION}
-# - ../gcc-${GCC_VERSION}/configure --disable-multilib --enable-languages=c,c++
-# - make -j $(nproc)
-# - make install
-# - yum -y install gcc-c++-10
- 
 variables:
   GIT_SUBMODULE_STRATEGY: normal
   no_proxy: .onera.net,.onera.fr
@@ -33,21 +13,16 @@ stages: # Ici on déclare toutes nos étapes
 job:build:
   stage: build # On déclare que ce `job` fait partie de l'étape build
   script:
-    - echo "HELLLO"
     - hostname
-    - echo "HELLLO2"
-    - echo "HELLLO2"
     - whoami
-    - ls -lrt /opt/tools/gcc-8.3/bin
-    # - ls -lrt /home/bmaugars
     - pwd
     - module av
     - echo $PWD
-    - ls -lrt
-    - cd ..
-    - ls -lrt
-    - rm -rf build
-    - mkdir build
+    # - ls -lrt
+    # - cd ..
+    # - ls -lrt
+    # - rm -rf build
+    - mkdir -p build
     - cd build
     - module purge
     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
@@ -57,8 +32,7 @@ job:build:
     - make test
     - ./std_e_unit_tests -r=junit > report.xml
     - ls -lrt
-    - rm -rf public
-    - mkdir ../public
+    - mkdir -p ../public
     - cp report.xml ..
     - cp report.xml ../public
     - ls -lrt ..
