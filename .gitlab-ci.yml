@@ -39,6 +39,13 @@ build:
     - ls -lrt ..
     - ls -lrt ../public
     
+  artifacts:
+    paths:
+      - public
+    reports:
+      junit: report.xml
+
+    
 
 test:
   stage: test # On déclare que ce `job` fait partie de l'étape build
