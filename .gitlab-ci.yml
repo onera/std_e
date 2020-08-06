@@ -18,11 +18,10 @@ job:build:
     - pwd
     - module av
     - echo $PWD
-    # - ls -lrt
-    # - cd ..
-    # - ls -lrt
-    # - rm -rf build
+    - ls -lrt
     - cd ..
+    - ls -lrt
+    - rm -rf build
     - mkdir -p build
     - cd build
     - module purge
