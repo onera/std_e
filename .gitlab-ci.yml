@@ -1,20 +1,20 @@
-before_script:
- - lsb_release -a
- - yum --showduplicates list httpd | expand
- - yum -y update
- - sudo yum module install python36
- - yum install python3
- - GCC_VERSION=9.2.0
- - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
- - tar xzvf gcc-${GCC_VERSION}.tar.gz
- - mkdir obj.gcc-${GCC_VERSION}
- - cd gcc-${GCC_VERSION}
- - ./contrib/download_prerequisites
- - cd ../obj.gcc-${GCC_VERSION}
- - ../gcc-${GCC_VERSION}/configure --disable-multilib --enable-languages=c,c++
- - make -j $(nproc)
- - make install
- - yum -y install gcc-c++-10
+#before_script:
+# - lsb_release -a
+# - yum --showduplicates list httpd | expand
+# - yum -y update
+# - sudo yum module install python36
+# - yum install python3
+# - GCC_VERSION=9.2.0
+# - wget https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz
+# - tar xzvf gcc-${GCC_VERSION}.tar.gz
+# - mkdir obj.gcc-${GCC_VERSION}
+# - cd gcc-${GCC_VERSION}
+# - ./contrib/download_prerequisites
+# - cd ../obj.gcc-${GCC_VERSION}
+# - ../gcc-${GCC_VERSION}/configure --disable-multilib --enable-languages=c,c++
+# - make -j $(nproc)
+# - make install
+# - yum -y install gcc-c++-10
  
 # variables:
 # GIT_SUBMODULE_STRATEGY: recursive
@@ -33,6 +33,7 @@ job:build:
     - echo "HELLLO2"
     - whoami
     - ls -lrt /home/bmaugars
+    - ls -lrt /opt/tools/gcc-8.3/bin
     - pwd
     - module av
     - echo $PWD
@@ -40,8 +41,8 @@ job:build:
     - cd ..
     - ls -lrt
     - cd build
-    - module load gcc/5.2 cmake/3.12.3 impi/17 python/2.7.8
-    - cmake ../pr
+    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
+    - cmake ../std_e
     - make
     - make test
 
