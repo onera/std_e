@@ -11,7 +11,7 @@ stages: # Ici on déclare toutes nos étapes
   - pages
   # - deploy
 
-job:build:
+build:
   stage: build # On déclare que ce `job` fait partie de l'étape build
   script:
     - hostname
@@ -40,7 +40,7 @@ job:build:
     - ls -lrt ../public
     
 
-job:test:
+test:
   stage: test # On déclare que ce `job` fait partie de l'étape build
   script:
     - ls -lrt
@@ -50,6 +50,8 @@ job:test:
     - make test
     
 pages:
+  script:
+    - ls -lrt
   artifacts:
     paths:
       - public
