@@ -10,7 +10,7 @@
 #include <mutex>
 
 
-using namespace doctest;
+namespace doctest {
 
 // ===========================================================================
 struct doctest_logger {
@@ -66,30 +66,37 @@ color_string(Color::Enum code)
   return col;
 }
 
+namespace {
 /* \brief Overload the Ireporter of doctest
  *        This one allows to manage the execution of test in a parallel framework
  *        All results are collecteted by rank 0
  */
-struct mpi_reporter : public IReporter {
+struct mpi_reporter : public ConsoleReporter {
   // caching pointers/references to objects of these types - safe to do
-  const ContextOptions&         opt;
-  const TestCaseData*           tc;
-  std::vector<SubcaseSignature> subcasesStack;
-  size_t                        currentSubcaseLevel;
-  bool                          hasLoggedCurrentTestStart;
-  std::mutex                    mutex;
-  std::ostream&         s;
+  //const ContextOptions&         opt;
+  //const TestCaseData*           tc;
+  //std::vector<SubcaseSignature> subcasesStack;
+  //size_t                        currentSubcaseLevel;
+  //bool                          hasLoggedCurrentTestStart;
+  //std::mutex                    mutex;
+  //std::ostream&         s;
 
   int                           world_rank;  /*! Store the current world_rank : can be different than test_rank */
 
   // constructor has to accept the ContextOptions by ref as a single argument
-  mpi_reporter(const ContextOptions& in)
-          : opt(in)
-          , tc(nullptr)
-          , s(get_doctest_logs().log_file)
+  //mpi_reporter(const ContextOptions& in)
+  //        : opt(in)
+  //        , tc(nullptr)
+  //        , s(get_doctest_logs().log_file)
+  //{
+  //  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  //}
+  mpi_reporter(const ContextOptions& co)
+    : ConsoleReporter(co,get_doctest_logs().log_file)
   {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   }
+
 
   /* Adapted from doctest */
   void separator_to_stream() {
@@ -596,3 +603,6 @@ struct mpi_reporter : public IReporter {
 
 // "1" is the priority - used for ordering when multiple reporters/listeners are used
 REGISTER_REPORTER("mpi_reporter", 1, mpi_reporter);
+
+} // anonymous
+} // doctest
