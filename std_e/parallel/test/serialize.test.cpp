@@ -41,7 +41,8 @@ TEST_CASE("trivial deserialize") {
   S_serialize_test s = {42,3.14};
   auto s_serial = serialize(s);
 
-  auto s_copy = deserialize<S_serialize_test>(s_serial);
+  S_serialize_test s_copy;
+  deserialize(s_serial,s_copy);
 
   CHECK( s_copy.i == 42 );
   CHECK( s_copy.d == 3.14 );
@@ -80,7 +81,8 @@ TEST_CASE("serialize/deserialize array of trivial type") {
   }
 
   SUBCASE("deserialize") {
-    auto v_copy = deserialize<std::vector<double>>(v_serial);
+    std::vector<double> v_copy;
+    deserialize(v_serial,v_copy);
 
     CHECK( v_copy == std::vector{3.14, 2.7, 1.618} );
   }
@@ -108,7 +110,8 @@ TEST_CASE("deserialize from function") {
   // to put the data in the final type without the use of any intermediate buffer
 
   SUBCASE("array of trivial type") {
-    auto v = deserialize<std::vector<int>>(fill_array_from_remote_call,sizeof(int)*10);
+    std::vector<int> v;
+    deserialize(fill_array_from_remote_call,sizeof(int)*10,v);
 
     CHECK( v.size() == 10 );
     CHECK( v == std::vector{0,1,4,9,16,25,36,49,64,81} );
@@ -127,7 +130,8 @@ TEST_CASE("serialize/deserialize non-trivial type") {
   };
   auto x_serial = serialize(x);
 
-  auto y = deserialize<data_t>(std_e::make_span(x_serial));
+  data_t y;
+  deserialize(std_e::make_span(x_serial),y);
 
   CHECK( x == y );
 }

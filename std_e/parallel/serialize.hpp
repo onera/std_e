@@ -18,13 +18,13 @@ template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > a
 serialize(const std_e::span<T>& x) -> std::vector<std::byte>;
 
 template<class T, ptrdiff_t N, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte,N> x) -> T;
+deserialize(std_e::span<const std::byte,N> x, T& out) -> void;
 
-template<class vector_type, class T = typename vector_type::value_type, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte> x) -> std::vector<T>;
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void;
 
-template<class vector_type, class T = typename vector_type::value_type, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte> x) -> std::vector<T>;
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void;
 
 template<class T> auto
 serialize(const std::vector<T>& x);
@@ -54,19 +54,17 @@ serialize(const std_e::span<T>& x) {
  *        SEE the deserialize() overloads with a function as first argument instead of a span
 */
 template<class T, ptrdiff_t N, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte,N> x) -> T {
+deserialize(std_e::span<const std::byte,N> x, T& out) -> void {
   auto ptr = (const T*)x.data();
-  T res = *ptr;
-  return res;
+  out = *ptr;
 }
 
-template<class vector_type, class T = typename vector_type::value_type, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte> x) -> std::vector<T> {
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void {
   int vector_size = x.size()/sizeof(T);
-  std::vector<T> res(vector_size);
+  out.resize(vector_size);
   auto ptr = (T*)x.data();
-  std::copy_n(ptr,vector_size,res.data());
-  return res;
+  std::copy_n(ptr,vector_size,out.data());
 }
 /// deserialize }
 
@@ -101,8 +99,8 @@ serialize(const std_e::span<T>& x) -> std::vector<std::byte> {
   return res;
 }
 
-template<class vector_type, class T = typename vector_type::value_type, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(std_e::span<const std::byte> x) -> std::vector<T> {
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void {
   // section (A) holds holds the number of elements
   auto nb_elts_position = (int*)x.data();
   int nb_elts = *nb_elts_position;
@@ -113,19 +111,17 @@ deserialize(std_e::span<const std::byte> x) -> std::vector<T> {
   // section (C) the rest of the serialized array holds the concatenated data of each of its elements
   const std::byte* begin_data = x.data() + (1+nb_elts+1)*sizeof(int);
 
-  std::vector<T> res(nb_elts);
+  out.resize(nb_elts);
   for (int i=0; i<nb_elts; ++i) {
     int size = *(offset_position+1)-(*offset_position);
     const std::byte* data_ptr = begin_data+*offset_position++;
-    res[i] = deserialize<T>(std_e::make_span(data_ptr,size));
+    deserialize(std_e::make_span(data_ptr,size),out[i]);
   }
 
   int section_A_size = sizeof(int);
   int section_B_size = (nb_elts+1)*sizeof(int);
   int section_C_size = *offset_position;
   STD_E_ASSERT(section_A_size+section_B_size+section_C_size==(int)x.size());
-
-  return res;
 }
 
 // non trivial }
@@ -141,28 +137,24 @@ serialize(const std::vector<T>& x) {
 
 // deserialize from function {
 
-template<class T, class F, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(F f, int size) -> T {
-  T x;
+template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(F f, int size, T& x) -> void {
   auto ptr = (std::byte*)(&x);
   f(ptr,size);
-  return x;
 }
 
-template<class vector_type, class F, class T = typename vector_type::value_type, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(F f, int size) -> std::vector<T> {
-  std::vector<T> x;
+template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(F f, int size, std::vector<T>& x) -> void {
   x.resize(size/sizeof(int));
   auto ptr = (std::byte*)x.data();
   f(ptr,size);
-  return x;
 }
 
-//template<class T, class F, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
-//deserialize(F f, int size) -> T {
-//  std::vector<std::byte> buf(size);
-//  f(buf.data(),size);
-//  return deserialize<T>(std_e::make_span(buf));
-//}
+template<class F, class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+deserialize(F f, int size, T& x) -> void {
+  std::vector<std::byte> buf(size);
+  f(buf.data(),size);
+  deserialize(std_e::make_span(buf),x);
+}
 
 // deserialize from function }
