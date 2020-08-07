@@ -72,166 +72,12 @@ namespace {
  *        All results are collecteted by rank 0
  */
 struct mpi_reporter : public ConsoleReporter {
-  // caching pointers/references to objects of these types - safe to do
-  //const ContextOptions&         opt;
-  //const TestCaseData*           tc;
-  //std::vector<SubcaseSignature> subcasesStack;
-  //size_t                        currentSubcaseLevel;
-  //bool                          hasLoggedCurrentTestStart;
-  //std::mutex                    mutex;
-  //std::ostream&         s;
+  int world_rank; // Store the current world_rank : can be different than test_rank
 
-  int                           world_rank;  /*! Store the current world_rank : can be different than test_rank */
-
-  // constructor has to accept the ContextOptions by ref as a single argument
-  //mpi_reporter(const ContextOptions& in)
-  //        : opt(in)
-  //        , tc(nullptr)
-  //        , s(get_doctest_logs().log_file)
-  //{
-  //  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  //}
   mpi_reporter(const ContextOptions& co)
     : ConsoleReporter(co,get_doctest_logs().log_file)
   {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  }
-
-
-  /* Adapted from doctest */
-  void separator_to_stream() {
-    s << color_string(Color::Yellow) << "==============================================================================" << "\n";
-  }
-
-  /* Adapted from doctest */
-  const char* getSuccessOrFailString(bool success, assertType::Enum at,
-                                     const char* success_str) {
-    if(success)
-      return success_str;
-    return failureString(at);
-  }
-    void printVersion() {
-    if(opt.no_version == false) {
-      s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "doctest version is \""
-        << DOCTEST_VERSION_STR << "\"\n";
-    }
-  }
-
-  void printIntro() {
-    printVersion();
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None)
-      << "run with \"--" DOCTEST_OPTIONS_PREFIX_DISPLAY "help\" for options\n";
-  }
-
-  void printHelp() {
-    int sizePrefixDisplay = static_cast<int>(strlen(DOCTEST_OPTIONS_PREFIX_DISPLAY));
-    printVersion();
-    // clang-format off
-    s << color_string(Color::Cyan) << "[doctest]\n" << color_string(Color::None);
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "boolean values: \"1/on/yes/true\" or \"0/off/no/false\"\n";
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "filter  values: \"str1,str2,str3\" (comma separated strings)\n";
-    s << color_string(Color::Cyan) << "[doctest]\n" << color_string(Color::None);
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "filters use wildcards for matching strings\n";
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "something passes a filter if any of the strings in a filter matches\n";
-#ifndef DOCTEST_CONFIG_NO_UNPREFIXED_OPTIONS
-    s << color_string(Color::Cyan) << "[doctest]\n" << color_string(Color::None);
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "ALL FLAGS, OPTIONS AND FILTERS ALSO AVAILABLE WITH A \"" DOCTEST_CONFIG_OPTIONS_PREFIX "\" PREFIX!!!\n";
-#endif
-    s << color_string(Color::Cyan) << "[doctest]\n" << color_string(Color::None);
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "Query flags - the program quits after them. Available:\n\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "?,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "help, -" DOCTEST_OPTIONS_PREFIX_DISPLAY "h                      "
-      << Whitespace(sizePrefixDisplay*0) <<  "prints this message\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "v,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "version                       "
-      << Whitespace(sizePrefixDisplay*1) << "prints the version\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "c,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "count                         "
-      << Whitespace(sizePrefixDisplay*1) << "prints the number of matching tests\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ltc, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-test-cases               "
-      << Whitespace(sizePrefixDisplay*1) << "lists all matching tests by name\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "lts, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-test-suites              "
-      << Whitespace(sizePrefixDisplay*1) << "lists all matching test suites\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "lr,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-reporters                "
-      << Whitespace(sizePrefixDisplay*1) << "lists all registered reporters\n\n";
-    // ================================================================================== << 79
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None);
-    s << "The available <int>/<string> options/filters are:\n\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-case=<filters>           "
-      << Whitespace(sizePrefixDisplay*1) << "filters     tests by their name\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tce, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-case-exclude=<filters>   "
-      << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their name\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sf,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "source-file=<filters>         "
-      << Whitespace(sizePrefixDisplay*1) << "filters     tests by their file\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sfe, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "source-file-exclude=<filters> "
-      << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their file\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ts,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-suite=<filters>          "
-      << Whitespace(sizePrefixDisplay*1) << "filters     tests by their test suite\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tse, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-suite-exclude=<filters>  "
-      << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their test suite\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "subcase=<filters>             "
-      << Whitespace(sizePrefixDisplay*1) << "filters     subcases by their name\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sce, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "subcase-exclude=<filters>     "
-      << Whitespace(sizePrefixDisplay*1) << "filters OUT subcases by their name\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "r,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "reporters=<filters>           "
-      << Whitespace(sizePrefixDisplay*1) << "reporters to use (console is default)\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "o,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "out=<string>                  "
-      << Whitespace(sizePrefixDisplay*1) << "output filename\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ob,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "order-by=<string>             "
-      << Whitespace(sizePrefixDisplay*1) << "how the tests should be ordered\n";
-    s << Whitespace(sizePrefixDisplay*3) << "                                       <string> - by [file/suite/name/rand]\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "rs,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "rand-seed=<int>               "
-      << Whitespace(sizePrefixDisplay*1) << "seed for random ordering\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "f,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "first=<int>                   "
-      << Whitespace(sizePrefixDisplay*1) << "the first test passing the filters to\n";
-    s << Whitespace(sizePrefixDisplay*3) << "                                       execute - for range-based execution\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "l,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "last=<int>                    "
-      << Whitespace(sizePrefixDisplay*1) << "the last test passing the filters to\n";
-    s << Whitespace(sizePrefixDisplay*3) << "                                       execute - for range-based execution\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "aa,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "abort-after=<int>             "
-      << Whitespace(sizePrefixDisplay*1) << "stop after <int> failed assertions\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "scfl,--" DOCTEST_OPTIONS_PREFIX_DISPLAY "subcase-filter-levels=<int>   "
-      << Whitespace(sizePrefixDisplay*1) << "apply filters for the first <int> levels\n";
-    s << color_string(Color::Cyan) << "\n[doctest] " << color_string(Color::None);
-    s << "Bool options - can be used like flags and true is assumed. Available:\n\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "s,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "success=<bool>                "
-      << Whitespace(sizePrefixDisplay*1) << "include successful assertions in output\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "cs,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "case-sensitive=<bool>         "
-      << Whitespace(sizePrefixDisplay*1) << "filters being treated as case sensitive\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "e,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "exit=<bool>                   "
-      << Whitespace(sizePrefixDisplay*1) << "exits after the tests finish\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "d,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "duration=<bool>               "
-      << Whitespace(sizePrefixDisplay*1) << "prints the time duration of each test\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nt,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-throw=<bool>               "
-      << Whitespace(sizePrefixDisplay*1) << "skips exceptions-related assert checks\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ne,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-exitcode=<bool>            "
-      << Whitespace(sizePrefixDisplay*1) << "returns (or exits) always with success\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nr,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-run=<bool>                 "
-      << Whitespace(sizePrefixDisplay*1) << "skips all runtime doctest operations\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nv,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-version=<bool>             "
-      << Whitespace(sizePrefixDisplay*1) << "omit the framework version in the output\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-colors=<bool>              "
-      << Whitespace(sizePrefixDisplay*1) << "disables colors in output\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "fc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "force-colors=<bool>           "
-      << Whitespace(sizePrefixDisplay*1) << "use colors even when not in a tty\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nb,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-breaks=<bool>              "
-      << Whitespace(sizePrefixDisplay*1) << "disables breakpoints in debuggers\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ns,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-skip=<bool>                "
-      << Whitespace(sizePrefixDisplay*1) << "don't skip test cases marked as skip\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "gfl, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "gnu-file-line=<bool>          "
-      << Whitespace(sizePrefixDisplay*1) << ":n: vs (n): for line numbers in output\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "npf, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-path-filenames=<bool>      "
-      << Whitespace(sizePrefixDisplay*1) << "only filenames and no paths in output\n";
-    s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "nln, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "no-line-numbers=<bool>        "
-      << Whitespace(sizePrefixDisplay*1) << "0 instead of real line numbers in output\n";
-    // ================================================================================== << 79
-    // clang-format on
-
-    s << color_string(Color::Cyan) << "\n[doctest] " << color_string(Color::None);
-    s << "for more information visit the project documentation\n\n";
   }
 
   void printRegisteredReporters() {
@@ -500,44 +346,7 @@ struct mpi_reporter : public ConsoleReporter {
     // s << color_string(Color::None); // lgtm [cpp/useless-expression]
   }
 
-  void test_case_exception(const TestCaseException& e /*in*/) override {
-
-
-    file_line_to_stream(tc->m_file.c_str(), tc->m_line, " ");
-    successOrFailColoredStringToStream(false, e.is_crash ? assertType::is_require :
-                                                           assertType::is_check);
-    s << Color::Red << (e.is_crash ? "test case CRASHED: " : "test case THREW exception: ")
-      << Color::Cyan << e.error_string << "\n";
-
-    int num_stringified_contexts = get_num_stringified_contexts();
-    if(num_stringified_contexts) {
-        auto stringified_contexts = get_stringified_contexts();
-        s << Color::None << "  logged: ";
-        for(int i = num_stringified_contexts; i > 0; --i) {
-            s << (i == num_stringified_contexts ? "" : "          ")
-              << stringified_contexts[i - 1] << "\n";
-        }
-    }
-    s << "\n" << Color::None;
-
-  }
-
-  void subcase_start(const SubcaseSignature& subc) override {
-    std::lock_guard<std::mutex> lock(mutex);
-    subcasesStack.push_back(subc);
-    ++currentSubcaseLevel;
-    hasLoggedCurrentTestStart = false;
-  }
-
-  void subcase_end() override {
-    std::lock_guard<std::mutex> lock(mutex);
-    --currentSubcaseLevel;
-    hasLoggedCurrentTestStart = false;
-  }
-
   void log_assert(const AssertData& rb) override {
-
-
     // don't include successful asserts by default - this is done here
     // instead of in the framework itself because doctest doesn't know
     // if/when a reporter/listener cares about successful results
@@ -592,13 +401,6 @@ struct mpi_reporter : public ConsoleReporter {
 
   }
 
-  void log_message(const MessageData& /*mb */) override {
-    // messages too can be used in a multi-threaded context - like asserts
-    std::lock_guard<std::mutex> lock(mutex);
-
-  }
-
-  void test_case_skipped(const TestCaseData& /*in*/) override {}
 }; // mpi_reporter
 
 // "1" is the priority - used for ordering when multiple reporters/listeners are used
