@@ -1,6 +1,8 @@
-int f_for_test(MPI_comm comm) {
-  int rank;
-  MPI_get_rank(comm, &rank);
+#include "std_e/unit_test/mpi/doctest.hpp"
+#include "std_e/parallel/mpi.hpp"
+
+int f_for_test(MPI_Comm comm) {
+  int rank = std_e::rank(comm);
   if (rank == 0) {
     return 10;
   }
@@ -11,33 +13,27 @@ int f_for_test(MPI_comm comm) {
 }
 
 
-MPI_TEST_CASE("test 0",2) { // Parallel test on 2 processes
+MPI_TEST_CASE("test 0",2, // Parallel test on 2 processes
   // if MPI_SIZE < 2, report test can't be run
   // if MPI_SIZE >= 2, create a sub-communicator mpi_test_comm of size 2
-  auto mpi_test_comm = MPI_COMM_TEST;
-  
-  int x = f_for_test(mpi_test_comm);
+  int x = f_for_test(test_comm);
   
   SUBCASE("by rank") {
     MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
     MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
   }
 
-  SUBCASE("check all ranks") {
-    int rank;
-    MPI_get_rank(comm, &rank);
-    if (rank==0) {
-      ++x;
-    }
-    MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks
-  }
-}
+  //SUBCASE("check all ranks") {
+  //  if (test_rank==0) {
+  //    ++x;
+  //  }
+  //  MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks
+  //}
+)
 
 
-MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
-  auto mpi_test_comm = MPI_COMM_TEST;
-  
-  int x = f_for_test(mpi_test_comm);
+MPI_TEST_CASE("test 1",3,  // Parallel test on 3 processes
+  int x = f_for_test(test_comm);
   
   SUBCASE("by rank") {
     MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
@@ -45,10 +41,10 @@ MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
     MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
   }
 
-  SUBCASE("check all ranks") {
-    MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks (which is not the case on ranks 0 and 2)
-  }
-}
+  //SUBCASE("check all ranks") {
+  //  MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks (which is not the case on ranks 0 and 2)
+  //}
+)
 
 
 /*
@@ -56,7 +52,7 @@ MPI_TEST_CASE("name",nb_procs) {
   if (MPI_get_size < nb_procs) {
     report_unable_to_execute();
   } else {
-    MPI_comm MPI_COMM_TEST = MPI_create_sub_comm(MPI_COMM_WORLD,nb_procs);
+    MPI_Comm MPI_COMM_TEST = MPI_create_sub_comm(MPI_COMM_WORLD,nb_procs);
     TEST_CASE("name") {
       # what is inside the MPI_TEST_CASE{}
     }

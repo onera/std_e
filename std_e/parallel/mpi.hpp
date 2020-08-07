@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "mpi.h"
 #include "std_e/utils/tuple.hpp"
 #include "std_e/future/make_array.hpp"
 #include "std_e/future/contract.hpp"

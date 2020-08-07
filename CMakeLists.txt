@@ -44,8 +44,12 @@ file(GLOB_RECURSE cpp_and_test_files
 )
 set(cpp_files ${cpp_and_test_files})
 list(FILTER cpp_files EXCLUDE REGEX ".*\.test\.cpp$")
-set(test_files ${cpp_and_test_files})
-list(FILTER test_files INCLUDE REGEX ".*\.test\.cpp$")
+set(all_test_files ${cpp_and_test_files})
+list(FILTER all_test_files INCLUDE REGEX ".*\.test\.cpp$")
+set(test_files ${all_test_files})
+list(FILTER test_files EXCLUDE REGEX ".*\.mpi\.test\.cpp$")
+set(mpi_test_files ${all_test_files})
+list(FILTER mpi_test_files INCLUDE REGEX ".*\.mpi\.test\.cpp$")
 
 
 ## Main library ##
@@ -88,6 +92,26 @@ if(STD_E_ENABLE_TEST)
       doctest::doctest
   )
   add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
+endif()
+
+option(STD_E_ENABLE_MPI_TEST "Enable mpi testing for ${PROJECT_NAME}" ON)
+if(STD_E_ENABLE_MPI_TEST)
+  #enable_testing()
+  #include(CTest)
+
+  add_executable(${PROJECT_NAME}_mpi_unit_tests
+    ${mpi_test_files}
+    ${PROJECT_ROOT}/external/project_utils/src/mpi_unit_test_main.cpp
+  )
+  find_package(MPI REQUIRED COMPONENTS CXX)
+  target_link_libraries(${PROJECT_NAME}_mpi_unit_tests
+    PUBLIC
+      ${PROJECT_NAME}
+    PRIVATE
+      doctest::doctest
+      MPI::MPI_CXX
+  )
+  add_test(NAME ${PROJECT_NAME}_mpi_unit_tests COMMAND ${PROJECT_NAME}_mpi_unit_tests)
 endif()
 
 option(STD_E_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
