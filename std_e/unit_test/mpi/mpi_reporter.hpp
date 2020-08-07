@@ -96,8 +96,7 @@ struct mpi_reporter : public IReporter {
           : opt(in)
           , tc(nullptr)
   {
-    MPI_Comm mpi_comm = get_comm_world();
-    MPI_Comm_rank(mpi_comm, &i_world_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &i_world_rank);
   }
 
   /* Adapted from doctest */
@@ -382,25 +381,24 @@ struct mpi_reporter : public IReporter {
 
     // -----------------------------------------------------
     // > Gather information in rank 0
-    MPI_Comm mpi_comm = get_comm_world();
     int n_rank, i_rank;
-    MPI_Comm_rank(mpi_comm, &i_rank);
-    MPI_Comm_size(mpi_comm, &n_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &i_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &n_rank);
 
     int g_numAsserts         = 0;
     int g_numAssertsFailed   = 0;
     int g_numTestCasesFailed = 0;
 
-    MPI_Reduce(&p.numAsserts        , &g_numAsserts        , 1, MPI_INT, MPI_SUM, 0, mpi_comm);
-    MPI_Reduce(&p.numAssertsFailed  , &g_numAssertsFailed  , 1, MPI_INT, MPI_SUM, 0, mpi_comm);
-    MPI_Reduce(&p.numTestCasesFailed, &g_numTestCasesFailed, 1, MPI_INT, MPI_SUM, 0, mpi_comm);
+    MPI_Reduce(&p.numAsserts        , &g_numAsserts        , 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&p.numAssertsFailed  , &g_numAssertsFailed  , 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&p.numTestCasesFailed, &g_numTestCasesFailed, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     std::vector<int> numAssertsFailedByRank;
     if(i_rank == 0){
       numAssertsFailedByRank.resize(n_rank);
     }
 
-    MPI_Gather(&p.numAssertsFailed, 1, MPI_INT, numAssertsFailedByRank.data(), 1, MPI_INT, 0, mpi_comm);
+    MPI_Gather(&p.numAssertsFailed, 1, MPI_INT, numAssertsFailedByRank.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     if(i_rank == 0) {
       separator_to_stream();
@@ -444,8 +442,7 @@ struct mpi_reporter : public IReporter {
   void test_case_end(const CurrentTestCaseStats& st) override {
 
     auto& s = get_doctest_logs().log_file;
-    MPI_Comm mpi_comm = get_comm_world();
-    MPI_Barrier(mpi_comm);
+    MPI_Barrier(MPI_COMM_WORLD);
     /*
      *  Tt le monde appel cette fonction normalement à la fin du test
      *  Au cours du test on a eu potentiellement des fails
@@ -454,7 +451,7 @@ struct mpi_reporter : public IReporter {
      *  Donc on peut raisoner sur le global sans avoir des effects de bords avec d'autres tests
      */
     int i_rank;
-    MPI_Comm_rank(mpi_comm, &i_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &i_rank);
 
     if(i_rank == 0) {
       int flag = 1;
@@ -462,7 +459,7 @@ struct mpi_reporter : public IReporter {
       MPI_Status status_recv;
       while(flag){
         // std::cout << "MPI_Probe::" << std::endl;
-        MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, mpi_comm, &flag, &status);
+        MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, &status);
         // std::cout << "flag::" << flag << std::endl;
         // std::cout << "status.MPI_SOURCE::" << status.MPI_SOURCE << std::endl;
         // std::cout << "status.MPI_TAG   ::" << status.MPI_TAG    << std::endl;
@@ -473,14 +470,14 @@ struct mpi_reporter : public IReporter {
           std::vector<char> recv_msg_char(count_lo);
           MPI_Recv(recv_msg_char.data(), count_lo, MPI_BYTE,
                    status.MPI_SOURCE,
-                   status.MPI_TAG, mpi_comm, &status_recv);
+                   status.MPI_TAG, MPI_COMM_WORLD, &status_recv);
           std::string recv_msg(recv_msg_char.data(), count_lo);
           s << recv_msg;
         }
       }
     }
 
-    MPI_Barrier(mpi_comm);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     // if(opt.duration ||
     //    (st.failure_flags && st.failure_flags != TestCaseFailureReason::AssertFailure))
@@ -518,7 +515,6 @@ struct mpi_reporter : public IReporter {
   void test_case_exception(const TestCaseException& e /*in*/) override {
 
     auto& s = get_doctest_logs().log_file;
-    // MPI_Comm mpi_comm = get_comm_world();
 
     file_line_to_stream(tc->m_file.c_str(), tc->m_line, " ");
     successOrFailColoredStringToStream(false, e.is_crash ? assertType::is_require :
@@ -602,12 +598,11 @@ struct mpi_reporter : public IReporter {
     }
 
     /* Reporting to rank 0 of the current fail */
-    MPI_Comm mpi_comm = get_comm_world();
     MPI_Send(failure_msg.c_str(), static_cast<int>(failure_msg.size()),
              MPI_BYTE,
              0,
              rb.m_line,  // Tag = file line
-             mpi_comm);
+             MPI_COMM_WORLD);
 
   }
 

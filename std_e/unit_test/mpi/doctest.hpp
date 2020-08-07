@@ -3,7 +3,6 @@
 #ifdef DOCTEST_CONFIG_IMPLEMENT
 
 #include "doctest/doctest.h"
-#include "std_e/unit_test/mpi/mpi_utils.hpp"
 #include "std_e/unit_test/mpi/mpi_reporter.hpp"
 
 #else
@@ -11,8 +10,8 @@
 #include <numeric>
 #include <vector>
 #include "doctest/doctest.h"
-#include "std_e/unit_test/mpi/mpi_utils.hpp"
-
+#include "mpi.h"
+#include <iostream> // TODO
 
 template<int nb_procs>
 struct mpi_test_fixture {
@@ -21,30 +20,36 @@ struct mpi_test_fixture {
   MPI_Comm test_comm;
 
   mpi_test_fixture() noexcept {
-    MPI_Comm mpi_comm_world = get_comm_world();
-
-    MPI_Group world_group;
-    MPI_Comm_group(mpi_comm_world, &world_group);
-
-    // Prepare array to create the group that include only processes [0, test_nb_procs)
-    std::vector<int> test_procs(test_nb_procs);
-    std::iota(begin(test_procs), end(test_procs), 0);
-
-    // Create sub_group and sub_comm
-    MPI_Group test_group;
-    MPI_Group_incl(world_group, test_nb_procs, test_procs.data(), &test_group);
-    MPI_Comm_create_group(mpi_comm_world, test_group, 0, &test_comm);
-    // If not in test_group we have test_comm==MPI_COMM_NULL
-
-    // We need test_rank: our rank for test_comm
-    if(test_comm != MPI_COMM_NULL){
-      MPI_Comm_rank(test_comm, &test_rank);
-    } else {
+    int n_rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &n_rank);
+    if (n_rank<test_nb_procs) {
+      std::cout << "TEST SKIPPED BECAUSE NOT ENOUGHT MPI PROCS FOR IT\n"; // TODO doctest report
       test_rank = -1;
-    }
+      test_comm = MPI_COMM_NULL;
+    } else {
+      MPI_Group world_group;
+      MPI_Comm_group(MPI_COMM_WORLD, &world_group);
 
-    MPI_Group_free(&world_group);
-    MPI_Group_free(&test_group);
+      // Prepare array to create the group that include only processes [0, test_nb_procs)
+      std::vector<int> test_procs(test_nb_procs);
+      std::iota(begin(test_procs), end(test_procs), 0);
+
+      // Create sub_group and sub_comm
+      MPI_Group test_group;
+      MPI_Group_incl(world_group, test_nb_procs, test_procs.data(), &test_group);
+      MPI_Comm_create_group(MPI_COMM_WORLD, test_group, 0, &test_comm);
+      // If not in test_group we have test_comm==MPI_COMM_NULL
+
+      // We need test_rank: our rank for test_comm
+      if(test_comm != MPI_COMM_NULL){
+        MPI_Comm_rank(test_comm, &test_rank);
+      } else {
+        test_rank = -1;
+      }
+
+      MPI_Group_free(&world_group);
+      MPI_Group_free(&test_group);
+    }
   }
 
   ~mpi_test_fixture() {
