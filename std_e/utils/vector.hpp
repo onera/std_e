@@ -27,8 +27,8 @@ end_ptr(const std::vector<T,A>& v) -> const T* {
 }
 
 
-template<class T, class A> auto
-append(std::vector<T,A>& v, const std::vector<T,A>& w) -> void {
+template<class T, class A, class Range> auto
+append(std::vector<T,A>& v, const Range& w) -> void {
   std::copy(begin(w),end(w),std::back_inserter(v));
 }
 
@@ -130,6 +130,12 @@ make_sub_vector(const std::vector<T,A>& x, I start, I sub_size) {
   std::vector<T,A> sub(sub_size);
   std::copy_n(begin(x)+start,sub_size,begin(sub));
   return sub;
+}
+
+
+template<class T, class A> constexpr auto
+to_string(const std::vector<T,A>& x) -> std::string {
+  return range_to_string(x);
 }
 
 
