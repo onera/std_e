@@ -6,20 +6,9 @@
 #include "mpi.h"
 
 
-DOCTEST_MAKE_STD_HEADERS_CLEAN_FROM_WARNINGS_ON_WALL_BEGIN
 #include <vector>
 #include <mutex>
-DOCTEST_MAKE_STD_HEADERS_CLEAN_FROM_WARNINGS_ON_WALL_END
 
-DOCTEST_CLANG_SUPPRESS_WARNING("-Wweak-vtables")
-
-DOCTEST_GCC_SUPPRESS_WARNING("-Weffc++")
-DOCTEST_GCC_SUPPRESS_WARNING("-Wpedantic")
-
-DOCTEST_MSVC_SUPPRESS_WARNING(5026) // move constructor was implicitly defined as deleted
-DOCTEST_MSVC_SUPPRESS_WARNING(4625) // copy constructor was implicitly defined as deleted
-DOCTEST_MSVC_SUPPRESS_WARNING(4626) // assignment operator was implicitly defined as deleted
-DOCTEST_MSVC_SUPPRESS_WARNING(5027) // move assignment operator was implicitly defined as deleted
 
 using namespace doctest;
 
@@ -89,19 +78,21 @@ struct mpi_reporter : public IReporter {
   size_t                        currentSubcaseLevel;
   bool                          hasLoggedCurrentTestStart;
   std::mutex                    mutex;
-  int                           i_world_rank;  /*! Store the current world_rank : can be different that i_test_rank */
+  std::ostream&         s;
+
+  int                           world_rank;  /*! Store the current world_rank : can be different than test_rank */
 
   // constructor has to accept the ContextOptions by ref as a single argument
   mpi_reporter(const ContextOptions& in)
           : opt(in)
           , tc(nullptr)
+          , s(get_doctest_logs().log_file)
   {
-    MPI_Comm_rank(MPI_COMM_WORLD, &i_world_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   }
 
   /* Adapted from doctest */
   void separator_to_stream() {
-    auto& s = get_doctest_logs().log_file;
     s << color_string(Color::Yellow) << "==============================================================================" << "\n";
   }
 
@@ -113,7 +104,6 @@ struct mpi_reporter : public IReporter {
     return failureString(at);
   }
     void printVersion() {
-    auto& s = get_doctest_logs().log_file;
     if(opt.no_version == false) {
       s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "doctest version is \""
         << DOCTEST_VERSION_STR << "\"\n";
@@ -121,14 +111,12 @@ struct mpi_reporter : public IReporter {
   }
 
   void printIntro() {
-    auto& s = get_doctest_logs().log_file;
     printVersion();
     s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None)
       << "run with \"--" DOCTEST_OPTIONS_PREFIX_DISPLAY "help\" for options\n";
   }
 
   void printHelp() {
-    auto& s = get_doctest_logs().log_file;
     int sizePrefixDisplay = static_cast<int>(strlen(DOCTEST_OPTIONS_PREFIX_DISPLAY));
     printVersion();
     // clang-format off
@@ -240,7 +228,6 @@ struct mpi_reporter : public IReporter {
   }
 
   void printRegisteredReporters() {
-    auto& s = get_doctest_logs().log_file;
     printVersion();
     auto printReporters = [&, this] (const reporterMap& reporters, const char* type) {
       if(reporters.size()) {
@@ -266,7 +253,6 @@ struct mpi_reporter : public IReporter {
   void successOrFailColoredStringToStream(bool success, assertType::Enum at,
                                           const char* success_str = "SUCCESS") {
 
-    auto& s = get_doctest_logs().log_file;
     s << getSuccessOrFailColor(success, at)
       << getSuccessOrFailString(success, at, success_str) << ": ";
   }
@@ -274,7 +260,6 @@ struct mpi_reporter : public IReporter {
   /* Adapted from doctest */
   void report_query(const QueryData& in) override {
 
-    auto& s = get_doctest_logs().log_file;
     if(opt.version) {
       printVersion();
     } else if(opt.help) {
@@ -318,7 +303,6 @@ struct mpi_reporter : public IReporter {
   /* Adapted from doctest */
   virtual void file_line_to_stream(const char* file, int line,
                                   const char* tail = "") {
-    auto& s = get_doctest_logs().log_file;
     s << color_string(Color::LightGrey) << skipPathFromFilename(file) << (opt.gnu_file_line ? ":" : "(")
       << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
       << (opt.gnu_file_line ? ":" : "):") << tail;
@@ -328,7 +312,7 @@ struct mpi_reporter : public IReporter {
                                   const char* tail = ""){
     std::string s;
     s += "\033[0;31m";
-    s += "On rank ["+std::to_string(i_world_rank) + "] : ";
+    s += "On rank ["+std::to_string(world_rank) + "] : ";
     s += "\033[0m";
     s += skipPathFromFilename(file);
     s += (opt.gnu_file_line ? ":" : "(");
@@ -344,13 +328,11 @@ struct mpi_reporter : public IReporter {
 
   /* Adapted from doctest */
   void test_run_start() override {
-    auto& s = get_doctest_logs().log_file;
     s << "[doctest] " << "doctest version is \"" << DOCTEST_VERSION_STR << "\"\n";
     s << "[doctest] " << "run with \"--" DOCTEST_OPTIONS_PREFIX_DISPLAY "help\" for options\n";
   }
 
   void test_run_end(const TestRunStats& p) override {
-    auto& s = get_doctest_logs().log_file;
 
     separator_to_stream();
     s << std::dec;
@@ -441,7 +423,6 @@ struct mpi_reporter : public IReporter {
   /* Adapted from doctest */
   void test_case_end(const CurrentTestCaseStats& st) override {
 
-    auto& s = get_doctest_logs().log_file;
     MPI_Barrier(MPI_COMM_WORLD);
     /*
      *  Tt le monde appel cette fonction normalement à la fin du test
@@ -514,7 +495,6 @@ struct mpi_reporter : public IReporter {
 
   void test_case_exception(const TestCaseException& e /*in*/) override {
 
-    auto& s = get_doctest_logs().log_file;
 
     file_line_to_stream(tc->m_file.c_str(), tc->m_line, " ");
     successOrFailColoredStringToStream(false, e.is_crash ? assertType::is_require :
@@ -550,7 +530,6 @@ struct mpi_reporter : public IReporter {
 
   void log_assert(const AssertData& rb) override {
 
-    auto& s = get_doctest_logs().log_file;
 
     // don't include successful asserts by default - this is done here
     // instead of in the framework itself because doctest doesn't know
@@ -567,14 +546,14 @@ struct mpi_reporter : public IReporter {
     std::string failure_msg = file_line_to_string(rb.m_file, rb.m_line, " ");
 
     // Desactivate for rank 0 because we reprint another at the end of the test
-    if(i_world_rank != 0) {
+    if(world_rank != 0) {
       file_line_to_stream(rb.m_file, rb.m_line, " ");
       successOrFailColoredStringToStream(!rb.m_failed, rb.m_at);
     }
     if((rb.m_at & (assertType::is_throws_as | assertType::is_throws_with)) ==0){
 
       // Desactivate for rank 0 because we reprint another at the end of the test
-      if(i_world_rank != 0) {
+      if(world_rank != 0) {
         s << color_string(Color::Cyan) << assertString(rb.m_at) << "( " << rb.m_expr << " ) "
           << color_string(Color::None);
         s << (!rb.m_failed ? "is correct!\n" : "is NOT correct!\n");
