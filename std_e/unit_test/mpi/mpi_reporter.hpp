@@ -43,29 +43,6 @@ static auto& get_doctest_logs(){
 }
 
 
-inline std::string
-color_string(Color::Enum code)
-{
-  std::string col = "\033";
-  switch(code) { //!OCLINT missing break in switch statement / unnecessary default statement in covered switch statement
-    case Color::Red:         col += "[0;31m"; break;
-    case Color::Green:       col += "[0;32m"; break;
-    case Color::Blue:        col += "[0;34m"; break;
-    case Color::Cyan:        col += "[0;36m"; break;
-    case Color::Yellow:      col += "[0;33m"; break;
-    case Color::Grey:        col += "[1;30m"; break;
-    case Color::LightGrey:   col += "[0;37m"; break;
-    case Color::BrightRed:   col += "[1;31m"; break;
-    case Color::BrightGreen: col += "[1;32m"; break;
-    case Color::BrightWhite: col += "[1;37m"; break;
-    case Color::Bright: // inval_id
-    case Color::None:
-    case Color::White:
-    default:                 col += "[0m";
-  }
-  return col;
-}
-
 namespace {
 /* \brief Overload the Ireporter of doctest
  *        This one allows to manage the execution of test in a parallel framework
@@ -83,20 +60,15 @@ struct mpi_reporter : public ConsoleReporter {
 
   std::string file_line_to_string(const char* file, int line,
                                   const char* tail = ""){
-    std::string s;
-    s += "\033[0;31m";
-    s += "On rank ["+std::to_string(world_rank) + "] : ";
-    s += "\033[0m";
-    s += skipPathFromFilename(file);
-    s += (opt.gnu_file_line ? ":" : "(");
-    if(opt.no_line_numbers){
-      s += std::to_string(0);
-    } else {
-       s += std::to_string(line);
-    }
-    s += (opt.gnu_file_line ? ":" : "):");
-    s += tail;
-    return s;
+    std::stringstream s;
+    s << Color::Red
+    << "On rank [" << world_rank << "] : "
+    << Color::White
+    << skipPathFromFilename(file)
+    << (opt.gnu_file_line ? ":" : "(")
+    << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
+    << (opt.gnu_file_line ? ":" : "):") << tail << Color::None;
+    return s.str();
   }
 
   void test_run_end(const TestRunStats& p) override {
@@ -127,26 +99,26 @@ struct mpi_reporter : public ConsoleReporter {
 
     if(i_rank == 0) {
       separator_to_stream();
-      s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "glob assertions: " << std::setw(6)
+      s << Color::Cyan << "[doctest] " << Color::None << "glob assertions: " << std::setw(6)
         << g_numAsserts << " | "
-        << ((g_numAsserts == 0 || anythingFailed) ? color_string(Color::None) : color_string(Color::Green))
-        << std::setw(6) << (g_numAsserts - g_numAssertsFailed) << " passed" << color_string(Color::None)
-        << " | " << (g_numAssertsFailed > 0 ? color_string(Color::Red) : color_string(Color::None)) << std::setw(6)
-        << g_numAssertsFailed << " failed" << color_string(Color::None) << " |\n";
+        << ((g_numAsserts == 0 || anythingFailed) ? Color::None : Color::Green)
+        << std::setw(6) << (g_numAsserts - g_numAssertsFailed) << " passed" << Color::None
+        << " | " << (g_numAssertsFailed > 0 ? Color::Red : Color::None) << std::setw(6)
+        << g_numAssertsFailed << " failed" << Color::None << " |\n";
 
       separator_to_stream();
       if(g_numAssertsFailed > 0){
 
-        s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "fail on rank:" << std::setw(6) << "\n";
+        s << Color::Cyan << "[doctest] " << Color::None << "fail on rank:" << std::setw(6) << "\n";
         for(int i = 0; i < static_cast<int>(numAssertsFailedByRank.size()); ++i){
           if( numAssertsFailedByRank[i] > 0 ){
             s << std::setw(16) << " -> On rank [" << i << "] with " << numAssertsFailedByRank[i] << " test failed" << std::endl;
           }
         }
       }
-      s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None)
-        << "Status: " << (g_numTestCasesFailed > 0 ? color_string(Color::Red) : color_string(Color::Green))
-        << ((g_numTestCasesFailed > 0) ? "FAILURE!" : "SUCCESS!") << color_string(Color::None) << std::endl;
+      s << Color::Cyan << "[doctest] " << Color::None
+        << "Status: " << (g_numTestCasesFailed > 0 ? Color::Red : Color::Green)
+        << ((g_numTestCasesFailed > 0) ? "FAILURE!" : "SUCCESS!") << Color::None << std::endl;
     }
   }
 
@@ -190,37 +162,7 @@ struct mpi_reporter : public ConsoleReporter {
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    // if(opt.duration ||
-    //    (st.failure_flags && st.failure_flags != TestCaseFailureReason::AssertFailure))
-    //     logTestStart();
-
-    if(opt.duration) {
-      s << std::setprecision(6) << std::fixed << st.seconds
-        << " s: " << tc->m_name << "\n";
-    }
-
-    if(st.failure_flags & TestCaseFailureReason::Timeout) {
-      s << "Test case exceeded time limit of " << std::setprecision(6)
-        << std::fixed << tc->m_timeout << "!\n";
-    }
-
-    if(st.failure_flags & TestCaseFailureReason::ShouldHaveFailedButDidnt) {
-      s << "Should have failed but didn't! Marking it as failed!\n";
-    } else if(st.failure_flags & TestCaseFailureReason::ShouldHaveFailedAndDid) {
-      s << "Failed as expected so marking it as not failed\n";
-    } else if(st.failure_flags & TestCaseFailureReason::CouldHaveFailedAndDid) {
-      s << "Allowed to fail so marking it as not failed\n";
-    } else if(st.failure_flags & TestCaseFailureReason::DidntFailExactlyNumTimes) {
-      s << "Didn't fail exactly " << tc->m_expected_failures
-        << " times so marking it as failed!\n";
-    } else if(st.failure_flags & TestCaseFailureReason::FailedExactlyNumTimes) {
-      s << "Failed exactly " << tc->m_expected_failures
-        << " times as expected so marking it as not failed!\n";
-    }
-    if(st.failure_flags & TestCaseFailureReason::TooManyFailedAsserts) {
-      s << "Aborting - too many failed asserts!\n";
-    }
-    // s << color_string(Color::None); // lgtm [cpp/useless-expression]
+    ConsoleReporter::test_case_end(st);
   }
 
   void log_assert(const AssertData& rb) override {
@@ -247,8 +189,8 @@ struct mpi_reporter : public ConsoleReporter {
 
       // Desactivate for rank 0 because we reprint another at the end of the test
       if(world_rank != 0) {
-        s << color_string(Color::Cyan) << assertString(rb.m_at) << "( " << rb.m_expr << " ) "
-          << color_string(Color::None);
+        s << Color::Cyan << assertString(rb.m_at) << "( " << rb.m_expr << " ) "
+          << Color::None;
         s << (!rb.m_failed ? "is correct!\n" : "is NOT correct!\n");
         s << "  values: " << assertString(rb.m_at) << "( " << rb.m_decomp << " )\n";
       }
