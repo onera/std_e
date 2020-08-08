@@ -80,86 +80,6 @@ struct mpi_reporter : public ConsoleReporter {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   }
 
-  void printRegisteredReporters() {
-    printVersion();
-    auto printReporters = [&, this] (const reporterMap& reporters, const char* type) {
-      if(reporters.size()) {
-        s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "listing all registered " << type << "\n";
-        for(auto& curr : reporters){
-          s << "priority: " << std::setw(5) << curr.first.first
-            << " name: " << curr.first.second << "\n";
-        }
-      }
-    };
-    printReporters(getListeners(), "listeners");
-    printReporters(getReporters(), "reporters");
-  }
-
-  /* Adapted from doctest */
-  std::string getSuccessOrFailColor(bool success, assertType::Enum at) {
-      return color_string(success ? Color::BrightGreen :
-                          (at & assertType::is_warn) ? Color::Yellow : Color::Red);
-  }
-
-
-  /* Adapted from doctest */
-  void successOrFailColoredStringToStream(bool success, assertType::Enum at,
-                                          const char* success_str = "SUCCESS") {
-
-    s << getSuccessOrFailColor(success, at)
-      << getSuccessOrFailString(success, at, success_str) << ": ";
-  }
-
-  /* Adapted from doctest */
-  void report_query(const QueryData& in) override {
-
-    if(opt.version) {
-      printVersion();
-    } else if(opt.help) {
-      printHelp();
-    } else if(opt.list_reporters) {
-      printRegisteredReporters();
-    } else if(opt.count || opt.list_test_cases) {
-      if(opt.list_test_cases) {
-        s << "[doctest] " << "listing all test case names\n";
-        separator_to_stream();
-      }
-
-      for(unsigned i = 0; i < in.num_data; ++i){
-        s << in.data[i]->m_name << "\n";
-      }
-
-      separator_to_stream();
-
-      s << "[doctest] " << "unskipped test cases passing the current filters: "
-        << g_cs->numTestCasesPassingFilters << "\n";
-
-    } else if(opt.list_test_suites) {
-      s << "[doctest] " << "listing all test suites\n";
-      separator_to_stream();
-
-      for(unsigned i = 0; i < in.num_data; ++i) {
-        s << in.data[i]->m_test_suite << "\n";
-      }
-
-      separator_to_stream();
-
-      s << "[doctest] "
-        << "unskipped test cases passing the current filters: "
-        << g_cs->numTestCasesPassingFilters << "\n";
-      s << "[doctest] "
-        << "test suites with unskipped test cases passing the current filters: "
-        << g_cs->numTestSuitesPassingFilters << "\n";
-    }
-  }
-
-  /* Adapted from doctest */
-  virtual void file_line_to_stream(const char* file, int line,
-                                  const char* tail = "") {
-    s << color_string(Color::LightGrey) << skipPathFromFilename(file) << (opt.gnu_file_line ? ":" : "(")
-      << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
-      << (opt.gnu_file_line ? ":" : "):") << tail;
-  }
 
   std::string file_line_to_string(const char* file, int line,
                                   const char* tail = ""){
@@ -179,40 +99,10 @@ struct mpi_reporter : public ConsoleReporter {
     return s;
   }
 
-  /* Adapted from doctest */
-  void test_run_start() override {
-    s << "[doctest] " << "doctest version is \"" << DOCTEST_VERSION_STR << "\"\n";
-    s << "[doctest] " << "run with \"--" DOCTEST_OPTIONS_PREFIX_DISPLAY "help\" for options\n";
-  }
-
   void test_run_end(const TestRunStats& p) override {
-
-    separator_to_stream();
-    s << std::dec;
+    ConsoleReporter::test_run_end(p);
 
     const bool anythingFailed = p.numTestCasesFailed > 0 || p.numAssertsFailed > 0;
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "test cases: " << std::setw(6)
-      << p.numTestCasesPassingFilters << " | "
-      << ((p.numTestCasesPassingFilters == 0 || anythingFailed) ? color_string(Color::None) :
-                                                                  color_string(Color::Green))
-      << std::setw(6) << p.numTestCasesPassingFilters - p.numTestCasesFailed << " passed"
-      << color_string(Color::None) << " | " << (p.numTestCasesFailed > 0 ? color_string(Color::Red) : color_string(Color::None))
-      << std::setw(6) << p.numTestCasesFailed << " failed" << color_string(Color::None) << " | ";
-    if(opt.no_skipped_summary == false) {
-        const int numSkipped = p.numTestCases - p.numTestCasesPassingFilters;
-        s << (numSkipped == 0 ? color_string(Color::None) : color_string(Color::Yellow)) << std::setw(6) << numSkipped
-          << " skipped" << color_string(Color::None);
-    }
-    s << "\n";
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None) << "assertions: " << std::setw(6)
-      << p.numAsserts << " | "
-      << ((p.numAsserts == 0 || anythingFailed) ? color_string(Color::None) : color_string(Color::Green))
-      << std::setw(6) << (p.numAsserts - p.numAssertsFailed) << " passed" << color_string(Color::None)
-      << " | " << (p.numAssertsFailed > 0 ? color_string(Color::Red) : color_string(Color::None)) << std::setw(6)
-      << p.numAssertsFailed << " failed" << color_string(Color::None) << " |\n";
-    s << color_string(Color::Cyan) << "[doctest] " << color_string(Color::None)
-      << "Status: " << (p.numTestCasesFailed > 0 ? color_string(Color::Red) : color_string(Color::Green))
-      << ((p.numTestCasesFailed > 0) ? "FAILURE!" : "SUCCESS!") << color_string(Color::None) << std::endl;
 
     // -----------------------------------------------------
     // > Gather information in rank 0
@@ -258,19 +148,6 @@ struct mpi_reporter : public ConsoleReporter {
         << "Status: " << (g_numTestCasesFailed > 0 ? color_string(Color::Red) : color_string(Color::Green))
         << ((g_numTestCasesFailed > 0) ? "FAILURE!" : "SUCCESS!") << color_string(Color::None) << std::endl;
     }
-  }
-
-  /* Adapted from doctest */
-  void test_case_start(const TestCaseData& in) override {
-    hasLoggedCurrentTestStart = false;
-    tc = &in;
-    subcasesStack.clear();
-    currentSubcaseLevel = 0;
-  }
-
-  /* Adapted from doctest */
-  void test_case_reenter(const TestCaseData& /*in*/) override {
-    subcasesStack.clear();
   }
 
   /* Adapted from doctest */
