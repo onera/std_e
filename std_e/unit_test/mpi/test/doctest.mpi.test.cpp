@@ -74,6 +74,15 @@ MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
   //}
 }
 
+MPI_TEST_CASE("test 2",2) { // Parallel test on 2 processes
+  int x = f_for_test(test_comm);
+  
+  SUBCASE("by rank") {
+    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
+    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
+  }
+}
+
 
 /*
 MPI_TEST_CASE("name",nb_procs) {
