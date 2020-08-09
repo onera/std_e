@@ -1,6 +1,7 @@
 #include "std_e/unit_test/mpi/doctest.hpp"
 #include "std_e/parallel/mpi.hpp"
 
+// TODO report of failing non-MPI tests
 int f_for_test(MPI_Comm comm) {
   int rank = std_e::rank(comm);
   if (rank == 0) {
@@ -13,7 +14,7 @@ int f_for_test(MPI_Comm comm) {
 }
 
 
-MPI_TEST_CASE("test 0",2, // Parallel test on 2 processes
+MPI_TEST_CASE("test 0",2) { // Parallel test on 2 processes
   // if MPI_SIZE < 2, report test can't be run
   // if MPI_SIZE >= 2, create a sub-communicator mpi_test_comm of size 2
   int x = f_for_test(test_comm);
@@ -29,22 +30,49 @@ MPI_TEST_CASE("test 0",2, // Parallel test on 2 processes
   //  }
   //  MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks
   //}
-)
+}
+//TEST_CASE("test 1 with 1") {
+//  CHECK( 1==2 );
+//}
 
+//MPI_TEST_CASE("lala",3) {
+//  int x = f_for_test(test_comm);
+//  
+//  SUBCASE("by rank") {
+//    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
+//    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
+//    MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
+//  }
+//}
 
-MPI_TEST_CASE("test 1",3,  // Parallel test on 3 processes
+//TEST_CASE_FIXTURE(doctest::mpi_test_fixture<3>, "test with mpi_test_fix"*doctest::skip(3<=doctest::mpi_world_nb_procs() && doctest::mpi_world_rank()>=3)) { // note : the condition (nb_procs<=doctest::mpi_world_nb_procs()) seems inverted, but it is not: we do NOT want the test to be skipped if (nb_procs>doctest::mpi_world_nb_procs()), we want it to FAIL()
+//  RETURN_IF_COMM_NULL
+//  int x = f_for_test(test_comm);
+//  
+//  SUBCASE("by rank") {
+//    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
+//    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
+//    MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
+//  }
+//}
+
+//TEST_CASE("test 2 with 1") {
+//  CHECK( 1==3 );
+//}
+
+MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
   int x = f_for_test(test_comm);
   
   SUBCASE("by rank") {
     MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
     MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
-    MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
+    MPI_CHECK( 2,  x==-1 ); // CHECK for rank 2, that x==-1 (which is not the case)
   }
 
   //SUBCASE("check all ranks") {
   //  MPI_CHECK_ALL_RANKS( x==11 ); // CHECK that x==11 for all ranks (which is not the case on ranks 0 and 2)
   //}
-)
+}
 
 
 /*
