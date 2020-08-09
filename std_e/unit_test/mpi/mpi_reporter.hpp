@@ -63,11 +63,11 @@ struct mpi_reporter : public ConsoleReporter {
     std::stringstream s;
     s << Color::Red
     << "On rank [" << world_rank << "] : "
-    << Color::White
+    << Color::None
     << skipPathFromFilename(file)
     << (opt.gnu_file_line ? ":" : "(")
     << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
-    << (opt.gnu_file_line ? ":" : "):") << tail << Color::None;
+    << (opt.gnu_file_line ? ":" : "):") << tail;
     return s.str();
   }
 
@@ -122,7 +122,6 @@ struct mpi_reporter : public ConsoleReporter {
     }
   }
 
-  /* Adapted from doctest */
   void test_case_end(const CurrentTestCaseStats& st) override {
 
     MPI_Barrier(MPI_COMM_WORLD);

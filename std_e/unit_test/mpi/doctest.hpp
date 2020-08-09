@@ -11,6 +11,7 @@
 #include <vector>
 #include "doctest/doctest.h"
 #include "mpi.h"
+#include <cassert>
 #include <iostream> // TODO
 
 template<int nb_procs>
@@ -43,6 +44,9 @@ struct mpi_test_fixture {
       // We need test_rank: our rank for test_comm
       if(test_comm != MPI_COMM_NULL){
         MPI_Comm_rank(test_comm, &test_rank);
+        int comm_world_rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &comm_world_rank);
+        assert(test_rank==comm_world_rank);
       } else {
         test_rank = -1;
       }
@@ -60,21 +64,41 @@ struct mpi_test_fixture {
 };
 
 
-#define DOCTEST_MPI_CHECK(rank_to_test, ...)  \
-  if(rank_to_test == test_rank) { DOCTEST_ASSERT_IMPLEMENT_1(DT_CHECK, __VA_ARGS__); }
+#define DOCTEST_MPI_WARN(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_WARN(__VA_ARGS__)
+#define DOCTEST_MPI_CHECK(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_CHECK(__VA_ARGS__)
+#define DOCTEST_MPI_REQUIRE(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_REQUIRE(__VA_ARGS__)
+#define DOCTEST_MPI_WARN_FALSE(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_WARN_FALSE   (__VA_ARGS__)
+#define DOCTEST_MPI_CHECK_FALSE(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_CHECK_FALSE  (__VA_ARGS__)
+#define DOCTEST_MPI_REQUIRE_FALSE(rank_to_test, ...)  if(rank_to_test == test_rank) DOCTEST_REQUIRE_FALSE(__VA_ARGS__)
 
-// short name
-#define MPI_CHECK DOCTEST_MPI_CHECK
 
-
-#define RETURN_IF_COMM_NULL \
+#define DOCTEST_RETURN_IF_COMM_NULL \
   if(test_comm == MPI_COMM_NULL) return;
 
-
-#define MPI_TEST_CASE(name,nb_procs,code) \
-  TEST_CASE_FIXTURE(mpi_test_fixture<nb_procs>, name) { \
-    RETURN_IF_COMM_NULL \
+#define DOCTEST_MPI_TEST_CASE(name,nb_procs,code) \
+  DOCTEST_TEST_CASE_FIXTURE(mpi_test_fixture<nb_procs>, name) { \
+    DOCTEST_RETURN_IF_COMM_NULL \
     code \
   }
+
+
+// == SHORT VERSIONS OF THE MACROS
+#if !defined(DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES)
+#define MPI_WARN           DOCTEST_MPI_WARN
+#define MPI_CHECK          DOCTEST_MPI_CHECK
+#define MPI_REQUIRE        DOCTEST_MPI_REQUIRE
+#define MPI_WARN_FALSE     DOCTEST_MPI_WARN_FALSE
+#define MPI_CHECK_FALSE    DOCTEST_MPI_CHECK_FALSE
+#define MPI_REQUIRE_FALSE  DOCTEST_MPI_REQUIRE_FALSE
+
+#define RETURN_IF_COMM_NULL  DOCTEST_RETURN_IF_COMM_NULL
+#define MPI_TEST_CASE(name,nb_procs,code) \
+  DOCTEST_TEST_CASE_FIXTURE(mpi_test_fixture<nb_procs>, name) { \
+    DOCTEST_RETURN_IF_COMM_NULL \
+    code \
+  }
+
+#endif // DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
+
 
 #endif // DOCTEST_CONFIG_IMPLEMENT
