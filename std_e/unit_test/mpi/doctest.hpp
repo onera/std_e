@@ -94,6 +94,7 @@ void execute_mpi_test_case(F func, int nb_procs) {
     doctest::execute_mpi_test_case(func,nb_procs); \
   } \
   void func(int test_rank, int test_nb_procs, MPI_Comm test_comm)
+  // DOC: test_rank, test_nb_procs, and test_comm are available UNDER THESE SPECIFIC NAMES in the body of the unit test
 
 #define DOCTEST_MPI_TEST_CASE(name,nb_procs) \
   DOCTEST_CREATE_MPI_TEST_CASE(name,nb_procs,DOCTEST_ANONYMOUS(DOCTEST_MPI_FUNC))

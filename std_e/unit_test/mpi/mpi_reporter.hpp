@@ -9,7 +9,6 @@
 #include <vector>
 #include <mutex>
 
-
 namespace doctest {
 
 // ===========================================================================
@@ -25,12 +24,12 @@ doctest_logger init_all_doctest_logs() {
   MPI_Initialized(&is_mpi_init);
   // fmt::print("is_mpi_init::{}\n", is_mpi_init);
 
-  int i_rank = 0;
+  int rank = 0;
   if(is_mpi_init){
-    MPI_Comm_rank(MPI_COMM_WORLD, &i_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   }
 
-  std::string filename = "doctest_" + std::to_string(i_rank) + ".log";
+  std::string filename = "doctest_" + std::to_string(rank) + ".log";
 
   return doctest_logger{std::ofstream(filename.c_str(), std::fstream::out)};
 }
@@ -44,30 +43,24 @@ static auto& get_doctest_logs(){
 
 
 namespace {
-/* \brief Overload the Ireporter of doctest
+/* \brief Overload the ConsoleReporter of doctest
  *        This one allows to manage the execution of test in a parallel framework
- *        All results are collecteted by rank 0
+ *        All results are collected by rank 0
  */
 struct mpi_reporter : public ConsoleReporter {
-  int world_rank; // Store the current world_rank : can be different than test_rank
-
   mpi_reporter(const ContextOptions& co)
     : ConsoleReporter(co,get_doctest_logs().log_file)
-  {
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  }
+  {}
 
 
   std::string file_line_to_string(const char* file, int line,
                                   const char* tail = ""){
     std::stringstream s;
-    s << Color::Red
-    << "On rank [" << world_rank << "] : "
-    << Color::None
-    << skipPathFromFilename(file)
-    << (opt.gnu_file_line ? ":" : "(")
-    << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
-    << (opt.gnu_file_line ? ":" : "):") << tail;
+    s << Color::LightGrey
+      << skipPathFromFilename(file)
+      << (opt.gnu_file_line ? ":" : "(")
+      << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
+      << (opt.gnu_file_line ? ":" : "):") << tail;
     return s.str();
   }
 
@@ -78,8 +71,8 @@ struct mpi_reporter : public ConsoleReporter {
 
     // -----------------------------------------------------
     // > Gather information in rank 0
-    int n_rank, i_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &i_rank);
+    int n_rank, rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_rank);
 
     int g_numAsserts         = 0;
@@ -91,13 +84,13 @@ struct mpi_reporter : public ConsoleReporter {
     MPI_Reduce(&p.numTestCasesFailed, &g_numTestCasesFailed, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     std::vector<int> numAssertsFailedByRank;
-    if(i_rank == 0){
+    if(rank == 0){
       numAssertsFailedByRank.resize(n_rank);
     }
 
     MPI_Gather(&p.numAssertsFailed, 1, MPI_INT, numAssertsFailedByRank.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    if(i_rank == 0) {
+    if(rank == 0) {
       separator_to_stream();
       s << Color::Cyan << "[doctest] " << Color::None << "glob assertions: " << std::setw(6)
         << g_numAsserts << " | "
@@ -123,8 +116,6 @@ struct mpi_reporter : public ConsoleReporter {
   }
 
   void test_case_end(const CurrentTestCaseStats& st) override {
-
-    MPI_Barrier(MPI_COMM_WORLD);
     /*
      *  Tt le monde appel cette fonction normalement à la fin du test
      *  Au cours du test on a eu potentiellement des fails
@@ -132,34 +123,39 @@ struct mpi_reporter : public ConsoleReporter {
      *  Tt est synchrone dans le process car les sous commincateurs sont tjr [0, ---> n_rank_test]
      *  Donc on peut raisoner sur le global sans avoir des effects de bords avec d'autres tests
      */
-    int i_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &i_rank);
 
-    if(i_rank == 0) {
-      int flag = 1;
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // Compute the number of assert with fail among all procs
+    int nb_fail_asserts_glob = 0;
+    MPI_Reduce(&st.numAssertsFailedCurrentTest, &nb_fail_asserts_glob, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if(rank == 0) {
       MPI_Status status;
       MPI_Status status_recv;
-      while(flag){
-        // std::cout << "MPI_Probe::" << std::endl;
-        MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, &status);
-        // std::cout << "flag::" << flag << std::endl;
-        // std::cout << "status.MPI_SOURCE::" << status.MPI_SOURCE << std::endl;
-        // std::cout << "status.MPI_TAG   ::" << status.MPI_TAG    << std::endl;
-        // std::cout << "status.count     ::" << status.count_lo   << std::endl;
-        if(flag){
-          int count_lo;
-          MPI_Get_count(&status, MPI_BYTE, &count_lo);
-          std::vector<char> recv_msg_char(count_lo);
-          MPI_Recv(recv_msg_char.data(), count_lo, MPI_BYTE,
-                   status.MPI_SOURCE,
-                   status.MPI_TAG, MPI_COMM_WORLD, &status_recv);
-          std::string recv_msg(recv_msg_char.data(), count_lo);
-          s << recv_msg;
-        }
+
+      std::vector<std::pair<int,std::string>> msgs(nb_fail_asserts_glob);
+
+      for (int i=0; i<nb_fail_asserts_glob; ++i) {
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+        int count;
+        MPI_Get_count(&status, MPI_BYTE, &count);
+
+        std::string recv_msg(count,'\0');
+        MPI_Recv(recv_msg.data(), count, MPI_BYTE, status.MPI_SOURCE,
+                 status.MPI_TAG, MPI_COMM_WORLD, &status_recv);
+
+        msgs[i] = {status.MPI_SOURCE,recv_msg};
+      }
+
+      std::sort(begin(msgs),end(msgs),[](const auto& x, const auto& y){ return x.first < y.first; });
+      for(const auto& msg : msgs) {
+        s << Color::Red << "On rank [" << msg.first << "] : ";
+        s << msg.second;
       }
     }
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
     ConsoleReporter::test_case_end(st);
   }
@@ -180,14 +176,16 @@ struct mpi_reporter : public ConsoleReporter {
     std::string failure_msg = file_line_to_string(rb.m_file, rb.m_line, " ");
 
     // Desactivate for rank 0 because we reprint another at the end of the test
-    if(world_rank != 0) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if(rank != 0) {
       file_line_to_stream(rb.m_file, rb.m_line, " ");
       successOrFailColoredStringToStream(!rb.m_failed, rb.m_at);
     }
     if((rb.m_at & (assertType::is_throws_as | assertType::is_throws_with)) ==0){
 
       // Desactivate for rank 0 because we reprint another at the end of the test
-      if(world_rank != 0) {
+      if(rank != 0) {
         s << Color::Cyan << assertString(rb.m_at) << "( " << rb.m_expr << " ) "
           << Color::None;
         s << (!rb.m_failed ? "is correct!\n" : "is NOT correct!\n");
@@ -207,16 +205,27 @@ struct mpi_reporter : public ConsoleReporter {
       failure_msg += "( ";
       failure_msg += rb.m_decomp.c_str();
       failure_msg += " )\n";
-
     }
 
-    /* Reporting to rank 0 of the current fail */
-    MPI_Send(failure_msg.c_str(), static_cast<int>(failure_msg.size()),
-             MPI_BYTE,
-             0,
-             rb.m_line,  // Tag = file line
-             MPI_COMM_WORLD);
+    //int rank;
+    //MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    //std::string failure_msg = "My mess";
+    int failure_msg_size = failure_msg.size()+1; // +1 for null-terminated string
 
+    /* Reporting to rank 0 of the current fail */
+    //if (rank != 0)  {
+      //MPI_Request req;
+      //MPI_Isend(failure_msg.c_str(), failure_msg_size,
+      //          MPI_BYTE,
+      //          0,
+      //          rb.m_line,  // Tag = file line
+      //          MPI_COMM_WORLD, &req);
+      MPI_Send(failure_msg.c_str(), failure_msg_size,
+                MPI_BYTE,
+                0,
+                rb.m_line,  // Tag = file line
+                MPI_COMM_WORLD);
+    //}
   }
 
 }; // mpi_reporter

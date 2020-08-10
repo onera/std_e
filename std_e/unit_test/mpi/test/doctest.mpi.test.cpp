@@ -35,26 +35,6 @@ MPI_TEST_CASE("test 0",2) { // Parallel test on 2 processes
 //  CHECK( 1==2 );
 //}
 
-//MPI_TEST_CASE("lala",3) {
-//  int x = f_for_test(test_comm);
-//  
-//  SUBCASE("by rank") {
-//    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
-//    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
-//    MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
-//  }
-//}
-
-//TEST_CASE_FIXTURE(doctest::mpi_test_fixture<3>, "test with mpi_test_fix"*doctest::skip(3<=doctest::mpi_world_nb_procs() && doctest::mpi_world_rank()>=3)) { // note : the condition (nb_procs<=doctest::mpi_world_nb_procs()) seems inverted, but it is not: we do NOT want the test to be skipped if (nb_procs>doctest::mpi_world_nb_procs()), we want it to FAIL()
-//  RETURN_IF_COMM_NULL
-//  int x = f_for_test(test_comm);
-//  
-//  SUBCASE("by rank") {
-//    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
-//    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
-//    MPI_CHECK( 2,  x==-1  ); // CHECK for rank 2, that x==-1 (which is not the case)
-//  }
-//}
 
 //TEST_CASE("test 2 with 1") {
 //  CHECK( 1==3 );
@@ -66,7 +46,16 @@ MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
   SUBCASE("by rank") {
     MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
     MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
+    //MPI_CHECK( 0,  x==-8 ); // CHECK for rank 0, that x==10
+    //MPI_CHECK( 1,  x==-7 ); // CHECK for rank 1, that x==11
     MPI_CHECK( 2,  x==-1 ); // CHECK for rank 2, that x==-1 (which is not the case)
+    //MPI_CHECK( 3,  x==-2 ); // CHECK for rank 2, that x==-1 (which is not the case)
+    //MPI_CHECK( 4,  x==-3 ); // CHECK for rank 2, that x==-1 (which is not the case)
+    //MPI_CHECK( 5,  x==-4 ); // CHECK for rank 2, that x==-1 (which is not the case)
+    //MPI_CHECK( 6,  x==-5 ); // CHECK for rank 2, that x==-1 (which is not the case)
+
+    //MPI_CHECK( 0,  x==-8 ); MPI_CHECK( 1,  x==-8 );
+    //MPI_CHECK( 2,  x==-18 ); MPI_CHECK( 3,  x==-18 );
   }
 
   //SUBCASE("check all ranks") {
@@ -74,14 +63,14 @@ MPI_TEST_CASE("test 1",3) { // Parallel test on 3 processes
   //}
 }
 
-MPI_TEST_CASE("test 2",2) { // Parallel test on 2 processes
-  int x = f_for_test(test_comm);
-  
-  SUBCASE("by rank") {
-    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
-    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
-  }
-}
+//MPI_TEST_CASE("test 2",2) { // Parallel test on 2 processes
+//  int x = f_for_test(test_comm);
+//  
+//  SUBCASE("by rank") {
+//    MPI_CHECK( 0,  x==10 ); // CHECK for rank 0, that x==10
+//    MPI_CHECK( 1,  x==11 ); // CHECK for rank 1, that x==11
+//  }
+//}
 
 
 /*
