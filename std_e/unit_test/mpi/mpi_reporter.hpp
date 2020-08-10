@@ -41,26 +41,66 @@ static auto& get_doctest_logs(){
   return cur_log;
 }
 
+// https://stackoverflow.com/a/11826666/1583122
+struct NullBuffer : std::streambuf {
+  int overflow(int c) { return c; }
+};
+class NullStream : public std::ostream {
+  public:
+    NullStream()
+      : std::ostream(&nullBuff)
+    {}
+  private:
+    NullBuffer nullBuff;
+};
+
 
 namespace {
 /* \brief Overload the ConsoleReporter of doctest
  *        This one allows to manage the execution of test in a parallel framework
  *        All results are collected by rank 0
  */
-struct mpi_reporter : public ConsoleReporter {
-  mpi_reporter(const ContextOptions& co)
-    : ConsoleReporter(co,get_doctest_logs().log_file)
-  {}
+struct MpiFileReporter : public ConsoleReporter {
+  std::ofstream logfile_stream;
 
+  MpiFileReporter(const ContextOptions& co)
+    : ConsoleReporter(co,logfile_stream)
+  {
+    int rank = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    std::string logfile_name = "Ddoctest_" + std::to_string(rank) + ".log";
+
+    logfile_stream = std::ofstream(logfile_name.c_str(), std::fstream::out);
+  }
+};
+
+struct MpiConsoleReporter : public ConsoleReporter {
+private:
+  NullStream null_stream;
+
+  std::ostream& replace_by_null_if_not_rank_0(std::ostream* os) {
+    int rank = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank==0) {
+      return *os;
+    } else {
+      return null_stream;
+    }
+  }
+
+public:
+  MpiConsoleReporter(const ContextOptions& co)
+    : ConsoleReporter(co,replace_by_null_if_not_rank_0(co.cout))
+  {}
 
   std::string file_line_to_string(const char* file, int line,
                                   const char* tail = ""){
     std::stringstream s;
-    s << Color::LightGrey
-      << skipPathFromFilename(file)
-      << (opt.gnu_file_line ? ":" : "(")
-      << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
-      << (opt.gnu_file_line ? ":" : "):") << tail;
+    s << skipPathFromFilename(file)
+    << (opt.gnu_file_line ? ":" : "(")
+    << (opt.no_line_numbers ? 0 : line) // 0 or the real num depending on the option
+    << (opt.gnu_file_line ? ":" : "):") << tail;
     return s.str();
   }
 
@@ -152,7 +192,7 @@ struct mpi_reporter : public ConsoleReporter {
 
       std::sort(begin(msgs),end(msgs),[](const auto& x, const auto& y){ return x.first < y.first; });
       for(const auto& msg : msgs) {
-        s << Color::Red << "On rank [" << msg.first << "] : ";
+        s << Color::Red << "On rank [" << msg.first << "] : " << Color::None;
         s << msg.second;
       }
     }
@@ -207,31 +247,20 @@ struct mpi_reporter : public ConsoleReporter {
       failure_msg += " )\n";
     }
 
-    //int rank;
-    //MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    //std::string failure_msg = "My mess";
-    int failure_msg_size = failure_msg.size()+1; // +1 for null-terminated string
+    int failure_msg_size = failure_msg.size();
 
-    /* Reporting to rank 0 of the current fail */
-    //if (rank != 0)  {
-      //MPI_Request req;
-      //MPI_Isend(failure_msg.c_str(), failure_msg_size,
-      //          MPI_BYTE,
-      //          0,
-      //          rb.m_line,  // Tag = file line
-      //          MPI_COMM_WORLD, &req);
-      MPI_Send(failure_msg.c_str(), failure_msg_size,
-                MPI_BYTE,
-                0,
-                rb.m_line,  // Tag = file line
-                MPI_COMM_WORLD);
-    //}
+    MPI_Send(failure_msg.c_str(), failure_msg_size,
+              MPI_BYTE,
+              0,
+              rb.m_line,  // Tag = file line
+              MPI_COMM_WORLD);
   }
 
-}; // mpi_reporter
+}; // MpiConsoleReporter
 
 // "1" is the priority - used for ordering when multiple reporters/listeners are used
-REGISTER_REPORTER("mpi_reporter", 1, mpi_reporter);
+REGISTER_REPORTER("MpiConsoleReporter", 1, MpiConsoleReporter);
+REGISTER_REPORTER("MpiFileReporter", 1, MpiFileReporter);
 
 } // anonymous
 } // doctest
