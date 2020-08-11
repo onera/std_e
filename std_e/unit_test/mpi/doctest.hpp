@@ -35,7 +35,7 @@ struct mpi_sub_comm {
   {
     if (nb_procs>mpi_world_nb_procs()) {
       FAIL_CHECK("Unable to run test: need "+std::to_string(nb_procs) + " procs"
-                +" but program launched with only "+std::to_string(doctest::mpi_world_nb_procs()) + ".");
+               + " but program launched with only "+std::to_string(doctest::mpi_world_nb_procs()) + ".");
     } else {
       MPI_Group world_group;
       MPI_Comm_group(MPI_COMM_WORLD, &world_group);
@@ -95,13 +95,13 @@ void execute_mpi_test_case(F func) {
 
 #define DOCTEST_CREATE_MPI_TEST_CASE(name,nb_procs,func) \
   void func(int test_rank, int test_nb_procs, MPI_Comm test_comm, std::integral_constant<int,nb_procs>); \
-  TEST_CASE(name) { \
+  TEST_CASE(name * doctest::description("MPI_TEST_CASE")) { \
     doctest::execute_mpi_test_case<nb_procs>(func); \
   } \
   void func(int test_rank, int test_nb_procs, MPI_Comm test_comm, std::integral_constant<int,nb_procs> test_nb_procs_as_int_constant)
   // DOC: test_rank, test_nb_procs, and test_comm are available UNDER THESE SPECIFIC NAMES in the body of the unit test
   // DOC: test_nb_procs_as_int_constant is equal to test_nb_procs, but as a compile time value
-  //      (used in CHECK-like macros to assert the checked rank exists)
+  //          (used in CHECK-like macros to assert the checked rank exists)
 
 #define DOCTEST_MPI_TEST_CASE(name,nb_procs) \
   DOCTEST_CREATE_MPI_TEST_CASE(name,nb_procs,DOCTEST_ANONYMOUS(DOCTEST_MPI_FUNC))
