@@ -24,7 +24,7 @@ struct int_height_builder {
   using result_type = int_height;
 
   template<class TTT> constexpr auto
-  operator()(int x, int height, TTT outwards) -> int_height { // TODO
+  operator()(int x, int height, TTT /*outwards*/) -> int_height { // TODO
     return {x,height};
   }
 };
