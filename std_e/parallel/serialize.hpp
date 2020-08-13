@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <vector>
 
 // TODO replace std::is_trivially_copyable_v by something that also check there is no pointers (not doable now)
 // TODO deserialize return the object (instead of taking it by ref)
@@ -34,14 +35,14 @@ serialize(const std::vector<T>& x);
 // trivial types and arrays of them {
 /// serialize {
 /** NOTE: for these types, there is actually nothing to do. In particular, no need to copy memory */
-template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
 serialize(const T& x) {
   auto ptr = (const std::byte*)&x;
   return std_e::span<const std::byte,sizeof(T)>(ptr);
 }
 
 /** no need to own memory to serialize */
-template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
 serialize(const std_e::span<T>& x) {
   return std_e::span<const std::byte>((std::byte*)x.data(),x.size()*sizeof(T));
 }
@@ -53,13 +54,13 @@ serialize(const std_e::span<T>& x) {
  *        since there is no need to do anything
  *        SEE the deserialize() overloads with a function as first argument instead of a span
 */
-template<class T, ptrdiff_t N, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, ptrdiff_t N, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
 deserialize(std_e::span<const std::byte,N> x, T& out) -> void {
   auto ptr = (const T*)x.data();
   out = *ptr;
 }
 
-template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
 deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void {
   int vector_size = x.size()/sizeof(T);
   out.resize(vector_size);
@@ -75,7 +76,7 @@ deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void {
 
 // non trivial {
 
-template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 serialize(const std_e::span<T>& x) -> std::vector<std::byte> {
   int nb_elts = x.size();
   std::vector<std::byte> res((1+nb_elts+1)*sizeof(int));
@@ -99,7 +100,7 @@ serialize(const std_e::span<T>& x) -> std::vector<std::byte> {
   return res;
 }
 
-template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 deserialize(std_e::span<const std::byte> x, std::vector<T>& out) -> void {
   // section (A) holds holds the number of elements
   auto nb_elts_position = (int*)x.data();
@@ -137,20 +138,20 @@ serialize(const std::vector<T>& x) {
 
 // deserialize from function {
 
-template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> = 0> auto
 deserialize(F f, int size, T& x) -> void {
   auto ptr = (std::byte*)(&x);
   f(ptr,size);
 }
 
-template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class F, class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> = 0> auto
 deserialize(F f, int size, std::vector<T>& x) -> void {
   x.resize(size/sizeof(int));
   auto ptr = (std::byte*)x.data();
   f(ptr,size);
 }
 
-template<class F, class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
+template<class F, class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> = 0> auto
 deserialize(F f, int size, T& x) -> void {
   std::vector<std::byte> buf(size);
   f(buf.data(),size);

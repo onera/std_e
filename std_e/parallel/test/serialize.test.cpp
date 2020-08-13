@@ -88,7 +88,7 @@ TEST_CASE("serialize/deserialize array of trivial type") {
   }
 }
 
-
+static
 auto
 fill_array_from_remote_call(std::byte* ptr, int size) -> void {
   auto i_ptr = (int*)ptr;
@@ -100,7 +100,7 @@ fill_array_from_remote_call(std::byte* ptr, int size) -> void {
 
 TEST_CASE("deserialize from function") {
   // The idea is that for a trivial type or an array of trivial type,
-  // we don't need to 
+  // we don't need to
   //   - allocate an array of std::byte,
   //   - call on it the function that gets us the serialized data
   //   - memcopy that data from the array into the final type
