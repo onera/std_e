@@ -94,7 +94,7 @@ if(STD_E_ENABLE_TEST)
   add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
 endif()
 
-option(STD_E_ENABLE_MPI_TEST "Enable mpi testing for ${PROJECT_NAME}" ON)
+option(STD_E_ENABLE_MPI_TEST "Enable mpi testing for ${PROJECT_NAME}" OFF)
 if(STD_E_ENABLE_MPI_TEST)
   #enable_testing()
   #include(CTest)
