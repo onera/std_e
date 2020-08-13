@@ -90,8 +90,7 @@ TEST_CASE("tuple for_each_until") {
   }
 
   SUBCASE("modifying") {
-    int cnt;
-    auto f = [&cnt](auto& x){
+    auto f = [](auto& x){
       if (x.i==2) {
         x.i = 10*x.i;
         return true;

@@ -31,7 +31,7 @@ TEST_CASE("trivial serialize") {
   CHECK( s_serial_i == &s.i );
   CHECK( *s_serial_i == 42 );
 
-  const std::byte* s_serial_second_attibute = s_serial.data() + alignof(s); // WARNING: alignof(s), NOT sizeof(int)
+  const std::byte* s_serial_second_attibute = s_serial.data() + alignof(S_serialize_test); // WARNING: alignof(s), NOT sizeof(int)
   auto s_serial_d = (const double*)s_serial_second_attibute;
   CHECK( s_serial_d == &s.d );
   CHECK( *s_serial_d == 3.14 );
