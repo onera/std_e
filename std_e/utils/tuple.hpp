@@ -3,6 +3,7 @@
 
 #include <tuple>
 #include <type_traits>
+#include "std_e/base/macros.hpp"
 
 
 namespace std_e {
@@ -56,7 +57,9 @@ constexpr bool tuple_contains_type = tuple_contains_type__impl<T, Tuple>::value;
 // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
 // shut down GCC 9 erroneous warning because of "if constexpr"
 #pragma GCC diagnostic push
+#ifdef REAL_GCC
 #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
 template<int I, class tuple_type, class F> constexpr auto
 for_each__impl_tuple(tuple_type& x, F f) -> void {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
@@ -99,7 +102,9 @@ accumulate(const std::tuple<Ts...>& x, T& init, bin_op op) -> void {
 
 
 #pragma GCC diagnostic push
+#ifdef REAL_GCC
 #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
 template<int I, class tuple_type, class Unary_pred, class F>  constexpr auto
 find_apply__impl(tuple_type& x, Unary_pred p, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
@@ -128,7 +133,9 @@ find_apply(const std::tuple<Ts...>& x, Unary_pred p, F f) -> int {
 
 
 #pragma GCC diagnostic push
+#ifdef REAL_GCC
 #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
 template<int I, class tuple_type, class F>  constexpr auto
 for_each_until__impl_tuple(tuple_type& x, F f) -> int {
   constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;

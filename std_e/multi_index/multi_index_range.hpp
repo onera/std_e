@@ -259,7 +259,7 @@ template<
   int rank = Multi_index::rank()
 > constexpr auto
 multi_index_range_with_order(Multi_index dims, multi_index<int,rank> order) {
-  general_order_functor func(std::move(dims),std::move(order));
+  general_order_functor<Multi_index> func(std::move(dims),std::move(order));
   return multi_index_range(std::move(func));
 }
 

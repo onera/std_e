@@ -138,22 +138,24 @@ make_sub_shape(const dyn_shape<Integer,N>& shape) {
     );
   } else {
     constexpr int sub_shape_rank = N-right_restriction;
-    return dyn_shape<Integer,sub_shape_rank>(
+    auto xx = dyn_shape<Integer,sub_shape_rank>(
       make_sub_array<0,sub_shape_rank>(shape.extent()),
       make_sub_array<0,sub_shape_rank>(shape.offset())
     );
+    return xx;
   }
 }
 template<class Integer, int N, class Multi_index> constexpr auto
 make_sub_shape(const dyn_shape<Integer,N>& shape, const Multi_index& fixed_dim_indices) {
-  constexpr int rank = N - rank_of<Multi_index>;
+  constexpr int fixed_rank = rank_of<Multi_index>;
+  constexpr int rank = N - fixed_rank;
   // NOTE: zip | copy_if
   multi_index<Integer,rank> extent = {};
   multi_index<Integer,rank> offset = {};
   int k0 = 0;
   int k1 = 0;
   for (int i=0; i<N; ++i) {
-    if (i==fixed_dim_indices[k0]) {
+    if (k0<fixed_rank && i==fixed_dim_indices[k0]) {
       ++k0;
     } else {
       extent[k1] = shape.extent(i);
