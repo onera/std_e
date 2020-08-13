@@ -60,7 +60,7 @@ TEST_CASE("tuple find_apply") {
 
 
   SUBCASE("not found") {
-    auto always_false = [](auto x){ return false; };
+    auto always_false = [](auto /*x*/){ return false; };
 
     auto idx_found = std_e::find_apply(t,always_false,f);
 
