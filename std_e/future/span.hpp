@@ -152,6 +152,15 @@ class span : public span_size<N> {
       return ptr[i];
     }
 
+    FORCE_INLINE constexpr auto
+    back() -> reference {
+      return ptr[size()-1];
+    }
+    FORCE_INLINE constexpr auto
+    back() const -> const_reference {
+      return ptr[size()-1];
+    }
+
   private:
     T* ptr;
 };

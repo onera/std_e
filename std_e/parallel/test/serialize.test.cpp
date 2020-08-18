@@ -42,7 +42,7 @@ TEST_CASE("trivial deserialize") {
   auto s_serial = serialize(s);
 
   S_serialize_test s_copy;
-  deserialize(s_serial,s_copy);
+  deserialize(s_serial.data(),s_serial.size(),s_copy);
 
   CHECK( s_copy.i == 42 );
   CHECK( s_copy.d == 3.14 );
@@ -82,7 +82,7 @@ TEST_CASE("serialize/deserialize array of trivial type") {
 
   SUBCASE("deserialize") {
     std::vector<double> v_copy;
-    deserialize(v_serial,v_copy);
+    deserialize(v_serial.data(),v_serial.size(),v_copy);
 
     CHECK( v_copy == std::vector{3.14, 2.7, 1.618} );
   }
@@ -100,7 +100,7 @@ fill_array_from_remote_call(std::byte* ptr, int size) -> void {
 
 TEST_CASE("deserialize from function") {
   // The idea is that for a trivial type or an array of trivial type,
-  // we don't need to
+  // The following is correct but not optimal:
   //   - allocate an array of std::byte,
   //   - call on it the function that gets us the serialized data
   //   - memcopy that data from the array into the final type
@@ -131,7 +131,7 @@ TEST_CASE("serialize/deserialize non-trivial type") {
   auto x_serial = serialize(x);
 
   data_t y;
-  deserialize(std_e::make_span(x_serial),y);
+  deserialize(x_serial.data(),x_serial.size(),y);
 
   CHECK( x == y );
 }
