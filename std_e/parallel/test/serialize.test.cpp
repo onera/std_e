@@ -41,8 +41,7 @@ TEST_CASE("trivial deserialize") {
   S_serialize_test s = {42,3.14};
   auto s_serial = serialize(s);
 
-  S_serialize_test s_copy;
-  deserialize(s_serial.data(),s_serial.size(),s_copy);
+  auto s_copy = deserialize<S_serialize_test>(s_serial.data(),s_serial.size());
 
   CHECK( s_copy.i == 42 );
   CHECK( s_copy.d == 3.14 );
@@ -81,15 +80,35 @@ TEST_CASE("serialize/deserialize array of trivial type") {
   }
 
   SUBCASE("deserialize") {
-    std::vector<double> v_copy;
-    deserialize(v_serial.data(),v_serial.size(),v_copy);
+    auto v_copy = deserialize<std::vector<double>>(v_serial.data(),v_serial.size());
 
     CHECK( v_copy == std::vector{3.14, 2.7, 1.618} );
   }
 }
 
-static
-auto
+
+static auto
+get_data_from_remote() {
+  std::vector<double> v = {3.14, 2.7, 1.618};
+  auto serial_view = serialize(v);
+  return std::vector<std::byte>((std::byte*)serial_view.data(),(std::byte*)serial_view.data()+serial_view.size());
+}
+TEST_CASE("deserialize_to_span") {
+  std::vector<std::byte> serial = get_data_from_remote();
+
+  // we want to "deserialize" this data, but actually, there is nothing to do: we can just "view" it as an array of double
+  auto typed_view = deserialize_to_span<double>(serial.data(),serial.size()/sizeof(double));
+
+  CHECK( typed_view[0] == 3.14 );
+  CHECK( typed_view[1] == 2.7  );
+  CHECK( typed_view[2] == 1.618);
+
+  // check we point to the serialized memory
+  CHECK( typed_view.data() == (double*)serial.data() );
+}
+
+
+static auto
 fill_array_from_remote_call(std::byte* ptr, int size) -> void {
   auto i_ptr = (int*)ptr;
   int i_size = size/sizeof(int);
@@ -110,8 +129,7 @@ TEST_CASE("deserialize from function") {
   // to put the data in the final type without the use of any intermediate buffer
 
   SUBCASE("array of trivial type") {
-    std::vector<int> v;
-    deserialize(fill_array_from_remote_call,sizeof(int)*10,v);
+    auto v = deserialize<std::vector<int>>(fill_array_from_remote_call,sizeof(int)*10);
 
     CHECK( v.size() == 10 );
     CHECK( v == std::vector{0,1,4,9,16,25,36,49,64,81} );
@@ -130,8 +148,7 @@ TEST_CASE("serialize/deserialize non-trivial type") {
   };
   auto x_serial = serialize(x);
 
-  data_t y;
-  deserialize(x_serial.data(),x_serial.size(),y);
+  auto y = deserialize<data_t>(x_serial.data(),x_serial.size());
 
   CHECK( x == y );
 }

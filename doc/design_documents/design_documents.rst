@@ -8,3 +8,4 @@ Design documents
   :maxdepth: 1
 
   development
+  serialization

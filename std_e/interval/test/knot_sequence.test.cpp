@@ -5,7 +5,7 @@
 
 
 TEST_CASE("int_knot_vector") {
-  int_knot_vector kv;
+  std_e::int_knot_vector kv;
   kv.push_back(1);
   kv.push_back(10);
   kv.push_back(100);
@@ -23,28 +23,28 @@ TEST_CASE("int_knot_vector") {
   CHECK( kv.inf() == 1 );
   CHECK( kv.sup() == 120 );
   CHECK( kv.length() == 119 );
-  CHECK( kv.interval() == interval{1,120} );
+  CHECK( kv.interval() == std_e::interval{1,120} );
 
 // interval by interval
   CHECK( kv.inf(0) == 1 );
   CHECK( kv.sup(0) == 10 );
   CHECK( kv.length(0) == 9 );
-  CHECK( kv.interval(0) == interval{1,10} );
+  CHECK( kv.interval(0) == std_e::interval{1,10} );
 
   CHECK( kv.inf(1) == 10 );
   CHECK( kv.sup(1) == 100 );
   CHECK( kv.length(1) == 90 );
-  CHECK( kv.interval(1) == interval{10,100} );
+  CHECK( kv.interval(1) == std_e::interval{10,100} );
 
   CHECK( kv.inf(2) == 100 );
   CHECK( kv.sup(2) == 120 );
   CHECK( kv.length(2) == 20 );
-  CHECK( kv.interval(2) == interval{100,120} );
+  CHECK( kv.interval(2) == std_e::interval{100,120} );
 }
 
 TEST_CASE("int_knot_vector from vector") {
   std::vector<int> v = {3,10,21};
-  int_knot_vector kv = to_knot_vector(std::move(v));
+  std_e::int_knot_vector kv = std_e::to_knot_vector(std::move(v));
 
   CHECK( kv[0] == 3 );
   CHECK( kv[1] == 10 );

@@ -4,7 +4,7 @@
 #include <vector>
 #include "std_e/future/span.hpp"
 #include "std_e/utils/type_traits.hpp"
-#include <iostream> // TODO
+#include "std_e/interval/knot_sequence.hpp"
 
 namespace std_e {
 
@@ -20,18 +20,18 @@ template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > au
 serialize(const span<T>& x);
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> = 0 > auto
-serialize_array(const span<T>& x) -> std::pair<std::vector<int>,std::vector<std::byte>>;
+serialize_array(const span<T>& x) -> std::pair<std_e::int_knot_vector,std::vector<std::byte>>;
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
 serialize(const span<T>& x) -> std::vector<std::byte>;
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(const std::byte* v_ptr, int n, T& out) -> void;
+deserialize_into(const std::byte* v_ptr, int n, T& out) -> void;
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
+deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
-deserialize(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
+deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
 
 template<class T> auto
 serialize(const std::vector<T>& x);
@@ -61,14 +61,14 @@ serialize(const span<T>& x) {
  *        SEE the deserialize() overloads with a function as first argument instead of a span
 */
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
-deserialize(const std::byte* v_ptr, int n, T& out) -> void {
+deserialize_into(const std::byte* v_ptr, int n, T& out) -> void {
   STD_E_ASSERT(n==sizeof(T));
   auto ptr = (const T*)v_ptr;
   out = *ptr;
 }
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
-deserialize(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
+deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
   int vector_size = n/sizeof(T);
   out.resize(vector_size);
   auto ptr = (const T*)v_ptr;
@@ -79,9 +79,10 @@ template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0> aut
 deserialize_to_span(const std::byte* v_ptr, int n) -> std_e::span<const T> {
   return std_e::make_span((const T*)v_ptr,n);
 }
+
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0> auto
-deserialize_to_span(std::byte* v_ptr, int n) -> std_e::span<T> {
-  return std_e::make_span((T*)v_ptr,n);
+deserialize_to_knot_span(const std::byte* v_ptr, int n) -> std_e::knot_span<const T> {
+  return to_knot_span(deserialize_to_span<T>(v_ptr,n+1));
 }
 /// deserialize }
 
@@ -93,9 +94,9 @@ deserialize_to_span(std::byte* v_ptr, int n) -> std_e::span<T> {
 // non trivial {
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int>> auto
-serialize_array(const span<T>& x) -> std::pair<std::vector<int>,std::vector<std::byte>> {
+serialize_array(const span<T>& x) -> std::pair<int_knot_vector,std::vector<std::byte>> {
   int nb_elts = x.size();
-  std::vector<int> offsets(nb_elts+1);
+  std_e::int_knot_vector offsets(nb_elts);
   std::vector<std::byte> data;
 
   int offset = 0;
@@ -112,7 +113,7 @@ serialize_array(const span<T>& x) -> std::pair<std::vector<int>,std::vector<std:
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 serialize(const span<T>& x) -> std::vector<std::byte> {
   auto [offsets,data] = serialize_array(x);
-  int nb_elts = offsets.size()-1;
+  int nb_elts = offsets.nb_intervals();
   int serialized_size = (1+nb_elts+1)*sizeof(int) + data.size();
   std::vector<std::byte> res(serialized_size);
 
@@ -130,38 +131,33 @@ serialize(const span<T>& x) -> std::vector<std::byte> {
   return res;
 }
 
-// TODO Knot_sequence
-template<class T, class Random_access_integer_range, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0> auto
-deserialize_array(const std::byte* v_ptr, const Random_access_integer_range& offsets) -> std::vector<T> {
-  const int nb_elts = offsets.size()-1;
+template<class T, class Knot_sequence, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0> auto
+deserialize_array_into(const std::byte* v_ptr, const Knot_sequence& offsets, std::vector<T>& out) -> void {
+  const int nb_elts = offsets.nb_intervals();
 
-  std::vector<T> res(nb_elts);
+  out.resize(nb_elts);
   for (int i=0; i<nb_elts; ++i) {
-    int size = offsets[i+1]-offsets[i];
     const std::byte* elt_ptr = v_ptr+offsets[i];
-    deserialize(elt_ptr,size,res[i]);
+    deserialize_into(elt_ptr,offsets.length(i),out[i]);
   }
-
-  return res;
 }
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
-deserialize(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
+deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
   // section (A) holds holds the number of elements
   const int* nb_elts_position = (const int*)v_ptr;
   const int nb_elts = *nb_elts_position;
 
   // section (B) holds the offset of each serialized object
   auto offsets_start = v_ptr + sizeof(int);
-  auto offsets = deserialize_to_span<int>(offsets_start,nb_elts+1);
+  auto offsets = deserialize_to_knot_span<int>(offsets_start,nb_elts);
 
   // section (C) the rest of the serialized array holds the concatenated data of each of its elements
   auto data_start = v_ptr + (1+nb_elts+1)*sizeof(int);
-  out = deserialize_array<T>(data_start,offsets);
+  deserialize_array_into<T>(data_start,offsets,out);
 
   int section_A_size = sizeof(int);
   int section_B_size = (nb_elts+1)*sizeof(int);
-  //int section_C_size = offsets.length();
-  int section_C_size = offsets.back(); // TODO DEL, use above
+  int section_C_size = offsets.length();
   STD_E_ASSERT(section_A_size+section_B_size+section_C_size==n);
 }
 
@@ -177,27 +173,33 @@ serialize(const std::vector<T>& x) {
 
 
 // deserialize from function {
-
 template<class F, class T, std::enable_if_t<std_e::is_callable<F> && std::is_trivially_copyable_v<T>, int> = 0> auto
-deserialize(F f, int size, T& x) -> void {
+deserialize_into(F f, int size, T& x) -> void {
   auto ptr = (std::byte*)(&x);
   f(ptr,size);
 }
 
 template<class F, class T, std::enable_if_t<std_e::is_callable<F> && std::is_trivially_copyable_v<T>, int> = 0> auto
-deserialize(F f, int size, std::vector<T>& x) -> void {
+deserialize_into(F f, int size, std::vector<T>& x) -> void {
   x.resize(size/sizeof(int));
   auto ptr = (std::byte*)x.data();
   f(ptr,size);
 }
 
 template<class F, class T, std::enable_if_t<std_e::is_callable<F> && !std::is_trivially_copyable_v<T>, int> = 0> auto
-deserialize(F f, int size, T& x) -> void {
+deserialize_into(F f, int size, T& x) -> void {
   std::vector<std::byte> buf(size);
   f(buf.data(),size);
-  deserialize(buf.data(),buf.size(),x);
+  deserialize_into(buf.data(),buf.size(),x);
 }
 
+
+template<class T, class X> auto
+deserialize(X x, int size) -> T {
+  T res;
+  deserialize_into(x,size,res);
+  return res;
+}
 // deserialize from function }
 
 } // std_e

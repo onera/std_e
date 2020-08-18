@@ -18,7 +18,7 @@ TEST_CASE("interval") {
 
   CHECK_FALSE(is_in(52,r));
 
-  CHECK( size(r) == 10 );
+  CHECK( length(r) == 10 );
 }
 
 
