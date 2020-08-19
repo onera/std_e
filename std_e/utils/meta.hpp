@@ -4,6 +4,20 @@
 namespace std_e {
 
 
+template<class T>
+struct is_reference_wrapper__impl {
+  static constexpr bool value = false;
+};
+
+template<class T>
+struct is_reference_wrapper__impl<std::reference_wrapper<T>> {
+  static constexpr bool value = true;
+};
+
+template<class T>
+constexpr bool is_reference_wrapper = is_reference_wrapper__impl<std::decay_t<T>>::value;
+
+
 // add_other_type_constness {
 template<class T, class T_other>
 struct add_other_type_constness__impl {

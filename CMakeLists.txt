@@ -39,7 +39,7 @@ endif()
 set(src_dir ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
 set(include_dir ${PROJECT_SOURCE_DIR})
 
-file(GLOB_RECURSE cpp_and_test_files
+file(GLOB_RECURSE cpp_and_test_files CONFIGURE_DEPENDS
   "${src_dir}/*.cpp"
 )
 set(cpp_files ${cpp_and_test_files})

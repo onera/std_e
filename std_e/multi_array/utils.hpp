@@ -24,7 +24,7 @@ resize_memory(Dynamic_container& x, Integer n) -> void {
   x.resize(n);
 }
 template<class T, ptrdiff_t N, class Integer> auto
-resize_memory(span<T,N>& x, Integer n) -> void {
+resize_memory(span<T,N>& /*x*/, Integer /*n*/) -> void {
   // ASSERT same as or less than old size
 }
 

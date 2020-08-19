@@ -127,12 +127,12 @@ zip_projection(hzip<Ts...>& hzip, Projection proj) {
   return hzip_view( proj(get<Ts>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
 }
 
-template<class... Ts, class Projection> constexpr auto
-zip_projection2(hzip<Ts...>& hzip, Projection proj) {
-  //std::cout << __PRETTY_FUNCTION__ << std::endl;
-  return std::make_tuple(1, 1);
-  // return hzip_view( proj(get<0>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
-}
+// template<class... Ts, class Projection> constexpr auto
+// zip_projection2(hzip<Ts...>& hzip, Projection proj) {
+//   //std::cout << __PRETTY_FUNCTION__ << std::endl;
+//   // return std::make_tuple(1, 1);
+//   return hzip_view( proj(get<0>(hzip.impl())) ... ); // TODO get<Ts> -> get<I> (here, if several times same type: WRONG behavior)
+// }
 
 //template<int I, class hiera_zip_of_tuple_type, class F>  constexpr auto
 //for_each_until__impl_hiera_zip(hiera_zip_of_tuple_type&& x, F f) -> int {
@@ -166,7 +166,10 @@ zip_projection2(hzip<Ts...>& hzip, Projection proj) {
 //  return std::make_pair(pos_in_tuple,pos_in_vec);
 //}
 
-
+#pragma GCC diagnostic push
+#ifdef REAL_GCC
+#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
 template<int I, class hiera_zip_of_tuple_type, class Unary_pred, class F>  constexpr auto
 find_apply__impl3(hiera_zip_of_tuple_type&& x, Unary_pred p, F f) -> int {
 //  constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
@@ -185,6 +188,13 @@ find_apply__impl3(hiera_zip_of_tuple_type&& x, Unary_pred p, F f) -> int {
   }
   return sz;
 }
+#pragma GCC diagnostic pop
+
+
+#pragma GCC diagnostic push
+#ifdef REAL_GCC
+#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
 template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr auto
 find_apply__impl4(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
   int pos_in_vec = 0;
@@ -208,6 +218,7 @@ find_apply__impl4(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pa
   int pos_in_tuple = find_apply__impl3<0>(zhv,p_tuple,f_tuple);
   return std::make_pair(pos_in_tuple,pos_in_vec);
 }
+#pragma GCC diagnostic pop
 
 template<class hiera_zip_of_hvector_type, class Unary_pred, class F> constexpr auto
 find_fundamental_type_apply_all(hiera_zip_of_hvector_type&& zhv, Unary_pred p, F f) -> std::pair<int,int> {
