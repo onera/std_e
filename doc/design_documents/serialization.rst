@@ -43,4 +43,4 @@ Remarks related to permormance
 Note
 ^^^^
 
-For array deserialization, `deserialize_into` actually allocates memory if the distination array provided is not big enought. The key point is that it doesn't allocate if there is enought memory.
+For array deserialization, `deserialize_into` actually allocates memory if the destination array is not big enought. The key point is that it does**not** allocate if there is enought memory.

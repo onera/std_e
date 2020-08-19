@@ -141,6 +141,13 @@ deserialize_array_into(const std::byte* v_ptr, const Knot_sequence& offsets, std
     deserialize_into(elt_ptr,offsets.length(i),out[i]);
   }
 }
+template<class T, class Knot_sequence, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0> auto
+deserialize_array(const std::byte* v_ptr, const Knot_sequence& offsets) -> std::vector<T> {
+  std::vector<T> res;
+  deserialize_array_into(v_ptr,offsets,res);
+  return res;
+}
+
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
   // section (A) holds holds the number of elements

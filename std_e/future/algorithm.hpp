@@ -6,6 +6,7 @@
 
 #include <utility>
 #include <iterator>
+#include <functional>
 
 
 namespace std_e {
@@ -330,6 +331,43 @@ count_if(InputIt first, InputIt last, UnaryPredicate p)
     }
   }
   return ret;
+}
+
+
+template<class InputIt, class OutputIt, class BinaryOperation> constexpr auto
+inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation op) -> OutputIt {
+  if (first == last) return d_first;
+
+  auto sum = *first;
+  *d_first = sum;
+
+  while (++first != last) {
+   sum = op(std::move(sum), *first);
+   *++d_first = sum;
+  }
+  return ++d_first;
+}
+template<class InputIt, class OutputIt> constexpr auto
+inclusive_scan(InputIt first, InputIt last, OutputIt d_first) -> OutputIt {
+  return inclusive_scan(first, last, d_first, std::plus<>());
+}
+
+template<class InputIt, class OutputIt, class T, class BinaryOperation> constexpr auto
+exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation op) -> OutputIt {
+  if (first == last) return d_first;
+
+  --last;
+  *d_first = init;
+
+  while (first != last) {
+   init = op(std::move(init), *first++);
+   *++d_first = init;
+  }
+  return ++d_first;
+}
+template<class InputIt, class OutputIt, class T> constexpr auto
+exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init) -> OutputIt {
+  return exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 
