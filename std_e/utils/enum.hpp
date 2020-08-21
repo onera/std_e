@@ -76,7 +76,7 @@ const std::vector<std::string> enum_to_strings = enum_to_strings__impl(Str_enum_
 // to_enum {
 /// primary definition, should be replaced by specific overload
 template<class Str_enum_type> constexpr auto
-to_enum(const std::string& s, Str_enum_type) -> size_t {
+to_enum(const std::string& , Str_enum_type) -> size_t {
   return 0;
 }
 template<class Str_enum_type> auto

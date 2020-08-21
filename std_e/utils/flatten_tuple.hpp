@@ -51,11 +51,15 @@
 // Original impl : https://stackoverflow.com/questions/54931352/how-to-flatten-heterogeneous-lists-aka-tuples-of-tuples-of
 namespace flatten_tuple {
   struct flat_t {};
-
+#pragma GCC diagnostic push
+#ifdef REAL_GCC
+#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+#endif // REAL_GCC
   template<std::size_t... Is, class...As>
   constexpr auto flatten( std::index_sequence<Is...>, flat_t, std::tuple<As...> as ) {
     return std::tuple_cat( flatten(flat_t{}, std::get<Is>(as))... );
   }
+#pragma GCC diagnostic pop
   template<class...As, class...Ts>
   constexpr auto flatten( flat_t, std::tuple<As...> as ) {
     return flatten( std::make_index_sequence<sizeof...(As)>{}, flat_t{}, as );

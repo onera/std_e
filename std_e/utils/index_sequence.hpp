@@ -7,7 +7,7 @@
 namespace std_e {
 
 
-template<class Integer, Integer... Is> constexpr auto 
+template<class Integer, Integer... Is> constexpr auto
 get_value_at(Integer i, std::integer_sequence<Integer, Is...>) -> Integer {
   constexpr Integer arr[] = {Is...};
   return arr[i];
@@ -26,7 +26,7 @@ take_n(std::index_sequence<Is...> int_seq) {
 
 
 template<class Int0, class Int1> constexpr auto
-position_in_seq(Int0 i, std::integer_sequence<Int1>) -> int {
+position_in_seq(Int0 /*i*/, std::integer_sequence<Int1>) -> int {
     return 0;
 }
 template<class Int0, class Int1, Int1 I, Int1... Is> constexpr auto

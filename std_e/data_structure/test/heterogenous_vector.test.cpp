@@ -126,5 +126,8 @@ TEST_CASE("hvector find algorithms") {
     CHECK( pos_in_tuple == 1 );
     CHECK( pos_in_vec == 0 );
   }
+
+
+
 }
 // [Sphinx Doc] hvector find algorithms }

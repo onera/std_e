@@ -71,19 +71,16 @@ TEST_CASE("hzip with hvector") {
   CHECK( std_e::get<1>(hvn)[0].d == "13" );
   CHECK( std_e::get<1>(hvn)[1].d == ""   );
 
-  SUBCASE("for_each_elements hzip with hvector ") {
-
-    auto g = [&](auto& x1, auto& x2){
-    // auto g = [&](auto& x1){
-      // std::cout << __PRETTY_FUNCTION__ << std::endl;
-      // std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
-      // std::cout << " x1.i " << x1.i << " <-> " << " x2.i " << x2.i << std::endl;
-      // assert( x1.size() == x2.size() );
-      // CHECK( x1.size() == x2.size() );
-    };
-
-    for_each_element(hv_with_names, g);
-  }
-
+  // SUBCASE("for_each_elements hzip with hvector ") {
+  //   auto g = [&](auto& x1, auto& x2){
+  //   // auto g = [&](auto& x1){
+  //     // std::cout << __PRETTY_FUNCTION__ << std::endl;
+  //     // std::cout << to_string(x1) << " <-> " << to_string(x2) << std::endl;
+  //     // std::cout << " x1.i " << x1.i << " <-> " << " x2.i " << x2.i << std::endl;
+  //     // assert( x1.size() == x2.size() );
+  //     CHECK( x1.size() == x2.size() );
+  //   };
+  //   for_each_element(hv_with_names, g);
+  // }
 
 }
