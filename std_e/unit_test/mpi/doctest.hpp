@@ -34,8 +34,11 @@ struct mpi_sub_comm {
     , comm(MPI_COMM_NULL)
   {
     if (nb_procs>mpi_world_nb_procs()) {
-      FAIL_CHECK("Unable to run test: need "+std::to_string(nb_procs) + " procs"
-               + " but program launched with only "+std::to_string(doctest::mpi_world_nb_procs()) + ".");
+      CHECK_MESSAGE(
+        nb_procs<=mpi_world_nb_procs(),
+        "Unable to run test: need "+std::to_string(nb_procs) + " procs"
+        + " but program launched with only "+std::to_string(doctest::mpi_world_nb_procs()) + "."
+      );
     } else {
       MPI_Group world_group;
       MPI_Comm_group(MPI_COMM_WORLD, &world_group);
@@ -83,6 +86,7 @@ void execute_mpi_test_case(F func) {
 
 
 #define DOCTEST_MPI_GEN_ASSERTION(rank_to_test, assertion, ...) \
+  static_assert(rank_to_test>=0,""); \
   static_assert(rank_to_test<test_nb_procs_as_int_constant.value,"Trying to assert on a rank greater than the number of procs of the test!"); \
   if(rank_to_test == test_rank) assertion(__VA_ARGS__)
 

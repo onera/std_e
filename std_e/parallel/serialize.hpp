@@ -109,6 +109,10 @@ serialize_array(const span<T>& x) -> std::pair<int_knot_vector,std::vector<std::
   offsets.back() = offset;
   return std::make_pair(offsets,data);
 }
+template<class T> constexpr auto
+serialize_array(const std::vector<T>& x) -> std::pair<int_knot_vector,std::vector<std::byte>> {
+  return serialize_array(make_span(x));
+}
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 serialize(const span<T>& x) -> std::vector<std::byte> {

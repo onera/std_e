@@ -52,3 +52,24 @@ TEST_CASE("int_knot_vector from vector") {
 
   CHECK( kv.nb_intervals() == 2 );
 }
+
+
+TEST_CASE("int_knot_vector from initialization list") {
+  std_e::int_knot_vector kv = {3,10,21};
+
+  CHECK( kv[0] == 3 );
+  CHECK( kv[1] == 10 );
+  CHECK( kv[2] == 21 );
+
+  CHECK( kv.nb_intervals() == 2 );
+}
+
+TEST_CASE("interval_lengths") {
+  std_e::int_knot_vector kv = {3,10,21,50};
+
+  std::vector<int> il = std_e::interval_lengths(kv);
+
+  CHECK( il[0] == 7 );
+  CHECK( il[1] == 11 );
+  CHECK( il[2] == 29 );
+}

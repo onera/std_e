@@ -4,6 +4,8 @@
 #include "std_e/interval/interval.hpp"
 #include "std_e/future/span.hpp"
 #include <vector>
+#include <numeric>
+#include "std_e/future/algorithm.hpp"
 
 
 namespace std_e {
@@ -45,10 +47,15 @@ class knot_sequence : private Random_access_range {
       : base(first,first+n+1)
     {}
 
+    knot_sequence(std::initializer_list<value_type> l)
+      : base(l)
+    {}
+
   // Knot_sequence interface
     using base::size;
     using base::begin;
     using base::end;
+    using base::data;
     using base::operator[];
     using base::back;
 
@@ -117,6 +124,24 @@ to_knot_vector(std::vector<Number> v) {
   STD_E_ASSERT(std::is_sorted(begin(v),end(v)));
   return knot_vector<Number>(std::move(v));
 }
+
+
+// algorithms {
+template<class Knot_sequence, class T = typename Knot_sequence::value_type> constexpr auto
+interval_lengths(const Knot_sequence& ks) -> std::vector<T> {
+  std::vector<T> res(ks.nb_intervals());
+  std::adjacent_difference(begin(ks)+1,end(ks),begin(res));
+  res[0] = ks.length(0);
+  return res;
+}
+template<class Random_access_range, class T = typename Random_access_range::value_type> constexpr auto
+offsets_from_sizes(const Random_access_range& r) -> knot_vector<T> {
+  knot_vector<int> offsets(r.size());
+  offsets[0] = 0;
+  std_e::inclusive_scan(begin(r),end(r),begin(offsets)+1);
+  return offsets;
+}
+// algorithms }
 
 
 } // std_e
