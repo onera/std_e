@@ -20,6 +20,7 @@ project(
   LANGUAGES CXX
 )
 
+option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
 
 ## Dependencies ##
 include(FetchContent)
@@ -43,14 +44,21 @@ file(GLOB_RECURSE cpp_and_test_files
   CONFIGURE_DEPENDS
   "${src_dir}/*.cpp"
 )
+
 set(cpp_files ${cpp_and_test_files})
-list(FILTER cpp_files EXCLUDE REGEX ".*\.test\.cpp$")
-set(all_test_files ${cpp_and_test_files})
-list(FILTER all_test_files INCLUDE REGEX ".*\.test\.cpp$")
-set(test_files ${all_test_files})
-list(FILTER test_files EXCLUDE REGEX ".*\.mpi\.test\.cpp$")
-set(mpi_test_files ${all_test_files})
-list(FILTER mpi_test_files INCLUDE REGEX ".*\.mpi\.test\.cpp$")
+list(FILTER cpp_files EXCLUDE REGEX ".*\\.test\\.cpp$")
+
+set(test_files ${cpp_and_test_files})
+list(FILTER test_files INCLUDE REGEX ".*\\.test\\.cpp$")
+
+if(STD_E_ENABLE_MPI)
+  list(FILTER cpp_files EXCLUDE REGEX ".*\\.nompi\\.cpp$")
+  list(FILTER test_files EXCLUDE REGEX ".*\\.nompi\\.test\\.cpp$")
+else()
+  message(llaal)
+  list(FILTER cpp_files EXCLUDE REGEX ".*\\.mpi\\.cpp$")
+  list(FILTER test_files EXCLUDE REGEX ".*\\.mpi\\.test\\.cpp$")
+endif()
 
 
 ## Main library ##
@@ -59,6 +67,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
+
+if(STD_E_ENABLE_MPI)
+  target_add_thirdparty_dependency(${PROJECT_NAME} MPI REQUIRED COMPONENTS CXX)
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+      MPI::MPI_CXX
+  )
+endif()
 
 ### Install ###
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
@@ -82,9 +98,14 @@ option(STD_E_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
 if(STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
+  if(STD_E_ENABLE_MPI)
+    set(unit_test_main ${PROJECT_ROOT}/external/project_utils/src/mpi_unit_test_main.cpp)
+  else()
+    set(unit_test_main ${PROJECT_ROOT}/external/project_utils/src/unit_test_main.cpp)
+  endif()
   add_executable(${PROJECT_NAME}_unit_tests
     ${test_files}
-    ${PROJECT_ROOT}/external/project_utils/src/unit_test_main.cpp
+    ${unit_test_main}
   )
   target_link_libraries(${PROJECT_NAME}_unit_tests
     PUBLIC
@@ -93,26 +114,6 @@ if(STD_E_ENABLE_TEST)
       doctest::doctest
   )
   add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
-endif()
-
-option(STD_E_ENABLE_MPI_TEST "Enable mpi testing for ${PROJECT_NAME}" OFF)
-if(STD_E_ENABLE_MPI_TEST)
-  #enable_testing()
-  #include(CTest)
-
-  add_executable(${PROJECT_NAME}_mpi_unit_tests
-    ${mpi_test_files}
-    ${PROJECT_ROOT}/external/project_utils/src/mpi_unit_test_main.cpp
-  )
-  find_package(MPI REQUIRED COMPONENTS CXX)
-  target_link_libraries(${PROJECT_NAME}_mpi_unit_tests
-    PUBLIC
-      ${PROJECT_NAME}
-    PRIVATE
-      doctest::doctest
-      MPI::MPI_CXX
-  )
-  add_test(NAME ${PROJECT_NAME}_mpi_unit_tests COMMAND ${PROJECT_NAME}_mpi_unit_tests)
 endif()
 
 option(STD_E_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
