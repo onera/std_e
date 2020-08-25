@@ -102,7 +102,7 @@ void execute_mpi_test_case(F func) {
   TEST_CASE(name * doctest::description("MPI_TEST_CASE")) { \
     doctest::execute_mpi_test_case<nb_procs>(func); \
   } \
-  void func(int test_rank, int test_nb_procs, MPI_Comm test_comm, std::integral_constant<int,nb_procs> test_nb_procs_as_int_constant)
+  void func([[maybe_unused]] int test_rank, [[maybe_unused]] int test_nb_procs, [[maybe_unused]] MPI_Comm test_comm, [[maybe_unused]] std::integral_constant<int,nb_procs> test_nb_procs_as_int_constant)
   // DOC: test_rank, test_nb_procs, and test_comm are available UNDER THESE SPECIFIC NAMES in the body of the unit test
   // DOC: test_nb_procs_as_int_constant is equal to test_nb_procs, but as a compile time value
   //          (used in CHECK-like macros to assert the checked rank exists)
