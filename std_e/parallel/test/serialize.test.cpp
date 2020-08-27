@@ -1,6 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/parallel/serialize.hpp"
-#include <iostream> // TODO
 
 
 using namespace std_e;
@@ -151,4 +150,17 @@ TEST_CASE("serialize/deserialize non-trivial type") {
   auto y = deserialize<data_t>(x_serial.data(),x_serial.size());
 
   CHECK( x == y );
+}
+
+TEST_CASE("serialize_array") {
+  SUBCASE("trivial") {
+    std::vector v = {4,3,1,6};
+    auto [offsets,data] = serialize_array(v);
+    CHECK( offsets == knot_vector<int>{0,1*sizeof(int),2*sizeof(int),3*sizeof(int),4*sizeof(int)} );
+  }
+  SUBCASE("non-trivial") {
+    std::vector<std::string> v = {"alice","bob","carole"};
+    auto [offsets,data] = serialize_array(v);
+    CHECK( offsets == knot_vector<int>{0,5,8,14} );
+  }
 }

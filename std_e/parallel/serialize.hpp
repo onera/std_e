@@ -5,11 +5,28 @@
 #include "std_e/future/span.hpp"
 #include "std_e/utils/type_traits.hpp"
 #include "std_e/interval/knot_sequence.hpp"
+#include "std_e/future/contract.hpp"
+#include "std_e/algorithm/iota.hpp"
 
 namespace std_e {
 
-// TODO replace std::is_trivially_copyable_v by something that also check there is no pointers (not doable now)
-// TODO deserialize return the object (instead of taking it by ref)
+/*
+  concept Trivially_copyable_value {
+    Trivially_copyable
+    contains no pointer
+  }
+ 
+  concept Trivially_serializable = Trivially_copyable_value || Array<Trivially_copyable_value>
+}
+*/
+
+//template<class T> constexpr bool std::is_trivially_copyable_v = std::is_trivially_copyable_v<T>;// TODO check there is no pointers (not doable in C++ <= 20)
+
+
+struct serialized_array {
+  int_knot_vector offsets;
+  std::vector<std::byte> data;
+};
 
 
 // declarations {
@@ -19,10 +36,15 @@ serialize(const T& x);
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
 serialize(const span<T>& x);
 
-template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> = 0 > auto
-serialize_array(const span<T>& x) -> std::pair<std_e::int_knot_vector,std::vector<std::byte>>;
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
 serialize(const span<T>& x) -> std::vector<std::byte>;
+
+template<class T> auto
+serialize(const std::vector<T>& x);
+
+inline auto
+serialize(const std::string& x);
+
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0 > auto
 deserialize_into(const std::byte* v_ptr, int n, T& out) -> void;
@@ -33,8 +55,15 @@ deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0 > auto
 deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void;
 
-template<class T> auto
-serialize(const std::vector<T>& x);
+inline auto
+deserialize_into(const std::byte* v_ptr, int n, std::string& out) -> void;
+
+
+
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> = 0 > auto
+serialize_array(const span<T>& x) -> serialized_array;
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> = 0 > auto
+serialize_array(const span<T>& x) -> serialized_array;
 // declarations }
 
 
@@ -74,6 +103,12 @@ deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
   auto ptr = (const T*)v_ptr;
   std::copy_n(ptr,vector_size,out.data());
 }
+inline auto
+deserialize_into(const std::byte* v_ptr, int n, std::string& out) -> void {
+  out.resize(n);
+  auto ptr = (const char*)v_ptr;
+  std::copy_n(ptr,n,out.data());
+}
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0> auto
 deserialize_to_span(const std::byte* v_ptr, int n) -> std_e::span<const T> {
@@ -89,12 +124,31 @@ deserialize_to_knot_span(const std::byte* v_ptr, int n) -> std_e::knot_span<cons
 // trivial }
 
 
+// TODO should return something lighter
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int>> auto
+serialize_array(const span<T>& x) -> serialized_array {
+  auto serial_view = serialize(x);
+  std::vector<std::byte> data(serial_view.begin(),serial_view.end());
+
+  int nb_elts = x.size();
+  std_e::int_knot_vector offsets(nb_elts);
+  std_e::exclusive_iota_n(begin(offsets),offsets.size(),0,(int)sizeof(T));
+
+  return {offsets,data};
+}
+// TODO does not really makes sense, since the offset part is not used (but for genericity...)
+template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0> auto
+deserialize_array(const serialized_array& x) -> std::vector<T> {
+  std::vector<T> res;
+  deserialize_into(x.data.data(),x.data.size(),res);
+  return res;
+}
 
 
 // non trivial {
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int>> auto
-serialize_array(const span<T>& x) -> std::pair<int_knot_vector,std::vector<std::byte>> {
+serialize_array(const span<T>& x) -> serialized_array {
   int nb_elts = x.size();
   std_e::int_knot_vector offsets(nb_elts);
   std::vector<std::byte> data;
@@ -107,10 +161,10 @@ serialize_array(const span<T>& x) -> std::pair<int_knot_vector,std::vector<std::
     offset += elt_data.size();
   }
   offsets.back() = offset;
-  return std::make_pair(offsets,data);
+  return {offsets,data};
 }
 template<class T> constexpr auto
-serialize_array(const std::vector<T>& x) -> std::pair<int_knot_vector,std::vector<std::byte>> {
+serialize_array(const std::vector<T>& x) -> serialized_array {
   return serialize_array(make_span(x));
 }
 
@@ -180,6 +234,10 @@ deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
 template<class T> auto
 serialize(const std::vector<T>& x) {
   return serialize(make_span(x));
+}
+auto
+serialize(const std::string& x) {
+  return serialize(make_span(x.data(),x.size()));
 }
 
 

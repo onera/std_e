@@ -73,3 +73,18 @@ TEST_CASE("interval_lengths") {
   CHECK( il[1] == 11 );
   CHECK( il[2] == 29 );
 }
+
+TEST_CASE("interval_index") {
+  std_e::knot_vector<double> kv = {1., 2.7, 3.14, 10.};
+
+  CHECK( interval_index( 1.  ,kv) == 0 );
+  CHECK( interval_index( 2.7 ,kv) == 1 );
+  CHECK( interval_index( 3.14,kv) == 2 );
+  CHECK( interval_index( 10,  kv) == 3 ); // semi-open interval: 10 does not belong to the last interval
+
+  CHECK( interval_index( 0.5 ,kv) ==-1 ); // 0.5 should be inserted before the first interval (i.e. interval 0)
+  CHECK( interval_index( 2.  ,kv) == 0 );
+  CHECK( interval_index( 3.  ,kv) == 1 );
+  CHECK( interval_index( 5.  ,kv) == 2 );
+  CHECK( interval_index(15.  ,kv) == 3 ); // 15 should be inserted after the last interval (i.e. interval 2)
+}

@@ -14,6 +14,12 @@ all_loggers() -> std::vector<logger>& {
 }
 
 auto
+has_logger(const std::string& name) -> bool {
+  std::vector<logger>& loggers = all_loggers();
+  auto it = find_if(begin(loggers),end(loggers),[&](const auto& logger){ return logger.name == name; });
+  return it != end(loggers);
+}
+auto
 get_logger(const std::string& name) -> logger& {
   std::vector<logger>& loggers = all_loggers();
   auto it = find_if(begin(loggers),end(loggers),[&](const auto& logger){ return logger.name == name; });
@@ -23,13 +29,16 @@ get_logger(const std::string& name) -> logger& {
 auto
 add_logger(logger l) -> logger& {
   std::vector<logger>& loggers = all_loggers();
+  STD_E_ASSERT(!has_logger(l.name));
   loggers.push_back(std::move(l));
   return loggers.back();
 }
 
 auto
-log(logger& logger, const std::string& msg) -> void {
-  logger.printer->log(msg);
+log(logger& l, const std::string& msg) -> void {
+  if (l.lvl != off) {
+    l.printer->log(msg);
+  }
 }
 
 auto

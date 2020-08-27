@@ -6,11 +6,12 @@
 #include <vector>
 #include <numeric>
 #include "std_e/future/algorithm.hpp"
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {
 
-// fwd decl
+// fwd decls
 template<class Number> constexpr auto
 to_knot_vector(std::vector<Number> v);
 
@@ -34,6 +35,7 @@ class knot_sequence : private Random_access_range {
   // class invariants:
   //  - ordered
     using base = Random_access_range;
+    using this_type = knot_sequence<Random_access_range>;
     using value_type = typename base::value_type;
 
   // ctors
@@ -99,12 +101,26 @@ class knot_sequence : private Random_access_range {
       base::push_back(x);
       return back();
     };
+
+  // utility
+    auto as_base() const -> const base& {
+      return *this;
+    }
   private:
     knot_sequence(std::vector<value_type> v)
       : base(std::move(v))
     {}
     constexpr auto friend to_knot_vector<>(std::vector<value_type> v);
 };
+
+template<class Rng> constexpr auto
+operator==(const knot_sequence<Rng>& x, const knot_sequence<Rng>& y) {
+  return x.as_base() == y.as_base();
+}
+template<class Rng> constexpr auto
+operator!=(const knot_sequence<Rng>& x, const knot_sequence<Rng>& y) {
+  return !(x==y);
+}
 
 
 template<class Number> using knot_vector = knot_sequence<std::vector<Number>>;
@@ -140,6 +156,11 @@ offsets_from_sizes(const Random_access_range& r) -> knot_vector<T> {
   offsets[0] = 0;
   std_e::inclusive_scan(begin(r),end(r),begin(offsets)+1);
   return offsets;
+}
+template<class Number, class Knot_sequence> auto 
+interval_index(Number x, const Knot_sequence& ks) {
+  auto it = std::upper_bound(begin(ks),end(ks),x);
+  return it-begin(ks)-1;
 }
 // algorithms }
 

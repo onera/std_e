@@ -11,6 +11,7 @@ namespace std_e {
 
 STD_E_ENUM(logging_level,
   off,
+  explicit_call,
   fatal,
   error,
   warn,
@@ -46,11 +47,12 @@ struct logger {
   std::unique_ptr<log_printer> printer;
 };
 
+auto has_logger(const std::string& name) -> bool;
 auto get_logger(const std::string& name) -> logger&;
 auto add_logger(logger l) -> logger&;
 
 // log functions {
-auto log(logger& logger, const std::string& msg) -> void;
+auto log(logger& l, const std::string& msg) -> void;
 
 /// log by matching logger's name
 auto log(const std::string& log_name, const std::string& msg) -> void;
