@@ -205,6 +205,10 @@ deserialize_array(const std::byte* v_ptr, const Knot_sequence& offsets) -> std::
   deserialize_array_into(v_ptr,offsets,res);
   return res;
 }
+template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0> auto
+deserialize_array(const serialized_array& x) -> std::vector<T> {
+  return deserialize_array<T>(x.data.data(),x.offsets);
+}
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
