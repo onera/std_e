@@ -41,8 +41,11 @@ class knot_sequence : private Random_access_range {
   // ctors
     knot_sequence() = default;
 
-    knot_sequence(value_type n)
+    knot_sequence(int n)
       : base(n+1)
+    {}
+    knot_sequence(int n, value_type x)
+      : base(n+1,x)
     {}
     
     knot_sequence(value_type* first, value_type n)

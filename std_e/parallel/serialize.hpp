@@ -23,7 +23,7 @@ namespace std_e {
 //template<class T> constexpr bool std::is_trivially_copyable_v = std::is_trivially_copyable_v<T>;// TODO check there is no pointers (not doable in C++ <= 20)
 
 
-struct serialized_array {
+struct serialized_array { // TODO invert field
   int_knot_vector offsets;
   std::vector<std::byte> data;
 };

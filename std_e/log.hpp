@@ -12,3 +12,5 @@ std_e_log(const Ts&... xs) -> void {
 }
 
 #define LOG std_e_log
+
+#define ELOG(x) std_e_log(#x," = ",x);
