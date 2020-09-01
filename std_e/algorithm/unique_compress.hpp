@@ -72,4 +72,39 @@ unique_compress_copy_with_index_position(
 }
 
 
+// TODO generalize int*, see if can be formulated as other of unique_compress family
+template<
+  class Fwd_it, class S, class Fwd_it2, class F,
+  class T = decltype(*Fwd_it{}),
+  std::enable_if_t<std::is_invocable_v<F,T>,int> =0
+> constexpr auto
+unique_compress_strides_copy(Fwd_it first, S last, Fwd_it2 d_first, F reduction, const int* strides) -> Fwd_it2 {
+  while (first != last) {
+    *d_first = reduction(*first++);
+    int count = *strides++;
+    while (--count) {
+      *d_first = reduction(*d_first,*first++);
+    }
+    ++d_first;
+  }
+  return d_first;
+}
+template<
+  class Fwd_it, class S, class Fwd_it2, class F,
+  class T = decltype(*Fwd_it{}),
+  std::enable_if_t<!std::is_invocable_v<F,T>,int> =0
+> constexpr auto
+unique_compress_strides_copy(Fwd_it first, S last, Fwd_it2 d_first, F reduction, const int* strides) -> Fwd_it2 {
+  while (first != last) {
+    *d_first = *first++;
+    int count = *strides++;
+    while (--count) {
+      *d_first = reduction(*d_first,*first++);
+    }
+    ++d_first;
+  }
+  return d_first;
+}
+
+
 } // std_e

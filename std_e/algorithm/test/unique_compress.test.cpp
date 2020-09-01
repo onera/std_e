@@ -4,6 +4,8 @@
 #include "std_e/algorithm/algorithm.hpp"
 #include <vector>
 #include "std_e/unit_test/id_string.hpp"
+#include "std_e/utils/concatenate.hpp"
+#include "std_e/log.hpp" // TODO
 using namespace std;
 using std_e::id_string;
 using std_e::append_to_string;
@@ -73,4 +75,22 @@ TEST_CASE("unique_compress_copy_with_index_position") {
 
   vector<int> expected_positions_old_to_new = {0,1,2,2,2,3,3,4,5,5,6};
   CHECK( positions_old_to_new == expected_positions_old_to_new );
+}
+
+TEST_CASE("unique_compress_stride_copy") {
+  const vector<int> v =       {10,11,12,13,14,15,16,17,18,19};
+  const vector<int> strides = {1 ,2    ,1 ,1 ,1 ,3       ,1 };
+
+  SUBCASE("+") {
+    vector<int> res(strides.size());
+    std_e::unique_compress_strides_copy(begin(v),end(v),begin(res),std::plus<>{},strides.data());
+
+    CHECK( res == vector{10, 11+12, 13,14,15, 16+17+18, 19} );
+  }
+  SUBCASE("concat") {
+    vector<vector<int>> res(strides.size());
+    std_e::unique_compress_strides_copy(begin(v),end(v),begin(res),std_e::concatenate_in_vector,strides.data());
+
+    CHECK( res == vector<vector<int>>{{10}, {11,12}, {13},{14},{15}, {16,17,18}, {19}} );
+  }
 }
