@@ -100,7 +100,7 @@ class knot_sequence : private Random_access_range {
     }
 
     auto push_back(value_type x) -> value_type& {
-      STD_E_ASSERT(size()==0 || back()<x);
+      STD_E_ASSERT(size()==0 || back()<=x);
       base::push_back(x);
       return back();
     };
@@ -116,13 +116,17 @@ class knot_sequence : private Random_access_range {
     constexpr auto friend to_knot_vector<>(std::vector<value_type> v);
 };
 
-template<class Rng> constexpr auto
-operator==(const knot_sequence<Rng>& x, const knot_sequence<Rng>& y) {
+template<class Rng0, class Rng1> constexpr auto
+operator==(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
   return x.as_base() == y.as_base();
 }
-template<class Rng> constexpr auto
-operator!=(const knot_sequence<Rng>& x, const knot_sequence<Rng>& y) {
+template<class Rng0, class Rng1> constexpr auto
+operator!=(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
   return !(x==y);
+}
+template<class Rng> constexpr auto
+to_string(const knot_sequence<Rng>& x) -> std::string {
+  return to_string(x.as_base());
 }
 
 

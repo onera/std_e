@@ -36,4 +36,18 @@ concatenate(const Arrays&... xs)  {
 }
 
 
+// concatenation as a reduction {
+template<class T> auto
+concatenate_in_vector__impl(T x) -> std::vector<T> {
+  return {std::move(x)};
+}
+template<class T> auto
+concatenate_in_vector__impl(std::vector<T>& v, T x) -> std::vector<T>& {
+  v.emplace_back(std::move(x));
+  return v;
+}
+auto concatenate_in_vector = [](auto&&... xs){ return concatenate_in_vector__impl(FWD(xs)...); };
+// concatenation as a reduction }
+
+
 } // std_e
