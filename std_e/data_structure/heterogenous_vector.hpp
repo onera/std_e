@@ -32,7 +32,7 @@ class hvector {
   // size
     //! \brief Heterogenous size: number of different types
     static constexpr auto
-    hsize() -> size_t {
+    hsize() -> int {
       return sizeof...(Ts);
     }
 

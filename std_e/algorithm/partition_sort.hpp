@@ -25,9 +25,6 @@ template<class Rand_it0, class Rand_it1, class Rand_it2, class Bin_pred = std::l
 // requires [pp_first,k) valid range (where k = pv_last-pv_first)
 partition_sort(Rand_it0 first, Rand_it0 last, Rand_it1 pv_first, Rand_it1 pv_last, Rand_it2 pp_first, Bin_pred comp = std::less<>{}) -> void {
   if (pv_first==pv_last) return;
-  //if (pv_first+1==pv_last) return;
-  ////if (first==last) return;
-  ////if (first+1==last) return;
   auto k = pv_last-pv_first;
   auto pv_mid = pv_first+k/2;
   auto pp_mid = pp_first+k/2;
