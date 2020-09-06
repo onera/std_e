@@ -11,14 +11,10 @@
 namespace std_e {
 
 
-// spreadsheet-like class 
-//   fixed column size 
-//   variable-length rows
-//   possible different column types
+// multi_range: multiple ranges of the same size zipped together
 // Invariants:
-//   (1) all columns have the same length
-//   (2) if a column has been sorted, calls to find on it will use a binary search
-// TODO get rid of row/range names (confusing)
+//   (1) all ranges have the same length
+//   (2) if a range has been sorted, calls to find on it will use a binary search
 template<template<class> class range_template, class... Ts>
 class multi_range {
   public:
@@ -91,12 +87,12 @@ class multi_range {
       return _impl;
     }
 
-    template<int col_index, class T> constexpr auto
-    // requires T==Ts[col_index]
+    template<int index, class T> constexpr auto
+    // requires T==Ts[index]
     find_index(const T& x) const -> index_type {
-      static_assert(col_index < nb_ranges());
-      const auto& range = get<col_index>(_impl);
-      if (col_index==sorted_rng_idx) {
+      static_assert(index < nb_ranges());
+      const auto& range = get<index>(_impl);
+      if (index==sorted_rng_idx) {
         auto it = std::lower_bound(begin(range),end(range),x);
         return it-begin(range);
       } else {
@@ -104,39 +100,39 @@ class multi_range {
         return it-begin(range);
       }
     }
-    template<int col_index, class T> constexpr auto
-    // requires T==Ts[col_index]
+    template<int index, class T> constexpr auto
+    // requires T==Ts[index]
     find(const T& x) const -> multi_elt_const_ref {
-      static_assert(col_index < nb_ranges());
-      index_type i = find_index<col_index>(x);
+      static_assert(index < nb_ranges());
+      index_type i = find_index<index>(x);
       STD_E_ASSERT(i<size());
       return (*this)[i];
     }
-    template<int col_index, class T> constexpr auto
-    // requires T==Ts[col_index]
+    template<int index, class T> constexpr auto
+    // requires T==Ts[index]
     find(T& x) -> multi_elt_ref { // TODO how to enforce invariant (2) ?
-      static_assert(col_index < nb_ranges());
-      index_type i = find_index<col_index>(x);
+      static_assert(index < nb_ranges());
+      index_type i = find_index<index>(x);
       STD_E_ASSERT(i<size());
       return (*this)[i];
     }
-    template<int search_col_index, int found_col_index, class T> constexpr auto
-    // requires T==Ts[search_col_index]
-    find_cell(const T& x) const -> const auto& {
-      static_assert(search_col_index < nb_ranges());
-      static_assert(found_col_index < nb_ranges());
-      index_type i = find_index<search_col_index>(x);
+    template<int search_index, int found_index, class T> constexpr auto
+    // requires T==Ts[search_index]
+    find_element(const T& x) const -> const auto& {
+      static_assert(search_index < nb_ranges());
+      static_assert(found_index < nb_ranges());
+      index_type i = find_index<search_index>(x);
       STD_E_ASSERT(i<size());
-      return get<found_col_index>(_impl)[i];
+      return get<found_index>(_impl)[i];
     }
-    template<int search_col_index, int found_col_index, class T> constexpr auto
-    // requires T==Ts[search_col_index]
-    find_cell(const T& x) -> auto& { // TODO how to enforce invariant (2) ?
-      static_assert(search_col_index < nb_ranges());
-      static_assert(found_col_index < nb_ranges());
-      index_type i = find_index<search_col_index>(x);
+    template<int search_index, int found_index, class T> constexpr auto
+    // requires T==Ts[search_index]
+    find_element(const T& x) -> auto& { // TODO how to enforce invariant (2) ?
+      static_assert(search_index < nb_ranges());
+      static_assert(found_index < nb_ranges());
+      index_type i = find_index<search_index>(x);
       STD_E_ASSERT(i<size());
-      return get<found_col_index>(_impl)[i];
+      return get<found_index>(_impl)[i];
     }
 
   // vector-like interface
@@ -146,11 +142,11 @@ class multi_range {
       return push_back__impl(std::forward_as_tuple(elts...),std::make_index_sequence<nb_ranges()>());
     }
 
-    template<int col_index> auto
+    template<int index> auto
     sort_by() -> void {
-      auto perm = std_e::sort_permutation(get<col_index>(_impl));
+      auto perm = std_e::sort_permutation(get<index>(_impl));
       apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
-      sorted_rng_idx = col_index;
+      sorted_rng_idx = index;
     }
     auto
     sort() -> void {
@@ -163,12 +159,12 @@ class multi_range {
       : _impl(range_template<std::tuple_element_t<Is,std::tuple<Ts...>>>(sz)...)
     {}
     template<size_t... Is> constexpr auto
-    // requires T==Ts[col_index]
+    // requires T==Ts[index]
     subscript_op__impl(index_type i, std::index_sequence<Is...>) const -> multi_elt_const_ref {
       return {get<Is>(_impl)[i]...};
     }
     template<size_t... Is> constexpr auto
-    // requires T==Ts[col_index]
+    // requires T==Ts[index]
     subscript_op__impl(index_type i, std::index_sequence<Is...>) -> multi_elt_ref {
       return {get<Is>(_impl)[i]...};
     }
@@ -183,7 +179,7 @@ class multi_range {
     }
   // data members
     impl_type _impl;
-    int sorted_rng_idx = -1; // no column sorted by default
+    int sorted_rng_idx = -1; // no range sorted by default
 };
 
 
@@ -221,90 +217,109 @@ element(multi_range<RT,Ts...>& x, I i) -> auto& {
   return range<T>(x)[i];
 }
 
-template<int col_index, template<class> class RT, class... Ts, class T> constexpr auto
-// requires T==Ts[col_index]
+template<int index, template<class> class RT, class... Ts, class T> constexpr auto
+// requires T==Ts[index]
 find(const multi_range<RT,Ts...>& x, const T& value) {
-  return x.template find<col_index>(value);
+  return x.template find<index>(value);
 }
-template<int col_index, template<class> class RT, class... Ts, class T> constexpr auto
-// requires T==Ts[col_index]
+template<int index, template<class> class RT, class... Ts, class T> constexpr auto
+// requires T==Ts[index]
 find(multi_range<RT,Ts...>& x, const T& value) {
-  return x.template find<col_index>(value);
+  return x.template find<index>(value);
 }
 
-template<int search_col_index, int found_col_index, template<class> class RT, class... Ts, class T> constexpr auto
-// requires T==Ts[col_index]
-find_cell(const multi_range<RT,Ts...>& x, const T& value) -> const auto& {
-  return x.template find_cell<search_col_index,found_col_index>(value);
+template<int search_index, int found_index, template<class> class RT, class... Ts, class T> constexpr auto
+// requires T==Ts[index]
+find_element(const multi_range<RT,Ts...>& x, const T& value) -> const auto& {
+  return x.template find_element<search_index,found_index>(value);
 }
-template<int search_col_index, int found_col_index, template<class> class RT, class... Ts, class T> constexpr auto
-// requires T==Ts[col_index]
-find_cell(multi_range<RT,Ts...>& x, const T& value) -> auto& {
-  return x.template find_cell<search_col_index,found_col_index>(value);
+template<int search_index, int found_index, template<class> class RT, class... Ts, class T> constexpr auto
+// requires T==Ts[index]
+find_element(multi_range<RT,Ts...>& x, const T& value) -> auto& {
+  return x.template find_element<search_index,found_index>(value);
 }
 
-template<int col_index, template<class> class RT, class... Ts> auto
+template<int index, template<class> class RT, class... Ts> auto
 sort_by(multi_range<RT,Ts...>& x) -> void {
-  return x.template sort_by<col_index>();
+  return x.template sort_by<index>();
 }
 template<template<class> class RT, class... Ts> auto
 sort(multi_range<RT,Ts...>& x) -> void {
   return x.sort();
 }
 
-/// find when only two columns {
+/// find when only two ranges {
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find(const multi_range<RT,T0,T1>& x, const T0& value) {
   static_assert(!std::is_same_v<T0,T1>);
   return find<0>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find(multi_range<RT,T0,T1>& x, const T0& value) {
   static_assert(!std::is_same_v<T0,T1>);
   return find<0>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find(const multi_range<RT,T0,T1>& x, const T1& value) {
   static_assert(!std::is_same_v<T0,T1>);
   return find<1>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find(multi_range<RT,T0,T1>& x, const T1& value) {
   static_assert(!std::is_same_v<T0,T1>);
   return find<1>(x,value);
 }
 
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find_associate(const multi_range<RT,T0,T1>& x, const T0& value) -> const T1& {
   static_assert(!std::is_same_v<T0,T1>);
-  return find_cell<0,1>(x,value);
+  return find_element<0,1>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find_associate(multi_range<RT,T0,T1>& x, const T0& value) -> T1& {
   static_assert(!std::is_same_v<T0,T1>);
-  return find_cell<0,1>(x,value);
+  return find_element<0,1>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find_associate(const multi_range<RT,T0,T1>& x, const T1& value) -> const T0& {
   static_assert(!std::is_same_v<T0,T1>);
-  return find_cell<1,0>(x,value);
+  return find_element<1,0>(x,value);
 }
 template<template<class> class RT, class T0, class T1> constexpr auto
-// requires T==Ts[col_index]
+// requires T==Ts[index]
 find_associate(multi_range<RT,T0,T1>& x, const T1& value) -> T0& {
   static_assert(!std::is_same_v<T0,T1>);
-  return find_cell<1,0>(x,value);
+  return find_element<1,0>(x,value);
 }
-/// find when only two columns }
+/// find when only two ranges }
 
 template<class... Ts> using multi_vector = multi_range<std::vector,Ts...>;
+
+// multi_span {
 template<class... Ts> using multi_span = multi_range<std_e::span,Ts...>;
+
+template<class return_type, class multi_range_type, size_t... Is> auto
+make_multi_span__impl(multi_range_type& x, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span(range<Is>(x))...);
+}
+
+template<template<class> class RT, class... Ts> auto
+make_multi_span(multi_range<RT,Ts...>& x) -> multi_span<Ts...> {
+  using return_type = multi_span<Ts...>;
+  return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
+}
+template<template<class> class RT, class... Ts> auto
+make_multi_span(const multi_range<RT,Ts...>& x) -> multi_span<const Ts...> {
+  using return_type = multi_span<const Ts...>;
+  return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
+}
+// multi_span }
 
 } // std_e

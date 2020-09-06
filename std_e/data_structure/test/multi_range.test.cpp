@@ -3,6 +3,7 @@
 
 #include <string>
 
+// TODO RENAME cell->elt, row->multi_elt, col->range
 using std::vector;
 using std::string;
 
@@ -51,8 +52,8 @@ TEST_CASE("multi_vector") {
       CHECK( std::get<0>(row43) == 43 ); CHECK( std::get<1>(row43) == "Y" );   CHECK( std::get<2>(row43) == 2.7  );
       CHECK( std::get<0>(rowX ) == 42 ); CHECK( std::get<1>(rowX ) == "X" );   CHECK( std::get<2>(rowX ) == 3.14 );
     }
-    SUBCASE("find_cell") {
-      double& cell_43_2 = std_e::find_cell<0,2>(t,43); // 0: search position of type "int", 2: found position of type "double"
+    SUBCASE("find_element") {
+      double& cell_43_2 = std_e::find_element<0,2>(t,43); // 0: search position of type "int", 2: found position of type "double"
       CHECK( cell_43_2 == 2.7 );
     }
   }
@@ -164,5 +165,37 @@ TEST_CASE("multi_span") {
       col0[0] = 50;
       CHECK( vi[0] == 50 );
     }
+  }
+}
+TEST_CASE("make_multi_span") {
+  std_e::multi_vector<int,std::string,double> mv;
+  mv.push_back(42,"X",3.14);
+  mv.push_back(43,"Y",2.7);
+  mv.push_back(0,"ABC",100.);
+
+  std::vector<int>         expected_col0 = {42,43,0};
+  std::vector<std::string> expected_col1 = {"X","Y","ABC"};
+  std::vector<double>      expected_col2 = {3.14,2.7,100.};
+
+  SUBCASE("non-const") {
+    std_e::multi_span<int,std::string,double> ms = make_multi_span(mv);
+
+    std_e::span<int>&         col0 = std_e::range<0>(ms);
+    std_e::span<std::string>& col1 = std_e::range<1>(ms);
+    std_e::span<double>&      col2 = std_e::range<2>(ms);
+    CHECK( col0 == expected_col0 );
+    CHECK( col1 == expected_col1 );
+    CHECK( col2 == expected_col2 );
+  }
+  SUBCASE("const") {
+    const auto& cmv = mv;
+    std_e::multi_span<const int,const std::string,const double> ms = make_multi_span(cmv);
+
+    std_e::span<const int>&         col0 = std_e::range<0>(ms);
+    std_e::span<const std::string>& col1 = std_e::range<1>(ms);
+    std_e::span<const double>&      col2 = std_e::range<2>(ms);
+    CHECK( col0 == expected_col0 );
+    CHECK( col1 == expected_col1 );
+    CHECK( col2 == expected_col2 );
   }
 }

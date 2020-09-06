@@ -4,6 +4,8 @@
 
 namespace std_e {
 
+// spreadsheet-like class 
+// "column" names may be used to create descriptive function names (through use of macros below)
 template<class... Ts> using table = multi_vector<Ts...>;
 
 } // std_e
@@ -21,11 +23,11 @@ template<class... Ts> using table = multi_vector<Ts...>;
   auto find_row_from_##attr1(const table_type& x, const type1& value) { return std_e::find<1>(x,value); } \
   auto find_row_from_##attr1(      table_type& x, const type1& value) { return std_e::find<1>(x,value); } \
   \
-  auto find_##attr0##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,0>(x,value); } \
-  auto find_##attr0##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,0>(x,value); } \
+  auto find_##attr0##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_element<1,0>(x,value); } \
+  auto find_##attr0##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_element<1,0>(x,value); } \
   \
-  auto find_##attr1##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,1>(x,value); } \
-  auto find_##attr1##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,1>(x,value); } \
+  auto find_##attr1##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_element<0,1>(x,value); } \
+  auto find_##attr1##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_element<0,1>(x,value); } \
   \
   auto sort_by_##attr0(table_type& x) -> void { return std_e::sort_by<0>(x); } \
   auto sort_by_##attr1(table_type& x) -> void { return std_e::sort_by<1>(x); } \
@@ -40,16 +42,16 @@ template<class... Ts> using table = multi_vector<Ts...>;
   auto find_row_from_##attr2(const table_type& x, const type2& value) { return std_e::find<2>(x,value); } \
   auto find_row_from_##attr2(      table_type& x, const type2& value) { return std_e::find<2>(x,value); } \
   \
-  auto find_##attr0##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,0>(x,value); } \
-  auto find_##attr0##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,0>(x,value); } \
+  auto find_##attr0##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_element<2,0>(x,value); } \
+  auto find_##attr0##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_element<2,0>(x,value); } \
   \
-  auto find_##attr1##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,1>(x,value); } \
-  auto find_##attr1##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,1>(x,value); } \
+  auto find_##attr1##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_element<2,1>(x,value); } \
+  auto find_##attr1##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_element<2,1>(x,value); } \
   \
-  auto find_##attr2##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,2>(x,value); } \
-  auto find_##attr2##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,2>(x,value); } \
-  auto find_##attr2##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,2>(x,value); } \
-  auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,2>(x,value); } \
+  auto find_##attr2##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_element<0,2>(x,value); } \
+  auto find_##attr2##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_element<0,2>(x,value); } \
+  auto find_##attr2##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_element<1,2>(x,value); } \
+  auto find_##attr2##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_element<1,2>(x,value); } \
   \
   auto sort_by_##attr2(table_type& x) -> void { return std_e::sort_by<2>(x); } \
   \
@@ -63,21 +65,21 @@ template<class... Ts> using table = multi_vector<Ts...>;
   auto find_row_from_##attr3(const table_type& x, const type3& value) { return std_e::find<3>(x,value); } \
   auto find_row_from_##attr3(      table_type& x, const type3& value) { return std_e::find<3>(x,value); } \
   \
-  auto find_##attr0##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,0>(x,value); } \
-  auto find_##attr0##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,0>(x,value); } \
+  auto find_##attr0##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_element<3,0>(x,value); } \
+  auto find_##attr0##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_element<3,0>(x,value); } \
   \
-  auto find_##attr1##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,1>(x,value); } \
-  auto find_##attr1##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,1>(x,value); } \
+  auto find_##attr1##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_element<3,1>(x,value); } \
+  auto find_##attr1##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_element<3,1>(x,value); } \
   \
-  auto find_##attr2##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_cell<3,2>(x,value); } \
-  auto find_##attr2##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_cell<3,2>(x,value); } \
+  auto find_##attr2##_from_##attr3(const table_type& x, const type3& value) -> const auto& { return std_e::find_element<3,2>(x,value); } \
+  auto find_##attr2##_from_##attr3(      table_type& x, const type3& value) ->       auto& { return std_e::find_element<3,2>(x,value); } \
   \
-  auto find_##attr3##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_cell<0,3>(x,value); } \
-  auto find_##attr3##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_cell<0,3>(x,value); } \
-  auto find_##attr3##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_cell<1,3>(x,value); } \
-  auto find_##attr3##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_cell<1,3>(x,value); } \
-  auto find_##attr3##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_cell<2,3>(x,value); } \
-  auto find_##attr3##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_cell<2,3>(x,value); } \
+  auto find_##attr3##_from_##attr0(const table_type& x, const type0& value) -> const auto& { return std_e::find_element<0,3>(x,value); } \
+  auto find_##attr3##_from_##attr0(      table_type& x, const type0& value) ->       auto& { return std_e::find_element<0,3>(x,value); } \
+  auto find_##attr3##_from_##attr1(const table_type& x, const type1& value) -> const auto& { return std_e::find_element<1,3>(x,value); } \
+  auto find_##attr3##_from_##attr1(      table_type& x, const type1& value) ->       auto& { return std_e::find_element<1,3>(x,value); } \
+  auto find_##attr3##_from_##attr2(const table_type& x, const type2& value) -> const auto& { return std_e::find_element<2,3>(x,value); } \
+  auto find_##attr3##_from_##attr2(      table_type& x, const type2& value) ->       auto& { return std_e::find_element<2,3>(x,value); } \
   \
   auto sort_by_##attr3(table_type& x) -> void { return std_e::sort_by<3>(x); } \
   \
