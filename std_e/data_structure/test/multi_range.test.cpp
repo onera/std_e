@@ -167,33 +167,49 @@ TEST_CASE("multi_span") {
     }
   }
 }
-TEST_CASE("make_multi_span") {
+TEST_CASE("make_span") {
   std_e::multi_vector<int,std::string,double> mv;
   mv.push_back(42,"X",3.14);
   mv.push_back(43,"Y",2.7);
   mv.push_back(0,"ABC",100.);
 
-  std::vector<int>         expected_col0 = {42,43,0};
-  std::vector<std::string> expected_col1 = {"X","Y","ABC"};
-  std::vector<double>      expected_col2 = {3.14,2.7,100.};
+  SUBCASE("complete view") {
+    std::vector<int>         expected_col0 = {42,43,0};
+    std::vector<std::string> expected_col1 = {"X","Y","ABC"};
+    std::vector<double>      expected_col2 = {3.14,2.7,100.};
 
-  SUBCASE("non-const") {
-    std_e::multi_span<int,std::string,double> ms = make_multi_span(mv);
+    SUBCASE("non-const") {
+      std_e::multi_span<int,std::string,double> ms = make_span(mv);
+
+      std_e::span<int>&         col0 = std_e::range<0>(ms);
+      std_e::span<std::string>& col1 = std_e::range<1>(ms);
+      std_e::span<double>&      col2 = std_e::range<2>(ms);
+      CHECK( col0 == expected_col0 );
+      CHECK( col1 == expected_col1 );
+      CHECK( col2 == expected_col2 );
+    }
+    SUBCASE("const") {
+      const auto& cmv = mv;
+      std_e::multi_span<const int,const std::string,const double> ms = make_span(cmv);
+
+      std_e::span<const int>&         col0 = std_e::range<0>(ms);
+      std_e::span<const std::string>& col1 = std_e::range<1>(ms);
+      std_e::span<const double>&      col2 = std_e::range<2>(ms);
+      CHECK( col0 == expected_col0 );
+      CHECK( col1 == expected_col1 );
+      CHECK( col2 == expected_col2 );
+    }
+  }
+  SUBCASE("partial view") {
+    std::vector<int>         expected_col0 = {43,0};
+    std::vector<std::string> expected_col1 = {"Y","ABC"};
+    std::vector<double>      expected_col2 = {2.7,100.};
+
+    std_e::multi_span<int,std::string,double> ms = make_span_n(mv,1,2);
 
     std_e::span<int>&         col0 = std_e::range<0>(ms);
     std_e::span<std::string>& col1 = std_e::range<1>(ms);
     std_e::span<double>&      col2 = std_e::range<2>(ms);
-    CHECK( col0 == expected_col0 );
-    CHECK( col1 == expected_col1 );
-    CHECK( col2 == expected_col2 );
-  }
-  SUBCASE("const") {
-    const auto& cmv = mv;
-    std_e::multi_span<const int,const std::string,const double> ms = make_multi_span(cmv);
-
-    std_e::span<const int>&         col0 = std_e::range<0>(ms);
-    std_e::span<const std::string>& col1 = std_e::range<1>(ms);
-    std_e::span<const double>&      col2 = std_e::range<2>(ms);
     CHECK( col0 == expected_col0 );
     CHECK( col1 == expected_col1 );
     CHECK( col2 == expected_col2 );

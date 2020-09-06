@@ -2,7 +2,7 @@
 #include "std_e/data_structure/jagged_range.hpp"
 
 using namespace std_e;
-
+using namespace std;
 
 TEST_CASE("jagged_vector") {
   SUBCASE("base test") {
@@ -100,4 +100,27 @@ TEST_CASE("jagged_vector") {
 
   //SUBCASE("equality") {
   //}
+}
+
+TEST_CASE("jagged_multi_vector") {
+  jagged_multi_vector<2,int,string> v;
+  v.push_level();
+  v.push_back(10,"10");
+  v.push_level();
+  v.push_back(20,"20");
+  v.push_back(30,"30");
+  v.push_level();
+  v.push_back(40,"40");
+  v.push_level();
+  v.push_back(50,"50");
+  v.push_back(60,"60");
+  v.push_back(70,"70");
+
+  CHECK( v.size() == 4 );
+  CHECK( range<0>(v.flat_view()) == std::vector{10,20,30,40,50,60,70} );
+  CHECK( range<1>(v.flat_view()) == std::vector{"10","20","30","40","50","60","70"} );
+  CHECK( v.indices() == knot_vector<int>{0,1,3,4,7} );
+  CHECK( v[0].size() == 1 );
+  CHECK( std::get<0>(v[0][0]) == 10 );
+  CHECK( std::get<1>(v[0][0]) == "10" );
 }

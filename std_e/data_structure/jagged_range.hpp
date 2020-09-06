@@ -4,6 +4,7 @@
 #include "std_e/future/span.hpp"
 #include "std_e/interval/knot_sequence.hpp"
 #include <vector>
+#include "std_e/data_structure/multi_range.hpp"
 #include "std_e/log.hpp" // TODO
 
 
@@ -16,6 +17,9 @@ template<class T, int rank=2, class I=int>
 using jagged_span = jagged_range<span<T>,knot_span<I>,rank>;
 template<class T, int rank=2, class I=int>
 using jagged_vector = jagged_range<std::vector<T>,knot_vector<I>,rank>;
+
+template<int rank, class... Ts>
+using jagged_multi_vector = jagged_range<multi_vector<Ts...>,knot_vector<int>,rank>;
 
 template<class data_range_type, class offsets_range_type, int rank>
 class jagged_range {
@@ -91,15 +95,15 @@ class jagged_range {
     }
 
   // accessors
-    auto flat_view() const -> span<const T> {
-      return span(flat_values.data(),flat_values.data()+flat_values.size());
+    auto flat_view() const {
+      return make_span(flat_values);
     }
     auto index_array() const -> const auto& {
       return idx_array;
     }
     auto indices() const -> knot_span<const I> {
       static_assert(rank==2);
-      return to_knot_span(span<const I>(idx_array[0].data(),idx_array[0].data()+idx_array[0].size()));
+      return to_knot_span(make_span(idx_array[0]));
     }
     auto offset() const -> I {
       return off;
@@ -115,8 +119,9 @@ class jagged_range {
       push_level(1);
     }
 
-    auto push_back(const T& x) -> T& {
-      flat_values.push_back(x);
+    template<class... Ts0>
+    auto push_back(const Ts0&... xs) -> decltype(auto) {
+      flat_values.push_back(xs...);
       for (auto& _offset : idx_array) {
         ++_offset.back();
       }
@@ -126,7 +131,7 @@ class jagged_range {
   // random access
     auto operator[](I i) {
       if constexpr (rank==2) {
-        return span(data()+idx_array[0][i]-off,data()+idx_array[0][i+1]-off); // TODO wrong because returns a view
+        return make_span(flat_values, idx_array[0][i]-off, idx_array[0][i+1]-off); // TODO wrong because returns a view
                                                               // but should return a proxy reference
       } else {
         std::array<knot_span<I>,rank-2> sub_offsets;
@@ -135,8 +140,8 @@ class jagged_range {
           auto sup = std::lower_bound(idx_array[j].data(), idx_array[j].data()+idx_array[j].size(), idx_array[0][i+1]);
           sub_offsets[j-1] = to_knot_span(span(inf,sup+1));
         }
-        span<T> sub_data(data()+idx_array[0][i],data()+idx_array[0][i+1]);
-        return jagged_span<T,rank-1,I>(sub_data,sub_offsets,idx_array[0][i]); // TODO wrong (same reason: not a proxy ref)
+        auto sub_data = make_span(flat_values,idx_array[0][i],idx_array[0][i+1]);
+        return jagged_range<decltype(sub_data),knot_span<I>,rank-1>(sub_data,sub_offsets,idx_array[0][i]); // TODO wrong (same reason: not a proxy ref)
       }
     }
 };

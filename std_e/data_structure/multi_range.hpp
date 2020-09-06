@@ -23,6 +23,7 @@ class multi_range {
     using multi_elt_const_ref = std::tuple<const Ts&...>;
     using index_type = std::ptrdiff_t;
     using impl_type = hrange<range_template,Ts...>;
+    using value_type = std::tuple_element_t<0,std::tuple<Ts...>>; // when used in a (single-)range context
 
   // ctors
     multi_range() = default;
@@ -75,6 +76,14 @@ class multi_range {
     auto
     operator[](index_type i) -> multi_elt_ref { // TODO how to enforce invariant (2) ?
       return this->subscript_op__impl(i,std::make_index_sequence<nb_ranges()>());
+    }
+    auto
+    back() const -> multi_elt_const_ref {
+      return (*this)[size()-1];
+    }
+    auto
+    back() -> multi_elt_ref {
+      return (*this)[size()-1];
     }
 
   // low-level access
@@ -138,7 +147,7 @@ class multi_range {
   // vector-like interface
     template<class... Ts0> auto
     // requires Ts0 is Ts
-    push_back(const Ts0&... elts) { // TODO how to enforce invariant (2) ?
+    push_back(const Ts0&... elts) -> multi_elt_ref { // TODO how to enforce invariant (2) ?
       return push_back__impl(std::forward_as_tuple(elts...),std::make_index_sequence<nb_ranges()>());
     }
 
@@ -170,8 +179,9 @@ class multi_range {
     }
     template<class args_tuple_type, size_t... Is> auto
     // requires args_tuple_type is tuple<Ts...>
-    push_back__impl(const args_tuple_type& elts, std::index_sequence<Is...>) {
+    push_back__impl(const args_tuple_type& elts, std::index_sequence<Is...>) -> multi_elt_ref {
       ( get<Is>(_impl).push_back(std::get<Is>(elts)) , ... );
+      return back();
     }
     template<class Int_range, size_t... Is> auto
     apply_permutation__impl(const Int_range& perm, std::index_sequence<Is...>) -> void {
@@ -309,16 +319,45 @@ template<class return_type, class multi_range_type, size_t... Is> auto
 make_multi_span__impl(multi_range_type& x, std::index_sequence<Is...>) {
   return return_type(std_e::make_span(range<Is>(x))...);
 }
-
 template<template<class> class RT, class... Ts> auto
-make_multi_span(multi_range<RT,Ts...>& x) -> multi_span<Ts...> {
+make_span(multi_range<RT,Ts...>& x) -> multi_span<Ts...> {
   using return_type = multi_span<Ts...>;
   return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
 }
 template<template<class> class RT, class... Ts> auto
-make_multi_span(const multi_range<RT,Ts...>& x) -> multi_span<const Ts...> {
+make_span(const multi_range<RT,Ts...>& x) -> multi_span<const Ts...> {
   using return_type = multi_span<const Ts...>;
   return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
+}
+
+template<class return_type, class multi_range_type, class I, size_t... Is> auto
+make_span_n__impl(multi_range_type& x, I start_idx, I n, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span_n(range<Is>(x),start_idx,n)...);
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_n(multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span<Ts...> {
+  using return_type = multi_span<Ts...>;
+  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<x.nb_ranges()>());
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_n(const multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span<const Ts...> {
+  using return_type = multi_span<const Ts...>;
+  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<x.nb_ranges()>());
+}
+
+template<class return_type, class multi_range_type, class I, size_t... Is> auto
+make_span__impl(multi_range_type& x, I start_idx, I finish_idx, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span(range<Is>(x),start_idx,finish_idx)...);
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span(multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span<Ts...> {
+  using return_type = multi_span<Ts...>;
+  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<x.nb_ranges()>());
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span(const multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span<const Ts...> {
+  using return_type = multi_span<const Ts...>;
+  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<x.nb_ranges()>());
 }
 // multi_span }
 

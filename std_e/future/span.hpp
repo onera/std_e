@@ -219,20 +219,21 @@ template<class T> FORCE_INLINE constexpr auto
 make_span(T* ptr, ptrdiff_t offset, ptrdiff_t n) {
   return span<T,dynamic_size>(ptr+offset,n);
 }
-template<class T> FORCE_INLINE constexpr auto
-make_span(const T* ptr, ptrdiff_t offset, ptrdiff_t n) {
-  return span<const T,dynamic_size>(ptr+offset,n);
-}
 
-template<class Container> FORCE_INLINE constexpr auto
-make_span(Container& x) {
-  using T = typename Container::value_type;
-  return span<T,dynamic_size>(x.data(),x.size());
+template<class Contiguous_range> FORCE_INLINE constexpr auto
+make_span(Contiguous_range& x) {
+  return make_span(x.data(),x.size());
 }
-template<class Container> FORCE_INLINE constexpr auto
-make_span(const Container& x) {
-  using T = typename Container::value_type;
-  return span<const T,dynamic_size>(x.data(),x.size());
+template<
+  class Contiguous_range, class I,
+  std::enable_if_t<!std::is_pointer_v<std::remove_reference_t<Contiguous_range>>,int> =0
+> FORCE_INLINE constexpr auto
+make_span(Contiguous_range& x, I start, I finish) {
+  return make_span(x.data(),start,finish-start);
+}
+template<class Contiguous_range, class I> FORCE_INLINE constexpr auto
+make_span_n(Contiguous_range& x, I start, I n) {
+  return make_span(x.data(),start,n);
 }
 
 
