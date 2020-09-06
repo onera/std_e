@@ -7,11 +7,11 @@ using namespace std;
 MPI_TEST_CASE("all_to_all_v",3) {
   using data_t = std::vector<int>;
   std::vector<data_t> data_to_send(3);
-  if (std_e::rank(test_comm)==0) {
+  if (test_rank==0) {
     data_to_send[0] = {1,2};
     data_to_send[1] = {3,4,5};
     data_to_send[2] = {6,7};
-  } else if (std_e::rank(test_comm)==1) {
+  } else if (test_rank==1) {
     data_to_send[0] = {8};
     data_to_send[1] = {9,10,11,12};
     data_to_send[2] = {13};
