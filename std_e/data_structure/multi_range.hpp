@@ -6,6 +6,7 @@
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/utils/macro.hpp"
 #include "std_e/algorithm/permutation.hpp"
+#include "std_e/future/span.hpp"
 
 
 namespace std_e {

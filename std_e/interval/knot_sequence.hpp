@@ -48,8 +48,13 @@ class knot_sequence : private Random_access_range {
       : base(n+1,x)
     {}
     
-    knot_sequence(value_type* first, value_type n)
+    template<class Iterator>
+    knot_sequence(Iterator first, value_type n)
       : base(first,first+n+1)
+    {}
+    template<class Iterator>
+    knot_sequence(Iterator first, Iterator last)
+      : base(first,last)
     {}
 
     knot_sequence(std::initializer_list<value_type> l)

@@ -10,7 +10,7 @@
 
 namespace std_e {
 
-template<class data_range_type, class offsets_range_type, int rank>
+template<class data_range_type, class indices_range_type, int rank>
 class jagged_range;
 
 template<class T, int rank=2, class I=int>
@@ -21,15 +21,15 @@ using jagged_vector = jagged_range<std::vector<T>,knot_vector<I>,rank>;
 template<int rank, class... Ts>
 using jagged_multi_vector = jagged_range<multi_vector<Ts...>,knot_vector<int>,rank>;
 
-template<class data_range_type, class offsets_range_type, int rank>
+template<class data_range_type, class indices_range_type, int rank>
 class jagged_range {
   private:
-    using offsets_array_type = std::array<offsets_range_type,rank-1>;
+    using indices_array_type = std::array<indices_range_type,rank-1>;
     using T = typename data_range_type::value_type;
-    using I = typename offsets_range_type::value_type;
+    using I = typename indices_range_type::value_type;
 
     data_range_type flat_values;
-    offsets_array_type idx_array;
+    indices_array_type idx_array;
     I off = 0;
   public:
   // type traits
@@ -43,15 +43,24 @@ class jagged_range {
       }
     }
 
-    jagged_range(data_range_type flat_values, offsets_range_type idx_array, I off)
+    jagged_range(data_range_type flat_values, indices_range_type idx_array, I off = 0)
       : flat_values(std::move(flat_values))
       , off(off)
     {
       idx_array[0] = std::move(idx_array);
       static_assert(rank==2);
     }
+    // same as above, but by copy is different types (e.g. Range==span, data_range_type==vector)
+    template<class Range0, class Range1>
+    jagged_range(const Range0& flat_values, const Range1& idx_array, I off = 0)
+      : flat_values(flat_values.begin(),flat_values.end())
+      , idx_array(assign_first_range<>(idx_array))
+      , off(off)
+    {
+      static_assert(rank==2);
+    }
 
-    jagged_range(data_range_type flat_values, offsets_array_type idx_array, I off)
+    jagged_range(data_range_type flat_values, indices_array_type idx_array, I off = 0)
       : flat_values(std::move(flat_values))
       , idx_array(std::move(idx_array))
       , off(off)
@@ -143,6 +152,13 @@ class jagged_range {
         auto sub_data = make_span(flat_values,idx_array[0][i],idx_array[0][i+1]);
         return jagged_range<decltype(sub_data),knot_span<I>,rank-1>(sub_data,sub_offsets,idx_array[0][i]); // TODO wrong (same reason: not a proxy ref)
       }
+    }
+  private:
+    template<class Range> static auto
+    assign_first_range(const Range& rng) -> indices_array_type {
+      indices_array_type res;
+      res[0] = indices_range_type(rng.begin(),rng.end());
+      return res;
     }
 };
 
