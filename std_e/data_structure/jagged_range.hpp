@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 
 #include "std_e/future/span.hpp"
 #include "std_e/interval/knot_sequence.hpp"
@@ -56,7 +57,7 @@ class jagged_range {
       , idx_array(std::move(idx_array))
       , off(off)
     {}
-    
+
     jagged_range(std::initializer_list<std::initializer_list<T>> ll)
       : jagged_range()
     {
@@ -103,8 +104,23 @@ class jagged_range {
     }
     auto indices() const -> knot_span<const I> {
       static_assert(rank==2);
-      return to_knot_span(make_span(idx_array[0]));
+      std::cout << " ---- " << __PRETTY_FUNCTION__ << std::endl;
+      return to_knot_span(make_span(idx_array[0].as_base()));
     }
+    // // TODO : FIX
+    // auto indices2() const{
+    //   static_assert(rank==2);
+    //   std::cout << " ---- " << __PRETTY_FUNCTION__ << std::endl;
+    //   // std::vector<int> tmp = idx_array[0].as_base();
+    //   // return std_e::knot_sequence<std_e::span<const int>>(tmp.data(), tmp.size());
+    //   // return std_e::knot_sequence<std_e::span<const int>>(my_type());
+    //   // return std_e::knot_sequence<std_e::span<const int>>(my_type());
+    //   return std_e::knot_sequence<std_e::span<const int>>(true);
+    // }
+    // auto indices() -> knot_span<I> {
+    //   static_assert(rank==2);
+    //   return to_knot_span(make_span(idx_array[0]));
+    // }
     auto offset() const -> I {
       return off;
     }

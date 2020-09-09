@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <iostream>
 #include <algorithm>
 #include <type_traits>
 #include "std_e/base/dynamic_size.hpp"

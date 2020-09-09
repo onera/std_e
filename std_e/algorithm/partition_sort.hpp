@@ -6,7 +6,7 @@
 
 namespace std_e {
 
-  
+
 // Partition range [first,last) with partition values [pv_first,pv_last)
 // The partition points are written in [pp_first,k), where k = pv_last-pv_first
 // The algorithm is in-place and of complexity n*log_2(k), where n = last-first
@@ -44,7 +44,7 @@ partition_sort(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred c
   return partition_points;
 }
 
-template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> constexpr auto
+template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
 partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = std::less<>{}) -> std::vector<int> {
   auto partition_points = std_e::partition_sort(rng,partition_values,comp);
   int k = partition_values.size();

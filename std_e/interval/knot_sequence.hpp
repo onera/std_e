@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 
 #include "std_e/interval/interval.hpp"
 #include "std_e/future/span.hpp"
@@ -12,7 +13,7 @@
 namespace std_e {
 
 // fwd decls
-template<class Number> constexpr auto
+template<class Number> auto
 to_knot_vector(std::vector<Number> v);
 
 /**
@@ -47,7 +48,7 @@ class knot_sequence : private Random_access_range {
     knot_sequence(int n, value_type x)
       : base(n+1,x)
     {}
-    
+
     knot_sequence(value_type* first, value_type n)
       : base(first,first+n+1)
     {}
@@ -110,7 +111,10 @@ class knot_sequence : private Random_access_range {
       return *this;
     }
   private:
-    knot_sequence(std::vector<value_type> v)
+    // Hack compiler because this ons try to instantiate all method but
+    // we fall back in pb that vector cannot be instatnciad with "const T"
+    template<class T0>
+    knot_sequence(T0 v)
       : base(std::move(v))
     {}
     constexpr auto friend to_knot_vector<>(std::vector<value_type> v);
@@ -124,25 +128,25 @@ template<class Rng0, class Rng1> constexpr auto
 operator!=(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
   return !(x==y);
 }
-template<class Rng> constexpr auto
+template<class Rng> auto
 to_string(const knot_sequence<Rng>& x) -> std::string {
   return to_string(x.as_base());
 }
 
 
 template<class Number> using knot_vector = knot_sequence<std::vector<Number>>;
-template<class Number> using knot_span = knot_sequence<std_e::span<Number>>;
+template<class Number> using knot_span   = knot_sequence<std_e::span<Number>>;
 
 using int_knot_vector = knot_vector<int>;
 using int_knot_span = knot_span<int>;
 
-
-template<class Number> constexpr auto
+template<class Number> auto
 to_knot_span(span<Number> s) {
   STD_E_ASSERT(std::is_sorted(begin(s),end(s)));
   return knot_span<Number>(s.data(),s.size()-1);
 }
-template<class Number> constexpr auto
+
+template<class Number> auto
 to_knot_vector(std::vector<Number> v) {
   STD_E_ASSERT(std::is_sorted(begin(v),end(v)));
   return knot_vector<Number>(std::move(v));
@@ -157,14 +161,14 @@ interval_lengths(const Knot_sequence& ks) -> std::vector<T> {
   res[0] = ks.length(0);
   return res;
 }
-template<class Random_access_range, class T = typename Random_access_range::value_type> constexpr auto
+template<class Random_access_range, class T = typename Random_access_range::value_type> auto
 offsets_from_sizes(const Random_access_range& r) -> knot_vector<T> {
   knot_vector<int> offsets(r.size());
   offsets[0] = 0;
   std_e::inclusive_scan(begin(r),end(r),begin(offsets)+1);
   return offsets;
 }
-template<class Number, class Knot_sequence> auto 
+template<class Number, class Knot_sequence> auto
 interval_index(Number x, const Knot_sequence& ks) {
   auto it = std::upper_bound(begin(ks),end(ks),x);
   return it-begin(ks)-1;
