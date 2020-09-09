@@ -152,6 +152,13 @@ class multi_range {
       return push_back__impl(std::forward_as_tuple(elts...),std::make_index_sequence<nb_ranges()>());
     }
 
+    template<int index, class F> auto
+    reorder_by(F reordering) -> void {
+      auto perm = std_e::sort_permutation(get<index>(_impl));
+      apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
+      sorted_rng_idx = index;
+    }
+
     template<int index> auto
     sort_by() -> void {
       auto perm = std_e::sort_permutation(get<index>(_impl));

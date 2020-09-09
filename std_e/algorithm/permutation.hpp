@@ -40,16 +40,20 @@ compose_permutations(const array_type& p0, const array_type& p1) {
 }
 
 
-template<class Rng> auto
-sort_permutation(const Rng& x) -> std::vector<int> {
-  std::vector<int> p(x.size());
-  std::iota(p.begin(), p.end(), 0);
-  std::sort(p.begin(), p.end(), [&](int i, int j){ return x[i] < x[j]; });
-  return p;
-}
-
-template<class Rng, class Comp> auto
-sort_permutation(const Rng& x, Comp comp) -> std::vector<int> {
+//template<class Rng, class F> auto
+//indirect_reorder(const Rng& x, F reordering) -> std::vector<int> {
+//  return p;
+//}
+//template<class Rng, class Comp = std::equal_to<>> auto
+//unique_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
+//  std::vector<int> p(x.size());
+//  std::iota(p.begin(), p.end(), 0);
+//  auto new_end = std::unique(p.begin(), p.end(), [&](int i, int j){ return comp(x[i], x[j]); });
+//  p.erase(new_end,end(p));
+//  return p;
+//}
+template<class Rng, class Comp = std::less<>> auto
+sort_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
   std::vector<int> p(x.size());
   std::iota(p.begin(), p.end(), 0);
   std::sort(p.begin(), p.end(), [&](int i, int j){ return comp(x[i], x[j]); });

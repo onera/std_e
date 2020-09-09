@@ -84,11 +84,13 @@ unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
   v.erase(new_end,end(v));
 }
 
-template<class T, class A, class Equiv_pred> constexpr auto
-sort_unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
-  auto new_end = std::unique(begin(v),end(v),eq);
-  v.erase(new_end,end(v));
-}
+// TODO DEL? (wrong: no sort)
+//template<class T, class A, class Equiv_pred> constexpr auto
+//sort_unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
+//  auto new_end = std::unique(begin(v),end(v),eq);
+//  v.erase(new_end,end(v));
+//}
+
 template<class T, class A> constexpr auto
 sort_unique(std::vector<T,A>& v) -> void {
   sort(v);
