@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "std_e/future/span.hpp"
 #include "std_e/interval/knot_sequence.hpp"
 #include <vector>
