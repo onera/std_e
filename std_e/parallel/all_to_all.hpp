@@ -36,7 +36,7 @@ all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm) -> compressed_arra
 
   std::vector<int> rcounts = all_to_all(scounts,comm);
 
-  knot_vector<int> roffsets = offsets_from_sizes(rcounts);
+  knot_vector<int> roffsets = indices_from_sizes(rcounts);
 
   std::vector<T> rbuf(roffsets.length());
   int err = MPI_Alltoallv(sbuf.data(), scounts.data(), soffsets.data(), std_e::to_mpi_type<T>,
@@ -85,7 +85,7 @@ neighbor_all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm) -> compre
 
   std::vector<int> rcounts = neighbor_all_to_all(scounts,comm);
 
-  knot_vector<int> roffsets = offsets_from_sizes(rcounts);
+  knot_vector<int> roffsets = indices_from_sizes(rcounts);
 
   std::vector<T> rbuf(roffsets.length());
   int err = MPI_Neighbor_alltoallv(sbuf.data(), scounts.data(), soffsets.data(), std_e::to_mpi_type<T>,
@@ -115,7 +115,7 @@ neighbor_all_to_all_v(const Random_access_range& sends, MPI_Comm comm) -> std::v
 //
 //  std::vector<int> rcounts = neighbor_all_to_all(scounts,comm);
 //
-//  knot_vector<int> roffsets = offsets_from_sizes(rcounts);
+//  knot_vector<int> roffsets = indices_from_sizes(rcounts);
 //
 //  std::vector<T> rbuf(roffsets.length());
 //  int err = MPI_Neighbor_alltoallv(sbuf.data(), scounts.data(), soffsets.data(), std_e::to_mpi_type<T>,

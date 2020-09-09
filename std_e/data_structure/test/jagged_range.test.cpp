@@ -73,7 +73,6 @@ TEST_CASE("jagged_vector") {
     CHECK( v.index_array()[1] == knot_vector<int>{0,1,3,4,7} );
 
     CHECK( v == jagged_vector<int,3>{{{10},{20,30}},{{40},{50,60,70}}} );
-     
     CHECK( v[0].flat_view() == std::vector{10,20,30} );
     CHECK( v[0].indices() == knot_vector<int>{0,1,3} );
     CHECK( v[0].offset() == 0 );

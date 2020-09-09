@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "std_e/future/span.hpp"
 #include "std_e/interval/knot_sequence.hpp"
 #include <vector>
@@ -65,7 +64,7 @@ class jagged_range {
       , idx_array(std::move(idx_array))
       , off(off)
     {}
-    
+
     jagged_range(std::initializer_list<std::initializer_list<T>> ll)
       : jagged_range()
     {

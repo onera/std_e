@@ -36,7 +36,7 @@ struct make_array_of_size__impl;
 template<class T>
 struct make_array_of_size__impl< T , std::enable_if_t<is_fixed_size_array<T>> > {
   static constexpr auto
-  func(int sz) -> T {
+  func([[maybe_unused]] int sz) -> T {
     [[maybe_unused]] constexpr int array_sz = std::tuple_size_v<T>;
     STD_E_ASSERT(sz==array_sz);
     return {};
@@ -66,7 +66,7 @@ struct concatenated_array__impl;
 template<class Array, class... Arrays>
 struct concatenated_array__impl<
   std::enable_if_t<is_fixed_size_array<Array>>,
-  Array,Arrays... 
+  Array,Arrays...
 >
 {
   static constexpr int sum_sizes = std::tuple_size_v<Array> + (std::tuple_size_v<Arrays> + ...);
@@ -76,7 +76,7 @@ struct concatenated_array__impl<
 template<class Array, class... Arrays>
 struct concatenated_array__impl<
   std::enable_if_t<is_dyn_size_array<Array>>,
-  Array,Arrays... 
+  Array,Arrays...
 >
 {
   using type = Array;
@@ -97,7 +97,7 @@ template<
   class Array0, class Array1,
   std::enable_if_t< std::is_same<Array0,Array1>::value , int > =0
 > constexpr auto
-convert_to(Array1&& x) 
+convert_to(Array1&& x)
  -> Array1&&
 {
   return FWD(x);
@@ -106,7 +106,7 @@ template<
   class Array0, class Array1,
   std::enable_if_t< not std::is_same<Array0,Array1>::value , int > =0
 > constexpr auto
-convert_to(Array1&& x) 
+convert_to(Array1&& x)
  -> Array0
 {
   size_t n = x.size();

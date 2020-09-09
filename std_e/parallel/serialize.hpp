@@ -15,7 +15,7 @@ namespace std_e {
     Trivially_copyable
     contains no pointer
   }
- 
+
   concept Trivially_serializable = Trivially_copyable_value || Array<Trivially_copyable_value>
 }
 */
@@ -163,7 +163,7 @@ serialize_array(const span<T>& x) -> serialized_array {
   offsets.back() = offset;
   return {offsets,data};
 }
-template<class T> constexpr auto
+template<class T> auto
 serialize_array(const std::vector<T>& x) -> serialized_array {
   return serialize_array(make_span(x));
 }

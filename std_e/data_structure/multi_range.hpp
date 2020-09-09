@@ -1,7 +1,7 @@
 #pragma once
 
-
 #include "std_e/algorithm/permutation.hpp"
+#include "std_e/base/template_alias.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/utils/macro.hpp"
@@ -318,10 +318,10 @@ find_associate(multi_range<RT,T0,T1>& x, const T1& value) -> T0& {
 }
 /// find when only two ranges }
 
-template<class... Ts> using multi_vector = multi_range<std::vector,Ts...>;
+template<class... Ts> using multi_vector = multi_range<std_alloc_vector,Ts...>;
 
 // multi_span {
-template<class... Ts> using multi_span = multi_range<std_e::span,Ts...>;
+template<class... Ts> using multi_span = multi_range<dyn_span,Ts...>;
 
 template<class return_type, class multi_range_type, size_t... Is> auto
 make_multi_span__impl(multi_range_type& x, std::index_sequence<Is...>) {
@@ -330,12 +330,12 @@ make_multi_span__impl(multi_range_type& x, std::index_sequence<Is...>) {
 template<template<class> class RT, class... Ts> auto
 make_span(multi_range<RT,Ts...>& x) -> multi_span<Ts...> {
   using return_type = multi_span<Ts...>;
-  return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
+  return make_multi_span__impl<return_type>(x,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 template<template<class> class RT, class... Ts> auto
 make_span(const multi_range<RT,Ts...>& x) -> multi_span<const Ts...> {
   using return_type = multi_span<const Ts...>;
-  return make_multi_span__impl<return_type>(x,std::make_index_sequence<x.nb_ranges()>());
+  return make_multi_span__impl<return_type>(x,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 
 template<class return_type, class multi_range_type, class I, size_t... Is> auto
@@ -345,12 +345,12 @@ make_span_n__impl(multi_range_type& x, I start_idx, I n, std::index_sequence<Is.
 template<template<class> class RT, class... Ts, class I> auto
 make_span_n(multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span<Ts...> {
   using return_type = multi_span<Ts...>;
-  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<x.nb_ranges()>());
+  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 template<template<class> class RT, class... Ts, class I> auto
 make_span_n(const multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span<const Ts...> {
   using return_type = multi_span<const Ts...>;
-  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<x.nb_ranges()>());
+  return make_span_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 
 template<class return_type, class multi_range_type, class I, size_t... Is> auto
@@ -360,12 +360,12 @@ make_span__impl(multi_range_type& x, I start_idx, I finish_idx, std::index_seque
 template<template<class> class RT, class... Ts, class I> auto
 make_span(multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span<Ts...> {
   using return_type = multi_span<Ts...>;
-  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<x.nb_ranges()>());
+  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 template<template<class> class RT, class... Ts, class I> auto
 make_span(const multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span<const Ts...> {
   using return_type = multi_span<const Ts...>;
-  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<x.nb_ranges()>());
+  return make_span_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
 }
 // multi_span }
 
