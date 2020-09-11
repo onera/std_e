@@ -9,3 +9,4 @@ Design documents
 
   development
   serialization
+  permutation

@@ -110,3 +110,13 @@ TEST_CASE("sort and permutations") {
     CHECK( v == p_v_expected );
   }
 }
+
+TEST_CASE("unique permutations") {
+  vector<int> v = {60, 70, 80, 80, 80, 90, 90, 100, 100};
+
+  vector<int> perm = std_e::unique_permutation(v);
+
+  vector<int> perm_expected = {0, 1, 2, 5, 7, -1, -1, -1, -1};
+
+  CHECK( perm == perm_expected );
+}

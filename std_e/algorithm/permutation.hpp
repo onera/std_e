@@ -40,23 +40,27 @@ compose_permutations(const array_type& p0, const array_type& p1) {
 }
 
 
-//template<class Rng, class F> auto
-//indirect_reorder(const Rng& x, F reordering) -> std::vector<int> {
-//  return p;
-//}
-//template<class Rng, class Comp = std::equal_to<>> auto
-//unique_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
+//template<class Rng, class Comp = std::less<>> auto
+//sort_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
 //  std::vector<int> p(x.size());
-//  std::iota(p.begin(), p.end(), 0);
-//  auto new_end = std::unique(p.begin(), p.end(), [&](int i, int j){ return comp(x[i], x[j]); });
-//  p.erase(new_end,end(p));
+//  std::iota(begin(p), end(p), 0);
+//  std::sort(begin(p), end(p), [&](int i, int j){ return comp(x[i], x[j]); });
 //  return p;
 //}
-template<class Rng, class Comp = std::less<>> auto
-sort_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
+constexpr auto std_sort_lambda = [](auto f, auto l, auto comp){ std::sort(f,l,comp); };
+template<class Rng, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+sort_permutation(const Rng& x, Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> std::vector<int> {
   std::vector<int> p(x.size());
-  std::iota(p.begin(), p.end(), 0);
-  std::sort(p.begin(), p.end(), [&](int i, int j){ return comp(x[i], x[j]); });
+  std::iota(begin(p), end(p), 0);
+  sort_algo(begin(p), end(p), [&](int i, int j){ return comp(x[i], x[j]); });
+  return p;
+}
+template<class Rng, class Comp = std::equal_to<>> auto
+unique_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
+  std::vector<int> p(x.size());
+  std::iota(begin(p), end(p), 0);
+  auto new_end = std::unique(begin(p),end(p),[&](int i, int j){ return comp(x[i], x[j]); });
+  std::fill(new_end,end(p),-1); // TODO -1 -> invalid_value
   return p;
 }
 

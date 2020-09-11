@@ -157,10 +157,10 @@ to_knot_vector(std::vector<Number> v) {
 
 
 // algorithms {
-template<class Knot_sequence, class T = typename Knot_sequence::value_type> constexpr auto
+template<class Knot_sequence, class T = std::remove_const_t<typename Knot_sequence::value_type>> constexpr auto
 interval_lengths(const Knot_sequence& ks) -> std::vector<T> {
   std::vector<T> res(ks.nb_intervals());
-  std::adjacent_difference(begin(ks)+1,end(ks),begin(res));
+  std::adjacent_difference(ks.begin()+1,ks.end(),begin(res));
   res[0] = ks.length(0);
   return res;
 }

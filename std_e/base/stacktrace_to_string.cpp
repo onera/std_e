@@ -16,7 +16,7 @@ namespace std_e {
 // demangled stack backtrace of the caller function
 auto
 stacktrace_to_string() -> std::string {
-  int max_frames = 63;
+  const int max_frames = 63;
 
   std::string s = "stack trace:\n";
 

@@ -5,6 +5,7 @@
 #include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/parallel/serialize.hpp"
 #include "std_e/parallel/compressed_array.hpp"
+#include "std_e/data_structure/jagged_range.hpp"
 
 
 namespace std_e {
@@ -105,6 +106,32 @@ neighbor_all_to_all_v(const Random_access_range& sends, MPI_Comm comm) -> std::v
   auto [rbuf,_,roffsets] = neighbor_all_to_all_v(compressed_array<std::byte>{std::move(sbuf),std::move(scounts),std::move(soffsets)},comm);
 
   return deserialize_array<T>(rbuf.data(),roffsets);
+}
+
+//template<class Random_access_range, class T = typename Random_access_range::value_type> auto
+//neighbor_all_to_all_v2(const jagged_vector<T>& sends, MPI_Comm comm) -> std::vector<T> {
+//  std::vector<int> scounts = interval_lengths(sends.indices());
+//
+//  auto [rbuf,_,roffsets] = neighbor_all_to_all_v(compressed_array<T>{sends.flat_view(),std::move(scounts),std::move(soffsets)},comm);
+//
+//  return jagged_vector<T>(std::move(rbuf),std::move(roffsets));
+//}
+template<class T> auto
+neighbor_all_to_all_v2(const jagged_vector<T>& sends, MPI_Comm comm) -> jagged_vector<T> {
+  const auto& sbuf = sends.flat_view();
+  const auto& soffsets = sends.indices();
+  std::vector<int> scounts = interval_lengths(soffsets);
+
+  std::vector<int> rcounts = neighbor_all_to_all(scounts,comm);
+
+  knot_vector<int> roffsets = indices_from_sizes(rcounts);
+
+  std::vector<T> rbuf(roffsets.length());
+  int err = MPI_Neighbor_alltoallv(sbuf.data(), scounts.data(), soffsets.data(), std_e::to_mpi_type<T>,
+                                   rbuf.data(), rcounts.data(), roffsets.data(), std_e::to_mpi_type<T>, comm);
+  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+
+  return {std::move(rbuf),std::move(roffsets.as_base())};
 }
 
 

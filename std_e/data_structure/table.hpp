@@ -1,6 +1,7 @@
 #pragma once
 
 #include "std_e/data_structure/multi_range.hpp"
+#include "std_e/utils/macro.hpp"
 
 namespace std_e {
 
@@ -98,6 +99,7 @@ template<class... Ts> using table = multi_vector<Ts...>;
 
 
 #define STD_E_TABLE(table_type, ...) \
+  static_assert(NB_VA_ARGS(__VA_ARGS__)%2 == 0,"STD_E_TABLE arguments must alternate types and names"); \
   static_assert(NB_VA_ARGS(__VA_ARGS__)/2 >= 2,"STD_E_TABLE implemented only for 2, 3, or 4 columns"); \
   static_assert(NB_VA_ARGS(__VA_ARGS__)/2 <= 4,"STD_E_TABLE implemented only for 2, 3, or 4 columns"); \
   MACRO_NAME_SUFFIXED_BY_NB_VA_ARGS(STD_E_TABLE_,__VA_ARGS__)(table_type, __VA_ARGS__)

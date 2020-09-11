@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include "std_e/utils/to_string_fwd.hpp"
+#include "std_e/algorithm/permutation.hpp"
 #include "std_e/algorithm/unique_compress.hpp"
 
 
@@ -64,22 +66,13 @@ hash_vector(const std::vector<T,A>& v) -> std::vector<size_t> {
   return res;
 }
 
-template<class T, class A> constexpr auto
-sort(std::vector<T,A>& v) -> void {
-  std::sort(begin(v),end(v));
-}
-template<class T, class A, class Comp_pred> constexpr auto
-sort(std::vector<T,A>& v, Comp_pred cmp) -> void {
+template<class T, class A, class Comp_pred = std::less<>> constexpr auto
+sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
   std::sort(begin(v),end(v),cmp);
 }
-template<class T, class A> constexpr auto
-unique(std::vector<T,A>& v) -> void {
-  auto new_end = std::unique(begin(v),end(v));
-  v.erase(new_end,end(v));
-}
 
-template<class T, class A, class Equiv_pred> constexpr auto
-unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
+template<class T, class A, class Equiv_pred = std::equal_to<>> constexpr auto
+unique(std::vector<T,A>& v, Equiv_pred eq = {}) -> void {
   auto new_end = std::unique(begin(v),end(v), eq);
   v.erase(new_end,end(v));
 }
@@ -91,16 +84,18 @@ unique(std::vector<T,A>& v, Equiv_pred eq) -> void {
 //  v.erase(new_end,end(v));
 //}
 
-template<class T, class A> constexpr auto
-sort_unique(std::vector<T,A>& v) -> void {
-  sort(v);
-  unique(v);
-}
-template<class T, class A, class Equiv_pred, class Comp_pred> constexpr auto
-sort_unique(std::vector<T,A>& v, Equiv_pred eq, Comp_pred cmp) -> void {
+template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
+sort_unique(std::vector<T,A>& v, Equiv_pred eq = {}, Comp_pred cmp = {}) -> void {
   sort(v,cmp);
   unique(v,eq);
 }
+template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
+sort_unique_permutation(std::vector<T,A>& x, Equiv_pred eq = {}, Comp_pred cmp = {}) {
+  auto p = sort_permutation(x,cmp);
+  std_e::unique(p,[&](int i, int j){ return eq(x[i], x[j]); });
+  return p;
+}
+
 template<class T, class A, class F> constexpr auto
 unique_compress(std::vector<T,A>& v, F compress_while_eq) -> void {
   auto new_end = unique_compress(begin(v),end(v),compress_while_eq);

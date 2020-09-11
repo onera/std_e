@@ -4,7 +4,6 @@
 #include "std_e/base/template_alias.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
-#include "std_e/utils/macro.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/span.hpp"
 
@@ -159,8 +158,8 @@ class multi_range {
       sorted_rng_idx = index;
     }
 
-    template<int index> auto
-    sort_by() -> void {
+    template<int index, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+    sort_by(Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> void {
       auto perm = std_e::sort_permutation(get<index>(_impl));
       apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
       sorted_rng_idx = index;
@@ -257,9 +256,9 @@ find_element(multi_range<RT,Ts...>& x, const T& value) -> auto& {
   return x.template find_element<search_index,found_index>(value);
 }
 
-template<int index, template<class> class RT, class... Ts> auto
-sort_by(multi_range<RT,Ts...>& x) -> void {
-  return x.template sort_by<index>();
+template<int index, template<class> class RT, class... Ts, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+sort_by(multi_range<RT,Ts...>& x, Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> void {
+  return x.template sort_by<index>(comp,sort_algo);
 }
 template<template<class> class RT, class... Ts> auto
 sort(multi_range<RT,Ts...>& x) -> void {
