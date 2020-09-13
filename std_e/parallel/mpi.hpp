@@ -24,8 +24,8 @@ mpi_init_if_needed() -> bool {
 
 
 // to_mpi_type {
-using          mpi_primitive_types        =        std::tuple<std::byte,  char  ,  int32_t  ,  int64_t  ,  uint32_t  ,  uint64_t  ,  float  ,  double  >;
-constexpr auto mpi_primitive_types_values = std_e::make_array(MPI_BYTE ,MPI_CHAR,MPI_INT32_T,MPI_INT64_T,MPI_UINT32_T,MPI_UINT64_T,MPI_FLOAT,MPI_DOUBLE);
+using          mpi_primitive_types        =        std::tuple<std::byte, char, unsigned char  ,  int32_t  ,  int64_t  ,  uint32_t  ,  uint64_t  ,  float  ,  double  >;
+constexpr auto mpi_primitive_types_values = std_e::make_array(MPI_BYTE ,MPI_CHAR,MPI_UNSIGNED_CHAR, MPI_INT32_T,MPI_INT64_T,MPI_UINT32_T,MPI_UINT64_T,MPI_FLOAT,MPI_DOUBLE);
 
 template<class T> constexpr auto
 to_mpi_type__impl() -> MPI_Datatype {
