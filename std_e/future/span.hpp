@@ -74,7 +74,8 @@ class span : public span_size<N> {
   // type traits
     using span_size_type = span_size<N>;
 
-    using value_type      = T;
+    using element_type    = T;
+    using value_type      = std::remove_cv_t<T>;
     using pointer         = T*;
     using const_pointer   = const T*;
     using reference       = T&;

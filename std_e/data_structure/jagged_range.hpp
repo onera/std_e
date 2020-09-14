@@ -3,6 +3,7 @@
 #include "std_e/future/span.hpp"
 #include "std_e/interval/knot_sequence.hpp"
 #include <vector>
+#include <algorithm>
 #include "std_e/data_structure/multi_range.hpp"
 #include "std_e/log.hpp" // TODO
 
@@ -36,6 +37,7 @@ class jagged_range {
   public:
   // type traits
     using value_type = T;
+    using indices_type = I;
 
   // ctors
     jagged_range()
@@ -47,9 +49,9 @@ class jagged_range {
 
     jagged_range(data_range_type flat_values, indices_range_type idx_array, I off = 0)
       : flat_values(std::move(flat_values))
+      , idx_array(move_assign_first_range(std::move(idx_array)))
       , off(off)
     {
-      idx_array[0] = std::move(idx_array);
       static_assert(rank==2);
     }
     // same as above, but by copy is different types (e.g. Range==span, data_range_type==vector)
@@ -112,6 +114,9 @@ class jagged_range {
     auto data() -> T* {
       return flat_values.data();
     }
+    auto nb_elements() const -> I {
+      return flat_values.size();
+    }
 
   // accessors
     auto flat_view() const {
@@ -171,6 +176,12 @@ class jagged_range {
     }
   private:
     template<class Range> static auto
+    move_assign_first_range(Range&& rng) -> indices_array_type {
+      indices_array_type res;
+      res[0] = std::move(rng);
+      return res;
+    }
+    template<class Range> static auto
     assign_first_range(const Range& rng) -> indices_array_type {
       indices_array_type res;
       res[0] = indices_range_type(rng.begin(),rng.end());
@@ -207,5 +218,21 @@ operator!=(const jagged_range<R00,R01,R0>& x, const jagged_range<R10,R11,R1>& y)
   return !(x==y);
 }
 
+// algorithm {
+template<
+  class R00, class R01, int rank, class F,
+  class T = typename R00::value_type, class I = typename R01::value_type,
+  class RT = decltype(std::declval<F>()(std::declval<T>()))
+> auto
+transform(const jagged_range<R00,R01,rank>& x, F f) -> jagged_vector<RT,rank,I> {
+  std::vector<RT> res(x.nb_elements());;
+  std::transform(
+    begin(x.flat_view()),end(x.flat_view()),
+    begin(res),
+    f
+  );
+  return {res,x.indices()};
+}
+// algorithm }
 
 } // std_e
