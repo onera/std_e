@@ -42,4 +42,30 @@ TEST_CASE("uniform_distribution") {
     std::vector<int> v_expected = {100};
     CHECK( v == v_expected );
   }
+
+  SUBCASE("double specialisation") {
+    int nb_slots = 4;
+    std::vector<double> v(1+nb_slots);
+    double ming = 0. ;
+    double maxg = 10.;
+    auto interval_size = maxg-ming;
+
+    uniform_distribution(begin(v),end(v),ming,interval_size);
+    std::vector<double> v_expected = {0.,2.5,5.,7.5,10.};
+    CHECK( v == v_expected );
+  }
+
+  SUBCASE("double specialisation example 2 ") {
+    int nb_slots = 1;
+    std::vector<double> v(1+nb_slots);
+    double ming = -14. ;
+    double maxg =  18.;
+
+    auto interval_size = maxg-ming;
+
+    uniform_distribution(begin(v),end(v),ming,interval_size);
+    std::vector<double> v_expected = {-14., 18.};
+    CHECK( v == v_expected );
+  }
+
 }
