@@ -1,8 +1,11 @@
 #include "std_e/unit_test/doctest.hpp"
+#include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
 #include <vector>
+#include "std_e/log.hpp"
 
 using namespace std;
+using std_e::id_string;
 
 TEST_CASE("partition_sort") {
   vector<int> v = {110,200,2,6,-3,800,10001,999,8,50,0};
@@ -30,3 +33,12 @@ TEST_CASE("partition_sort") {
   }
 }
 
+TEST_CASE("sort_into_partitions") {
+  vector<id_string> v = {{30,"35"},{10,"11"},{30,"31"},{10,"10"},{10,"12"},{20,"23"},{20,"21"},{10,"13"},};
+  std_e::jagged_vector<id_string> jv = std_e::sort_into_partitions(std::move(v),[](const id_string& x){ return x.id; });
+
+  vector<id_string> expected_values = {{10,"11"},{10,"10"},{10,"12"},{10,"13"},{20,"23"},{20,"21"},{30,"35"},{30,"31"},};
+  std_e::knot_vector<int> expected_partition_indices = {0,4,6,8};
+  CHECK( jv.flat_view() == expected_values );
+  CHECK( jv.indices() == expected_partition_indices );
+}

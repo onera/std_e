@@ -108,8 +108,8 @@ all_to_all_v(
 }
 
 
-template<class Range, class Int_range, class F> auto
-all_to_all_v__from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm, F algo_family) {
+template<class Range, class Int_range, class F = dense_algo_family> auto
+all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
   std::vector<int> sstrides = interval_lengths(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
@@ -124,8 +124,8 @@ all_to_all_v__from_indices(const Range& sbuf, const Int_range& sindices, MPI_Com
 
   return std::make_pair(std::move(rbuf),std::move(rindices));
 }
-template<class Range, class Int_range, class F> auto
-all_to_all_v__from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm comm, F algo_family) {
+template<class Range, class Int_range, class F = dense_algo_family> auto
+all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
   knot_vector<int> sindices = indices_from_sizes(sindices);
   std::vector<int> rstrides = algo_family.all_to_all(sstrides,comm);
@@ -143,12 +143,40 @@ all_to_all_v__from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Com
 
 template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
 all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T> {
-  auto [rbuf,rindices] = all_to_all_v__from_indices(sends.flat_view(), sends.indices(), comm, algo_family);
+  auto [rbuf,rindices] = all_to_all_v_from_indices(sends.flat_view(), sends.indices(), comm, algo_family);
   return {std::move(rbuf),std::move(rindices)};
 }
-template<class DR, class IR, class T = typename DR::value_type> auto
-neighbor_all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm) -> jagged_vector<T> {
-  return all_to_all_v(sends,comm,neighbor_algo_family{});
+
+
+template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
+all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T,3> {
+  const auto& data = sends.flat_ref();
+  const auto& inner_indices = indices<0>(sends);
+  const auto& outer_indices = indices<1>(sends);
+  knot_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
+
+  int nb_procs = outer_indices.size()-1;
+  std::vector<int> neighbor_data_indices(inner_indices.size());
+  for (int i=0; i<nb_procs; ++i) {
+    int off = inner_indices[outer_indices[i]];
+    for (int j=outer_indices[i]; j<outer_indices[i+1]; ++j) {
+      neighbor_data_indices[j] = inner_indices[j]-off;
+    }
+  }
+
+  auto recv = all_to_all_v_from_indices(neighbor_data_indices,outer_indices,comm,algo_family);
+  auto recvy = all_to_all_v_from_indices(data,proc_data_indices,comm,algo_family);
+
+  for (int i=0; i<nb_procs; ++i) {
+    int off = recvy.second[recv.second[i]];
+    for (int j=recv.second[i]; j<recv.second[i+1]; ++j) {
+      recv.first[j] += off;
+    }
+  }
+  recv.first.push_back(recvy.second.back());
+
+  downscale_separators(recvy.second,recv.first);
+  return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second));
 }
 
 

@@ -132,6 +132,22 @@ operator!=(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
   return !(x==y);
 }
 template<class Rng> auto
+begin(const knot_sequence<Rng>& x) {
+  return x.begin();
+}
+template<class Rng> auto
+begin(knot_sequence<Rng>& x) {
+  return x.begin();
+}
+template<class Rng> auto
+end(const knot_sequence<Rng>& x) {
+  return x.end();
+}
+template<class Rng> auto
+end(knot_sequence<Rng>& x) {
+  return x.end();
+}
+template<class Rng> auto
 to_string(const knot_sequence<Rng>& x) -> std::string {
   return to_string(x.as_base());
 }

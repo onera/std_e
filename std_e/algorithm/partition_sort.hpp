@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <functional>
+#include "std_e/data_structure/jagged_range.hpp"
+#include "std_e/algorithm/mismatch_points.hpp"
 
 
 namespace std_e {
@@ -69,6 +71,29 @@ partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bi
   std::vector<int> partition_indices(k);
   partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_indices),comp);
   return partition_indices;
+}
+
+
+// TODO extract in iterator-level interface
+// TODO if passed list of possible values, use partition_sort, else use std::sort
+// TODO distinguish between cheap and costly swap of T
+//    Here, assumed costly -> indirect sort
+//    If swap is cheap (e.g. T is built-in), then the sort can be inplace
+// TODO distinguish between cheap and costly "proj"
+//    Here, we assume "proj" is costly, so we save the result
+//    It "proj" is cheap, (e.g. access to an attribute) then we can compute it on-the-fly
+template<class Range, class F, class T = typename Range::value_type> auto
+sort_into_partitions(Range&& rng, F proj) -> jagged_vector<T> {
+  auto&& compared_values = std_e::transform(rng,proj);
+  auto sort_permutation = std_e::sort_permutation(compared_values);
+
+  auto partition_indices = std_e::mismatch_indices(
+    sort_permutation,
+    [&compared_values](int i, int j){ return compared_values[i] == compared_values[j]; }
+  );
+
+  permute(rng,sort_permutation);
+  return {FWD(rng),std::move(partition_indices)};
 }
 
 

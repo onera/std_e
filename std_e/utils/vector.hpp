@@ -6,6 +6,7 @@
 #include "std_e/utils/to_string_fwd.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/algorithm/unique_compress.hpp"
+#include "std_e/utils/functional.hpp"
 
 
 namespace std_e {
@@ -56,6 +57,16 @@ for_each(std::vector<T,A>& x, F f) -> void {
 template<class T, class A, class F> constexpr auto
 for_each(const std::vector<T,A>& x, F f) -> void {
   std::for_each(begin(x),end(x),f);
+}
+template<class Range, class F, class T = typename Range::value_type, class RT = std::invoke_result_t<F,T> > constexpr auto
+transform(const Range& x, F f) -> std::vector<RT> {
+  std::vector<RT> res(x.size());
+  std::transform(begin(x),end(x),begin(res),f);
+  return res;
+}
+template<class Range> constexpr auto
+transform(const Range& x, identity_closure) -> const Range& {
+  return x;
 }
 
 

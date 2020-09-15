@@ -54,23 +54,22 @@ TEST_CASE("jagged_vector") {
 
   SUBCASE("rank 3") {
     jagged_vector<int,3> v;
-    v.push_level(1);
-    v.push_level(2);
+    separator<1>(v);
+    separator<0>(v);
     v.push_back(10);
-    v.push_level(2);
+    separator<0>(v);
     v.push_back(20);
     v.push_back(30);
-    v.push_level(1);
-    v.push_level(2);
+    separator<1>(v);
+    separator<0>(v);
     v.push_back(40);
-    v.push_level(2);
+    separator<0>(v);
     v.push_back(50);
     v.push_back(60);
     v.push_back(70);
-
     CHECK( v.flat_view() == vector{10,20,30,40,50,60,70} );
-    CHECK( v.index_array()[0] == knot_vector<int>{0,3,7} );
-    CHECK( v.index_array()[1] == knot_vector<int>{0,1,3,4,7} );
+    CHECK( indices<0>(v) == knot_vector<int>{0,1,3,4,7} );
+    CHECK( indices<1>(v) == knot_vector<int>{0,2,4} );
 
     CHECK( v == jagged_vector<int,3>{{{10},{20,30}},{{40},{50,60,70}}} );
     CHECK( v[0].flat_view() == vector{10,20,30} );
@@ -125,6 +124,23 @@ TEST_CASE("jagged_multi_vector") {
 }
 
 TEST_CASE("algorithm") {
+  SUBCASE("upscale_separators") {
+    vector<int> lower_separators = {0,3,4,10,12,16,20,30};
+    //                              0,1,2, 3, 4, 5, 6, 7 
+    vector<int> upper_separators = {0    , 3      , 6, 7};
+
+    upscale_separators(upper_separators,lower_separators);
+    CHECK( upper_separators == vector{0,10,20,30} );
+  }
+  SUBCASE("downscale_separators") {
+    vector<int> lower_separators = {0,3,4,10,12,16,20,30};
+    //                              0,1,2, 3, 4, 5, 6, 7
+    vector<int> upper_separators = {0    ,10      ,20,30};
+
+    downscale_separators(upper_separators,lower_separators);
+    CHECK( upper_separators == vector{0,3,6,7} );
+  }
+
   SUBCASE("transform") {
     jagged_vector<int> v = {{0},{10,20},{30},{40,50,60}};
 

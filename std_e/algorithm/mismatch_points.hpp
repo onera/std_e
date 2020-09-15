@@ -27,6 +27,7 @@ mismatch_indices(const Random_access_rng& rng, Binary_pred p = {}) -> std::vecto
   std::vector<int> res;
   auto f = [first,&res](auto it){ res.push_back(it-first); };  
   for_each_mismatch(begin(rng),end(rng),p,f);
+  res.push_back(rng.size());
   return res;
 }
 
