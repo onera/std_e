@@ -285,6 +285,18 @@ template<class R00, class R01, class R10, class R11, int R> auto
 operator!=(const jagged_range<R00,R01,R>& x, const jagged_range<R10,R11,R>& y) -> bool {
   return !(x==y);
 }
+template<class R0, class R1> auto
+to_string(const jagged_range<R0,R1,2>& x) -> std::string {
+  std::string s = "[";
+  for (int i=0; i<x.size()-1; ++i) {
+    s += to_string(x[i]) + ",";
+  }
+  if (x.size()>0) {
+    s += to_string(x[x.size()-1]);
+  }
+  s += "]";
+  return s;
+}
 
 // algorithm {
 template<class Range0, class Range1> auto
@@ -316,6 +328,11 @@ downscaled_separators(Range0& upper_separators, const Range1& lower_separators) 
   knot_vector<T> downscaled_seps(begin(upper_separators),end(upper_separators));
   downscale_separators(downscaled_seps,lower_separators);
   return downscaled_seps;
+}
+
+template<class R00, class R01, class T = typename R00::value_type, class I = typename R01::value_type> auto
+flattened_last_level_view(const jagged_range<R00,R01,3>& x) -> jagged_span<const T,2,const I> {
+  return jagged_span<const T,2,const I>(x.flat_view(),indices<0>(x));
 }
 
 template<

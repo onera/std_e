@@ -155,6 +155,7 @@ all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = 
   const auto& outer_indices = indices<1>(sends);
   knot_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
 
+  // TODO extract
   int nb_procs = outer_indices.size()-1;
   std::vector<int> neighbor_data_indices(inner_indices.size());
   for (int i=0; i<nb_procs; ++i) {
@@ -163,17 +164,20 @@ all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = 
       neighbor_data_indices[j] = inner_indices[j]-off;
     }
   }
+  // end extract
 
   auto recv = all_to_all_v_from_indices(neighbor_data_indices,outer_indices,comm,algo_family);
   auto recvy = all_to_all_v_from_indices(data,proc_data_indices,comm,algo_family);
 
+  // TODO extract
   for (int i=0; i<nb_procs; ++i) {
-    int off = recvy.second[recv.second[i]];
+    int off = recvy.second[i];
     for (int j=recv.second[i]; j<recv.second[i+1]; ++j) {
       recv.first[j] += off;
     }
   }
   recv.first.push_back(recvy.second.back());
+  // end extract
 
   downscale_separators(recvy.second,recv.first);
   return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second));
