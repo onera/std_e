@@ -131,6 +131,11 @@ all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm
 
   return std::make_pair(std::move(rbuf),std::move(rindices));
 }
+template<class Range, class Int_range> auto
+neighbor_all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm) {
+  return all_to_all_v_from_indices(sbuf,sindices,comm,neighbor_algo_family{});
+}
+
 template<class Range, class Int_range, class F = dense_algo_family> auto
 all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
