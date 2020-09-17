@@ -186,6 +186,12 @@ class jagged_range {
       static_assert(rank==2);
       return idx_array;
     }
+    template<int lvl>
+    auto indices_ref() -> auto& {
+      static_assert(lvl>=0 && lvl<rank);
+      return indices_ref_impl<lvl+1>();
+    }
+
     auto offset() const -> I {
       return off;
     }
@@ -237,6 +243,16 @@ class jagged_range {
         return idx_array.template indices_impl<lvl-1>();
       }
     }
+    template<int lvl>
+    auto indices_ref_impl() -> auto& {
+      if constexpr (lvl==0) {
+        return flat_ref();
+      } else if constexpr (rank==2 && lvl==1) {
+        return indices();
+      } else {
+        return idx_array.template indices_ref_impl<lvl-1>();
+      }
+    }
 
     template<class jagged_range_type>
     static auto subscript_op_impl(jagged_range_type& x, I i) {
@@ -257,6 +273,10 @@ class jagged_range {
 template<int lvl, class R00, class R01, int R0> auto
 indices(const jagged_range<R00,R01,R0>& x) {
   return x.template indices<lvl>();
+}
+template<int lvl, class R00, class R01, int R0> auto
+indices_ref(jagged_range<R00,R01,R0>& x) -> auto& {
+  return x.template indices_ref<lvl>();
 }
 template<int lvl, class R00, class R01, int R0> auto
 separator(jagged_range<R00,R01,R0>& x) {
@@ -333,6 +353,14 @@ downscaled_separators(Range0& upper_separators, const Range1& lower_separators) 
 template<class R00, class R01, class T = typename R00::value_type, class I = typename R01::value_type> auto
 flattened_last_level_view(const jagged_range<R00,R01,3>& x) -> jagged_span<const T,2,const I> {
   return jagged_span<const T,2,const I>(x.flat_view(),indices<0>(x));
+}
+template<class R00, class R01, class T = typename R00::value_type, class I = typename R01::value_type> auto
+flatten_last_level(jagged_range<R00,R01,3> x) -> jagged_range<R00,R01,2> {
+  return jagged_range<R00,R01,2>(std::move(x.flat_ref()),std::move(indices_ref<0>(x)));
+}
+template<class R00, class R01, class Knot_sequence, class T = typename R00::value_type, class I = typename R01::value_type> auto
+view_with_new_level(const jagged_range<R00,R01,2>& x, const Knot_sequence& new_level) -> jagged_span<const T,3,const I> {
+  return jagged_span<const T,3,const I>(x.flat_view(),x.indices(),to_knot_span(new_level));
 }
 
 template<

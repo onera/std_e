@@ -164,6 +164,10 @@ to_knot_span(span<Number> s) {
   STD_E_ASSERT(std::is_sorted(begin(s),end(s)));
   return knot_span<Number>(s.data(),s.size()-1);
 }
+template<class Rng, class I = typename Rng::value_type> auto
+to_knot_span(const knot_sequence<Rng>& x) -> knot_span<const I> {
+  return knot_span<const I>(x.data(),x.data()+x.size());
+}
 
 template<class Number> auto
 to_knot_vector(std::vector<Number> v) {

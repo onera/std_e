@@ -146,5 +146,12 @@ to_string(const std::vector<T,A>& x) -> std::string {
   return range_to_string(x);
 }
 
+template<class I> auto
+iota(I n, I init = I()) -> std::vector<I> {
+  std::vector<I> res(n);
+  std::iota(begin(res), end(res), init);
+  return res;
+}
+
 
 } // std_e

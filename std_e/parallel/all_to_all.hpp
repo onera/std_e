@@ -6,6 +6,7 @@
 #include "std_e/parallel/serialize.hpp"
 #include "std_e/parallel/compressed_array.hpp"
 #include "std_e/data_structure/jagged_range.hpp"
+#include "std_e/interval/knot_sequence.hpp"
 
 
 namespace std_e {
@@ -63,6 +64,13 @@ template<class Contiguous_range, class F = default_all_to_all_t, class T = typen
 all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = default_all_to_all) -> std::vector<T> {
   return all_to_all(s_array,1,comm,alltoall_algo);
 }
+
+template<class Range, class F = dense_algo_family> auto
+all_to_all(const knot_sequence<Range>& sindices, MPI_Comm comm, F algo_family = {}) -> std_e::knot_vector<int> {
+  std::vector<int> sstrides = interval_lengths(sindices);
+  std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
+  return indices_from_sizes(rstrides);
+}
 // all_to_all }
 
 
@@ -107,7 +115,6 @@ all_to_all_v(
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 }
 
-
 template<class Range, class Int_range, class F = dense_algo_family> auto
 all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
@@ -128,7 +135,7 @@ template<class Range, class Int_range, class F = dense_algo_family> auto
 all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
   knot_vector<int> sindices = indices_from_sizes(sindices);
-  std::vector<int> rstrides = algo_family.all_to_all(sstrides,comm);
+  std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
   knot_vector<int> rindices = indices_from_sizes(rstrides);
   std::vector<T> rbuf(rstrides.size());
 
