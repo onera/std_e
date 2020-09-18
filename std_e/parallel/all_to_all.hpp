@@ -13,6 +13,7 @@ namespace std_e {
 
 
 // paraphernalia to handle MPI_Neighbor_ versions with minimal repetition
+// TODO replace by MPI_Comm classes (regular and neighbor)
 struct dense_algo_family {
   static constexpr auto all_to_all   = [](auto... xs){ return MPI_Alltoall (xs...); };
   static constexpr auto all_to_all_v = [](auto... xs){ return MPI_Alltoallv(xs...); };
@@ -66,9 +67,9 @@ all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = def
 }
 
 template<class Range, class F = dense_algo_family> auto
-all_to_all(const knot_sequence<Range>& sindices, MPI_Comm comm, F algo_family = {}) -> std_e::knot_vector<int> {
+all_to_all(const knot_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all) -> std_e::knot_vector<int> {
   std::vector<int> sstrides = interval_lengths(sindices);
-  std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
+  std::vector<int> rstrides = all_to_all(sstrides,comm,alltoall_algo);
   return indices_from_sizes(rstrides);
 }
 // all_to_all }
@@ -85,7 +86,7 @@ all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm, F algo_family = {}
 
   std::vector<T> rbuf(roffsets.length());
   all_to_all_v(sbuf.data(), sstrides.data(), soffsets.data(),
-               rbuf.data(), rstrides.data(), roffsets.data(), comm, algo_family.all_to_all_v);
+               rbuf.data(), rstrides.data(), roffsets.data(), comm, algo_family);
 
   return {std::move(rbuf),std::move(rstrides),std::move(roffsets)};
 }
@@ -102,16 +103,16 @@ all_to_all_v(const Random_access_range& sends, MPI_Comm comm, F algo_family = {}
 }
 // DEL}
 
-template<class T, class F = default_all_to_all_v_t> auto
+template<class T, class F = dense_algo_family> auto
 all_to_all_v(
   const T* sbuf, const int* sstrides, const int* sindices,
         T* rbuf,       int* rstrides,       int* rindices,
   MPI_Comm comm,
-  F alltoallv_algo = default_all_to_all_v
+  F algo_family = {}
 ) -> void
 {
-  int err = alltoallv_algo(sbuf, sstrides, sindices, to_mpi_type<T>,
-                           rbuf, rstrides, rindices, to_mpi_type<T>, comm);
+  int err = algo_family.all_to_all_v(sbuf, sstrides, sindices, to_mpi_type<T>,
+                                     rbuf, rstrides, rindices, to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 }
 
@@ -126,7 +127,7 @@ all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm
   all_to_all_v(
     sbuf.data(), sstrides.data(), sindices.data(),
     rbuf.data(), rstrides.data(), rindices.data(),
-    comm,algo_family.all_to_all_v
+    comm,algo_family
   );
 
   return std::make_pair(std::move(rbuf),std::move(rindices));
@@ -147,7 +148,7 @@ all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm
   all_to_all_v(
     sbuf.data(), sstrides.data(), sindices.data(),
     rbuf.data(), rstrides.data(), rindices.data(),
-    comm,algo_family.all_to_all_v
+    comm,algo_family
   );
 
   return std::make_pair(std::move(rbuf),std::move(rindices));
