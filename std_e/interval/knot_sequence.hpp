@@ -108,6 +108,11 @@ class knot_sequence : private Random_access_range {
       base::push_back(x);
       return back();
     };
+    auto push_back_length(value_type x) -> value_type& {
+      STD_E_ASSERT(size()>0);
+      push_back( back() + x );
+      return back();
+    };
 
   // utility
     auto as_base() const -> const base& {
