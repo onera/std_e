@@ -50,19 +50,22 @@ update_ids_in_range_after_permutation(I_range& ids, const std::vector<I>& permut
 
 
 /* concept Permutation: operator()(Integer)->Integer */
-
 template<class I>
 class offset_permutation {
   public:
     constexpr offset_permutation() = default;
-    constexpr offset_permutation(I offset, std::vector<I> perm)
-      : offset(offset)
+    constexpr offset_permutation(I old_offset, I new_offset, std::vector<I> perm)
+      : old_offset(old_offset)
+      , new_offset(new_offset)
       , perm(std::move(perm))
+    {}
+    constexpr offset_permutation(I offset, std::vector<I> perm)
+      : offset_permutation(offset,offset,perm)
     {}
 
     constexpr auto
     operator()(I i) const {
-      return perm[i-offset] + offset;
+      return perm[i-old_offset] + new_offset;
     }
 
     // for compatibility with integer ranges which are also permutations
@@ -71,7 +74,8 @@ class offset_permutation {
       return (*this)(i);
     }
   private:
-    I offset;
+    I old_offset;
+    I new_offset;
     std::vector<I> perm;
 };
 

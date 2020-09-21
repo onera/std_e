@@ -1,7 +1,9 @@
 #pragma once
 
-// Save typing: use for debugging purposes
+// Use these features to save typing when print-debugging
+
 #include "std_e/logging/log.hpp"
+#include "std_e/utils/to_string.hpp"
 
 template<class... Ts> auto
 std_e_log(const Ts&... xs) -> void {
