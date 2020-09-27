@@ -349,7 +349,7 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation op
 }
 template<class InputIt, class OutputIt> constexpr auto
 inclusive_scan(InputIt first, InputIt last, OutputIt d_first) -> OutputIt {
-  return inclusive_scan(first, last, d_first, std::plus<>());
+  return std_e::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
 template<class InputIt, class OutputIt, class T, class BinaryOperation> constexpr auto
