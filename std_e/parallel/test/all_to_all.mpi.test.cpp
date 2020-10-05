@@ -5,7 +5,7 @@
 using namespace std;
 
 MPI_TEST_CASE("all_to_all_v",3) {
-  using data_t = std::vector<int>;
+  using data_t = vector<int>;
   std::vector<data_t> data_to_send(3);
   if (test_rank==0) {
     data_to_send[0] = {1,2};
@@ -22,7 +22,7 @@ MPI_TEST_CASE("all_to_all_v",3) {
     data_to_send[2] = {15,16};
   }
 
-  std::vector<data_t> data_received = std_e::all_to_all_v(data_to_send,test_comm);
+  vector<data_t> data_received = std_e::all_to_all_v(data_to_send,test_comm);
 
   MPI_CHECK(0, data_received[0] == vector{1,2} );
   MPI_CHECK(0, data_received[1] == vector{8} );
