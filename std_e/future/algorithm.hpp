@@ -367,7 +367,7 @@ exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init, BinaryOper
 }
 template<class InputIt, class OutputIt, class T> constexpr auto
 exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init) -> OutputIt {
-  return exclusive_scan(first, last, d_first, init, std::plus<>());
+  return std_e::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 

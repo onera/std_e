@@ -23,8 +23,8 @@ uniform_distribution(Fwd_it first, Fwd_it last, T elt0, T nb_elts) {
 
   T quotient  = nb_elts/nb_intervals;
   T remainder = nb_elts%nb_intervals;
-  auto last_upper = std_e::exclusive_iota_n(first     ,remainder+1,elt0           ,quotient+1);
-                    std_e::inclusive_iota  (last_upper,last       ,*(last_upper-1),quotient  );
+  auto last_upper = exclusive_iota_n(first     ,remainder+1,elt0           ,quotient+1);
+                    inclusive_iota  (last_upper,last       ,*(last_upper-1),quotient  );
 }
 
 template<class Fwd_it> constexpr auto
