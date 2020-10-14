@@ -10,19 +10,6 @@
 namespace std_e {
 
 
-inline auto
-mpi_init_if_needed() -> bool {
-  int flag;
-  MPI_Initialized(&flag);
-  bool already_init = bool(flag);
-
-  if (!already_init) {
-    MPI_Init(NULL, NULL);
-  }
-  return already_init;
-}
-
-
 // to_mpi_type {
 template<class T> constexpr auto
 to_mpi_type__impl() -> MPI_Datatype {
@@ -49,6 +36,18 @@ nb_ranks(MPI_Comm comm) -> int {
   int n;
   MPI_Comm_size(comm, &n);
   return n;
+}
+
+/// Can be called before MPI_Init (useful for initializing globals because MPI_Init cannot be called before main())
+inline auto
+mpi_comm_world_rank() -> int {
+  #ifdef OPEN_MPI
+    const char* rank_str = std::getenv("OMPI_COMM_WORLD_RANK");
+  #else
+    const char* rank_str = std::getenv("MPI_LOCALRANKID"); // env name used at least by Intel MPI
+    STD_E_ASSERT(rank_str!=std::string("")); // Unknown MPI implementation
+  #endif
+  return std::stoi(rank_str);
 }
 
 

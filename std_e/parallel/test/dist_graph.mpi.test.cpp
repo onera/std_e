@@ -1,7 +1,7 @@
 #include "std_e/parallel/all_to_all.hpp"
 #include "std_e/parallel/dist_graph.hpp"
 
-#include "std_e/unit_test/mpi/doctest.hpp"
+#include "doctest/extensions/doctest_mpi.h"
 
 
 MPI_TEST_CASE("dist_graph_create",4) {

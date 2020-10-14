@@ -6,7 +6,7 @@ include(FetchContent)
 if(USE_SUBMODULE_SOURCES)
   if(DEFINED ENV{PROJECT_ROOT})
     set(PROJECT_ROOT $ENV{PROJECT_ROOT})
-  else()
+  elseif(NOT DEFINED PROJECT_ROOT)
     set(PROJECT_ROOT ${CMAKE_SOURCE_DIR})
   endif()
   set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
@@ -43,8 +43,9 @@ option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
 ### doctest ###
 FetchContent_Declare(
   doctest
-  GIT_REPOSITORY https://github.com/onqtam/doctest.git
-  GIT_TAG        2.4.0
+  #GIT_REPOSITORY https://github.com/onqtam/doctest.git
+  GIT_REPOSITORY https://github.com/BerengerBerthoul/doctest.git
+  GIT_TAG        mpi
 )
 FetchContent_GetProperties(doctest)
 if(NOT doctest_POPULATED)

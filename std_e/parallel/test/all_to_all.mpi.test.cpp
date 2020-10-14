@@ -1,6 +1,6 @@
 #include "std_e/parallel/all_to_all.hpp"
 
-#include "std_e/unit_test/mpi/doctest.hpp"
+#include "doctest/extensions/doctest_mpi.h"
 
 using namespace std;
 

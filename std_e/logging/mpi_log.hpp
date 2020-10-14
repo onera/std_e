@@ -23,7 +23,7 @@ struct mpi_rank_0_stdout_printer : log_printer {
   }
 };
 struct mpi_file_printer : log_printer {
-  std::string file_name = "mpi_log_"+std::to_string(rank(MPI_COMM_WORLD))+".txt";
+  std::string file_name = "mpi_log_"+std::to_string(mpi_comm_world_rank())+".txt";
   std::ofstream file = std::ofstream(file_name.c_str(), std::fstream::out);
 
   auto log(const std::string& msg) -> void override {
