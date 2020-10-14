@@ -16,5 +16,6 @@ Table of contents
 
   introduction
   multi_dimensional_arrays
+  log
   undocumented
   misc/misc
