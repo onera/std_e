@@ -41,12 +41,14 @@ nb_ranks(MPI_Comm comm) -> int {
 /// Can be called before MPI_Init (useful for initializing globals because MPI_Init cannot be called before main())
 inline auto
 mpi_comm_world_rank() -> int {
-  #ifdef OPEN_MPI
+  #if defined(OPEN_MPI)
     const char* rank_str = std::getenv("OMPI_COMM_WORLD_RANK");
-  #else
+  #elif defined(I_MPI_VERSION)
     const char* rank_str = std::getenv("MPI_LOCALRANKID"); // env name used at least by Intel MPI
-    STD_E_ASSERT(rank_str!=std::string("")); // Unknown MPI implementation
+  #else
+    #error("Unknown MPI implementation")
   #endif
+  if (rank_str==nullptr) return 0; // not launched with mpirun/mpiexec...
   return std::stoi(rank_str);
 }
 
