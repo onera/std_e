@@ -43,10 +43,10 @@ inline auto
 mpi_comm_world_rank() -> int {
   #if defined(OPEN_MPI)
     const char* rank_str = std::getenv("OMPI_COMM_WORLD_RANK");
-  #elif defined(I_MPI_VERSION)
+  #elif defined(I_MPI_VERSION) || defined(MPI_VERSION)
     const char* rank_str = std::getenv("MPI_LOCALRANKID"); // env name used at least by Intel MPI
   #else
-    #error("Unknown MPI implementation")
+    #error "Unknown MPI implementation"
   #endif
   if (rank_str==nullptr) return 0; // not launched with mpirun/mpiexec...
   return std::stoi(rank_str);
