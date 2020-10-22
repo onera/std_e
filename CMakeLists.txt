@@ -129,7 +129,19 @@ if(STD_E_ENABLE_TEST)
     PRIVATE
       doctest::doctest
   )
-  add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
+  if(STD_E_ENABLE_MPI)
+    #add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND "mpirun -np 4 ${PROJECT_NAME}_unit_tests")
+    set(n_proc 4)
+    add_test(
+      NAME ${PROJECT_NAME}_unit_tests
+      COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
+              ${MPIEXEC_PREFLAGS}
+              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_unit_tests
+              ${MPIEXEC_POSTFLAGS}
+    )
+  else()
+    add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
+  endif()
 endif()
 
 option(STD_E_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
