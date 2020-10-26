@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 include(FetchContent)
 
 ### Boostrap project_utils ###
+option(USE_SUBMODULE_SOURCES OFF)
 if(USE_SUBMODULE_SOURCES)
   if(DEFINED ENV{PROJECT_ROOT})
     set(PROJECT_ROOT $ENV{PROJECT_ROOT})
