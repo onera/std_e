@@ -1,31 +1,26 @@
 ## Global config ##
 cmake_minimum_required(VERSION 3.12)
-include(FetchContent)
 
-### Boostrap project_utils ###
-if(USE_SUBMODULE_SOURCES)
-  if(DEFINED ENV{PROJECT_ROOT})
-    set(PROJECT_ROOT $ENV{PROJECT_ROOT})
-  elseif(NOT DEFINED PROJECT_ROOT)
-    set(PROJECT_ROOT ${CMAKE_SOURCE_DIR})
-  endif()
-  set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
-else()
-  ### project_utils ###
-  FetchContent_Declare(
-    project_utils
-    GIT_REPOSITORY https://github.com/BerengerBerthoul/project_utils.git
-    GIT_TAG        1.0.1
-  )
-  FetchContent_GetProperties(project_utils)
-  if(NOT project_utils_POPULATED)
-    FetchContent_Populate(project_utils)
-  endif()
-  set(PROJECT_UTILS_DIR ${project_utils_SOURCE_DIR})
+if(NOT DEFINED PROJECT_ROOT)
+  set(PROJECT_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH "Root directory, where the submodules are populated")
 endif()
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_UTILS_DIR}/scripts/cmake)
-include(target_add_dependency)
+macro(check_sub_repo_exists sub_repo_name)
+  set(sub_repo_path "${PROJECT_ROOT}/external/${sub_repo_name}")
+  file(GLOB sub_repo_files ${sub_repo_path}/*)
+  list(LENGTH sub_repo_files sub_repo_nb_files)
+  if(sub_repo_nb_files EQUAL 0)
+    message(FATAL_ERROR
+      "${PROJECT_ROOT}/external/${sub_repo_name} is empty.
+      Maybe you forgot to initialize it with \"git submodule update --init\""
+    )
+  endif()
+endmacro()
+
+check_sub_repo_exists(project_utils)
+set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
+# Load commands target_add_dependency, target_add_thirdparty_dependency and target_install
+include(${PROJECT_UTILS_DIR}/scripts/cmake/target_add_dependency.cmake)
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -40,6 +35,7 @@ project(
 option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
 
 ## Dependencies ##
+include(FetchContent)
 ### doctest ###
 FetchContent_Declare(
   doctest
