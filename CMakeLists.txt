@@ -32,7 +32,9 @@ project(
   LANGUAGES CXX
 )
 
-option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
+if (NOT DEFINED STD_E_ENABLE_MPI)
+  option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
+endif()
 
 ## Dependencies ##
 include(FetchContent)
