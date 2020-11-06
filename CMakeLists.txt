@@ -41,9 +41,8 @@ include(FetchContent)
 ### doctest ###
 FetchContent_Declare(
   doctest
-  #GIT_REPOSITORY https://github.com/onqtam/doctest.git
-  GIT_REPOSITORY https://github.com/BerengerBerthoul/doctest.git
-  GIT_TAG        mpi
+  GIT_REPOSITORY https://github.com/onqtam/doctest.git
+  GIT_TAG        2.4.1
 )
 FetchContent_GetProperties(doctest)
 if(NOT doctest_POPULATED)
