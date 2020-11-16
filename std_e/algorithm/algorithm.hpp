@@ -55,6 +55,14 @@ offset(Range& r, I value) -> void {
     elt += value;
   }
 }
+template<class Range, class I> auto 
+// requires I is an arithmetic type
+// requires Range::value_type==I
+scale(Range& r, I value) -> void {
+  for (auto& elt : r) {
+    elt *= value;
+  }
+}
 
 
 template<class Range, class T> auto

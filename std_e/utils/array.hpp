@@ -81,6 +81,14 @@ struct concatenated_array__impl<
 {
   using type = Array;
 };
+template<class T, class... Ts>
+struct concatenated_array__impl<
+  void, // enabled if matches
+  std_e::span<T>,std_e::span<Ts>...
+>
+{
+  using type = std::vector<T>;
+};
 
 template<class... Arrays> using
 concatenated_array = typename concatenated_array__impl<void,Arrays...>::type;
