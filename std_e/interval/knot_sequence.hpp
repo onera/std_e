@@ -161,6 +161,9 @@ to_string(const knot_sequence<Rng>& x) -> std::string {
 template<class Number> using knot_vector = knot_sequence<std::vector<Number>>;
 template<class Number> using knot_span = knot_sequence<std_e::span<Number>>;
 
+template<class Number> using interval_vector = knot_sequence<std::vector<Number>>;
+template<class Number> using interval_span = knot_sequence<std_e::span<Number>>;
+
 using int_knot_vector = knot_vector<int>;
 using int_knot_span = knot_span<int>;
 

@@ -159,7 +159,7 @@ class multi_range {
     }
 
     template<int index, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
-    sort_by(Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> void {
+    sort_by(Comp = {}, sort_algo_type = std_sort_lambda) -> void {
       auto perm = std_e::sort_permutation(get<index>(_impl));
       apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
       sorted_rng_idx = index;
