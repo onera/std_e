@@ -220,11 +220,26 @@ class child_iterator {
       , size_ptr{size_ptr}
     {}
 
+    template<class T_ptr0, class I_ptr0> friend class child_iterator;
+    template<
+      class T_ptr0, class I_ptr0 // , TODO enable_if<false> --> why?
+      //std::enable_if_t<
+      // (   std::is_same_v<const T_ptr0,T_ptr>
+      //   && std::is_same_v<const I_ptr0,I_ptr> )
+      // ,int
+      //> =0
+    > constexpr
+    child_iterator(const child_iterator<T_ptr0,I_ptr0>& nc_it)
+      : node_ptr{nc_it.node_ptr}
+      , size_ptr{nc_it.size_ptr}
+    {}
+
     constexpr auto
-    size() -> size_t {
+    size() const -> size_t {
       return *size_ptr;
     }
 
+    // TODO DEL (op* is const)
     constexpr auto
     operator*() -> tree_view<value_type> {
       auto n = size();
@@ -236,7 +251,7 @@ class child_iterator {
       return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     //constexpr auto
-    //operator->() const -> const_tree_view<T>* { // TODO check language
+    //operator->() const -> const_tree_view<T>* { // TODO arrow trick
     //  return &*(*this);
     //}
     constexpr auto

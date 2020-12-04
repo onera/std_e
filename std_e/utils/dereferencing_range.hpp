@@ -17,6 +17,7 @@ class dereferencing_iterator {
     using reference = typename std::iterator_traits<iterator_value>::reference;
     //using const_reference = const reference;
     using iterator = dereferencing_iterator;
+    using const_iterator = dereferencing_iterator; // TODO
 
     using difference_type = typename std::iterator_traits<iterator_over_iterators>::difference_type;
     using iterator_category = typename std::iterator_traits<iterator_over_iterators>::iterator_category;
@@ -96,6 +97,7 @@ class dereferencing_range {
   public:
   // traits
     using iterator = dereferencing_iterator<iterator_over_iterators>;
+    using const_iterator = dereferencing_iterator<iterator_over_iterators>; // TODO
     using value_type = typename std::iterator_traits<iterator>::value_type;
     using reference = typename std::iterator_traits<iterator>::reference;
 

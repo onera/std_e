@@ -24,15 +24,7 @@ struct iterator_range { // rename iter_span
     return first;
   }
   constexpr auto
-  begin() -> Iterator& {
-    return first;
-  }
-  constexpr auto
   end() const -> Iterator {
-    return last;
-  }
-  constexpr auto
-  end() -> Iterator& {
     return last;
   }
 
@@ -67,27 +59,28 @@ operator!=(const iterator_range<It0>& x, const iterator_range<It1>& y) {
 }
 
 
-template<class Iterator> constexpr auto
-begin(const iterator_range<Iterator>& x) {
+template<class It> constexpr auto
+begin(const iterator_range<It>& x) {
   return x.begin();
 }
-template<class Iterator> constexpr auto
-end(const iterator_range<Iterator>& x) {
+template<class It> constexpr auto
+end(const iterator_range<It>& x) {
   return x.end();
 }
-template<class Iterator> constexpr auto
-begin(iterator_range<Iterator>& x) {
+template<class It> constexpr auto
+begin(iterator_range<It>& x) {
   return x.begin();
 }
-template<class Iterator> constexpr auto
-end(iterator_range<Iterator>& x) {
+template<class It> constexpr auto
+end(iterator_range<It>& x) {
   return x.end();
 }
 
 
-template<class Iterator> constexpr auto
-make_iterator_range(Iterator f, Iterator l) -> iterator_range<Iterator> {
-  return {f,l};
+template<class Range> constexpr auto
+to_iterator_range(Range& rng) {
+  using iterator_range_type = std_e::iterator_range<typename Range::iterator>;
+  return iterator_range_type{rng.begin(),rng.end()};
 }
 
 

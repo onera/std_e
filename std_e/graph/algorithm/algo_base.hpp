@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "std_e/utils/meta.hpp"
+#include "std_e/iterator/iterator_range.hpp"
 
 
 namespace graph {
@@ -59,40 +60,49 @@ class graph_stack {
     std::vector<T> S;
 };
 
-template<class range_type>
-class graph_traversal_stack : public graph_stack<range_type> {
+template<class iterator>
+// requires iterator is a graph iterator
+class graph_traversal_stack {
   public:
-    using base = graph_stack<range_type>;
-    using graph_iterator_type = typename range_type::iterator;
-
-    using base::base;
-    using base::current_level;
-    using base::parent_level;
-    using base::is_at_root_level;
+    template<class Range> constexpr
+    graph_traversal_stack(const Range& root_range)
+      : S(std_e::to_iterator_range(root_range))
+    {}
 
     constexpr auto
-    current_node() -> graph_iterator_type& {
-      return current_level().begin();
+    current_node() -> iterator& {
+      return S.current_level().first;
     }
     constexpr auto
-    current_node() const -> graph_iterator_type {
-      return current_level().begin();
+    current_node() const -> const iterator& {
+      return S.current_level().first;
+    }
+
+    constexpr auto
+    last_node() -> iterator& {
+      return S.current_level().last;
     }
     constexpr auto
-    last_node() -> graph_iterator_type& {
-      return current_level().end();
+    last_node() const -> const iterator& {
+      return S.current_level().last;
+    }
+
+    constexpr auto
+    parent_node() -> iterator& {
+      return S.parent_level().first;
     }
     constexpr auto
-    last_node() const -> graph_iterator_type {
-      return current_level().end();
+    parent_node() const -> const iterator& {
+      return S.parent_level().first;
+    }
+
+    template<class Range> constexpr auto
+    push_children(const Range& children) -> void {
+      S.push_level(std_e::to_iterator_range(children));
     }
     constexpr auto
-    parent_node() -> graph_iterator_type& {
-      return parent_level().begin();
-    }
-    constexpr auto
-    parent_node() const -> graph_iterator_type {
-      return parent_level().begin();
+    pop_level() -> void {
+      S.pop_level();
     }
 
     constexpr auto
@@ -101,13 +111,16 @@ class graph_traversal_stack : public graph_stack<range_type> {
     }
     constexpr auto
     is_done() const -> bool {
-      return is_at_root_level() && level_is_done();
+      return S.is_at_root_level() && level_is_done();
     }
+  private:
+    graph_stack<std_e::iterator_range<iterator>> S;
 };
 
 template<class range_type> constexpr auto
-make_graph_traversal_stack(range_type root_range) -> graph_traversal_stack<range_type> {
-  return {std::move(root_range)};
+make_graph_traversal_stack(range_type root_range) {
+  using iterator_type = typename range_type::iterator;
+  return graph_traversal_stack<iterator_type>(root_range);
 }
 // graph_traversal_stack }
 
@@ -121,8 +134,8 @@ preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) -> voi
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f(*v)) return;// TODO opposite (like find_if)
-      S.push_level(children(*v));
+      if (!f(*v)) return; // TODO opposite (like find_if)
+      S.push_children(children(*v));
     } else {
       S.pop_level();
       ++S.current_node();
@@ -137,7 +150,7 @@ prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adj
     if (!S.level_is_done()) {
       auto v = S.current_node();
       f.pre(*v);
-      S.push_level(children(*v));
+      S.push_children(children(*v));
     } else {
       S.pop_level();
       f.post(*S.current_node());
@@ -153,7 +166,7 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
     if (!S.level_is_done()) {
       auto v = S.current_node();
       f.pre(*v);
-      S.push_level(children(*v));
+      S.push_children(children(*v));
       if (!S.level_is_done()) f.down(*v,child(*v,0));
     } else {
       S.pop_level();
@@ -176,9 +189,9 @@ prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_ad
     if (!S.level_is_done()) {
       auto v = S.current_node();
       if (f.pre(*v)) { // go down
-        S.push_level(children(*v));
+        S.push_children(children(*v));
       } else { // prune
-        S.push_level(children(*v));
+        S.push_children(children(*v));
         S.current_node() = S.last_node();
       }
     } else {
@@ -195,10 +208,10 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
     if (!S.level_is_done()) {
       auto v = S.current_node();
       if (f.pre(*v)) { // go down
-        S.push_level(children(*v));
+        S.push_children(children(*v));
         if (!S.level_is_done()) f.down(*v,child(*v,0));
       } else { // prune
-        S.push_level(children(*v));
+        S.push_children(children(*v));
         S.current_node() = S.last_node();
       }
     } else {
