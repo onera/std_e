@@ -8,52 +8,52 @@ namespace graph {
 
 
 template<class Graph, class F> constexpr auto
-preorder_depth_first_find_adjacencies(Graph&& g, F&& f) -> void {
+preorder_depth_first_find_adjacencies(Graph& g, F&& f) -> void {
   if (f(g)) {
-    auto S = make_graph_traversal_stack(children(g));
+    auto S = make_graph_traversal_stack(first_child(g),last_child(g));
     preorder_depth_first_find_adjacency_stack(S,f);
   }
 }
 
 template<class Graph, class Graph_adjacency_visitor> constexpr auto
-prepostorder_depth_first_scan_adjacencies(Graph&& g, Graph_adjacency_visitor&& f) -> void {
+prepostorder_depth_first_scan_adjacencies(Graph& g, Graph_adjacency_visitor&& f) -> void {
   f.pre(g);
-  auto S = make_graph_traversal_stack(children(g));
+  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
   prepostorder_depth_first_scan_adjacency_stack(S,f);
   f.post(g);
 }
 
 template<class Graph, class Graph_adjacency_visitor> constexpr auto
-depth_first_scan_adjacencies(Graph&& g, Graph_adjacency_visitor&& f) -> void {
-  auto S = make_graph_traversal_stack(root_as_range(g));
+depth_first_scan_adjacencies(Graph& g, Graph_adjacency_visitor&& f) -> void {
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   depth_first_scan_adjacency_stack(S,f);
 }
 
 template<class Node_adjacency, class Graph_adjacency_visitor> constexpr auto
-prepostorder_depth_first_prune_adjacencies(Node_adjacency&& a, Graph_adjacency_visitor&& f) -> void {
+prepostorder_depth_first_prune_adjacencies(Node_adjacency& a, Graph_adjacency_visitor&& f) -> void {
   if (f.pre(a)) {
-    auto S = make_graph_traversal_stack(children(a));
+    auto S = make_graph_traversal_stack(first_child(a),last_child(a));
     prepostorder_depth_first_prune_adjacency_stack(S,f);
     f.post(a);
   }
 }
 template<class Graph, class Graph_adjacency_visitor> constexpr auto
-depth_first_prune_adjacencies(Graph&& g, Graph_adjacency_visitor&& f) -> void {
-  auto S = make_graph_traversal_stack(root_as_range(g));
+depth_first_prune_adjacencies(Graph& g, Graph_adjacency_visitor&& f) -> void {
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   depth_first_prune_adjacency_stack(S,f);
 }
 
 
 // special cases {
 template<class Graph, class F> constexpr auto
-preorder_depth_first_scan_adjacencies(Graph&& g, F&& f) -> void {
+preorder_depth_first_scan_adjacencies(Graph& g, F&& f) -> void {
   f(g);
-  auto S = make_graph_traversal_stack(children(g));
+  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
   preorder_depth_first_scan_adjacency_stack(S,f);
 }
 template<class Graph, class F> constexpr auto
-postorder_depth_first_scan_adjacencies(Graph&& g, F&& f) -> void {
-  auto S = make_graph_traversal_stack(children(g));
+postorder_depth_first_scan_adjacencies(Graph& g, F&& f) -> void {
+  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
   postorder_depth_first_scan_adjacency_stack(S,f);
   f(g);
 }

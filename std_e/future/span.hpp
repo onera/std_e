@@ -80,6 +80,8 @@ class span : public span_size<N> {
     using const_pointer   = const T*;
     using reference       = T&;
     using const_reference = const T&;
+    using iterator        = pointer;
+    using const_iterator  = const_pointer;
 
   // ctors
     FORCE_INLINE constexpr

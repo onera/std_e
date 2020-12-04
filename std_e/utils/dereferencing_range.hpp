@@ -72,6 +72,11 @@ class dereferencing_iterator {
     iterator_over_iterators it_of_its;
 };
 
+template<class iterator_over_iterators> constexpr auto
+make_dereferencing_iterator(iterator_over_iterators x) {
+  return dereferencing_iterator(x);
+}
+
 
 
 } // std_e
@@ -117,15 +122,7 @@ class dereferencing_range {
       return first;
     }
     constexpr auto
-    begin() -> iterator& {
-      return first;
-    }
-    constexpr auto
     end() const -> iterator {
-      return last;
-    }
-    constexpr auto
-    end() -> iterator& {
       return last;
     }
 

@@ -132,20 +132,46 @@ class nested_tree {
 
   // iteration / ranges
     constexpr auto
-    root_as_range() -> range_type {
-      return {first_root(),last()};
+    first_root() -> iterator {
+      return {nodes.data(),sizes.data()};
     }
     constexpr auto
-    root_as_range() const -> const_range_type {
-      return {first_root(),last()};
+    first_root() const -> const_iterator {
+      return {nodes.data(),sizes.data()};
     }
+    constexpr auto
+    last_root() -> iterator {
+      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
+    }
+    constexpr auto
+    last_root() const -> const_iterator {
+      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
+    }
+
+    constexpr auto
+    first_child() -> iterator {
+      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
+    }                                         // begins just after the first node
+    constexpr auto
+    first_child() const -> const_iterator {
+      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
+    }                                         // begins just after the first node
+    constexpr auto
+    last_child() -> iterator {
+      return last_root();
+    }
+    constexpr auto
+    last_child() const -> const_iterator {
+      return last_root();
+    }
+
     constexpr auto
     children() -> range_type {
-      return {first_child(),last()};
+      return {first_child(),last_child()};
     }
     constexpr auto
     children() const -> const_range_type {
-      return {first_child(),last()};
+      return {first_child(),last_child()};
     }
 
     template<class nested_tree_type, class nested_tree_visitor_type> friend auto
@@ -166,32 +192,6 @@ class nested_tree {
 
   private:
   public: // TODO
-  // member functions
-    constexpr auto
-    first_root() -> iterator {
-      return {nodes.data(),sizes.data()};
-    }
-    constexpr auto
-    first_root() const -> const_iterator {
-      return {nodes.data(),sizes.data()};
-    }
-    constexpr auto
-    first_child() -> iterator {
-      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
-    }                                         // begins just after the first node
-    constexpr auto
-    first_child() const -> const_iterator {
-      return {nodes.data()+1,sizes.data()+1}; // the first sub-tree of a tree
-    }                                         // begins just after the first node
-    constexpr auto
-    last() -> iterator {
-      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
-    }
-    constexpr auto
-    last() const -> const_iterator {
-      return {nodes.data()+size(),sizes.data()+size()}; // TODO why end() does not work ?
-    }
-  // data members
     nodes_mem_type nodes;
     sizes_mem_type sizes;
 };
@@ -330,8 +330,15 @@ template<
   class nested_tree_type,
   std::enable_if_t<std::decay_t<nested_tree_type>::is_nested_tree,int> =0
 > constexpr auto
-root_as_range(nested_tree_type&& t) {
-  return FWD(t).root_as_range();
+first_root(nested_tree_type&& t) {
+  return FWD(t).first_root();
+}
+template<
+  class nested_tree_type,
+  std::enable_if_t<std::decay_t<nested_tree_type>::is_nested_tree,int> =0
+> constexpr auto
+last_root(nested_tree_type&& t) {
+  return FWD(t).last_root();
 }
 template<
   class nested_tree_type,
@@ -339,6 +346,20 @@ template<
 > constexpr auto
 children(nested_tree_type&& t) {
   return FWD(t).children();
+}
+template<
+  class nested_tree_type,
+  std::enable_if_t<std::decay_t<nested_tree_type>::is_nested_tree,int> =0
+> constexpr auto
+first_child(nested_tree_type&& t) {
+  return FWD(t).first_child();
+}
+template<
+  class nested_tree_type,
+  std::enable_if_t<std::decay_t<nested_tree_type>::is_nested_tree,int> =0
+> constexpr auto
+last_child(nested_tree_type&& t) {
+  return FWD(t).last_child();
 }
 template<class T, template<class> class M> constexpr auto
 nb_children(const nested_tree<T,M>& t) -> int {
