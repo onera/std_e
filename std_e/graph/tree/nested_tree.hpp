@@ -239,21 +239,16 @@ class child_iterator {
       return *size_ptr;
     }
 
-    // TODO DEL (op* is const)
     constexpr auto
-    operator*() -> tree_view<value_type> {
+    operator*() const -> reference {
       auto n = size();
       return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
     }
     constexpr auto
-    operator*() const -> const_tree_view<value_type> {
-      auto n = size();
-      return {std_e::make_span(node_ptr,n),std_e::make_span(size_ptr,n)};
+    operator->() const {
+      return std_e::arrow_proxy<reference>{**this};
     }
-    //constexpr auto
-    //operator->() const -> const_tree_view<T>* { // TODO arrow trick
-    //  return &*(*this);
-    //}
+
     constexpr auto
     operator++() -> child_iterator& {
       node_ptr += size();
