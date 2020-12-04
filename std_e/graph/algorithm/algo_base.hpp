@@ -166,7 +166,7 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
       auto v = S.current_node();
       f.pre(*v);
       S.push_children(first_child(*v),last_child(*v));
-      if (!S.level_is_done()) f.down(*v,child(*v,0));
+      if (!S.level_is_done()) f.down(*v,*first_child(*v));
     } else {
       S.pop_level();
       auto v = S.current_node();
@@ -208,7 +208,7 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
       auto v = S.current_node();
       if (f.pre(*v)) { // go down
         S.push_children(first_child(*v),last_child(*v));
-        if (!S.level_is_done()) f.down(*v,child(*v,0));
+        if (!S.level_is_done()) f.down(*v,*first_child(*v));
       } else { // prune
         S.push_children(first_child(*v),last_child(*v));
         S.current_node() = S.last_node();
