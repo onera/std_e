@@ -111,6 +111,7 @@ TEST_CASE("sort and permutations") {
   }
 }
 
+
 TEST_CASE("unique permutations") {
   vector<int> v = {60, 70, 80, 80, 80, 90, 90, 100, 100};
 
@@ -120,3 +121,17 @@ TEST_CASE("unique permutations") {
 
   CHECK( perm == perm_expected );
 }
+
+
+TEST_CASE("zip_sort") {
+  vector<int> v0 = {4 ,3 ,1 ,5 ,2 };
+  vector<int> v1 = {40,30,10,50,20};
+
+  auto perm = std_e::zip_sort(std::tie(v0,v1));
+
+  CHECK( v0 == vector{1 ,2 ,3 ,4 ,5 } );
+  CHECK( v1 == vector{10,20,30,40,50} );
+  CHECK( perm == vector{2,4,1,0,3} );
+}
+
+

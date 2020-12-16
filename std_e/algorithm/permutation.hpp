@@ -114,5 +114,23 @@ permute(std::vector<T>& vec, const std::vector<I>& p) -> void {
   return permute(vec.begin(),p);
 }
 
+template<class Int_range, class Tuple, size_t... Is> auto
+apply_permutation__impl(const Int_range& perm, Tuple& rngs, std::index_sequence<Is...>) -> void {
+  ( permute(std::get<Is>(rngs),perm) , ... );
+}
+template<class Int_range, class Tuple> auto
+apply_permutation(const Int_range& perm, Tuple& rngs) -> void {
+  constexpr auto n_range = std::tuple_size_v<Tuple>;
+  apply_permutation__impl(perm,rngs,std::make_index_sequence<n_range>());
+}
+
+template<class Tuple, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+zip_sort(Tuple&& rngs, Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) {
+  auto& first_range = std::get<0>(rngs);
+  auto perm = std_e::sort_permutation(first_range,comp,sort_algo);
+  apply_permutation(perm,rngs);
+  return perm;
+}
+
 
 } // std_e

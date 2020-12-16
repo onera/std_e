@@ -6,6 +6,7 @@
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/span.hpp"
+#include "std_e/log.hpp" // TODO
 
 
 namespace std_e {
@@ -109,6 +110,21 @@ class multi_range {
         return it-begin(range);
       }
     }
+    template<int index, class Unary_pred> constexpr auto
+    // requires T==Ts[index]
+    find_if_index(Unary_pred p) const -> index_type {
+      static_assert(index < nb_ranges());
+      const auto& range = get<index>(_impl);
+      //if (index==sorted_rng_idx) {
+      //  auto it = std::partition_point(begin(range),end(range),p);
+      //  //auto it = std::partition_point(begin(range),end(range),std::not_fn(p));
+      //  return it-begin(range);
+      //} else {
+        auto it = std::find_if(begin(range),end(range),p);
+        return it-begin(range);
+      //}
+    }
+
     template<int index, class T> constexpr auto
     // requires T==Ts[index]
     find(const T& x) const -> multi_elt_const_ref {
@@ -125,6 +141,21 @@ class multi_range {
       STD_E_ASSERT(i<size());
       return (*this)[i];
     }
+    //template<int index, class Unary_pred> constexpr auto
+    //find_if(Unary_pred p) const -> multi_elt_const_ref {
+    //  static_assert(index < nb_ranges());
+    //  index_type i = find_if_index<index>(p);
+    //  STD_E_ASSERT(i<size());
+    //  return (*this)[i];
+    //}
+    template<int index, class Unary_pred> constexpr auto
+    find_if(Unary_pred p) -> multi_elt_ref { // TODO how to enforce invariant (2) ?
+      static_assert(index < nb_ranges());
+      index_type i = find_if_index<index>(p);
+      STD_E_ASSERT(i<size());
+      return (*this)[i];
+    }
+
     template<int search_index, int found_index, class T> constexpr auto
     // requires T==Ts[search_index]
     find_element(const T& x) const -> const auto& {
@@ -159,14 +190,14 @@ class multi_range {
     }
 
     template<int index, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
-    sort_by(Comp = {}, sort_algo_type = std_sort_lambda) -> void {
-      auto perm = std_e::sort_permutation(get<index>(_impl));
+    sort_by(Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> void {
+      auto perm = std_e::sort_permutation(get<index>(_impl),comp,sort_algo);
       apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
       sorted_rng_idx = index;
     }
-    auto
-    sort() -> void {
-      sort_by<0>();
+    template<class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+    sort(Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> void {
+      sort_by<0>(comp,sort_algo);
     }
   private:
   // methods
@@ -195,6 +226,7 @@ class multi_range {
       ( std_e::permute(get<Is>(_impl),perm) , ... );
     }
   // data members
+  public:
     impl_type _impl;
     int sorted_rng_idx = -1; // no range sorted by default
 };
@@ -234,15 +266,24 @@ element(multi_range<RT,Ts...>& x, I i) -> auto& {
   return range<T>(x)[i];
 }
 
-template<int index, template<class> class RT, class... Ts, class T> constexpr auto
+template<int index = 0, template<class> class RT, class... Ts, class T> constexpr auto
 // requires T==Ts[index]
 find(const multi_range<RT,Ts...>& x, const T& value) {
   return x.template find<index>(value);
 }
-template<int index, template<class> class RT, class... Ts, class T> constexpr auto
+template<int index = 0, template<class> class RT, class... Ts, class T> constexpr auto
 // requires T==Ts[index]
 find(multi_range<RT,Ts...>& x, const T& value) {
   return x.template find<index>(value);
+}
+
+template<int index = 0, template<class> class RT, class... Ts, class Unary_pred> constexpr auto
+find_if(const multi_range<RT,Ts...>& x, Unary_pred p) {
+  return x.template find_if<index>(p);
+}
+template<int index = 0, template<class> class RT, class... Ts, class Unary_pred> constexpr auto
+find_if(multi_range<RT,Ts...>& x, Unary_pred p) {
+  return x.template find_if<index>(p);
 }
 
 template<int search_index, int found_index, template<class> class RT, class... Ts, class T> constexpr auto
