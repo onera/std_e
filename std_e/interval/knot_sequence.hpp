@@ -194,7 +194,7 @@ interval_lengths(const Knot_sequence& ks) -> std::vector<T> {
 }
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
 indices_from_sizes(const Random_access_range& r) -> knot_vector<T> { // TODO rename indices_from_strides
-  knot_vector<int> indices(r.size());
+  knot_vector<T> indices(r.size());
   indices[0] = 0;
   std_e::inclusive_scan(begin(r),end(r),begin(indices)+1);
   return indices;
