@@ -19,8 +19,8 @@ endmacro()
 
 check_sub_repo_exists(project_utils)
 set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
-# Load commands target_add_dependency, target_add_thirdparty_dependency and target_install
-include(${PROJECT_UTILS_DIR}/scripts/cmake/target_add_dependency.cmake)
+set(PROJECT_UTILS_CMAKE_DIR ${PROJECT_UTILS_DIR}/scripts/cmake)
+include(${PROJECT_UTILS_CMAKE_DIR}/target_add_dependency.cmake) # target_add_dependency, target_add_thirdparty_dependency and target_install commands
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
