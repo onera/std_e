@@ -3,15 +3,6 @@
 #include "std_e/log.hpp"
 
 
-TEST_CASE("std::vector append") {
-  std::vector<int> a                 = {3,4,5};
-  std::vector<int> b                 = {6,7,8};
-  std::vector<int> expected_append_a = {3,4,5,6,7,8};
-  std_e::append(a, b);
-  CHECK( a == expected_append_a );
-}
-
-
 TEST_CASE("sort_unique(vector)") {
   std::vector<int> v = {9,1,1,4,3,1,9,8,4,7};
 

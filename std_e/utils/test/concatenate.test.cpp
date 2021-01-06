@@ -20,3 +20,12 @@ TEST_CASE("Concatenate arrays") {
   std::array<int,4+3+2> expected_v012 = {1,2,3,9,8,7,6,10,14};
   CHECK( v012 == expected_v012 );
 }
+
+
+TEST_CASE("Append to vector") {
+  std::vector<int> a                 = {3,4,5};
+  std::vector<int> b                 = {6,7,8};
+  std::vector<int> expected_append_a = {3,4,5,6,7,8};
+  std_e::append(a, b);
+  CHECK( a == expected_append_a );
+}

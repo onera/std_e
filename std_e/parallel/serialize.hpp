@@ -7,6 +7,7 @@
 #include "std_e/interval/knot_sequence.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/algorithm/iota.hpp"
+#include "std_e/utils/concatenate.hpp"
 
 namespace std_e {
 

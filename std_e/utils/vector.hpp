@@ -30,12 +30,6 @@ end_ptr(const std::vector<T,A>& v) -> const T* {
 }
 
 
-template<class T, class A, class Range> auto
-append(std::vector<T,A>& v, const Range& w) -> void {
-  std::copy(begin(w),end(w),std::back_inserter(v));
-}
-
-
 template<class T, class A, class Unary_predicate> constexpr auto
 partition_copy(const std::vector<T,A>& v, Unary_predicate p) -> std::pair<std::vector<T,A>,std::vector<T,A>> {
   std::vector<T,A> v_true;

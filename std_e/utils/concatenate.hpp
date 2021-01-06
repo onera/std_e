@@ -51,4 +51,10 @@ inline auto concatenate_in_vector = [](auto&&... xs){ return concatenate_in_vect
 // concatenation as a reduction }
 
 
+template<class Array0, class Array1> constexpr auto
+append(Array0& x, const Array1& y)  {
+  std::copy(begin(y),end(y),std::back_inserter(x));
+}
+
+
 } // std_e
