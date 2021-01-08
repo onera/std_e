@@ -9,8 +9,7 @@
 
 // from https://stackoverflow.com/a/45187436/1583122
 
-// C++ requires you to type out the same function body three times to obtain
-// SFINAE-friendliness and noexcept-correctness. That's unacceptable.
+// SFINAE-friendliness and noexcept-correctness
 #if __GNUC__ > 7
 #define RETURNS(...) noexcept(noexcept(__VA_ARGS__)) \
      -> decltype(__VA_ARGS__){ return __VA_ARGS__; }
@@ -19,9 +18,7 @@
 #endif
 
 
-// The name of overload sets can be legally used as part of a function call -
-// we can use a macro to create a lambda for us that "lifts" the overload set
-// into a function object.
+// Turn a template function into a generic lambda
 #define LIFT(f) [](auto&&... xs) RETURNS(f(::std::forward<decltype(xs)>(xs)...))
 
 
