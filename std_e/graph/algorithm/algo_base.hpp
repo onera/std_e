@@ -129,25 +129,26 @@ make_graph_traversal_stack(iterator_type f, iterator_type l) {
 // base algorithms {
 template<class Graph_iterator_stack, class F> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
-preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) -> void {
+preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f(*v)) return; // TODO opposite (like find_if)
+      if (!f(*v)) return v; // TODO opposite (like find_if)
       S.push_children(first_child(*v),last_child(*v));
     } else {
       S.pop_level();
       ++S.current_node();
     }
   }
+  return S.last_node();
 }
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
-depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
+depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f.pre(*v)) return; // TODO opposite (like find_if) // TODO return something
+      if (!f.pre(*v)) return v; // TODO opposite (like find_if)
       S.push_children(first_child(*v),last_child(*v));
       if (!S.level_is_done()) f.down(*v,*first_child(*v));
     } else {
@@ -162,6 +163,7 @@ depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
       }
     }
   }
+  return S.last_node();
 }
 
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr auto

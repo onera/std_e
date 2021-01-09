@@ -27,11 +27,12 @@ TEST_CASE("Nested tree preorder depth-first find") {
 
   SUBCASE("found in the middle") {
     auto f = [&](int i){  pre_nodes.push_back(i); return i!=8; };
-    preorder_depth_first_find(t,f);
+    int& found_node = preorder_depth_first_find(t,f);
 
     std::vector<int> expected_pre_nodes = {1, 2,4,7, 3,8};
 
     CHECK( pre_nodes == expected_pre_nodes );
+    CHECK( found_node == 8 );
   }
 
   SUBCASE("stop immediately") {

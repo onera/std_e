@@ -8,14 +8,14 @@ namespace graph {
 
 
 template<class Rooted_graph, class F> constexpr auto
-preorder_depth_first_find_adjacencies(Rooted_graph&& g, F&& f) -> void {
+preorder_depth_first_find_adjacencies(Rooted_graph&& g, F&& f) {
   auto S = make_graph_traversal_stack(first_root(g),last_root(g));
-  preorder_depth_first_find_adjacency_stack(S,f);
+  return preorder_depth_first_find_adjacency_stack(S,f);
 }
 template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
-depth_first_find_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> void {
+depth_first_find_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) {
   auto S = make_graph_traversal_stack(first_root(g),last_root(g));
-  depth_first_prune_adjacency_stack(S,f); // TODO prune->find TODO test
+  return depth_first_find_adjacency_stack(S,f); // TODO test
 }
 
 template<class Graph, class Graph_adjacency_visitor> constexpr auto

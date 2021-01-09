@@ -9,9 +9,10 @@ namespace graph {
 
 
 template<class Graph, class F> constexpr auto
-preorder_depth_first_find(Graph&& g, F&& f_node) -> void {
+preorder_depth_first_find(Graph&& g, F&& f_node) -> decltype(auto) {
   graph_adjacency_functor_adaptor<F> f(FWD(f_node));
-  preorder_depth_first_find_adjacencies(g,f);
+  auto adj_iter = preorder_depth_first_find_adjacencies(g,f);
+  return node(*adj_iter);
 }
 
 template<class Graph, class F> constexpr auto
