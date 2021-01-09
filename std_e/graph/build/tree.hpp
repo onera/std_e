@@ -97,7 +97,7 @@ class pruned_tree_builder {
     template<class T> constexpr auto
     pre(const T& x) -> bool {
       tb.pre(x);
-      return tb.build_visitor().should_go_down(x);
+      return !tb.build_visitor().should_go_down(x);
     }
     template<class T> constexpr auto
     post(const T& x) -> void {

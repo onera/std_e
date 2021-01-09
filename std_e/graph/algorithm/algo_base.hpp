@@ -210,7 +210,7 @@ prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_ad
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (f.pre(*v)) { // go down
+      if (!f.pre(*v)) { // go down
         S.push_children(first_child(*v),last_child(*v));
       } else { // prune
         S.push_children(first_child(*v),last_child(*v));
@@ -229,7 +229,7 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (f.pre(*v)) { // go down
+      if (!f.pre(*v)) { // go down
         S.push_children(first_child(*v),last_child(*v));
         if (!S.level_is_done()) f.down(*v,*first_child(*v));
       } else { // prune

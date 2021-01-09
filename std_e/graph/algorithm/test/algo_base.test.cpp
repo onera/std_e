@@ -229,7 +229,7 @@ struct visitor_for_testing_dfs_prune : visitor_for_testing_dfs {
   auto
   pre(int i) -> bool {
     visitor_for_testing_dfs::pre(i);
-    return i!=2;
+    return i==2;
   }
 };
 TEST_CASE("Nested tree depth-first prune") {
@@ -284,7 +284,7 @@ struct visitor_for_testing_dfs_prune_adjacencies {
   pre(const io_adjacency<int>& a) -> bool {
     int i = node(a);
     s += "pre " + std::to_string(i) + "\n";
-    return i!=2;
+    return i==2;
   }
   auto
   post(const io_adjacency<int>& a) -> void {
