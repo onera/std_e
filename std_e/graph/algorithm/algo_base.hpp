@@ -147,7 +147,7 @@ depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f.pre(*v)) return; // TODO opposite (like find_if)
+      if (!f.pre(*v)) return; // TODO opposite (like find_if) // TODO return something
       S.push_children(first_child(*v),last_child(*v));
       if (!S.level_is_done()) f.down(*v,*first_child(*v));
     } else {

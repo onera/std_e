@@ -222,7 +222,7 @@ tree_built_3_for_test() -> tree<int> {
 
 TEST_CASE("create_pruned_tree_from_nodes") {
   io_graph<int> g = create_io_graph_for_tests();
-  auto root = g[8]; // the root node is stored at position 8
+  auto root = rooted_graph_view(g[8]); // the root node is stored at position 8
 
   auto t = create_pruned_tree_from_nodes(root,builder_3_for_test{});
 
@@ -274,7 +274,7 @@ tree_built_4_for_test() -> tree<int> {
 
 TEST_CASE("create_pruned_tree_from_adjacencies") {
   io_graph<int> g = create_io_graph_for_tests();
-  auto root = g[8]; // the root node is stored at position 8
+  auto root = rooted_graph_view(g[8]); // the root node is stored at position 8
 
   auto t = create_pruned_tree_from_adjacencies(root,builder_4_for_test{});
 

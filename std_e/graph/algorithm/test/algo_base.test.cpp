@@ -320,7 +320,7 @@ TEST_CASE("Adj graph depth-first prune") {
   io_graph<int> io_g(idx_adjs);
 
   visitor_for_testing_dfs_prune_adjacencies v;
-  prepostorder_depth_first_prune_adjacencies(io_g[8],v);
+  prepostorder_depth_first_prune_adjacencies(rooted_graph_view(io_g[8]),v);
 
   string expected_s = 
     "pre 1\n"
