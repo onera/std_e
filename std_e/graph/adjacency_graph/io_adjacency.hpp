@@ -119,6 +119,32 @@ last_child(io_adjacency<T>& adj) {
   return std_e::make_dereferencing_iterator(end(adj.outwards));
 }
 
+
+// rooted graph view {
+template<class T> auto
+rooted_graph_view(io_adjacency<T>& root) {
+  return io_adj_ptr_vector<T>{&root};
+}
+
+template<class T> constexpr auto
+first_root(const io_adj_ptr_vector<T>& root_rng) {
+  return std_e::make_dereferencing_iterator(begin(root_rng));
+}
+template<class T> constexpr auto
+first_root(io_adj_ptr_vector<T>& root_rng) {
+  return std_e::make_dereferencing_iterator(begin(root_rng));
+}
+template<class T> constexpr auto
+last_root(const io_adj_ptr_vector<T>& root_rng) {
+  return std_e::make_dereferencing_iterator(end(root_rng));
+}
+template<class T> constexpr auto
+last_root(io_adj_ptr_vector<T>& root_rng) {
+  return std_e::make_dereferencing_iterator(end(root_rng));
+}
+// rooted graph view }
+
+
 // TODO new interface names => report in concept + nested_tree...
 template<class T> constexpr auto
 out_adjacencies(io_adjacency<T>& adj) {
