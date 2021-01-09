@@ -133,7 +133,7 @@ preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f(*v)) return v; // TODO opposite (like find_if)
+      if (f(*v)) return v;
       S.push_children(first_child(*v),last_child(*v));
     } else {
       S.pop_level();
@@ -148,7 +148,7 @@ depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
   while (!S.is_done()) {
     if (!S.level_is_done()) {
       auto v = S.current_node();
-      if (!f.pre(*v)) return v; // TODO opposite (like find_if)
+      if (f.pre(*v)) return v;
       S.push_children(first_child(*v),last_child(*v));
       if (!S.level_is_done()) f.down(*v,*first_child(*v));
     } else {
