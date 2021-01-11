@@ -77,14 +77,14 @@ operator!=(const zpair<const T0&,const T1&>& x, const zpair<T0,T1>& y) -> bool {
 template<class It_0, class It_1>
 class zip_iterator {
   public:
-    using T0 = typename It_0::value_type;
-    using T1 = typename It_1::value_type;
-    using reference_0 = typename It_0::reference;
-    using reference_1 = typename It_1::reference;
+    using T0 = typename std::iterator_traits<It_0>::value_type;
+    using T1 = typename std::iterator_traits<It_1>::value_type;
+    using reference_0 = typename std::iterator_traits<It_0>::reference;
+    using reference_1 = typename std::iterator_traits<It_1>::reference;
 
   // std::iterator type traits
     using value_type = zpair<T0,T1>;
-    using difference_type = typename It_0::difference_type;
+    using difference_type = typename std::iterator_traits<It_0>::difference_type;
     using iterator_category = std::forward_iterator_tag;
 
     using reference = zpair<reference_0,reference_1>;
