@@ -20,10 +20,8 @@ depth_first_find_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) {
 
 template<class Graph, class Graph_adjacency_visitor> constexpr auto
 prepostorder_depth_first_scan_adjacencies(Graph& g, Graph_adjacency_visitor&& f) -> void {
-  f.pre(g); // TODO rm, replace by first_root
-  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   prepostorder_depth_first_scan_adjacency_stack(S,f);
-  f.post(g);
 }
 template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
 depth_first_scan_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> void {
@@ -46,15 +44,13 @@ depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> 
 // special cases {
 template<class Graph, class F> constexpr auto
 preorder_depth_first_scan_adjacencies(Graph& g, F&& f) -> void {
-  f(g); // TODO rm, replace by first_root
-  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   preorder_depth_first_scan_adjacency_stack(S,f);
 }
 template<class Graph, class F> constexpr auto
 postorder_depth_first_scan_adjacencies(Graph& g, F&& f) -> void {
-  auto S = make_graph_traversal_stack(first_child(g),last_child(g));
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   postorder_depth_first_scan_adjacency_stack(S,f);
-  f(g); // TODO rm, replace by first_root
 }
 
 template<class Graph, class F> constexpr auto

@@ -12,7 +12,7 @@ template<class Graph, class F> constexpr auto
 preorder_depth_first_find(Graph&& g, F&& f_node) -> decltype(auto) {
   graph_adjacency_functor_adaptor<F> f(FWD(f_node));
   auto adj_iter = preorder_depth_first_find_adjacencies(g,f);
-  return node(*adj_iter);
+  return node(*adj_iter); // Warning: returning the value, not an iterator to it (is it OK?)
 }
 
 template<class Graph, class F> constexpr auto
