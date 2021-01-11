@@ -5,7 +5,6 @@
 #include "std_e/graph/test/nested_tree.hpp"
 
 #include "std_e/graph/algorithm/zip.hpp"
-#include "std_e/log.hpp"
 
 
 TEST_CASE("zip_graphs") {

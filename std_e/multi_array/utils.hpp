@@ -55,7 +55,7 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
       std::string s = "["+to_string(x(0));
       int n = x.extent(0);
       for (int i=1; i<n; ++i) {
-        s += "," + std::to_string(x(i));
+        s += ";" + std::to_string(x(i));
       }
       return s + "]";
     }
