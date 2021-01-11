@@ -14,6 +14,14 @@
     Node_adjacency node_adj_type
     // TODO
 
+  concept Graph
+    first_child(Graph) -> iterator
+    last_child(Graph) -> iterator
+
+  concept Rooted_graph : graph
+    first_root(Graph) -> iterator
+    last_root(Graph) -> iterator
+
 
   concept Graph_adjacency_visitor
     Node_adjacency node_adj_type

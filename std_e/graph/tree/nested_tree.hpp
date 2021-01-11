@@ -203,11 +203,16 @@ template<class T_ptr, class I_ptr>
 // requires I_ptr is (const)Integer*
 class child_iterator {
   public:
-    using value_type = std::remove_pointer_t<T_ptr>;
+    using node_type = std::remove_pointer_t<T_ptr>;
+  // std::iterator type traits
+    using value_type = tree<node_type>;
+    using difference_type = int;
+    using iterator_category = std::forward_iterator_tag;
+
     using iterator = child_iterator<T_ptr,I_ptr>;
     using const_iterator = child_iterator<const T_ptr,const I_ptr>;
-    using reference = tree_view<value_type>;
-    using const_reference = const_tree_view<value_type>;
+    using reference = tree_view<node_type>;
+    using const_reference = const_tree_view<node_type>;
   // ctors
     constexpr
     child_iterator()

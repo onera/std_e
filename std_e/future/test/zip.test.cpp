@@ -16,25 +16,25 @@ TEST_CASE("zip") {
   }
 
   SUBCASE("operator[]") {
-    CHECK( v[0] == std_e::pair<int,double>(4,40.) );
-    CHECK( v[1] == std_e::pair<int,double>(3,30.) );
-    CHECK( v[2] == std_e::pair<int,double>(1,10.) );
-    CHECK( v[3] == std_e::pair<int,double>(2,20.) );
-    CHECK( v[3] == std_e::pair<int,double>(2,20.) );
+    CHECK( v[0] == std_e::zpair<int,double>(4,40.) );
+    CHECK( v[1] == std_e::zpair<int,double>(3,30.) );
+    CHECK( v[2] == std_e::zpair<int,double>(1,10.) );
+    CHECK( v[3] == std_e::zpair<int,double>(2,20.) );
+    CHECK( v[3] == std_e::zpair<int,double>(2,20.) );
   }
 
   SUBCASE("ref") {
     CHECK( &v[0].first  == &v0[0] );
     CHECK( &v[0].second == &v1[0] );
 
-    v[0] = std_e::pair<int,double>{0,0.};
-    v[1] = std_e::pair<int,double>{1,1.};
-    v[2] = std_e::pair<int,double>{2,2.};
-    v[3] = std_e::pair<int,double>{3,3.};
-    CHECK( v[0] == std_e::pair<int,double>(0,0.) );
-    CHECK( v[1] == std_e::pair<int,double>(1,1.) );
-    CHECK( v[2] == std_e::pair<int,double>(2,2.) );
-    CHECK( v[3] == std_e::pair<int,double>(3,3.) );
+    v[0] = std_e::zpair<int,double>{0,0.};
+    v[1] = std_e::zpair<int,double>{1,1.};
+    v[2] = std_e::zpair<int,double>{2,2.};
+    v[3] = std_e::zpair<int,double>{3,3.};
+    CHECK( v[0] == std_e::zpair<int,double>(0,0.) );
+    CHECK( v[1] == std_e::zpair<int,double>(1,1.) );
+    CHECK( v[2] == std_e::zpair<int,double>(2,2.) );
+    CHECK( v[3] == std_e::zpair<int,double>(3,3.) );
   }
 
   SUBCASE("iterator") {
@@ -44,9 +44,9 @@ TEST_CASE("zip") {
       y = i+5.;
       i *= 2; 
     }
-    CHECK( v[0] == std_e::pair<int,double>(10,15.) );
-    CHECK( v[1] == std_e::pair<int,double>(20,25.) );
-    CHECK( v[2] == std_e::pair<int,double>(40,45.) );
-    CHECK( v[3] == std_e::pair<int,double>(80,85.) );
+    CHECK( v[0] == std_e::zpair<int,double>(10,15.) );
+    CHECK( v[1] == std_e::zpair<int,double>(20,25.) );
+    CHECK( v[2] == std_e::zpair<int,double>(40,45.) );
+    CHECK( v[3] == std_e::zpair<int,double>(80,85.) );
   }
 }

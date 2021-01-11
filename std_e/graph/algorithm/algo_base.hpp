@@ -298,6 +298,7 @@ class postorder_visitor_adaptor {
   private:
     std_e::remove_rvalue_reference<F> f;
 };
+
 template<class Graph_iterator_stack, class F> constexpr auto
 preorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, F&& f) -> void {
   preorder_visitor_adaptor<F> pre_vis(FWD(f));
@@ -307,6 +308,12 @@ template<class Graph_iterator_stack, class F> constexpr auto
 postorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, F&& f) -> void {
   postorder_visitor_adaptor<F> post_vis(FWD(f));
   prepostorder_depth_first_scan_adjacency_stack(S,post_vis);
+}
+
+template<class Graph_iterator_stack, class F> constexpr auto
+preorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, F&& f) -> void {
+  preorder_visitor_adaptor<F> pre_vis(FWD(f));
+  prepostorder_depth_first_prune_adjacency_stack(S,pre_vis);
 }
 // only pre or post scans }
 

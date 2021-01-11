@@ -13,23 +13,23 @@ namespace std_e {
 
 
 template<class T0, class T1>
-struct pair : std::pair<T0,T1> {
+struct zpair : std::pair<T0,T1> {
   using base = std::pair<T0,T1>;
   using base::base;
 };
 
 template<class T0, class T1>
-struct pair<T0&,T1&> : std::pair<T0&,T1&> {
-  using base = std::pair<T0&,T1&>;
+struct zpair<T0&,T1&> : std::pair<T0&,T1&> {
+  using base          = std::pair<T0&,T1&>;
   using base::base;
 
-  pair(const pair<T0,T1>& x)
+  zpair(const zpair<T0,T1>& x)
     : base::first (x.first)
     , base::second(x.second)
   {}
 
   auto
-  operator=(const pair<T0,T1>& x) -> auto& {
+  operator=(const zpair<T0,T1>& x) -> auto& {
     this->first  = x.first;
     this->second = x.second;
     return *this;
@@ -38,36 +38,36 @@ struct pair<T0&,T1&> : std::pair<T0&,T1&> {
 
 
 template<class T0, class T1> auto
-operator==(const pair<T0,T1>& x, const pair<T0&,T1&>& y) -> bool {
+operator==(const zpair<T0,T1>& x, const zpair<T0&,T1&>& y) -> bool {
   return x.first==y.first && x.second==y.second;
 }
 template<class T0, class T1> auto
-operator==(const pair<T0,T1>& x, const pair<const T0&,const T1&>& y) -> bool {
+operator==(const zpair<T0,T1>& x, const zpair<const T0&,const T1&>& y) -> bool {
   return x.first==y.first && x.second==y.second;
 }
 template<class T0, class T1> auto
-operator==(const pair<T0&,T1&>& x, const pair<T0,T1>& y) -> bool {
+operator==(const zpair<T0&,T1&>& x, const zpair<T0,T1>& y) -> bool {
   return x.first==y.first && x.second==y.second;
 }
 template<class T0, class T1> auto
-operator==(const pair<const T0&,const T1&>& x, const pair<T0,T1>& y) -> bool {
+operator==(const zpair<const T0&,const T1&>& x, const zpair<T0,T1>& y) -> bool {
   return x.first==y.first && x.second==y.second;
 }
 
 template<class T0, class T1> auto
-operator!=(const pair<T0,T1>& x, const pair<T0&,T1&>& y) -> bool {
+operator!=(const zpair<T0,T1>& x, const zpair<T0&,T1&>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1> auto
-operator!=(const pair<T0,T1>& x, const pair<const T0&,const T1&>& y) -> bool {
+operator!=(const zpair<T0,T1>& x, const zpair<const T0&,const T1&>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1> auto
-operator!=(const pair<T0&,T1&>& x, const pair<T0,T1>& y) -> bool {
+operator!=(const zpair<T0&,T1&>& x, const zpair<T0,T1>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1> auto
-operator!=(const pair<const T0&,const T1&>& x, const pair<T0,T1>& y) -> bool {
+operator!=(const zpair<const T0&,const T1&>& x, const zpair<T0,T1>& y) -> bool {
   return !(x==y);
 }
 
@@ -79,9 +79,15 @@ class zip_iterator {
   public:
     using T0 = typename It_0::value_type;
     using T1 = typename It_1::value_type;
+    using reference_0 = typename It_0::reference;
+    using reference_1 = typename It_1::reference;
 
-    using value_type = pair<T0,T1>;
-    using reference = pair<T0&,T1&>;
+  // std::iterator type traits
+    using value_type = zpair<T0,T1>;
+    using difference_type = typename It_0::difference_type;
+    using iterator_category = std::forward_iterator_tag;
+
+    using reference = zpair<reference_0,reference_1>;
 
     zip_iterator(It_0 it_0, It_1 it_1)
       : it_0(it_0)
@@ -102,17 +108,35 @@ class zip_iterator {
     }
 
     template<class It_0_, class It_1_> friend auto
-    operator==(const zip_iterator<It_0_,It_1_>& x, const zip_iterator<It_0_,It_1_>& y) {
-      return x.it_0 == y.it_0;
-    }
+    operator==(const zip_iterator<It_0_,It_1_>& x, const zip_iterator<It_0_,It_1_>& y);
   private:
     It_0 it_0;
     It_1 it_1;
 };
-template<class It_0_, class It_1_> auto
-operator!=(const zip_iterator<It_0_,It_1_>& x, const zip_iterator<It_0_,It_1_>& y) {
+template<class It_0, class It_1> auto
+operator==(const zip_iterator<It_0,It_1>& x, const zip_iterator<It_0,It_1>& y) {
+  return x.it_0 == y.it_0;
+}
+template<class It_0, class It_1> auto
+operator!=(const zip_iterator<It_0,It_1>& x, const zip_iterator<It_0,It_1>& y) {
   return !(x==y);
 }
+template<class It_0, class It_1> auto
+make_zip_iterator(It_0 it_0, It_1 it_1) {
+  return zip_iterator<It_0,It_1>(it_0,it_1);
+}
+
+} /* std_e */ namespace std {
+template<class It_0, class It_1>
+struct iterator_traits<std_e::zip_iterator<It_0,It_1>> {
+  using type = std_e::zip_iterator<It_0,It_1>;
+
+  using value_type = typename type::value_type;
+  using difference_type = typename type::difference_type;
+  using iterator_category = typename type::iterator_category;
+  using reference = typename type::reference;
+};
+} /* std */ namespace std_e {
 
 
 template<class Rng0, class Rng1>
@@ -123,9 +147,9 @@ class zip_view{
     using It_0 = typename Rng0::iterator;
     using It_1 = typename Rng1::iterator;
 
-    using value_type = pair<T0,T1>;
-    using reference = pair<T0&,T1&>;
-    using const_reference = pair<const T0&,const T1&>;
+    using value_type = zpair<T0,T1>;
+    using reference = zpair<T0&,T1&>;
+    using const_reference = zpair<const T0&,const T1&>;
     using iterator = zip_iterator<It_0,It_1>;
 
     zip_view(Rng0& r0, Rng1& r1)
@@ -174,8 +198,8 @@ class zip_view{
 
 
 template<class Rng0, class Rng1> auto
-zip(Rng0&& r0, Rng1&& r1) {
-  return zip_view<std::decay_t<Rng0>,std::decay_t<Rng1>>(r0,r1);
+zip(Rng0& r0, Rng1& r1) {
+  return zip_view<Rng0,Rng1>(r0,r1);
 }
 
 
