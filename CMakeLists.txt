@@ -139,7 +139,7 @@ if(STD_E_ENABLE_TEST)
               ${MPIEXEC_POSTFLAGS}
     )
   else()
-    add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${PROJECT_NAME}_unit_tests)
+    add_test(NAME ${PROJECT_NAME}_unit_tests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_unit_tests)
   endif()
 endif()
 
