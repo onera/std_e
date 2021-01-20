@@ -2,6 +2,7 @@
 #include "std_e/utils/flatten_tuple.hpp"
 
 #include <algorithm>
+using namespace std_e;
 
 TEST_CASE("flatten tuple static") {
   SUBCASE("simple") {
@@ -16,14 +17,14 @@ TEST_CASE("flatten tuple static") {
 
     constexpr auto multiply_nested = std::tuple{multiple, multiple};
 
-    static_assert(flatten(bare) == bare);
-    static_assert(flatten(single) == bare);
-    static_assert(flatten(nested_simple) == bare);
+    //static_assert(flatten(bare) == bare);
+    //static_assert(flatten(single) == bare);
+    //static_assert(flatten(nested_simple) == bare);
 
-    static_assert(flatten(multiple) == multiple);
-    static_assert(flatten(nested_multiple) == multiple);
+    //static_assert(flatten(multiple) == multiple);
+    //static_assert(flatten(nested_multiple) == multiple);
 
-    static_assert(flatten(multiply_nested) == std::tuple{bare, bare, bare, bare});
+    //static_assert(flatten(multiply_nested) == std::tuple{bare, bare, bare, bare});
   }
 
 }
