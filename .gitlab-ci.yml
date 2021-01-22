@@ -25,15 +25,16 @@ pages:
     - echo $PWD
     - ls -lrt
     # - cd ..
-    - ls -lrt         
+    - ls -lrt
     # - cmake -E remove_directory build
     # - cmake -B build -S std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
     # - cmake --build build
     - cd build
-    - ls -lrt      
+    - ls -lrt
     - ls -lrt ..
-    - module purge
-    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
+    # - module purge
+    # - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
+    - source /home/bmaugars/ENVSPIROFORDOCS8.3PY3
     - export https_proxy=proxy:80
     - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
     - make
@@ -87,14 +88,14 @@ pages:
 #    - cp report.xml ../public
 #    - ls -lrt ..
 #    - ls -lrt ../public
-    
+
 #  artifacts:
 #    paths:
 #      - public
 #    reports:
 #      junit: report.xml
 
-    
+
 
 #test:
 #  stage: test # On déclare que ce `job` fait partie de l'étape build
@@ -104,7 +105,7 @@ pages:
 #    - echo $PWD
 #    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
 #    - make test
-    
+
 #pages:
 #  script:
 #    - ls -lrt
@@ -113,4 +114,4 @@ pages:
 #      - public
 #  only:
 #    - master
-    
+
