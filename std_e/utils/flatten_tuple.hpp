@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <iostream>
 #include <tuple>
 
 namespace std_e {
@@ -37,9 +38,14 @@ constexpr auto sane_flatten( Ts...ts ) {
 
 namespace unpack_tuple {
   template<class...Ts>
-  constexpr auto unpack_single( std::tuple<Ts...> t ) {return t;}
+  constexpr auto unpack_single( std::tuple<Ts...> t ) {
+    return t;
+  }
   template<class T>
-  constexpr auto unpack_single( std::tuple<T> t ) {return std::get<0>(t);}
+  constexpr auto unpack_single( std::tuple<T> t ) {
+    // return std::get<0>(t);
+    return t;
+  }
 }
 
 template<class...Ts>
@@ -50,11 +56,6 @@ constexpr auto insane_flatten( Ts...ts ) {
 template<class...Ts>
 constexpr auto flatten( Ts...ts ) {
   return insane_flatten(ts...);
-}
-
-template<class T>
-constexpr auto flatten(T t) {
-  return std::make_tuple(t);
 }
 
 
