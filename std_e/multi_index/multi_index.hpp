@@ -57,9 +57,9 @@ struct multi_index<Int,dynamic_size> : std::vector<Int> {
 
 /// tuple protocol {
 } /* close std_e */
-template<class Int, int rank>
-struct std::tuple_size<std_e::multi_index<Int,rank>> {
-  static constexpr size_t value = rank;
+template<class Int, int rk>
+struct std::tuple_size<std_e::multi_index<Int,rk>> {
+  static constexpr size_t value = rk;
 };
 template<size_t I, class Int, int rank>
 struct std::tuple_element<I,std_e::multi_index<Int,rank>> {

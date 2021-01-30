@@ -64,6 +64,17 @@ scale(Range& r, I value) -> void {
   }
 }
 
+template<class I> auto 
+// requires I is an arithmetic type
+offset(I value) {
+  return [value](const auto& x){ return x+value; };
+}
+template<class I> auto 
+// requires I is an arithmetic type
+scale(I value) {
+  return [value](const auto& x){ return x*value; };
+}
+
 
 template<class Range, class T> auto
 // requires Range::value_type==T
