@@ -4,6 +4,7 @@
 // Basic zip range functionality
 // Does not depend on ranges-v3, pipes or Boost
 // But very limited
+#include <iterator>
 #include <utility>
 
 
@@ -167,7 +168,7 @@ class zip_view{
     size_1() const -> size_t {
       return std::distance(first_1,last_1);
     }
-    auto 
+    auto
     size() const -> size_t {
       return std::min(size_0(),size_1());
     }

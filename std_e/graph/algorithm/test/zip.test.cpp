@@ -38,7 +38,7 @@ TEST_CASE("zip_graphs") {
     auto f = [&](const auto& x){  s += std::to_string(graph::node(x.first)) + "," + std::to_string(graph::node(x.second)) + "\n"; };
     preorder_depth_first_scan_adjacencies(t,f);
 
-    std::string expected_s = 
+    std::string expected_s =
       "1,3\n"
       "2,6\n"
       "4,12\n"
@@ -58,14 +58,14 @@ TEST_CASE("zip_graphs") {
           /     \
          20       30
        /  \    /
-      40   70  80 
+      40   70  80
     */
     auto t40 = graph::tree<int>{40};
     auto t70 = graph::tree<int>{70};
-    auto t20 = graph::create_tree(20,t40,t70); 
+    auto t20 = graph::create_tree(20,t40,t70);
     auto t80 = graph::tree<int> {80};
-    auto t30 = graph::create_tree(30,t80); 
-    auto t10 = graph::create_tree(10,t20,t30); 
+    auto t30 = graph::create_tree(30,t80);
+    auto t10 = graph::create_tree(10,t20,t30);
 
     auto t = std_e::zip_graphs(t0,t10);
 
@@ -76,7 +76,7 @@ TEST_CASE("zip_graphs") {
     };
     preorder_depth_first_prune_adjacencies(t,f);
 
-    std::string expected_s = 
+    std::string expected_s =
       "1,10\n"
       "2,20\n"
       "4,40\n"

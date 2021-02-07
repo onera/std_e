@@ -61,4 +61,4 @@ preorder_depth_first_prune_adjacencies(Rooted_graph& g, F&& f) -> void {
 // special cases }
 
 
-} // graph 
+} // graph

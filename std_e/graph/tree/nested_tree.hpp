@@ -17,7 +17,7 @@ namespace graph {
 /**
   A tree is a particular type of graph where all children of a node are independent from each other
   A nested_tree takes advantage of this property: it stores linearly
-    - a parent node, 
+    - a parent node,
     - then successively all its children, themselves concatenated the same way, recursively
   More precisely,
     - all nodes are stored in the "nodes" data member in depth-first order
@@ -404,7 +404,7 @@ out_nodes(nested_tree_type&& t) {
 // Node_adjacency interface }
 
 
-// 
+//
 // Note: this dfs is "optimized" for a nested tree,
 // but it is intrusive and can't do post-ordering
 template<class nested_tree_type, class nested_tree_visitor_type> auto
@@ -443,7 +443,7 @@ class to_string_dfs_visitor {
       s += indent+to_string(node)+"\n";
     }
     auto
-    down() { 
+    down() {
       indent += unit_indent;
     }
     auto
