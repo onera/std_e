@@ -11,8 +11,7 @@ namespace detail {
 
 struct internal_base {
   virtual auto is_owner() const -> bool = 0;
-  virtual auto release() -> bool = 0;
-  virtual auto deallocator() const -> deallocator_function = 0;
+  virtual auto release() -> deallocator_function = 0;
 
   virtual auto data()       ->       void* = 0;
   virtual auto data() const -> const void* = 0;
@@ -30,11 +29,8 @@ struct internal_impl: internal_base {
     auto is_owner() const -> bool override {
       return buf.is_owner();
     }
-    auto release() -> bool override {
+    auto release() -> deallocator_function override {
       return buf.release();
-    }
-    auto deallocator() const -> deallocator_function override {
-      return buf.deallocator();
     }
 
     auto data()       ->       void* override {
@@ -52,8 +48,7 @@ struct internal_impl: internal_base {
 
 struct null_buffer {
   auto is_owner() const -> bool { return false; }
-  auto release() const -> bool { return false; }
-  auto deallocator() const -> deallocator_function { return [](void*){}; }
+  auto release() const -> deallocator_function { return nullptr; }
   auto data() const -> void* { return nullptr; }
 };
 
@@ -74,11 +69,8 @@ class polymorphic_buffer {
     auto is_owner() const -> bool {
       return impl->is_owner();
     }
-    auto release() -> bool {
+    auto release() -> deallocator_function {
       return impl->release();
-    }
-    auto deallocator() const -> deallocator_function {
-      return impl->deallocator();
     }
 
     auto data()       ->       void* {

@@ -18,7 +18,7 @@ TEST_CASE("owning_buffer") {
   CHECK( i_ptr[2] == 2 );
 
   SUBCASE("release") {
-    b.release();
+    auto dealloc = b.release();
     CHECK_FALSE(b.is_owner());
 
     // the memory is still here, just not owned be the buffer
@@ -28,7 +28,6 @@ TEST_CASE("owning_buffer") {
 
     // now that the buffer does not own the memory,
     // we have to manually deallocate it with the right deallocator
-    auto dealloc = b.deallocator();
     dealloc(ptr);
   }
 }

@@ -34,12 +34,11 @@ TEST_CASE("polymorphic_buffer") {
     CHECK( i_ptr[1] == 1 );
     CHECK( i_ptr[2] == 2 );
 
-    b.release();
+    auto dealloc = b.release();
     CHECK_FALSE(b.is_owner());
 
     // now that the buffer does not own the memory,
     // we have to manually deallocate it with the right deallocator
-    auto dealloc = b.deallocator();
     dealloc(ptr);
   }
 }

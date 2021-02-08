@@ -10,8 +10,14 @@ namespace std_e {
 
 template<allocator_function alloc, deallocator_function dealloc>
 struct buffer_allocator {
-  static constexpr auto alloc_function = alloc;
-  static constexpr auto dealloc_function = dealloc;
+  static constexpr auto
+  alloc_function() {
+    return alloc;
+  }
+  static constexpr auto
+  dealloc_function() {
+    return dealloc;
+  }
 
   static auto
   allocate(size_t n) -> void* {

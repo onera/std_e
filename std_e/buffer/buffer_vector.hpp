@@ -49,8 +49,9 @@ class std_buffer_allocator {
     }
 
     auto
-    release_ownership() && -> void {
+    release_ownership() && -> deallocator_function {
       *owner = false;
+      return allocator.dealloc_function();
     }
   // comparisons
     template <class T0, class T1, class A> friend auto
@@ -101,9 +102,8 @@ make_buffer_vector(It first, It last, A alloc = {}) {
 
 template<class T, class A> auto
 to_buffer(buffer_vector<T,A>&& x) {
-  using buffer_type = owning_buffer<A::dealloc_function>;
-  x.get_allocator().release_ownership();
-  return buffer_type(x.data());
+  auto dealloc = x.get_allocator().release_ownership();
+  return owning_buffer(x.data(),dealloc);
 }
 
 

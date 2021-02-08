@@ -24,8 +24,7 @@ class buffer_view {
     }
 
     auto is_owner() const -> bool { return false; }
-    auto release() -> bool { return false; }
-    auto deallocator() const -> deallocator_function { return [](void*){}; }
+    auto release() -> deallocator_function { return nullptr; }
 
     auto data()       ->       void* { return ptr; }
     auto data() const -> const void* { return ptr; }

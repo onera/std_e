@@ -7,16 +7,15 @@
 namespace std_e {
 
 
-template<deallocator_function dealloc>
 class owning_buffer {
   private:
     void* ptr;
-    bool owns;
+    deallocator_function dealloc;
   public:
   // ctors / assign / dtor
-    owning_buffer(void* ptr)
+    owning_buffer(void* ptr, deallocator_function dealloc)
       : ptr(ptr)
-      , owns(true)
+      , dealloc(dealloc)
     {}
 
     owning_buffer(const owning_buffer&) = delete;
@@ -24,14 +23,14 @@ class owning_buffer {
 
     owning_buffer(owning_buffer&& old)
       : ptr(old.ptr)
-      , owns(old.owns)
+      , dealloc(old.dealloc)
     {
-      old.owns = false;
+      old.dealloc = nullptr;
     }
     owning_buffer& operator=(owning_buffer&& old) {
       ptr = old.ptr;
-      owns = old.owns;
-      old.owns = false;
+      dealloc = old.dealloc;
+      old.dealloc = nullptr;
       return *this;
     }
 
@@ -39,19 +38,18 @@ class owning_buffer {
       if (is_owner()) {
         dealloc(ptr);
       }
-      owns = false;
+      dealloc = nullptr;
     }
 
   // buffer interface
     auto is_owner() const -> bool {
-      return owns;
+      return dealloc != nullptr;
     }
-    auto release() -> bool {
-      bool was_owner = owns;
-      owns = false;
-      return was_owner;
+    auto release() -> deallocator_function {
+      auto dealloctor = dealloc;
+      dealloc = nullptr;
+      return dealloctor;
     }
-    auto deallocator() const -> deallocator_function { return dealloc; }
 
     auto data()       ->       void* { return ptr; }
     auto data() const -> const void* { return ptr; }
