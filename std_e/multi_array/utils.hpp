@@ -55,24 +55,26 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
       std::string s = "["+to_string(x(0));
       int n = x.extent(0);
       for (int i=1; i<n; ++i) {
-        s += ";" + std::to_string(x(i));
+        s += "," + std::to_string(x(i));
       }
       return s + "]";
     }
   }
   if constexpr (Shape::ct_rank==2 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==2) {
-      std::string s = "["+to_string(x(0,0));
+      std::string s = "[["+to_string(x(0,0));
       int n_i = x.extent(0);
       int n_j = x.extent(1);
       for (int j=1; j<n_j; ++j) {
         s += "," + std::to_string(x(0,j));
       }
+      s += "]";
       for (int i=1; i<n_i; ++i) {
-        s += ";" + std::to_string(x(i,0));
+        s += ",[" + std::to_string(x(i,0));
         for (int j=1; j<n_j; ++j) {
           s += "," + std::to_string(x(i,j));
         }
+        s += "]";
       }
       return s + "]";
     }

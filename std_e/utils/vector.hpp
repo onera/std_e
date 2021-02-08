@@ -147,5 +147,14 @@ iota(I n, I init = I()) -> std::vector<I> {
   return res;
 }
 
+template<class It> auto
+move_to_vector(It first, It last) {
+  using T = typename std::iterator_traits<It>::value_type;
+  auto n = std::distance(first,last);
+  std::vector<T> res(n);
+  std::move(first,last,res.begin());
+  return res;
+}
+
 
 } // std_e
