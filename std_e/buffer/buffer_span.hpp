@@ -8,16 +8,15 @@
 namespace std_e {
 
 
-/// buffer_view can be thought of as a type-erased std::span
-class buffer_view {
+class buffer_span {
   private:
     void* ptr;
   public:
-    buffer_view(void* ptr)
+    buffer_span(void* ptr)
       : ptr(ptr)
     {}
     template<class Range>
-    buffer_view(Range& rng)
+    buffer_span(Range& rng)
       : ptr(rng.data())
     {
       static_assert(!std::is_const_v<typename Range::value_type>,"buffer is not const");

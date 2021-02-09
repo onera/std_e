@@ -3,7 +3,7 @@
 #include "std_e/buffer/polymorphic_buffer.hpp"
 #include "std_e/buffer/owning_buffer.hpp"
 #include "std_e/buffer/buffer_vector.hpp"
-#include "std_e/buffer/buffer_view.hpp"
+#include "std_e/buffer/buffer_span.hpp"
 
 
 TEST_CASE("polymorphic_buffer") {
@@ -11,7 +11,7 @@ TEST_CASE("polymorphic_buffer") {
   // Its Buffer behavior will delegate to the correct version of the Buffer type it was constructed from
   SUBCASE("from non-owning") {
     std::vector<int> v = {0,1,2};
-    std_e::polymorphic_buffer b(std_e::buffer_view(v.data()));
+    std_e::polymorphic_buffer b(std_e::buffer_span(v.data()));
 
     CHECK_FALSE(b.is_owner());
 

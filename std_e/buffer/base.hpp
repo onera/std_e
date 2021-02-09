@@ -13,19 +13,18 @@ using deallocator_function = void  (*) (void* );
 
 //concept Buffer {
 //  auto is_owner() const -> bool = 0;
-//  auto release() -> bool = 0;
-//  auto deallocator() const -> deallocator_function = 0;
+//  auto release() -> deallocator_function = 0;
 //
 //  auto data()       ->       void* = 0;
 //  auto data() const -> const void* = 0;
 //};
 
 //concept Buffer_allocator {
-//  static allocator_function alloc_function;
-//  static deallocator_function dealloc_function;
+//  auto alloc_function() -> allocator_function ;
+//  auto dealloc_function() -> deallocator_function ;
 //
-//  static allocate(size_t n) -> void*;
-//  static auto deallocate(void* ptr) -> void;
+//  auto allocate(size_t n) -> void*;
+//  auto deallocate(void* ptr) -> void;
 //};
 
 

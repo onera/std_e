@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <numeric>
@@ -153,6 +154,13 @@ move_to_vector(It first, It last) {
   auto n = std::distance(first,last);
   std::vector<T> res(n);
   std::move(first,last,res.begin());
+  return res;
+}
+template<class T, class... Ts> auto
+make_vector(T&& x, Ts&&... xs) -> std::vector<std::remove_const_t<std::remove_reference_t<T>>> {
+  std::vector<std::remove_const_t<std::remove_reference_t<T>>> res;
+  res.emplace_back(std::forward<T>(x));
+  ( res.emplace_back(std::forward<Ts>(xs)) , ...);
   return res;
 }
 

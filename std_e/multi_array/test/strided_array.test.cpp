@@ -82,7 +82,7 @@ TEST_CASE("strided_array with one index") {
     CHECK( sub_ma_1_2(1,1) == 121. );
     CHECK( sub_ma_1_2(2,1) == 221. );
     CHECK( sub_ma_1_2(3,1) == 321. );
-                          //   ^ 
+                          //   ^
                           // fixed
   }
   SUBCASE("run time axis") {
