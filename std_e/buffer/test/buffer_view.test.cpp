@@ -25,7 +25,7 @@ TEST_CASE("buffer_view") {
     SUBCASE("use const buffer") {
       const std_e::buffer_view b(v.data());
       const void* cptr = b.data();
-      const int* i_ptr = static_cast<const int*>(ptr);
+      const int* i_ptr = static_cast<const int*>(cptr);
       CHECK( i_ptr[0] == 0 );
       CHECK( i_ptr[1] == 1 );
       CHECK( i_ptr[2] == 2 );
