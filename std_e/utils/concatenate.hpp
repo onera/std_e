@@ -55,6 +55,10 @@ template<class Array0, class Array1> constexpr auto
 append(Array0& x, const Array1& y)  {
   std::copy(begin(y),end(y),std::back_inserter(x));
 }
+template<class Array0, class Array1> constexpr auto
+emplace_back(Array0& x, Array1&& y)  {
+  std::move(begin(y),end(y),std::back_inserter(x));
+}
 
 
 } // std_e

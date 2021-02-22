@@ -69,7 +69,7 @@ template<class I>
 struct integer_closed_range {
   I first;
   I last;
- 
+
   // ctors
   integer_closed_range() = default;
 
@@ -92,6 +92,15 @@ struct integer_closed_range {
     last = x.last;
   }
 };
+
+template<class I> auto
+operator==(const integer_closed_range<I>& x, const integer_closed_range<I>& y) -> bool {
+  return x.first==y.first && x.last==y.last;
+}
+template<class I> auto
+operator!=(const integer_closed_range<I>& x, const integer_closed_range<I>& y) -> bool {
+  return !(x==y);
+}
 
 template<class I> auto
 to_semi_open(const integer_closed_range<I>& x) {

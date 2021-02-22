@@ -54,7 +54,7 @@ is_in(I i, interval<I> r) -> bool {
 }
 
 
-template<class Int_array> auto 
+template<class Int_array> auto
 is_interval(const Int_array& x) -> bool {
   using I = typename Int_array::value_type;
   I sz = x.size();
