@@ -47,7 +47,7 @@ lower_bound_position(const Random_access_range& r, const T& value) {
 }
 
 
-template<class Range, class I> auto 
+template<class Range, class I> auto
 // requires I is an arithmetic type
 // requires Range::value_type==I
 offset(Range& r, I value) -> void {
@@ -55,7 +55,7 @@ offset(Range& r, I value) -> void {
     elt += value;
   }
 }
-template<class Range, class I> auto 
+template<class Range, class I> auto
 // requires I is an arithmetic type
 // requires Range::value_type==I
 scale(Range& r, I value) -> void {
@@ -64,15 +64,25 @@ scale(Range& r, I value) -> void {
   }
 }
 
-template<class I> auto 
+template<class I> auto
 // requires I is an arithmetic type
-offset(I value) {
+offset_copy(I value) {
   return [value](const auto& x){ return x+value; };
 }
-template<class I> auto 
+template<class I> auto
+// requires I is an arithmetic type
+scale_copy(I value) {
+  return [value](const auto& x){ return x*value; };
+}
+template<class I> auto
+// requires I is an arithmetic type
+offset(I value) {
+  return [value](auto& x){ return x+=value; };
+}
+template<class I> auto
 // requires I is an arithmetic type
 scale(I value) {
-  return [value](const auto& x){ return x*value; };
+  return [value](auto& x){ return x*=value; };
 }
 
 
