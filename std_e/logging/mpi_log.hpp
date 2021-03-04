@@ -24,7 +24,9 @@ struct mpi_rank_0_stdout_printer : log_printer {
 };
 struct mpi_file_printer : log_printer {
   mpi_file_printer() = default;
-  mpi_file_printer(std::string file_name) : file_name(file_name) {
+  mpi_file_printer(std::string file_name)
+    : file_name(file_name)
+  {
     file = std::ofstream(file_name.c_str(), std::fstream::out);
   }
   std::string file_name = "mpi_log_"+std::to_string(mpi_comm_world_rank())+".txt";
