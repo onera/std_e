@@ -58,6 +58,49 @@ class fortran_order_functor {
 };
 
 template<class Multi_index>
+class c_order_functor {
+  public:
+  // type traits
+    using I = index_type_of<Multi_index>;
+    using multi_index_type = Multi_index;
+
+  // ctors
+    constexpr c_order_functor() = default;
+
+    constexpr
+    c_order_functor(Multi_index dims)
+      : dims(std::move(dims))
+    {}
+
+  // accessors
+    constexpr auto
+    rank() const -> int {
+      return dims.size();
+    }
+    constexpr auto
+    dimensions() const -> const Multi_index& {
+      return dims;
+    }
+
+  // increment
+    template<class Multi_index_0> constexpr auto
+    increment(Multi_index_0& indices) -> void {
+      increment_multi_index_c_order(dims,indices);
+    }
+
+    friend constexpr auto
+    operator==(const c_order_functor& x, const c_order_functor& y) {
+      return x.dims==y.dims;
+    }
+    friend constexpr auto
+    operator!=(const c_order_functor& x, const c_order_functor& y) {
+      return !(x==y);
+    }
+  private:
+    Multi_index dims;
+};
+
+template<class Multi_index>
 class general_order_functor {
   public:
   // type traits
@@ -255,8 +298,16 @@ fortran_multi_index_range(Multi_index dims) {
 }
 template<
   class Multi_index,
+  std::enable_if_t< is_multi_index<Multi_index> , int > =0
+> constexpr auto
+c_multi_index_range(Multi_index dims) {
+  c_order_functor func(std::move(dims));
+  return multi_index_range(std::move(func));
+}
+template<
+  class Multi_index,
   std::enable_if_t< is_multi_index<Multi_index> , int > =0,
-  int rank = Multi_index::rank()
+  int rank
 > constexpr auto
 multi_index_range_with_order(Multi_index dims, multi_index<int,rank> order) {
   general_order_functor<Multi_index> func(std::move(dims),std::move(order));
@@ -268,6 +319,11 @@ template<class Integer, int N> constexpr auto
 fortran_multi_index_range(const Integer(&dims)[N]) {
   multi_index<Integer,N> ds = {};  std::copy_n(dims,N,begin(ds));
   return fortran_multi_index_range(ds);
+}
+template<class Integer, int N> constexpr auto
+c_multi_index_range(const Integer(&dims)[N]) {
+  multi_index<Integer,N> ds = {};  std::copy_n(dims,N,begin(ds));
+  return c_multi_index_range(ds);
 }
 template<class Integer, int N> constexpr auto
 multi_index_range_with_order(const Integer(&dims)[N], const int(&order)[N]) {

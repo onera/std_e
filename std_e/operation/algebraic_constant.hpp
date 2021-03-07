@@ -1,9 +1,12 @@
 #pragma once
 
 
-#include "std_e/utils/str_enum.hpp"
+#include "std_e/utils/enum.hpp"
 
+namespace std_e {
 
-STR_ENUM_NSPACE(std_e, algebraic_constant_kind,
+STD_E_ENUM(algebraic_constant_kind,
   identity_matrix,
-)
+);
+
+} // std_e

@@ -1,27 +1,13 @@
 #pragma once
 
 
-#include <exception>
-#include <string>
+#include "std_e/base/msg_exception.hpp"
 
 
 namespace std_e {
 
 
-class not_implemented_exception : public std::exception {
-  public:
-    not_implemented_exception() = default;
-    
-    not_implemented_exception(std::string desc)
-      : desc(std::move(desc))
-    {}
-
-    const char* what() const noexcept override {
-      return desc.c_str();
-    }
-  private:
-    std::string desc;
-};
+using not_implemented_exception = msg_exception;
 
 
 } // std_e
