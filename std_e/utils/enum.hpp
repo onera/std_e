@@ -17,7 +17,7 @@ to_int(Enum_type e) -> int {
 inline auto
 enum_value_array(const std::string& enum_desc) -> std::vector<int> {
   auto e_fields = std_e::remove_spaces_and_split(enum_desc,',');
-  auto n_fields = e_fields.size();
+  int n_fields = e_fields.size();
   std::vector<int> res(n_fields);
   // This algo mimics what does the language to determine the enumeration values
   // SEE https://en.cppreference.com/w/c/language/enum
