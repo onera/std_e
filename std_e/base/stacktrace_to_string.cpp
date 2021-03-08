@@ -2,10 +2,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <execinfo.h>
 #include <cxxabi.h>
 #include <iostream>
 
+#if __CYGWIN__
+namespace std_e {
+  auto stacktrace_to_string() -> std::string { return "no backtrace on CYGWIN"; }
+}
+#else
+
+
+#include <execinfo.h>
 
 namespace std_e {
 
@@ -88,3 +95,5 @@ stacktrace_to_string() -> std::string {
 
 
 } // std_e
+
+#endif // define CYGWIN
