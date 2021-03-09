@@ -38,6 +38,14 @@ Iteration
 """""""""
 There are two ways of storing connection information: either by indices into the node range or by pointers/iterators.
 
+Data structures limitations
+"""""""""""""""""""""""""""
+
+In all generality, we may want to "go both ways" with an oriented graph, that is, for adjacencies pointing outward, either go outward, or come back the other way.
+Example: A -> B -> C. While this graph is oriented (its edges have arrows), in theory, nothing prevents us from going iterating this way: (C,B,A).
+
+However, we feel like if the graph is oriented, it would seem strange to go the other way.
+
 
 Edge list
 ---------
