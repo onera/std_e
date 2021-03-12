@@ -6,16 +6,25 @@ namespace std_e {
 
 // forward decl {
 template<class NT, class ET, class adj_list_type> class adjacency_graph_base<NT,ET,adj_list_type>;
+
 template<class NT, class ET, class adj_list_type> class adjacency_graph<NT,ET,adj_list_type>;
 template<class NT, class ET, class adj_list_type> class io_adjacency_graph<NT,ET,adj_list_type>;
+template<class adjacency_graph_type> class adjacency_node_iterator;
 
 template<class adjacency_graph_type> class adjacency;
-template<class adjacency_graph_type> class adjacency_iterator;
 template<class adjacency_graph_type> class adjacency_range;
-
-template<class adjacency_graph_type> class io_adjacency;
-template<class adjacency_graph_type> class io_adjacency_iterator;
 template<class adjacency_graph_type> class io_adjacency_range;
+template<class adjacency_graph_type> class adjacency_connection_iterator;
+
+
+enum class adj_orientation {
+  none,
+  in,
+  out
+};
+template<class adjacency_graph_type, adj_orientation orientation> class io_adjacency;
+template<class adjacency_graph_type, adj_orientation orientation> class io_adjacency_iterator;
+template<class adjacency_graph_type, adj_orientation orientation> class io_adjacency_range;
 // forward decl }
 
 
@@ -62,8 +71,8 @@ struct adjacency_graph_traits<adjacency_graph<NT,ET,adj_list_type>> {
 
   using adjacency_type = adjacency<adjacency_graph_type>;
   using const_adjacency_type = adjacency<const adjacency_graph_type>;
-  using adjacency_iterator_type = adjacency_iterator<adjacency_graph_type>;
-  using const_adjacency_iterator_type = adjacency_iterator<const adjacency_graph_type>;
+  using adjacency_iterator_type = adjacency_node_iterator<adjacency_graph_type>;
+  using const_adjacency_iterator_type = adjacency_node_iterator<const adjacency_graph_type>;
   using adjacency_range_type = adjacency_range<adjacency_graph_type>;
   using const_adjacency_range_type = adjacency_range<const adjacency_graph_type>;
 };
@@ -75,8 +84,8 @@ struct adjacency_graph_traits<const adjacency_graph<NT,ET,adj_list_type>> {
 
   using adjacency_type = adjacency<adjacency_graph_type>;
   using const_adjacency_type = adjacency<const adjacency_graph_type>;
-  using adjacency_iterator_type = adjacency_iterator<adjacency_graph_type>;
-  using const_adjacency_iterator_type = adjacency_iterator<const adjacency_graph_type>;
+  using adjacency_iterator_type = adjacency_node_iterator<adjacency_graph_type>;
+  using const_adjacency_iterator_type = adjacency_node_iterator<const adjacency_graph_type>;
   using adjacency_range_type = adjacency_range<adjacency_graph_type>;
   using const_adjacency_range_type = adjacency_range<const adjacency_graph_type>;
 };

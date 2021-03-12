@@ -13,106 +13,6 @@ class io_adjacency_graph
 {};
 
 
-enum class adj_orientation {
-  out,
-  in
-};
-
-template<class io_adjacency_graph_type>
-class io_adjacency
-  : public adjacency<io_adjacency_graph_type>
-{
-  public:
-    constexpr auto
-    out_adjacencies() -> io_adjacency_range<adjacency_graph_type,adj_orientation::out> {
-      return {g,node_idx};
-    }
-    constexpr auto
-    out_adjacencies() -> io_adjacency_range<const adjacency_graph_type,adj_orientation::out> {
-      return {g,node_idx};
-    }
-
-    constexpr auto
-    in_adjacencies() -> io_adjacency_range<adjacency_graph_type,adj_orientation::out> {
-      return {g,node_idx};
-    }
-    constexpr auto
-    in_adjacencies() -> io_adjacency_range<const adjacency_graph_type,adj_orientation::out> {
-      return {g,node_idx};
-    }
-};
-
-
-template<class io_adjacency_graph_type, adj_orientation orientation>
-class io_adjacency_range {
-  public:
-    constexpr
-    io_adjacency_range() = default;
-
-    constexpr
-    io_adjacency_range(io_adjacency_graph_type* g, index_type node_idx)
-      , g(g)
-      : node_idx(node_idx)
-    {}
-
-    constexpr auto
-    size() const -> index_type {
-      constexpr if (orientation==adj_orientation::out) {
-        return out_size();
-      } else {
-        return in_size();
-      }
-    }
-
-    constexpr auto
-    begin() -> adjacency_iterator_type {
-      return {g,index(0)};
-    }
-    constexpr auto
-    begin() const -> const_adjacency_iterator_type {
-      return {g,index(0)};
-    }
-    constexpr auto
-    end() -> adjacency_iterator_type {
-      return {g,index(size())};
-    }
-    constexpr auto
-    end() const -> const_adjacency_iterator_type {
-      return {g,index(size())};
-    }
-
-    constexpr auto
-    operator[](index_type i) -> adjacency_type {
-      return {g,index(i)};
-    }
-    constexpr auto
-    operator[](index_type i) const -> const_adjacency_type {
-      return {g,index(i)};
-    }
-  private:
-  // functions
-    constexpr auto
-    out_size() const -> index_type {
-      return g->io_partition_idx_rng[node_idx];
-    }
-    constexpr auto
-    in_size() const -> index_type {
-      return g->io_partition_idx_rng[node_idx].size() - g->io_partition_idx_rng[node_idx];
-    }
-    constexpr auto
-    index(index_type i) const -> index_type {
-      constexpr if (orientation==adj_orientation::out) {
-        return g->adj_list[node_idx][i];
-      } else {
-        return g->adj_list[node_idx][out_size()+i];
-      }
-    }
-  // data
-    io_adjacency_graph_type* g;
-    index_type node_idx;
-}
-
-
 // Node_adjacency interface {
 template<class AGT> constexpr auto
 node(adjacency<AGT>& adj) -> auto& {
@@ -196,20 +96,20 @@ rooted_graph_view(AGT& g, int root_idx) -> rooted_graph<AGT> {
 //}
 
 template<class T> constexpr auto
-first_root(rooted_graph<AGT>& root_rng) {
-  return std_e::make_dereferencing_iterator(begin(root_rng));
+first_root(rooted_graph<AGT>& root_g) {
+  return root_g.begin();
 }
 template<class T> constexpr auto
-first_root(const rooted_graph<AGT>& root_rng) {
-  return std_e::make_dereferencing_iterator(begin(root_rng));
+first_root(const rooted_graph<AGT>& root_g) {
+  return root_g.begin();
 }
 template<class T> constexpr auto
-last_root(rooted_graph<AGT>& root_rng) {
-  return std_e::make_dereferencing_iterator(end(root_rng));
+last_root(rooted_graph<AGT>& root_g) {
+  return root_g.end();
 }
 template<class T> constexpr auto
-last_root(const rooted_graph<AGT>& root_rng) {
-  return std_e::make_dereferencing_iterator(end(root_rng));
+last_root(const rooted_graph<AGT>& root_g) {
+  return root_g.end();
 }
 // rooted graph view }
 
@@ -217,9 +117,13 @@ last_root(const rooted_graph<AGT>& root_rng) {
 // algorithm {
 template<class T> constexpr auto
 make_bidirectional_from_outward_edges(io_adjacency_graph<T>& g) {
-  for (auto& adj : g) {
-    for (auto* out : adj.outwards) {
-      out->inwards.push_back( &adj );
+  int n_node = g.size();
+  for (int i=0; i<n_node; ++i) {
+    for (int k=0; k<g.out_degree(i); ++k) {
+      int j = g[i].in_adjacency_list()[k];
+      int e = g[i].edges()[k];
+      g[j].in_adjacency_list().push_back(i);
+      g[j].in_edges().push_back(e);
     }
   }
 }
