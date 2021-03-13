@@ -1,33 +1,35 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph_base.hpp"
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
 
 
 namespace std_e {
 
 
-template<class io_adjacency_graph_type, adj_orientation orientation = adj_orientation::none>
+template<class adjacency_graph_type, adj_orientation orientation>
 class adjacency_range {
   public:
-    using adjacency_iterator_type = adjacency_connection_iterator<io_adjacency_graph_type,orientation>;
-    using const_adjacency_iterator_type = adjacency_connection_iterator<io_adjacency_graph_type,orientation>;
+    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
+    using adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::adjacency_type;
+    using const_adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::const_adjacency_type;
+    using adjacency_iterator_type = adjacency_connection_iterator<adjacency_graph_type,orientation>;
+    using const_adjacency_iterator_type = adjacency_connection_iterator<const adjacency_graph_type,orientation>;
 
     constexpr
     adjacency_range() = default;
 
     constexpr
-    adjacency_range(io_adjacency_graph_type* g, index_type node_idx)
-      , g(g)
-      : node_idx(node_idx)
+    adjacency_range(adjacency_graph_type* g, index_type node_idx)
+      : g(g)
+      , node_idx(node_idx)
     {}
 
     constexpr auto
     size() const -> index_type {
-      constexpr if (orientation==adj_orientation::none) {
+      if constexpr (orientation==adj_orientation::none) {
         return g->degree(node_idx);
-      } else constexpr if (orientation==adj_orientation::in) {
+      } else if constexpr (orientation==adj_orientation::in) {
         return g->in_degree(node_idx);
       } else {
         return g->out_degree(node_idx);
@@ -63,20 +65,18 @@ class adjacency_range {
   // functions
     constexpr auto
     index(index_type i) const -> index_type {
-      constexpr if (orientation==adj_orientation::none) {
+      if constexpr (orientation==adj_orientation::none) {
         return g->adjacency_list    ()[node_idx][i];
-      } else constexpr if (orientation==adj_orientation::in) {
+      } else if constexpr (orientation==adj_orientation::in) {
         return g->in_adjacency_list ()[node_idx][i];
       } else {
         return g->out_adjacency_list()[node_idx][i];
       }
     }
   // data
-    io_adjacency_graph_type* g;
+    adjacency_graph_type* g;
     index_type node_idx;
-}
-
-
+};
 
 
 } // std_e

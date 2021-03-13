@@ -1,7 +1,8 @@
+#if __cplusplus > 201703L
+
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/adjacency_graph/io_adjacency_graph.hpp"
-#include "std_e/graph/test/io_graph.hpp"
 
 
 using namespace std_e;
@@ -14,23 +15,23 @@ TEST_CASE("make_bidirectional_from_outward_edges") {
            v   /
            D <-
   */
-  io_index_adjacency_vector<char> idx_adjs = {
-    /*0*/ {'A', IC{}    ,IC{}     },
-    /*1*/ {'B', IC{}    ,IC{0,2,3}},
-    /*2*/ {'C', IC{}    ,IC{3}    },
-    /*3*/ {'D', IC{}    ,IC{}     },
-  };
-  io_graph<char> g(idx_adjs);
-
-  io_index_adjacency_vector<char> expected_bidir_idx_adjs = {
-    /*0*/ {'A', IC{1}   ,IC{}     },
-    /*1*/ {'B', IC{}    ,IC{0,2,3}},
-    /*2*/ {'C', IC{1}   ,IC{3}    },
-    /*3*/ {'D', IC{1,2} ,IC{}     },
-  };
-  io_graph<char> expected_bidir_g(expected_bidir_idx_adjs);
+  auto g = make_io_adjacency_graph<char>( {
+    /*0*/ {'A', {}    ,{}     },
+    /*1*/ {'B', {}    ,{0,2,3}},
+    /*2*/ {'C', {}    ,{3}    },
+    /*3*/ {'D', {}    ,{}     },
+  });
 
   make_bidirectional_from_outward_edges(g);
 
-  CHECK( g == expected_bidir_g );
+  auto expected_g = make_io_adjacency_graph( io_index_adjacency_vector<char>{
+    /*0*/ {'A', {1}   ,{}     },
+    /*1*/ {'B', {}    ,{0,2,3}},
+    /*2*/ {'C', {1}   ,{3}    },
+    /*3*/ {'D', {1,2} ,{}     },
+  });
+
+  CHECK( g == expected_g );
 }
+
+#endif // C++20

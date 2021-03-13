@@ -14,7 +14,7 @@ TEST_CASE("make_bidirectional_from_outward_edges") {
            v   /
            D <-
   */
-  io_index_adjacency_vector<char> idx_adjs = {
+  std_e::io_index_adjacency_vector<char> idx_adjs = {
     /*0*/ {'A', IC{}    ,IC{}     },
     /*1*/ {'B', IC{}    ,IC{0,2,3}},
     /*2*/ {'C', IC{}    ,IC{3}    },
@@ -22,7 +22,7 @@ TEST_CASE("make_bidirectional_from_outward_edges") {
   };
   io_graph<char> g(idx_adjs);
 
-  io_index_adjacency_vector<char> expected_bidir_idx_adjs = {
+  std_e::io_index_adjacency_vector<char> expected_bidir_idx_adjs = {
     /*0*/ {'A', IC{1}   ,IC{}     },
     /*1*/ {'B', IC{}    ,IC{0,2,3}},
     /*2*/ {'C', IC{1}   ,IC{3}    },

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/traits/traits.hpp"
 
 
 namespace std_e {
@@ -10,9 +10,8 @@ namespace std_e {
 template<class adjacency_graph_type>
 class adjacency {
   public:
-    using node_range_type  = adjacency_graph_traits<adjacency_graph_type>::node_range_type;
-    using index_type       = adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using node_type        = adjacency_graph_traits<adjacency_graph_type>::node_type;
+    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
+    using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
 
     constexpr
     adjacency() = default;
@@ -50,7 +49,7 @@ class adjacency {
       return {g,node_idx};
     }
     constexpr auto
-    adjacencies() -> adjacency_range<const adjacency_graph_type> {
+    adjacencies() const -> adjacency_range<const adjacency_graph_type> {
       return {g,node_idx};
     }
   private:
@@ -62,9 +61,8 @@ class adjacency {
 template<class adjacency_graph_type>
 class io_adjacency {
   public:
-    using node_range_type  = adjacency_graph_traits<adjacency_graph_type>::node_range_type;
-    using index_type       = adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using node_type        = adjacency_graph_traits<adjacency_graph_type>::node_type;
+    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
+    using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
 
     constexpr
     io_adjacency() = default;
@@ -115,19 +113,19 @@ class io_adjacency {
     }
 
     constexpr auto
-    in_adjacencies() -> io_adjacency_range<adjacency_graph_type,adj_orientation::in> {
+    in_adjacencies() -> adjacency_range<adjacency_graph_type,adj_orientation::in> {
       return {g,node_idx};
     }
     constexpr auto
-    in_adjacencies() -> io_adjacency_range<const adjacency_graph_type,adj_orientation::in> {
+    in_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::in> {
       return {g,node_idx};
     }
     constexpr auto
-    out_adjacencies() -> io_adjacency_range<adjacency_graph_type,adj_orientation::out> {
+    out_adjacencies() -> adjacency_range<adjacency_graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
     constexpr auto
-    out_adjacencies() -> io_adjacency_range<const adjacency_graph_type,adj_orientation::out> {
+    out_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
   private:

@@ -43,8 +43,8 @@ TEST_CASE("build_bidirectional_graph") {
    /  \    |  |    \
   4    7   9  10   11    lvl 0
   */
-  using IC = connection_indices_container;
-  io_index_adjacency_vector<int_height> expected_idx_adjs = {
+  using IC = std_e::connection_indices_container;
+  std_e::io_index_adjacency_vector<int_height> expected_idx_adjs = {
     /*0*/ {{ 4,0},IC{2},IC{}     },
     /*1*/ {{ 7,0},IC{2},IC{}     },
     /*2*/ {{ 2,1},IC{8},IC{0,1}  },

@@ -17,7 +17,7 @@ TEST_CASE("bidirectional_graph_from_outward_edges") {
            v   /
            D <-
   */
-  io_index_adjacency_vector<char> idx_adjs = {
+  std_e::io_index_adjacency_vector<char> idx_adjs = {
     /*0*/ {'A', IC{}    ,IC{}     },
     /*1*/ {'B', IC{}    ,IC{0,2,3}},
     /*2*/ {'C', IC{}    ,IC{3}    },
@@ -38,7 +38,7 @@ TEST_CASE("bidirectional_graph_from_outward_edges") {
   //  - permute node order
   //  - permute outward pointers accordingly
   //  - overwrite inward pointers by using outward pointers
-  io_index_adjacency_vector<char> expected_perm_idx_adjs = {
+  std_e::io_index_adjacency_vector<char> expected_perm_idx_adjs = {
     /*3*/ {'D', IC{1,2} ,IC{}     },
     /*2*/ {'C', IC{2}   ,IC{0}    },
     /*1*/ {'B', IC{}    ,IC{3,1,0}},
@@ -66,7 +66,7 @@ TEST_CASE("Tree reverse_levels") {
   //  - permute node order
   //  - permute outward pointers accordingly
   //  - overwrite inward pointers by using outward pointers
-  io_index_adjacency_vector<int> expected_perm_idx_adjs = {
+  std_e::io_index_adjacency_vector<int> expected_perm_idx_adjs = {
     /*8*/ { 1,IC{}     ,IC{6,1,5}},
     /*7*/ { 3,IC{0}    ,IC{4,3,2}},
     /*6*/ {11,IC{1}    ,IC{}     },

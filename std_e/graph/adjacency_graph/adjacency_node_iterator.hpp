@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph_base.hpp"
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
 
 
@@ -11,6 +10,7 @@ namespace std_e {
 template<class adjacency_graph_type>
 class adjacency_node_iterator {
   public:
+    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
     using adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::adjacency_type;
 
     constexpr

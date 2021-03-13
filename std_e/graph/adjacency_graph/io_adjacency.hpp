@@ -7,28 +7,16 @@
 #include "std_e/iterator/iterator_range.hpp"
 #include "std_e/utils/dereferencing_range.hpp"
 #include "std_e/algorithm/iterator.hpp"
+#include "std_e/graph/adjacency_graph/index_adjacency.hpp"
 
 
 namespace graph {
 
 
 // connection containers {
-using connection_indices_container = std::vector<int>;
-
 template<class T> struct io_adjacency;
 template<class T> using io_adj_ptr_vector = std::vector<io_adjacency<T>*>;
 // connection containers }
-
-
-// io_index_adjacency {
-template<class T>
-struct io_index_adjacency {
-  T node;
-  connection_indices_container inwards;
-  connection_indices_container outwards;
-};
-template<class T> using io_index_adjacency_vector = std::vector<io_index_adjacency<T>>;
-// io_index_adjacency }
 
 
 // io_adjacency {
@@ -47,7 +35,7 @@ struct io_adjacency {
     , outwards(std::move(outwards))
   {}
   constexpr
-  io_adjacency(const io_index_adjacency<T>& x, io_adjacency<T>* start)
+  io_adjacency(const std_e::io_index_adjacency<T>& x, io_adjacency<T>* start)
     : node(x.node)
     , inwards(std_e::indices_to_iterators(x.inwards,start))
     , outwards(std_e::indices_to_iterators(x.outwards,start))

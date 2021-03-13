@@ -39,11 +39,17 @@ endif()
 
 ## Compiler flags
 ### Build type
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
 endif()
 ### C++ standard
-set(CMAKE_CXX_STANDARD          17 )
+option(STD_E_ENABLE_CPP20 "Enable c++20 for ${PROJECT_NAME}" OFF)
+if (STD_E_ENABLE_CPP20)
+  set(CMAKE_CXX_STANDARD          20)
+else()
+  set(CMAKE_CXX_STANDARD          17)
+endif()
+
 set(CMAKE_CXX_EXTENSIONS        OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON )
 ### fPIC
@@ -123,7 +129,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 ## Unit tests ##
 option(STD_E_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
-if(STD_E_ENABLE_TEST)
+if (STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
   if(STD_E_ENABLE_MPI)

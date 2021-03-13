@@ -8,7 +8,7 @@
 namespace graph {
 
 
-using IC = connection_indices_container;
+using IC = std_e::connection_indices_container;
 
 
 inline auto
@@ -23,7 +23,7 @@ create_io_graph_for_tests() -> io_graph<int> {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  io_index_adjacency_vector<int> idx_adjs = {
+  std_e::io_index_adjacency_vector<int> idx_adjs = {
     /*0*/ { 4,IC{2}    ,IC{}     },
     /*1*/ { 7,IC{2}    ,IC{}     },
     /*2*/ { 2,IC{8}    ,IC{0,1,3}},

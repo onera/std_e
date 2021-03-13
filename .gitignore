@@ -1,4 +1,5 @@
 build/*
+.cache/*
 *.swp
 
 # Latex
@@ -7,3 +8,4 @@ build/*
 *.out
 *.toc
 *.data
+

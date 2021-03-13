@@ -24,7 +24,7 @@ class io_graph {
     {}
 
     constexpr
-    io_graph(const io_index_adjacency_vector<T>& idx_adjs)
+    io_graph(const std_e::io_index_adjacency_vector<T>& idx_adjs)
       : adjs(idx_adjs.size())
     {
       auto start = this->begin_ptr();

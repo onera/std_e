@@ -2,16 +2,27 @@
 
 
 #include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/index_adjacency.hpp"
 
 
 namespace std_e {
 
 
-template<class NT, class ET = void, class adj_list_type = default_adjacency_index_list_type>
+template<class NT, class ET, class adj_list_type>
 class io_adjacency_graph
   : public adjacency_graph_from_traits<adjacency_graph_traits<io_adjacency_graph<NT,ET,adj_list_type>>>
 {};
 
+template<class NT> auto
+make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
+  io_adjacency_graph<NT> res;
+  for (const auto& [node,ins,out] : idx_adjs) {
+    res.nodes().push_back(node);
+    res.in_adjacency_list().push_back(ins);
+    res.out_adjacency_list().push_back(out);
+  }
+  return res;
+}
 
 // Node_adjacency interface {
 template<class AGT> constexpr auto
@@ -24,27 +35,27 @@ node(const adjacency<AGT>& adj) -> const auto& {
 }
 
 // TODO rename out_nodes
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 children(io_adjacency<AGT>& adj) {
   return adj.out_adjacencies();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 children(const adjacency<AGT>& adj) {
   return adj.out_adjacencies();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 first_child(adjacency<AGT>& adj) {
   return adj.out_adjacencies().begin();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 first_child(const adjacency<AGT>& adj) {
   return adj.out_adjacencies().begin();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 last_child(adjacency<AGT>& adj) {
   return adj.out_adjacencies().end();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 last_child(const adjacency<AGT>& adj) {
   return adj.out_adjacencies().end();
 }
@@ -95,19 +106,19 @@ rooted_graph_view(AGT& g, int root_idx) -> rooted_graph<AGT> {
 //  return io_adj_ptr_vector<T>{&root};
 //}
 
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 first_root(rooted_graph<AGT>& root_g) {
   return root_g.begin();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 first_root(const rooted_graph<AGT>& root_g) {
   return root_g.begin();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 last_root(rooted_graph<AGT>& root_g) {
   return root_g.end();
 }
-template<class T> constexpr auto
+template<class AGT> constexpr auto
 last_root(const rooted_graph<AGT>& root_g) {
   return root_g.end();
 }
@@ -120,10 +131,10 @@ make_bidirectional_from_outward_edges(io_adjacency_graph<T>& g) {
   int n_node = g.size();
   for (int i=0; i<n_node; ++i) {
     for (int k=0; k<g.out_degree(i); ++k) {
-      int j = g[i].in_adjacency_list()[k];
-      int e = g[i].edges()[k];
-      g[j].in_adjacency_list().push_back(i);
-      g[j].in_edges().push_back(e);
+      int j = g.out_adjacency_list()[i][k];
+      //int e = g.out_edges()[i][k]; // TODO
+      g.in_adjacency_list()[j].push_back(i);
+      //g.in_edges()[j].push_back(e); // TODO
     }
   }
 }
