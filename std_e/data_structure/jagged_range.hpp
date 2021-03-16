@@ -170,6 +170,10 @@ class jagged_range {
     auto flat_ref() -> auto& {
       return flat_values;
     }
+    auto retrieve_values() -> std::vector<T> {
+      return std::move(flat_values);
+    }
+
     auto index_array() const -> const auto& {
       return idx_array;
     }
