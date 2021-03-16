@@ -35,7 +35,7 @@ TEST_CASE("partition_sort") {
     auto partition_indices = std_e::partition_sort_indices(v,partition_values);
     //                                    0        10   100    120            1000
     CHECK(                 v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
-    CHECK( partition_indices == vector{    1      ,  5 ,   6  ,   7          ,     10   } );
+    CHECK( partition_indices == vector{ 0, 1      ,  5 ,   6  ,   7          ,     10   } );
   }
 }
 

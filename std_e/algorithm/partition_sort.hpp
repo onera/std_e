@@ -68,8 +68,9 @@ partition_sort(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred c
 template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
 partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) -> std::vector<int> {
   int k = partition_values.size();
-  std::vector<int> partition_indices(k);
-  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_indices),comp);
+  std::vector<int> partition_indices(1+k);
+  partition_indices[0] = 0;
+  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_indices)+1,comp);
   return partition_indices;
 }
 
