@@ -92,20 +92,10 @@ class nested_tree {
     }
 
   // comparisons
-    friend constexpr auto
-    operator==(const nested_tree& x, const nested_tree& y) -> bool {
-      if (x.size() != y.size()) return false;
-      auto n = x.size();
-      return std_e::equal_n(begin(x.nodes),begin(y.nodes),n) && std_e::equal_n(begin(x.sizes),begin(y.sizes),n);
-    }
-    friend constexpr auto
-    operator!=(const nested_tree& x, const nested_tree& y) -> bool {
-      return !(x==y);
-    }
-    friend constexpr auto
-    operator<(const nested_tree& x, const nested_tree& y) -> bool {
-      return (x.sizes<y.sizes) || (x.sizes==y.sizes && x.nodes<y.nodes);
-    }
+    template<class T0, template<class> class M0, template<class> class M1> friend constexpr auto
+    operator==(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool;
+    template<class T0, template<class> class M0, template<class> class M1> friend constexpr auto
+    operator<(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool;
 
   // member functions
     FORCE_INLINE constexpr auto
@@ -196,6 +186,21 @@ class nested_tree {
     nodes_mem_type nodes;
     sizes_mem_type sizes;
 };
+
+template<class T0, template<class> class M0, template<class> class M1> constexpr auto
+operator==(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+  if (x.size() != y.size()) return false;
+  auto n = x.size();
+  return std_e::equal_n(begin(x.nodes),begin(y.nodes),n) && std_e::equal_n(begin(x.sizes),begin(y.sizes),n);
+}
+template<class T0, template<class> class M0, template<class> class M1> constexpr auto
+operator!=(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, template<class> class M0, template<class> class M1> constexpr auto
+operator<(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+  return (x.sizes<y.sizes) || (x.sizes==y.sizes && x.nodes<y.nodes);
+}
 
 
 // child_iterator {

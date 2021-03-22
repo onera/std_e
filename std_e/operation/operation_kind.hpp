@@ -1,13 +1,14 @@
 #pragma once
 
 
-#include <string>
+#include "std_e/utils/enum.hpp"
+#include "std_e/base/not_implemented_exception.hpp"
 
 
 namespace std_e {
 
 
-enum class operation_kind {
+STD_E_ENUM_CLASS(operation_kind,
 // function
   identity,
   assignment,
@@ -30,10 +31,30 @@ enum class operation_kind {
   tensor_prod,
   t,
   tr,
-};
+
+// analysis
+  grad
+);
 
 
-  
+constexpr auto
+needs_computation(operation_kind op) -> bool {
+  // the result of these operations is immediate
+  if (op==operation_kind::identity || op==operation_kind::t || op==operation_kind::gathering) {
+    return false;
+  }
+  // the result of those need some computation
+  if (op==operation_kind::plus       || op==operation_kind::minus
+   || op==operation_kind::multiplies || op==operation_kind::divides
+   || op==operation_kind::abs        || op==operation_kind::sqrt
+   || op==operation_kind::min        || op==operation_kind::max
+   || op==operation_kind::pipe       || op==operation_kind::tensor_prod || op==operation_kind::tr) {
+    return true;
+  } else {
+    throw not_implemented_exception{};
+  }
+}
+
 
 // to_string {
 inline auto
@@ -57,10 +78,12 @@ to_symbol_string(operation_kind x) -> std::string {
     case operation_kind::tensor_prod: return "⊗";
     case operation_kind::t: return "t";
     case operation_kind::tr: return "tr";
+
+    case operation_kind::grad: return "grad";
   }
   return "";
 }
-/// } to_string
+// to_string }
 
 
 } // std_e
