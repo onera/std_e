@@ -39,20 +39,65 @@ STD_E_ENUM_CLASS(operation_kind,
 
 constexpr auto
 needs_computation(operation_kind op) -> bool {
-  // the result of these operations is immediate
-  if (op==operation_kind::identity || op==operation_kind::t || op==operation_kind::gathering) {
-    return false;
+  switch (op) {
+    // the result of these operations is immediate
+    case operation_kind::identity:
+    case operation_kind::gathering:
+    case operation_kind::t:
+      return false;
+
+    // the result of those need some computation
+    case operation_kind::assignment: // assignment means copying memory, so it is not immediate
+
+    case operation_kind::plus:
+    case operation_kind::minus:
+    case operation_kind::multiplies:
+    case operation_kind::divides:
+
+    case operation_kind::abs:
+    case operation_kind::sqrt:
+    case operation_kind::min:
+    case operation_kind::max:
+
+    case operation_kind::pipe:
+    case operation_kind::tensor_prod:
+    case operation_kind::tr:
+      return true;
+
+    case operation_kind::grad:
+    default:
+      throw not_implemented_exception{"needs_computation: unknown operation "+to_string(op)};
   }
-  // the result of those need some computation
-  if (op==operation_kind::plus       || op==operation_kind::minus
-   || op==operation_kind::multiplies || op==operation_kind::divides
-   || op==operation_kind::abs        || op==operation_kind::sqrt
-   || op==operation_kind::min        || op==operation_kind::max
-   || op==operation_kind::pipe       || op==operation_kind::tensor_prod || op==operation_kind::tr
-   || op==operation_kind::assignment) {
-    return true;
-  } else {
-    throw not_implemented_exception{"needs_computation: unknown operation "+to_string(op)};
+}
+
+constexpr auto
+tensor_operation_uses_coefficients_at_most_once(operation_kind op) -> bool {
+  switch (op) {
+    case operation_kind::identity:
+    case operation_kind::assignment:
+    case operation_kind::gathering:
+
+    case operation_kind::plus:
+    case operation_kind::minus:
+    case operation_kind::divides:
+
+    case operation_kind::abs:
+    case operation_kind::sqrt:
+    case operation_kind::min:
+    case operation_kind::max:
+
+    case operation_kind::pipe:
+    case operation_kind::t:
+    case operation_kind::tr:
+      return true;
+
+    case operation_kind::multiplies:
+    case operation_kind::tensor_prod:
+      return false;
+
+    case operation_kind::grad:
+    default:
+      throw not_implemented_exception{"tensor_operation_uses_coefficients_at_most_once: unknown operation "+to_string(op)};
   }
 }
 
