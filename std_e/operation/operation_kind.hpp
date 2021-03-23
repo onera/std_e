@@ -48,10 +48,11 @@ needs_computation(operation_kind op) -> bool {
    || op==operation_kind::multiplies || op==operation_kind::divides
    || op==operation_kind::abs        || op==operation_kind::sqrt
    || op==operation_kind::min        || op==operation_kind::max
-   || op==operation_kind::pipe       || op==operation_kind::tensor_prod || op==operation_kind::tr) {
+   || op==operation_kind::pipe       || op==operation_kind::tensor_prod || op==operation_kind::tr
+   || op==operation_kind::assignment) {
     return true;
   } else {
-    throw not_implemented_exception{};
+    throw not_implemented_exception{"needs_computation: unknown operation "+to_string(op)};
   }
 }
 
