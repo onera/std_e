@@ -317,12 +317,12 @@ multi_index_range_with_order(Multi_index dims, multi_index<int,rank> order) {
 // overloads matching initialization lists {
 template<class Integer, int N> constexpr auto
 fortran_multi_index_range(const Integer(&dims)[N]) {
-  multi_index<Integer,N> ds = {};  std::copy_n(dims,N,begin(ds));
+  multi_index<Integer,N> ds = {};  std_e::copy_n(dims,N,begin(ds));
   return fortran_multi_index_range(ds);
 }
 template<class Integer, int N> constexpr auto
 c_multi_index_range(const Integer(&dims)[N]) {
-  multi_index<Integer,N> ds = {};  std::copy_n(dims,N,begin(ds));
+  multi_index<Integer,N> ds = {};  std_e::copy_n(dims,N,begin(ds));
   return c_multi_index_range(ds);
 }
 template<class Integer, int N> constexpr auto
