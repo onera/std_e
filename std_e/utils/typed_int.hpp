@@ -11,14 +11,7 @@ template<auto tag>
 struct typed_int {
   int value;
 
-  friend constexpr auto
-  operator==(const typed_int& x, const typed_int& y) { return x.value==y.value; }
-
-  friend constexpr auto
-  operator!=(const typed_int& x, const typed_int& y) { return !(x==y); }
-
-  friend constexpr auto
-  operator<(const typed_int& x, const typed_int& y) { return x.value<y.value; }
+  constexpr auto operator<=>(const typed_int& x) const = default;
 };
 
 template<auto tag> auto
