@@ -3,7 +3,7 @@
 
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/cartesian_product_size.hpp"
-#include "std_e/multi_index/increment_multi_index.hpp"
+#include "std_e/multi_index/algorithm.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/multi_index/cx_multi_index.hpp"
 #include "std_e/base/not_implemented_exception.hpp"
