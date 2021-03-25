@@ -42,4 +42,29 @@ increment_multi_index(const Multi_index_0& dims, Multi_index_1& indices, Multi_i
 }
 
 
+//template<class Multi_index, class I> constexpr auto
+//multi_index_fortran_order(const Multi_index& dims, I idx_1d) -> Multi_index {
+//  Multi_index res = {};
+//  int rank = dims.size();
+//  for (int i=0; i<rank; ++i) {
+//    res[i] = idx_1d % dims[i];
+//    idx_1d /= dims[i];
+//  }
+//  return res;
+//}
+//template<class Multi_index, class I> constexpr auto
+//multi_index_c_order(const Multi_index& dims, I idx_1d) -> Multi_index {
+//  Multi_index res = {};
+//  int rank = dims.size();
+//  int div = 1;
+//  for (int i=0; i<rank; ++i) {
+//    div = dims[rank-i];
+//    int rem = idx_1d % div;
+//    res[rank-1-i] = rem;
+//    idx_1d /= div;
+//  }
+//  return res;
+//}
+
+
 } // std_e

@@ -1,5 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/multi_index/multi_index_range.hpp"
+#include "std_e/log.hpp"
 
 
 using namespace std_e;
@@ -73,3 +74,31 @@ TEST_CASE("increment_multi_index general order") {
   CHECK( d4 == 0 );
   CHECK( d5 == 2 );
 }
+
+
+//TEST_CASE("multi_index_fortran_order") {
+//  using MI = multi_index<int,2>;
+//  MI dims = {3,2};
+//  CHECK( multi_index_fortran_order(dims,0) == MI{0,0} );
+//  CHECK( multi_index_fortran_order(dims,1) == MI{1,0} );
+//  CHECK( multi_index_fortran_order(dims,2) == MI{2,0} );
+//  CHECK( multi_index_fortran_order(dims,3) == MI{0,1} );
+//  CHECK( multi_index_fortran_order(dims,4) == MI{1,1} );
+//  CHECK( multi_index_fortran_order(dims,5) == MI{2,1} );
+//}
+//TEST_CASE("multi_index_c_order") {
+//  using MI = multi_index<int,2>;
+//  MI dims = {3,2};
+//  ELOG(multi_index_c_order(dims,0));
+//  ELOG(multi_index_c_order(dims,1));
+//  ELOG(multi_index_c_order(dims,2));
+//  ELOG(multi_index_c_order(dims,3));
+//  ELOG(multi_index_c_order(dims,4));
+//  ELOG(multi_index_c_order(dims,5));
+//  CHECK( multi_index_c_order(dims,0) == MI{0,0} );
+//  CHECK( multi_index_c_order(dims,1) == MI{0,1} );
+//  CHECK( multi_index_c_order(dims,2) == MI{1,0} );
+//  CHECK( multi_index_c_order(dims,3) == MI{1,1} );
+//  CHECK( multi_index_c_order(dims,4) == MI{2,0} );
+//  CHECK( multi_index_c_order(dims,5) == MI{2,1} );
+//}
