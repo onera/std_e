@@ -5,7 +5,6 @@
 #include <vector>
 #include <algorithm>
 #include "std_e/data_structure/multi_range.hpp"
-#include "std_e/log.hpp" // TODO
 // TODO clean up!
 // TODO jagged -> compressed
 

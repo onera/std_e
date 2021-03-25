@@ -5,7 +5,6 @@
 #include <vector>
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/utils/concatenate.hpp"
-#include "std_e/log.hpp" // TODO
 using namespace std;
 using std_e::id_string;
 using std_e::append_to_string;

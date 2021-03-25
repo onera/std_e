@@ -2,7 +2,6 @@
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
 #include <vector>
-#include "std_e/log.hpp"
 
 using namespace std;
 using std_e::id_string;

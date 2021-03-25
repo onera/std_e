@@ -1,6 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/utils/vector.hpp"
-#include "std_e/log.hpp"
 
 
 TEST_CASE("sort_unique(vector)") {
