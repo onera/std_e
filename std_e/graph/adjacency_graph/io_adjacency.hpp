@@ -125,6 +125,11 @@ template<class T> auto
 rooted_graph_view(io_adjacency<T>& root) {
   return io_adj_ptr_vector<T>{&root};
 }
+// TODO
+//template<class T> auto
+//rooted_graph_view(const io_adjacency<T>& root) {
+//  return io_adj_ptr_vector<T>{&root};
+//}
 
 template<class T> constexpr auto
 first_root(const io_adj_ptr_vector<T>& root_rng) {

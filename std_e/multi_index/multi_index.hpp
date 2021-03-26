@@ -84,6 +84,8 @@ struct enable_is_multi_index : std::false_type {};
 
 template<class Int, int rank>
 struct enable_is_multi_index<multi_index<Int,rank>> : std::true_type {};
+template<>
+struct enable_is_multi_index<cx_multi_index> : std::true_type {};
 
 template<class T>
 constexpr bool is_multi_index = enable_is_multi_index<T>::value;

@@ -36,6 +36,18 @@ if (NOT DEFINED STD_E_ENABLE_MPI)
   option(STD_E_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
 endif()
 
+## Compiler flags
+### Build type
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
+endif()
+### C++ standard
+set(CMAKE_CXX_STANDARD          17 )
+set(CMAKE_CXX_EXTENSIONS        OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON )
+### fPIC
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 ## Dependencies ##
 include(FetchContent)
 ### doctest ###

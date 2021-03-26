@@ -1,0 +1,84 @@
+#include "std_e/unit_test/doctest.hpp"
+
+#include "std_e/multi_index/multi_index_range.hpp"
+#include <tuple>
+#include <utility>
+#include "std_e/log.hpp"
+
+using namespace std_e;
+
+//using A = char;
+class A {
+  public:
+  A() = default;
+  A(const A&) = delete;
+  A& operator=(const A&) = delete;
+  A(A&&) = default;
+  A& operator=(A&&) = default;
+};
+using B = int;
+using C = long;
+using D = double;
+
+
+template<int mir_size, class multi_index_range_type> constexpr auto
+generate(const multi_index_range_type& mir) {
+  constexpr int sz = mir_size;
+  constexpr int rank = 2;
+  std::array<multi_index<int,rank>,sz> res = {};
+  int i=0;
+  for (auto mi : mir) {
+    res[i] = mi;
+    ++i;
+  }
+  return res;
+}
+
+
+//template<class... tuples, size_t... Is> constexpr auto
+//tuple_cart_prod__impl(std::index_sequence<Is...>, tuples&&... xs) {
+//  constexpr auto mir = c_multi_index_range({(int)std::tuple_size_v<std::decay_t<tuples>>...});
+//  constexpr int sz = mir.size();
+//  constexpr auto explicit_mir = generate<sz>(mir);
+//  return
+//    std::tuple<
+//      std::tuple<
+//        std::tuple_element_t<explicit_mir[Is][0],std::decay_t<tuples>>...
+//      >...
+//    >();
+//}
+template<size_t... Is, class tuple0, class tuple1> constexpr auto
+tuple_cart_prod__impl(std::index_sequence<Is...>, tuple0&& x, tuple1&& y) {
+  constexpr auto mir = c_multi_index_range({(int)std::tuple_size_v<std::decay_t<tuple0>>,(int)std::tuple_size_v<std::decay_t<tuple1>>});
+  constexpr int sz = mir.size();
+  constexpr auto explicit_mir = generate<sz>(mir);
+  return std::make_tuple(
+    std::make_tuple(
+      std::get<explicit_mir[Is][0]>(FWD(x))
+      ,
+      std::get<explicit_mir[Is][1]>(FWD(y))
+    )...
+  );
+}
+
+template<class... tuples> constexpr auto
+tuple_cart_prod(tuples&&... xs) {
+  constexpr int cart_prod_size = (std::tuple_size_v<std::decay_t<tuples>> * ...);
+
+  return tuple_cart_prod__impl(std::make_index_sequence<cart_prod_size>(), FWD(xs)...);
+}
+
+template<class... tuples>
+using tuple_type_cart_prod = decltype(tuple_cart_prod(std::declval<tuples>()...));
+
+TEST_CASE("tuple cart prod") {
+  using std::tuple;
+  using tuple_0 = tuple<A,B>;
+  using tuple_1 = tuple<C,D>;
+  //using tuple_0 = tuple<A>;
+  //using tuple_1 = tuple<C>;
+  using res_type = tuple_type_cart_prod<tuple_0,tuple_1>;
+
+  //res_type i = 0;
+  static_assert(std::is_same_v< res_type , tuple<tuple<A,C>,tuple<A,D>,tuple<B,C>,tuple<B,D>> >);
+}

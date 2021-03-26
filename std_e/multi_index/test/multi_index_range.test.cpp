@@ -48,6 +48,50 @@ TEST_CASE("multi_index_range fortran order") {
 // [Sphinx Doc] multi_index_range fortran order }
 
 
+// [Sphinx Doc] c_multi_index_range {
+TEST_CASE("multi_index_range c order") {
+  auto all_indices_range = c_multi_index_range({4,3,2});
+
+  std::vector<int> v;
+  for (auto [i,j,k] : all_indices_range) {
+    v.push_back( 100*i + 10*j + k );
+  }
+  CHECK( v.size() == 4*3*2 );
+
+  std::vector<int> expected_v = {
+//  ijk
+//  |||
+//  vvv
+      0,
+      1,
+     10,
+     11,
+     20,
+     21,
+    100,
+    101,
+    110,
+    111,
+    120,
+    121,
+    200,
+    201,
+    210,
+    211,
+    220,
+    221,
+    300,
+    301,
+    310,
+    311,
+    320,
+    321,
+  };
+  CHECK( v == expected_v );
+}
+// [Sphinx Doc] c_multi_index_range }
+
+
 // [Sphinx Doc] multi_index_range arbitrary order {
 TEST_CASE("multi_index_range arbitrary order") {
   auto all_indices_range = multi_index_range_with_order({4,3,2},{1,2,0});

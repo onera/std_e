@@ -2,7 +2,7 @@
 
 
 #include "std_e/algorithm/for_each.hpp"
-#include "std_e/graph/adjacency_std_e/graph/io_graph_rearranging.hpp"
+#include "std_e/graph/adjacency_graph/io_graph_rearranging.hpp"
 
 
 namespace graph {

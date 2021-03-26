@@ -86,6 +86,13 @@ all_gather(T value, T* rbuf, MPI_Comm comm) -> void {
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 }
 
+template<class T> auto
+all_reduce(const T& value, MPI_Op op, MPI_Comm comm) -> T {
+  T res;
+  int err = MPI_Allreduce(&value, &res, 1, to_mpi_type<T>, op, comm);
+  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+  return res;
+}
 
 
 } // std_e

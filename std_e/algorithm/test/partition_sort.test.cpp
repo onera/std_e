@@ -19,6 +19,12 @@ TEST_CASE("partition_sort") {
 
     //                    0        10   100    120            1000
     CHECK( v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
+    CHECK( partition_points.size() == 5 );
+    CHECK( partition_points[0] == begin(v)+1 );
+    CHECK( partition_points[1] == begin(v)+5 );
+    CHECK( partition_points[2] == begin(v)+6 );
+    CHECK( partition_points[3] == begin(v)+7 );
+    CHECK( partition_points[4] == begin(v)+10);
   }
   SUBCASE("vector-returning algorithm") {
     auto partition_points = std_e::partition_sort(v,partition_values);
@@ -29,7 +35,7 @@ TEST_CASE("partition_sort") {
     auto partition_indices = std_e::partition_sort_indices(v,partition_values);
     //                                    0        10   100    120            1000
     CHECK(                 v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
-    CHECK( partition_indices == vector{    1      ,  5 ,   6  ,   7          ,     10   } );
+    CHECK( partition_indices == vector{ 0, 1      ,  5 ,   6  ,   7          ,     10   } );
   }
 }
 

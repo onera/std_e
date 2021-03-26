@@ -10,9 +10,9 @@ namespace graph {
 
 template<class Graph, class Unary_pred> constexpr auto
 all_of_adjacencies(Graph&& g, Unary_pred&& p) -> bool {
-  auto S = make_graph_traversal_stack(root_as_range(g));
+  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
   preorder_depth_first_find_adjacency_stack(S,p);
-  return S.is_at_root_level() && S.level_is_done(); // scaned until the end
+  return S.is_done(); // scaned until the end
 }
 template<class Graph, class Unary_pred> constexpr auto
 all_of(Graph&& g, Unary_pred&& p_node) -> bool {
@@ -21,4 +21,4 @@ all_of(Graph&& g, Unary_pred&& p_node) -> bool {
 }
 
 
-} // graph 
+} // graph

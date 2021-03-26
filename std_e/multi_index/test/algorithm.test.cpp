@@ -1,5 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
-#include "std_e/multi_index/multi_index_range.hpp"
+#include "std_e/multi_index/algorithm.hpp"
+#include "std_e/log.hpp"
 
 
 using namespace std_e;
@@ -31,12 +32,15 @@ TEST_CASE("increment_multi_index fortran order") {
   CHECK( i4 == ci5 );
   CHECK( i5 == ci0 ); // not incremented (impossible)
 
-  CHECK( d0 == 0 );
+  // index that was incremented
+  CHECK( d0 == 0 ); // {0,0} -> {1,0}: index 0 was incremented
+                    //           ^
+                    //           |__position 0
   CHECK( d1 == 0 );
-  CHECK( d2 == 1 );
+  CHECK( d2 == 1 ); // {2,0} -> {0,1}: index 1 was incremented
   CHECK( d3 == 0 );
   CHECK( d4 == 0 );
-  CHECK( d5 == 2 );
+  CHECK( d5 == 2 ); // {2,1} -> impossible to increment: as if we had incremented index 2 (out-of-bound)
 }
 
 
@@ -72,4 +76,38 @@ TEST_CASE("increment_multi_index general order") {
   CHECK( d3 == 1 );
   CHECK( d4 == 0 );
   CHECK( d5 == 2 );
+}
+
+
+TEST_CASE("multi_index_fortran_order") {
+  using MI = multi_index<int,3>;
+  MI dims = {3,2,2};
+  CHECK( multi_index_fortran_order(dims, 0) == MI{0,0,0} );
+  CHECK( multi_index_fortran_order(dims, 1) == MI{1,0,0} );
+  CHECK( multi_index_fortran_order(dims, 2) == MI{2,0,0} );
+  CHECK( multi_index_fortran_order(dims, 3) == MI{0,1,0} );
+  CHECK( multi_index_fortran_order(dims, 4) == MI{1,1,0} );
+  CHECK( multi_index_fortran_order(dims, 5) == MI{2,1,0} );
+  CHECK( multi_index_fortran_order(dims, 6) == MI{0,0,1} );
+  CHECK( multi_index_fortran_order(dims, 7) == MI{1,0,1} );
+  CHECK( multi_index_fortran_order(dims, 8) == MI{2,0,1} );
+  CHECK( multi_index_fortran_order(dims, 9) == MI{0,1,1} );
+  CHECK( multi_index_fortran_order(dims,10) == MI{1,1,1} );
+  CHECK( multi_index_fortran_order(dims,11) == MI{2,1,1} );
+}
+TEST_CASE("multi_index_c_order") {
+  using MI = multi_index<int,3>;
+  MI dims = {3,2,2};
+  CHECK( multi_index_c_order(dims, 0) == MI{0,0,0} );
+  CHECK( multi_index_c_order(dims, 1) == MI{0,0,1} );
+  CHECK( multi_index_c_order(dims, 2) == MI{0,1,0} );
+  CHECK( multi_index_c_order(dims, 3) == MI{0,1,1} );
+  CHECK( multi_index_c_order(dims, 4) == MI{1,0,0} );
+  CHECK( multi_index_c_order(dims, 5) == MI{1,0,1} );
+  CHECK( multi_index_c_order(dims, 6) == MI{1,1,0} );
+  CHECK( multi_index_c_order(dims, 7) == MI{1,1,1} );
+  CHECK( multi_index_c_order(dims, 8) == MI{2,0,0} );
+  CHECK( multi_index_c_order(dims, 9) == MI{2,0,1} );
+  CHECK( multi_index_c_order(dims,10) == MI{2,1,0} );
+  CHECK( multi_index_c_order(dims,11) == MI{2,1,1} );
 }
