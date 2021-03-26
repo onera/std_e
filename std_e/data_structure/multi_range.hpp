@@ -183,7 +183,7 @@ class multi_range {
     }
 
     template<int index, class F> auto
-    reorder_by(F reordering) -> void {
+    reorder_by([[maybe_unused]] F reordering) -> void {
       auto perm = std_e::sort_permutation(get<index>(_impl));
       apply_permutation__impl(perm,std::make_index_sequence<nb_ranges()>());
       sorted_rng_idx = index;

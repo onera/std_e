@@ -31,7 +31,7 @@ struct buffer_allocator {
 
 
 template<auto a, auto d> inline auto
-operator==(const buffer_allocator<a,d>& x, const buffer_allocator<a,d>& y) -> bool {
+operator==(const buffer_allocator<a,d>& /*x*/, const buffer_allocator<a,d>& /*y*/) -> bool {
   return true; // no state
 }
 template<auto a, auto d> inline auto
