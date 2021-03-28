@@ -210,6 +210,9 @@ endif()
 # ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
-include(FeatureSummary)
-FEATURE_SUMMARY(WHAT ALL)
+get_directory_property(is_top_lvl_cmakelists PARENT_DIRECTORY)
+if(is_top_lvl_cmakelists)
+  include(FeatureSummary)
+  FEATURE_SUMMARY(WHAT ALL)
+endif()
 # ----------------------------------------------------------------------
