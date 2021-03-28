@@ -13,6 +13,8 @@ namespace std_e {
 
 
 // multi_index {
+template<class Int, int N = dynamic_size>
+struct multi_index;
 
 // IMPLEMENTATION DESIGN NOTE: we use inheritance to define multi_index
 //   - inheritance should be viewed as an implementation detail:
@@ -47,6 +49,9 @@ template<class Int>
 struct multi_index<Int,dynamic_size> : std::vector<Int> {
   using base = std::vector<Int>;
   using base::base; // inherit ctors too
+  multi_index(base x)
+    : base(std::move(x))
+  {}
 
   constexpr auto
   rank() const -> int {

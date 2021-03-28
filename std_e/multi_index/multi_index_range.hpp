@@ -161,7 +161,9 @@ class multi_index_generator {
 
   // ctors
     constexpr
-    multi_index_generator() = default;
+    multi_index_generator()
+      : current_pos{0}
+    {}
 
     constexpr
     multi_index_generator(order_functor_type func)
@@ -253,7 +255,10 @@ class multi_index_range {
 
   // ctor
     constexpr
-    multi_index_range() = default;
+    multi_index_range()
+      : sz(1) // multi_index rank of 0 means scalar, hence one position
+    {}
+
 
     constexpr
     multi_index_range(order_functor_type func)
@@ -283,7 +288,7 @@ class multi_index_range {
       return {sz};
     }
   private:
-    generator_type  generator;
+    generator_type generator;
     index_type sz;
 };
 

@@ -1,6 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/multi_index/multi_index_range.hpp"
+#include "std_e/log.hpp" // TODO
 
 
 using namespace std_e;
@@ -46,6 +47,16 @@ TEST_CASE("multi_index_range fortran order") {
   CHECK( v == expected_v );
 }
 // [Sphinx Doc] multi_index_range fortran order }
+
+
+TEST_CASE("multi_index_range fortran order -- no_dim_range") {
+  std_e::multi_index<int> no_dim = {};
+  auto no_dim_range = fortran_multi_index_range(no_dim);
+  CHECK( no_dim_range.size() == 1 );
+  CHECK( no_dim_range.begin() != no_dim_range.end() );
+  CHECK( ++no_dim_range.begin() == no_dim_range.end() );
+  CHECK( *no_dim_range.begin() == std_e::multi_index<int>{} );
+}
 
 
 // [Sphinx Doc] c_multi_index_range {

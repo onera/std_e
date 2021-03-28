@@ -24,8 +24,12 @@ class graph_stack {
 
   // basic query
     constexpr auto
+    size() const -> int {
+      return S.size();
+    }
+    constexpr auto
     is_at_root_level() const -> bool {
-      return S.size()==1;
+      return size()==1;
     }
 
   // stack functions

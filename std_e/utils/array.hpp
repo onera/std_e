@@ -6,6 +6,7 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/base/macros.hpp"
 #include <algorithm>
+#include <type_traits>
 #include "std_e/future/constexpr_vector.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 
@@ -84,10 +85,10 @@ struct concatenated_array__impl<
 template<class T, class... Ts>
 struct concatenated_array__impl<
   void, // enabled if matches
-  std_e::span<T>,std_e::span<Ts>...
+  std_e::span<T>,Ts...
 >
 {
-  using type = std::vector<T>;
+  using type = std::vector<std::remove_const_t<T>>;
 };
 
 template<class... Arrays> using
