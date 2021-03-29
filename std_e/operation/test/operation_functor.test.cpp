@@ -76,7 +76,7 @@ operator|(const tensor_like_type_for_test& x, const tensor_like_type_for_test& y
 }
 auto
 tensor_prod(const tensor_like_type_for_test& x, const tensor_like_type_for_test& y) -> double {
-  return x.d0*y.d0 * x.d1*y.d1; // its really a fake tensor_prod!
+  return x.d0*y.d0 * x.d1*y.d1; // it really is a fake tensor_prod!
 }
 auto
 t(const tensor_like_type_for_test& x) -> tensor_like_type_for_test {

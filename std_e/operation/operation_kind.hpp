@@ -36,6 +36,45 @@ STD_E_ENUM_CLASS(operation_kind,
   grad
 );
 
+constexpr auto
+is_unary(operation_kind op) -> bool {
+  switch (op) {
+    case operation_kind::identity:
+
+    case operation_kind::plus:
+    case operation_kind::minus:
+
+    case operation_kind::abs:
+    case operation_kind::sqrt:
+    case operation_kind::min:
+    case operation_kind::max:
+
+    case operation_kind::t:
+    case operation_kind::tr:
+
+    case operation_kind::grad:
+      return true;
+    default:
+      return false;
+  }
+}
+constexpr auto
+is_binary(operation_kind op) -> bool {
+  switch (op) {
+    case operation_kind::assignment:
+
+    case operation_kind::plus:
+    case operation_kind::minus:
+    case operation_kind::multiplies:
+    case operation_kind::divides:
+
+    case operation_kind::pipe:
+    case operation_kind::tensor_prod:
+      return true;
+    default:
+      return false;
+  }
+}
 
 constexpr auto
 needs_computation(operation_kind op) -> bool {
