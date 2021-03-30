@@ -34,4 +34,6 @@ namespace std_e {
 
 #define LOG(...) std_e::log(__VA_ARGS__);
 
-#define ELOG(...) std_e::log_with_var_names(#__VA_ARGS__,__VA_ARGS__);
+#define ELOG(x) std_e::log(#x," = ",x);
+
+#define MELOG(...) std_e::log_with_var_names(#__VA_ARGS__,__VA_ARGS__);
