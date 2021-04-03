@@ -15,7 +15,7 @@ template<class strides_type, class offsets_type, class... ints> FORCE_INLINE con
 fortran_order__impl_for_param_pack_OLD(const strides_type& strides, const offsets_type& offsets, int current_position_in_shape, int i, ints... is)
 {
   // note: similar to Horner's algorithm
-  return 
+  return
     (i + offsets[current_position_in_shape]) * strides[current_position_in_shape]
   +
     fortran_order__impl_for_param_pack_OLD(strides,offsets,current_position_in_shape+1,is...);
@@ -50,6 +50,7 @@ fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& of
   STD_E_ASSERT(dims.size()==indices.size());
   STD_E_ASSERT(dims.size()==offsets.size());
   int rank = dims.size();
+  if (rank==0) return 0;
   int res = offsets[0]+indices[0];
   int stride = dims[0];
   for (int k=1; k<rank; ++k) {
@@ -92,7 +93,7 @@ c_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& offsets,
 
 // Note: the stride first dimension stride is always 1, so it is skipped.
 // The last stride is the total size
-template<class Multi_index> FORCE_INLINE constexpr auto 
+template<class Multi_index> FORCE_INLINE constexpr auto
 fortran_strides_from_extent(const Multi_index& dims) -> Multi_index {
   int rank = dims.size();
   auto strides = make_array_of_size<Multi_index>(rank);
@@ -119,7 +120,7 @@ fortran_order_from_strides(const Multi_index_0& strides, const Multi_index_1& in
 
 
 // Here with no skip
-template<class I, int rank> FORCE_INLINE constexpr auto 
+template<class I, int rank> FORCE_INLINE constexpr auto
 fortran_strides_from_extent2(const multi_index<I,rank>& dims) {
   static_assert(rank != dynamic_size);
   multi_index<I,rank+1> strides = {};

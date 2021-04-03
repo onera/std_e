@@ -33,6 +33,40 @@ struct operation_closure<operation_kind::identity> {
     return std::forward<T>(x);
   }
 };
+template<>
+struct operation_closure<operation_kind::assignment> {
+  template <class T0, class T1>
+  using op_t = decltype(assign(std::declval<T0>(),std::declval<T1>()));
+  template <class T0, class T1>
+  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
+
+  template<class T0, class T1> FORCE_INLINE constexpr auto
+  operator()(T0&& x, T1&& y) const {
+    if constexpr (supports_op<T0,T1>) {
+      return assign(std::forward<T0>(x) , std::forward<T1>(y));
+    } else {
+      throw not_implemented_exception("unsupported type for assignment");
+      return any_return_type{};
+    }
+  }
+};
+template<>
+struct operation_closure<operation_kind::gathering> {
+  template <class T0, class T1>
+  using op_t = decltype(gather(std::declval<T0>(),std::declval<T1>()));
+  template <class T0, class T1>
+  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
+
+  template<class T0, class T1> FORCE_INLINE constexpr auto
+  operator()(T0&& x, T1&& y) const {
+    if constexpr (supports_op<T0,T1>) {
+      return gather(std::forward<T0>(x) , std::forward<T1>(y));
+    } else {
+      throw not_implemented_exception("unsupported type for gathering");
+      return any_return_type{};
+    }
+  }
+};
 /// function }
 
 
@@ -147,7 +181,7 @@ struct operation_closure<operation_kind::sqrt> {
       using std::sqrt;
       return sqrt( std::forward<T>(x) );
     } else {
-      throw not_implemented_exception("unsupported type for min");
+      throw not_implemented_exception("unsupported type for sqrt");
       return any_return_type{};
     }
   }
@@ -167,7 +201,7 @@ struct operation_closure<operation_kind::abs> {
       using std::abs;
       return abs( std::forward<T>(x) );
     } else {
-      throw not_implemented_exception("unsupported type for min");
+      throw not_implemented_exception("unsupported type for abs");
       return any_return_type{};
     }
   }

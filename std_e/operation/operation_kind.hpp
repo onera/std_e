@@ -68,6 +68,9 @@ is_binary(operation_kind op) -> bool {
     case operation_kind::multiplies:
     case operation_kind::divides:
 
+    case operation_kind::min:
+    case operation_kind::max:
+
     case operation_kind::pipe:
     case operation_kind::tensor_prod:
       return true;
