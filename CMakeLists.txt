@@ -21,6 +21,7 @@ check_sub_repo_exists(project_utils)
 set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
 set(PROJECT_UTILS_CMAKE_DIR ${PROJECT_UTILS_DIR}/scripts/cmake)
 include(${PROJECT_UTILS_CMAKE_DIR}/target_add_dependency.cmake) # target_add_dependency, target_add_thirdparty_dependency and target_install commands
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_UTILS_CMAKE_DIR}") # for custom Find*.cmake files
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -193,7 +194,8 @@ if(STD_E_BUILD_DOCUMENTATION)
     FetchContent_Populate(sphinx_bootstrap_theme)
   endif()
 
-  include(UseBreathe)
+  #include(UseBreathe)
+  include(${PROJECT_UTILS_CMAKE_DIR}/UseBreathe.cmake)
   add_breathe_doc(TARGET_NAME ${PROJECT_NAME}_doc
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc
     DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in

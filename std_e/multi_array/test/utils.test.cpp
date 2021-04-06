@@ -85,6 +85,18 @@ TEST_CASE("multi_array to_string") {
   fixed_multi_array<int,1> f5 = {42};
   CHECK( to_string(f5) == "[42]" );
 
+  SUBCASE("dynamic size") {
+    SUBCASE("rank 2") {
+      dyn_multi_array<int,2> a = {{1,2,3},{4,5,6}};
+      CHECK( to_string(a) == "[[1,2,3],[4,5,6]]" );
+    }
+    SUBCASE("empty") {
+      multi_index<int,2> dims = {10,0};
+      dyn_multi_array<int,2> a(dims);
+      CHECK( to_string(a) == "[]" );
+    }
+  }
+
   SUBCASE("dynamic rank") {
     dyn_multi_array<int,dynamic_size> a = {{1,2,3},{4,5,6}};
     CHECK( to_string(a) == "[[1,2,3],[4,5,6]]" );

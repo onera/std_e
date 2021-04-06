@@ -44,6 +44,10 @@ is_empty(const multi_array<R,Shape>& x) -> bool {
 
 template<class R, class Shape> auto
 to_string(const multi_array<R,Shape>& x) -> std::string {
+  if (cartesian_product_size(x.extent())==0) {
+    return "[]";
+  }
+
   using std::to_string;
   if constexpr (Shape::ct_rank==0 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==0) {

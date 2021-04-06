@@ -91,6 +91,11 @@ class multi_array : private Multi_array_shape {
     }
 
     FORCE_INLINE constexpr
+    multi_array(multi_index_type dims)
+      : shape_type({std::move(dims)})
+      , rng(size())
+    {}
+    FORCE_INLINE constexpr
     multi_array(value_type* rng, multi_index_type dims)
       : shape_type({std::move(dims)})
       , rng(make_span(rng,size()))
