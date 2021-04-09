@@ -32,19 +32,6 @@ struct multi_index : std::array<Int,N> {
   }
 };
 
-template<class Int, int N> constexpr auto
-operator==(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
-  // NOTE: operator==(std::array) is constexpr only in C++20
-  for (int i=0; i<N; ++i) {
-    if (x[i] != y[i]) return false;
-  }
-  return true;
-}
-template<class Int, int N> constexpr auto
-operator!=(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
-  return !(x==y);
-}
-
 template<class Int>
 struct multi_index<Int,dynamic_size> : std::vector<Int> {
   using base = std::vector<Int>;
