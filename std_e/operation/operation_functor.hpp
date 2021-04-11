@@ -343,5 +343,10 @@ using operation_closure_with_extended_arity = reduction_functor<operation_closur
 template<operation_kind op_k>
 constexpr auto operation_functor = operation_closure_with_extended_arity<op_k>();
 
+template<operation_kind op_k> constexpr auto
+operation(operation_closure_with_extended_arity<op_k>) -> operation_kind {
+  return op_k;
+}
+
 
 } // std_e

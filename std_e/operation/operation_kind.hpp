@@ -112,37 +112,6 @@ needs_computation(operation_kind op) -> bool {
   }
 }
 
-constexpr auto
-tensor_operation_uses_coefficients_at_most_once(operation_kind op) -> bool {
-  switch (op) {
-    case operation_kind::identity:
-    case operation_kind::assignment:
-    case operation_kind::gathering:
-
-    case operation_kind::plus:
-    case operation_kind::minus:
-    case operation_kind::divides:
-
-    case operation_kind::abs:
-    case operation_kind::sqrt:
-    case operation_kind::min:
-    case operation_kind::max:
-
-    case operation_kind::pipe:
-    case operation_kind::t:
-    case operation_kind::tr:
-      return true;
-
-    case operation_kind::multiplies:
-    case operation_kind::tensor_prod:
-      return false;
-
-    case operation_kind::grad:
-    default:
-      throw not_implemented_exception{"tensor_operation_uses_coefficients_at_most_once: unknown operation "+to_string(op)};
-  }
-}
-
 
 // to_string {
 inline auto
