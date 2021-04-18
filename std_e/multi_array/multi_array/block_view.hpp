@@ -3,6 +3,7 @@
 
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include "std_e/utils/meta.hpp"
+#include <type_traits>
 
 
 namespace std_e {
@@ -12,10 +13,10 @@ class block_view {
   public:
   // type traits
     static constexpr bool mem_is_owned = false;
-    using multi_index_type = typename Multi_array_type::multi_index_type;
-    using index_type = typename Multi_array_type::index_type;
+    using multi_index_type = typename std::decay_t<Multi_array_type>::multi_index_type;
+    using index_type = typename std::decay_t<Multi_array_type>::index_type;
 
-    using value_type = add_other_type_constness<typename Multi_array_type::value_type,Multi_array_type>;
+    using value_type = add_other_type_constness<typename std::decay_t<Multi_array_type>::value_type,std::remove_reference_t<Multi_array_type>>;
     using T = value_type;
     using pointer = T*;
     using const_pointer = const T*;
@@ -23,13 +24,14 @@ class block_view {
     using const_reference = const T&;
 
   // ctor
-    block_view(Multi_array_type& x, multi_index_type offset, multi_index_type dims)
-      : ma_ptr(&x)
+    template<class Multi_array_type_0>
+    block_view(Multi_array_type_0&& x, multi_index_type offset, multi_index_type dims)
+      : origin_ma(FWD(x))
       , total_offset(std::move(offset))
       , dims(std::move(dims))
     {
       for (int i=0; i<rank(); ++i) {
-        total_offset[i] += ma_ptr->offset(i);
+        total_offset[i] += origin_ma.offset(i);
       }
     }
 
@@ -41,15 +43,15 @@ class block_view {
     //   - as static functions (useful if a constexpr value is needed)
     constexpr auto
     rank() const -> int {
-      return ma_ptr->rank();
+      return origin_ma.rank();
     }
     constexpr auto
     offset() const -> const multi_index_type& {
-      return ma_ptr->offset();
+      return origin_ma.offset();
     }
     constexpr auto
     offset(int i) const -> index_type {
-      return ma_ptr->offset(i);
+      return origin_ma.offset(i);
     }
     constexpr auto
     extent() const -> const multi_index_type& {
@@ -68,12 +70,12 @@ class block_view {
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) const -> const_reference {
       //static_assert(sizeof...(Ts)==rank());
-      return ma_ptr->data()[linear_index(std::forward<Ts>(xs)...)];
+      return origin_ma.data()[linear_index(std::forward<Ts>(xs)...)];
     }
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) -> reference {
       //static_assert(sizeof...(Ts)==rank());
-      return ma_ptr->data()[linear_index(std::forward<Ts>(xs)...)];
+      return origin_ma.data()[linear_index(std::forward<Ts>(xs)...)];
     }
 
   private:
@@ -91,7 +93,7 @@ class block_view {
     FORCE_INLINE constexpr auto
     // requires Multi_index::size()==rank()
     linear_index(const Multi_index& indices) const -> index_type {
-      return fortran_order_from_dimensions(ma_ptr->extent(),total_offset,indices);
+      return fortran_order_from_dimensions(origin_ma.extent(),total_offset,indices);
     }
     /// from indices
     template<
@@ -115,15 +117,15 @@ class block_view {
   /// linear_index }
 
 // data members
-    Multi_array_type* ma_ptr;
+    remove_rvalue_reference<Multi_array_type> origin_ma;
     multi_index_type total_offset;
     multi_index_type dims;
 };
 
 
-template<class Multi_array_type, class multi_index_type = typename Multi_array_type::multi_index_type> auto
-make_block_view(Multi_array_type& x, multi_index_type offset, multi_index_type dims) {
-  return block_view<Multi_array_type>(x,offset,dims);
+template<class Multi_array_type, class multi_index_type = typename std::decay_t<Multi_array_type>::multi_index_type> auto
+make_block_view(Multi_array_type&& x, multi_index_type offset, multi_index_type dims) {
+  return block_view<Multi_array_type&&>(FWD(x),offset,dims);
 }
 
 } // std_e
