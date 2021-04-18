@@ -7,6 +7,11 @@
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/utils/array.hpp"
+#include <iterator>
+#include <stdexcept>
+#if __cplusplus <= 201703L
+  #include <ranges>
+#endif
 
 
 namespace std_e {
@@ -80,7 +85,10 @@ template<>
 struct enable_is_multi_index<cx_multi_index> : std::true_type {};
 
 template<class T>
-constexpr bool is_multi_index = enable_is_multi_index<T>::value;
+constexpr bool is_multi_index = enable_is_multi_index<std::decay_t<T>>::value;
+
+template<class T>
+concept Multi_index2 = std::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
 // is_multi_index }
 
 // index_type_of {

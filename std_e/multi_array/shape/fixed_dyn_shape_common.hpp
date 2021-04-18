@@ -50,16 +50,27 @@ template<class Multi_array_shape, class Multi_index> auto
 shape_restriction_start_index_1d(const Multi_array_shape& x, const Multi_index& right_indices) {
   using index_type = index_type_of<Multi_index>;
 
-  constexpr int rank = Multi_array_shape::rank();
-  static_assert(rank != dynamic_size);
-  constexpr int restriction_rank = rank_of<Multi_index>;
-  constexpr int sub_rank = rank - restriction_rank;
+  if constexpr (Multi_array_shape::ct_rank == dynamic_size) {
+    int rank = x.rank();
+    int restriction_rank = right_indices.size();
+    int sub_rank = rank - restriction_rank;
 
-  auto sub_view_start_index = concatenate(multi_index<index_type,sub_rank>{0},right_indices);
-  auto index_1d = fortran_order_from_dimensions(x.extent(),x.offset(),sub_view_start_index);
+    auto sub_view_start_index = concatenate(multi_index<index_type>(sub_rank,0),right_indices);
+    auto index_1d = fortran_order_from_dimensions(x.extent(),x.offset(),sub_view_start_index);
 
-  auto sub_shape = make_sub_shape<restriction_rank>(x);
-  return std::make_pair(index_1d,std::move(sub_shape));
+    auto sub_shape = make_sub_shape(x,restriction_rank);
+    return std::make_pair(index_1d,std::move(sub_shape));
+  } else {
+    constexpr int rank = Multi_array_shape::rank();
+    constexpr int restriction_rank = rank_of<Multi_index>;
+    constexpr int sub_rank = rank - restriction_rank;
+
+    auto sub_view_start_index = concatenate(multi_index<index_type,sub_rank>{0},right_indices);
+    auto index_1d = fortran_order_from_dimensions(x.extent(),x.offset(),sub_view_start_index);
+
+    auto sub_shape = make_sub_shape<restriction_rank>(x);
+    return std::make_pair(index_1d,std::move(sub_shape));
+  }
 }
 
 

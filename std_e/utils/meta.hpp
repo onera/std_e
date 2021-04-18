@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <functional>
+
+
 namespace std_e {
 
 

@@ -161,6 +161,15 @@ make_sub_array(const Array& x) {
   std::copy_n(begin(x)+start,sub_size,begin(sub));
   return sub;
 }
+template<
+  class Array,
+  std::enable_if_t< !is_fixed_size_array<Array> , int > =0
+> auto
+make_sub_array(const Array& x, int start, int sub_size) {
+  Array sub(sub_size);
+  std::copy_n(begin(x)+start,sub_size,begin(sub));
+  return sub;
+}
 
 
 template<
