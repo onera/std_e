@@ -9,328 +9,85 @@
 
 namespace std_e {
 
+template<operation_kind op_k> constexpr auto
+f0 = [](auto&&...){ throw not_implemented_exception("operation_closure for operation " + to_string(op_k)); return any_return_type2{}; };
+
+#define GENERATE_OPERATOR(op_name,symbol) \
+  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype( (FWD(xs) symbol ...) ) { return (FWD(xs) symbol ...); };
+
+#define GENERATE_FUNC_OPERATOR(op_name) \
+  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype(op_name(FWD(xs)...)) { return op_name(FWD(xs)...); }; \
+
+#define GENERATE_FUNC_STD_OPERATOR(op_name) \
+  template<class... Ts> constexpr auto \
+  op_name##_impl(Ts&&... xs) -> decltype(op_name(FWD(xs)...)) { \
+    return op_name(FWD(xs)...); \
+  } \
+  template<class... Ts> constexpr auto \
+  op_name##_impl(Ts&&... xs) -> decltype(std::op_name(FWD(xs)...)) { \
+    return std::op_name(FWD(xs)...); \
+  } \
+ \
+  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype(op_name##_impl(FWD(xs)...)) { return op_name##_impl(FWD(xs)...); };
+
+template<class... Ts> constexpr auto
+sqrt_impl(Ts&&... xs) -> decltype(sqrt(FWD(xs)...)) {
+  return sqrt(FWD(xs)...);
+}
+template<class... Ts> constexpr auto
+sqrt_impl(Ts&&... xs) -> decltype(std::sqrt(FWD(xs)...)) {
+  return std::sqrt(FWD(xs)...);
+}
+template<> constexpr auto f0<operation_kind::sqrt> = [](auto&&... xs) -> decltype(sqrt_impl(FWD(xs)...)) { return sqrt_impl(FWD(xs)...); };
+
+GENERATE_OPERATOR( plus       , + );
+GENERATE_OPERATOR( minus      , - );
+GENERATE_OPERATOR( multiplies , * );
+GENERATE_OPERATOR( divides    , / );
+GENERATE_OPERATOR( pipe       , | );
+
+GENERATE_FUNC_STD_OPERATOR(abs);
+//GENERATE_FUNC_STD_OPERATOR(sqrt);
+GENERATE_FUNC_STD_OPERATOR(min);
+GENERATE_FUNC_STD_OPERATOR(max);
+
+GENERATE_FUNC_OPERATOR(identity);
+GENERATE_FUNC_OPERATOR(assign);
+GENERATE_FUNC_OPERATOR(gather);
+
+GENERATE_FUNC_OPERATOR(tensor_prod);
+
+GENERATE_FUNC_OPERATOR(t);
+GENERATE_FUNC_OPERATOR(tr);
+
+GENERATE_FUNC_OPERATOR(grad);
+
+
 
 // Note: vocabulary
 //   - Closure: class with operator()
 //   - Functor: object of closure type
 template<operation_kind op_k>
 struct operation_closure {
-  template<class T, class... Ts> FORCE_INLINE constexpr auto
-  operator()(T&&, Ts&&...) const -> T {
-    throw not_implemented_exception("operation_closure for operation " + to_string(op_k));
-  }
-};
+  template <class... Ts>
+  using op_t = decltype(f0<op_k>(std::declval<Ts>()...));
+  template <class... Ts>
+  static constexpr bool supports_op = is_detected_v<op_t, Ts...>;
 
-
-/// operation_closure specializations {
-
-
-/// function {
-template<>
-struct operation_closure<operation_kind::identity> {
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const -> T {
-    return std::forward<T>(x);
-  }
-};
-template<>
-struct operation_closure<operation_kind::assignment> {
-  template <class T0, class T1>
-  using op_t = decltype(assign(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return assign(std::forward<T0>(x) , std::forward<T1>(y));
+  template<class... Ts> FORCE_INLINE constexpr auto
+  operator()(Ts&&... xs) const {
+    if constexpr (supports_op<Ts...>) {
+      return f0<op_k>(FWD(xs)...);
     } else {
-      throw not_implemented_exception("unsupported type for assignment");
+      throw not_implemented_exception("unsupported type for "+to_string(op_k));
       return any_return_type{};
     }
   }
 };
-template<>
-struct operation_closure<operation_kind::gathering> {
-  template <class T0, class T1>
-  using op_t = decltype(gather(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
 
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return gather(std::forward<T0>(x) , std::forward<T1>(y));
-    } else {
-      throw not_implemented_exception("unsupported type for gathering");
-      return any_return_type{};
-    }
-  }
-};
-/// function }
-
-
-/// arithmetics {
-template<>
-struct operation_closure<operation_kind::plus> {
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    return std::forward<T>(x);
-  }
-
-
-  template <class T0, class T1>
-  using op_t = decltype(std::declval<T0>()+std::declval<T1>());
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return std::forward<T0>(x) + std::forward<T1>(y);
-    } else {
-      throw not_implemented_exception("unsupported type for binary plus");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::minus> {
-  // unary
-  template <class T>
-  using unary_op_t = decltype(-std::declval<T>());
-  template <class T>
-  static constexpr bool supports_unary_op = is_detected_v<unary_op_t, T>;
-
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    if constexpr (supports_unary_op<T>) {
-      return -std::forward<T>(x);
-    } else {
-      throw not_implemented_exception("unsupported type for unary minus");
-      return any_return_type{};
-    }
-  }
-
-  // binary
-  template <class T0, class T1>
-  using bin_op_t = decltype(std::declval<T0>()-std::declval<T1>());
-  template <class T0, class T1>
-  static constexpr bool supports_bin_op = is_detected_v<bin_op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_bin_op<T0,T1>) {
-      return std::forward<T0>(x) - std::forward<T1>(y);
-    } else {
-      throw not_implemented_exception("unsupported type for binary minus");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::multiplies> {
-  template <class T0, class T1>
-  using op_t = decltype(std::declval<T0>()*std::declval<T1>());
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return std::forward<T0>(x) * std::forward<T1>(y);
-    } else {
-      throw not_implemented_exception("unsupported type for multiplies");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::divides> {
-  template <class T0, class T1>
-  using op_t = decltype(std::declval<T0>()/std::declval<T1>());
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return std::forward<T0>(x) / std::forward<T1>(y);
-    } else {
-      throw not_implemented_exception("unsupported type for divides");
-      return any_return_type{};
-    }
-  }
-};
-/// arithmetics }
-
-
-/// real {
-template<>
-struct operation_closure<operation_kind::sqrt> {
-  template <class T>
-  using op_t = decltype(sqrt(std::declval<T>()));
-  template <class T>
-  using op_std_t = decltype(std::sqrt(std::declval<T>()));
-  template <class T>
-  static constexpr bool supports_op = is_detected_v<op_t, T> || is_detected_v<op_std_t, T>;
-
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    if constexpr (supports_op<T>) {
-      using std::sqrt;
-      return sqrt( std::forward<T>(x) );
-    } else {
-      throw not_implemented_exception("unsupported type for sqrt");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::abs> {
-  template <class T>
-  using op_t = decltype(abs(std::declval<T>()));
-  template <class T>
-  using op_std_t = decltype(std::abs(std::declval<T>()));
-  template <class T>
-  static constexpr bool supports_op = is_detected_v<op_t, T> || is_detected_v<op_std_t, T>;
-
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    if constexpr (supports_op<T>) {
-      using std::abs;
-      return abs( std::forward<T>(x) );
-    } else {
-      throw not_implemented_exception("unsupported type for abs");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::min> {
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    return std::forward<T>(x);
-  }
-
-  template <class T0, class T1>
-  using op_t = decltype(min(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  using op_std_t = decltype(std::min(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1> || is_detected_v<op_std_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      using std::min;
-      return min( std::forward<T0>(x) , std::forward<T1>(y) );
-    } else {
-      throw not_implemented_exception("unsupported type for min");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::max> {
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    return std::forward<T>(x);
-  }
-
-  template <class T0, class T1>
-  using op_t = decltype(max(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  using op_std_t = decltype(std::max(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1> || is_detected_v<op_std_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      using std::max;
-      return max( std::forward<T0>(x) , std::forward<T1>(y) );
-    } else {
-      throw not_implemented_exception("unsupported type for max");
-      return any_return_type{};
-    }
-  }
-};
-/// real }
-
-/// matrix/tensor {
-template<>
-struct operation_closure<operation_kind::pipe> {
-  template <class T0, class T1>
-  using op_t = decltype(std::declval<T0>()|std::declval<T1>());
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return ( std::forward<T0>(x) | std::forward<T1>(y) );
-    } else {
-      throw not_implemented_exception("unsupported type for pipe");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::tensor_prod> {
-  template <class T0, class T1>
-  using op_t = decltype(tensor_prod(std::declval<T0>(),std::declval<T1>()));
-  template <class T0, class T1>
-  static constexpr bool supports_op = is_detected_v<op_t, T0,T1>;
-
-  template<class T0, class T1> FORCE_INLINE constexpr auto
-  operator()(T0&& x, T1&& y) const {
-    if constexpr (supports_op<T0,T1>) {
-      return tensor_prod( std::forward<T0>(x) , std::forward<T1>(y) );
-    } else {
-      throw not_implemented_exception("unsupported type for tensor_prod");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::t> {
-  template <class T>
-  using op_t = decltype(t(std::declval<T>()));
-  template <class T>
-  static constexpr bool supports_op = is_detected_v<op_t, T>;
-
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    if constexpr (supports_op<T>) {
-      return t( std::forward<T>(x) );
-    } else {
-      throw not_implemented_exception("unsupported type for transpose");
-      return any_return_type{};
-    }
-  }
-};
-template<>
-struct operation_closure<operation_kind::tr> {
-  template <class T>
-  using op_t = decltype(tr(std::declval<T>()));
-  template <class T>
-  static constexpr bool supports_op = is_detected_v<op_t, T>;
-
-  template<class T> FORCE_INLINE constexpr auto
-  operator()(T&& x) const {
-    if constexpr (supports_op<T>) {
-      return tr( std::forward<T>(x) );
-    } else {
-      throw not_implemented_exception("unsupported type for trace");
-      return any_return_type{};
-    }
-  }
-};
-/// matrix/tensor }
-
-
-/// operation_closure specializations }
+using TTT = decltype(f0<operation_kind::sqrt>(1.));
+static_assert(std::is_same_v<TTT,double>);
+static_assert(operation_closure<operation_kind::sqrt>::template supports_op<double>);
 
 
 template<operation_kind op_k>

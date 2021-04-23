@@ -11,8 +11,8 @@ namespace std_e {
 STD_E_ENUM_CLASS(operation_kind,
 // function
   identity,
-  assignment,
-  gathering,
+  assign,
+  gather,
 
 // arithmetics
   plus,
@@ -61,7 +61,7 @@ is_unary(operation_kind op) -> bool {
 constexpr auto
 is_binary(operation_kind op) -> bool {
   switch (op) {
-    case operation_kind::assignment:
+    case operation_kind::assign:
 
     case operation_kind::plus:
     case operation_kind::minus:
@@ -84,12 +84,12 @@ needs_computation(operation_kind op) -> bool {
   switch (op) {
     // the result of these operations is immediate
     case operation_kind::identity:
-    case operation_kind::gathering:
+    case operation_kind::gather:
     case operation_kind::t:
       return false;
 
     // the result of those need some computation
-    case operation_kind::assignment: // assignment means copying memory, so it is not immediate
+    case operation_kind::assign: // assign means copying memory, so it is not immediate
 
     case operation_kind::plus:
     case operation_kind::minus:
@@ -118,8 +118,8 @@ inline auto
 to_symbol_string(operation_kind x) -> std::string {
   switch (x) {
     case operation_kind::identity: return "id";
-    case operation_kind::assignment: return "=";
-    case operation_kind::gathering: return "gathering";
+    case operation_kind::assign: return "=";
+    case operation_kind::gather: return "gather";
 
     case operation_kind::plus: return "+";
     case operation_kind::minus: return "-";
