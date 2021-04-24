@@ -16,7 +16,7 @@ class dyn_op_functor {
     template<operation_kind op_k> static auto
     apply_1arg(const T& x) -> T {
       if constexpr (is_unary(op_k)) {
-        return basic_operation_functor<op_k>(x);
+        return operation_functor<op_k>(x);
       } else {
         throw wrong_n_arg("operation " + to_string(op_k) + " is not unary");
       }
@@ -35,7 +35,7 @@ class dyn_op_functor {
     template<operation_kind op_k> static auto
     apply_2args(const T& x, const T& y) -> T {
       if constexpr (is_binary(op_k)) {
-        return basic_operation_functor<op_k>(x,y);
+        return operation_functor<op_k>(x,y);
       } else {
         throw wrong_n_arg("operation " + to_string(op_k) + " is not binary");
       }

@@ -4,104 +4,121 @@
 #include "std_e/base/var_arg_reduction.hpp"
 #include "std_e/operation/operation_kind.hpp"
 #include "std_e/future/is_detected.hpp"
+#include "std_e/base/lift.hpp"
 #include <cmath>
 
 
 namespace std_e {
 
+// operation_kind / associated function name {
+
+/// Associate each operation_kind to a function name
+//
+/// The association of operation_kind "op_k" to it name
+/// is done through the templated lambdas "operation_overload_set<op_k>" and "operation_std_overload_set<op_k>"
+//
+/// What is complicated here is that we want
+///   - to be SFINAE friendly, that is, when op_k is not implemented for a type T,
+///     then "operation_std_overload_set<op_k>" will result in substition failure
+///     (i.e. the fact that op_k is not implemented can be **detected**
+///   - to work for
+///       - operators (+,-...)
+///       - overload sets (using argument-dependent lookup)
+///       - std:: functions (so that it works for build-in types)
+
+
+/// Default implementations {
 template<operation_kind op_k> constexpr auto
-f0 = [](auto&&...){ throw not_implemented_exception("operation_closure for operation " + to_string(op_k)); return any_return_type2{}; };
+operation_overload_set = [](auto&&...){
+  throw not_implemented_exception("no function name associated to operation " + to_string(op_k));
+  return any_return_type{};
+};
 
-#define GENERATE_OPERATOR(op_name,symbol) \
-  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype( (FWD(xs) symbol ...) ) { return (FWD(xs) symbol ...); };
+template<operation_kind op_k> constexpr auto
+operation_std_overload_set = operation_overload_set<op_k>;
+/// Default implementations }
 
-#define GENERATE_FUNC_OPERATOR(op_name) \
-  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype(op_name(FWD(xs)...)) { return op_name(FWD(xs)...); }; \
 
-#define GENERATE_FUNC_STD_OPERATOR(op_name) \
-  template<class... Ts> constexpr auto \
-  op_name##_impl(Ts&&... xs) -> decltype(op_name(FWD(xs)...)) { \
-    return op_name(FWD(xs)...); \
-  } \
-  template<class... Ts> constexpr auto \
-  op_name##_impl(Ts&&... xs) -> decltype(std::op_name(FWD(xs)...)) { \
-    return std::op_name(FWD(xs)...); \
-  } \
- \
-  template<> constexpr auto f0<operation_kind::op_name> = [](auto&&... xs) -> decltype(op_name##_impl(FWD(xs)...)) { return op_name##_impl(FWD(xs)...); };
+/// Boilerplate macros {
+// The SFINAE friendliness is done through RETURNS
+#define GENERATE_OPERATOR_OVERLOAD_SET(op_name,symbol) \
+  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( (FWD(xs) symbol ...) );
 
-template<class... Ts> constexpr auto
-sqrt_impl(Ts&&... xs) -> decltype(sqrt(FWD(xs)...)) {
-  return sqrt(FWD(xs)...);
-}
-template<class... Ts> constexpr auto
-sqrt_impl(Ts&&... xs) -> decltype(std::sqrt(FWD(xs)...)) {
-  return std::sqrt(FWD(xs)...);
-}
-template<> constexpr auto f0<operation_kind::sqrt> = [](auto&&... xs) -> decltype(sqrt_impl(FWD(xs)...)) { return sqrt_impl(FWD(xs)...); };
+#define GENERATE_FUNCTION_OVERLOAD_SET(op_name) \
+  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( op_name(FWD(xs)...) );
 
-GENERATE_OPERATOR( plus       , + );
-GENERATE_OPERATOR( minus      , - );
-GENERATE_OPERATOR( multiplies , * );
-GENERATE_OPERATOR( divides    , / );
-GENERATE_OPERATOR( pipe       , | );
+#define GENERATE_FUNCTION_STD_OVERLOAD_SET(op_name) \
+  GENERATE_FUNCTION_OVERLOAD_SET(op_name) \
+  template<> constexpr auto operation_std_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( std::op_name(FWD(xs)...) );
+/// Boilerplate macros }
 
-GENERATE_FUNC_STD_OPERATOR(abs);
-//GENERATE_FUNC_STD_OPERATOR(sqrt);
-GENERATE_FUNC_STD_OPERATOR(min);
-GENERATE_FUNC_STD_OPERATOR(max);
 
-GENERATE_FUNC_OPERATOR(identity);
-GENERATE_FUNC_OPERATOR(assign);
-GENERATE_FUNC_OPERATOR(gather);
+/// The actual associations {
+GENERATE_OPERATOR_OVERLOAD_SET( plus       , + );
+GENERATE_OPERATOR_OVERLOAD_SET( minus      , - );
+GENERATE_OPERATOR_OVERLOAD_SET( multiplies , * );
+GENERATE_OPERATOR_OVERLOAD_SET( divides    , / );
+GENERATE_OPERATOR_OVERLOAD_SET( pipe       , | );
 
-GENERATE_FUNC_OPERATOR(tensor_prod);
+GENERATE_FUNCTION_STD_OVERLOAD_SET( abs );
+GENERATE_FUNCTION_STD_OVERLOAD_SET( sqrt );
+GENERATE_FUNCTION_STD_OVERLOAD_SET( min );
+GENERATE_FUNCTION_STD_OVERLOAD_SET( max );
 
-GENERATE_FUNC_OPERATOR(t);
-GENERATE_FUNC_OPERATOR(tr);
+GENERATE_FUNCTION_OVERLOAD_SET( identity );
+GENERATE_FUNCTION_OVERLOAD_SET( assign );
+GENERATE_FUNCTION_OVERLOAD_SET( gather );
 
-GENERATE_FUNC_OPERATOR(grad);
+GENERATE_FUNCTION_OVERLOAD_SET( tensor_prod );
+
+GENERATE_FUNCTION_OVERLOAD_SET( t );
+GENERATE_FUNCTION_OVERLOAD_SET( tr );
+
+GENERATE_FUNCTION_OVERLOAD_SET( grad );
+/// The actual associations }
+
+// operation_kind / associated function name }
 
 
 
+
+// Provide a default if the function has not been implemented {
 // Note: vocabulary
-//   - Closure: class with operator()
+//   - Closure: type with operator()
 //   - Functor: object of closure type
 template<operation_kind op_k>
 struct operation_closure {
   template <class... Ts>
-  using op_t = decltype(f0<op_k>(std::declval<Ts>()...));
+  using op_t = decltype(operation_overload_set<op_k>(std::declval<Ts>()...));
   template <class... Ts>
   static constexpr bool supports_op = is_detected_v<op_t, Ts...>;
+
+  template <class... Ts>
+  using std_op_t = decltype(operation_std_overload_set<op_k>(std::declval<Ts>()...));
+  template <class... Ts>
+  static constexpr bool supports_std_op = is_detected_v<std_op_t, Ts...>;
 
   template<class... Ts> FORCE_INLINE constexpr auto
   operator()(Ts&&... xs) const {
     if constexpr (supports_op<Ts...>) {
-      return f0<op_k>(FWD(xs)...);
+      return operation_overload_set<op_k>(FWD(xs)...);
+    } else if constexpr (supports_std_op<Ts...>) {
+      return operation_std_overload_set<op_k>(FWD(xs)...);
     } else {
-      throw not_implemented_exception("unsupported type for "+to_string(op_k));
+      throw not_implemented_exception("in function" + std::string(__PRETTY_FUNCTION__)+": unsupported type for "+to_string(op_k));
       return any_return_type{};
     }
   }
 };
-
-using TTT = decltype(f0<operation_kind::sqrt>(1.));
-static_assert(std::is_same_v<TTT,double>);
-static_assert(operation_closure<operation_kind::sqrt>::template supports_op<double>);
+// Provide a default if the function has not been implented }
 
 
 template<operation_kind op_k>
-constexpr auto basic_operation_functor = operation_closure<op_k>();
+constexpr auto operation_functor = operation_closure<op_k>();
 
-// only makes sense for binary operators
-template<operation_kind op_k>
-using operation_closure_with_extended_arity = reduction_functor<operation_closure<op_k>>;
-
-template<operation_kind op_k>
-constexpr auto operation_functor = operation_closure_with_extended_arity<op_k>();
 
 template<operation_kind op_k> constexpr auto
-operation(operation_closure_with_extended_arity<op_k>) -> operation_kind {
+operation(operation_closure<op_k>) -> operation_kind {
   return op_k;
 }
 

@@ -12,12 +12,6 @@ struct any_return_type {
     STD_E_ASSERT(false); // only here for compilation
   };
 };
-struct any_return_type2 {
-  template<class T>
-  operator T() {
-    STD_E_ASSERT(false); // only here for compilation
-  };
-};
 
 struct nonesuch {
   ~nonesuch() = delete;

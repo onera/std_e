@@ -56,7 +56,7 @@ TEST_CASE("operation_functor for int") {
   CHECK ( op_abs(i) == 42 );
   CHECK ( op_abs(-i) == 42 );
 
-  CHECK ( op_min(i,j) == 42 );
+  CHECK ( op_min(i,j) == 42 ); // TODO
   CHECK ( op_max(i,j) == 43 );
 }
 
