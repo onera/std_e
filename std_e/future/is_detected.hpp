@@ -10,8 +10,13 @@ struct any_return_type {
   template<class T>
   operator T() {
     STD_E_ASSERT(false); // only here for compilation
+    return T{};
   };
 };
+
+struct never_used_type {};
+template<class T> using never_enable = std::enable_if_t<std::is_same_v<never_used_type,T>>;
+
 
 struct nonesuch {
   ~nonesuch() = delete;
@@ -46,25 +51,5 @@ using detected_t = typename detail::detector<nonesuch, void, Op, Args...>::type;
 template <class Default, template<class...> class Op, class... Args>
 using detected_or = detail::detector<Default, void, Op, Args...>;
 
-
-namespace detail {
-  template <class Default, class AlwaysVoid, class Op>
-  struct detector2 {
-    using value_t = std::false_type;
-    using type = Default;
-  };
-
-  template <class Default, class Op>
-  struct detector2<Default, std::void_t<Op>, Op> {
-    using value_t = std::true_type;
-    using type = Op;
-  };
-} // namespace detail
-
-template <class Op>
-using is_detected2 = typename detail::detector2<nonesuch, void, Op>::value_t;
-
-template <class Op>
-constexpr bool is_detected_v2 = is_detected2<Op>::value;
 
 } // std_e

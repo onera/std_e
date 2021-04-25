@@ -15,11 +15,7 @@ class dyn_op_functor {
   // one arg
     template<operation_kind op_k> static auto
     apply_1arg(const T& x) -> T {
-      if constexpr (is_unary(op_k)) {
-        return operation_functor<op_k>(x);
-      } else {
-        throw wrong_n_arg("operation " + to_string(op_k) + " is not unary");
-      }
+      return operation_functor<op_k>(x);
     }
 
     using func_1arg = T(*)(const T&);
@@ -34,10 +30,10 @@ class dyn_op_functor {
   // two args
     template<operation_kind op_k> static auto
     apply_2args(const T& x, const T& y) -> T {
-      if constexpr (is_binary(op_k)) {
+      if constexpr (std::is_convertible_v<decltype(operation_functor<op_k>(x,y)),T>) {
         return operation_functor<op_k>(x,y);
       } else {
-        throw wrong_n_arg("operation " + to_string(op_k) + " is not binary");
+        throw not_implemented_exception("apply_2args: the function return type is not the one of its arguments: cannot be used");
       }
     }
 
