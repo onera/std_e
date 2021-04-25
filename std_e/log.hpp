@@ -7,7 +7,7 @@
 
 namespace std_e {
   template<class... Ts> auto
-  log(const Ts&... xs) -> void {
+  mlog(const Ts&... xs) -> void {
     using std::to_string;
     using std_e::to_string;
     std::string msg = (to_string(xs) + ...) + "\n";
@@ -32,8 +32,8 @@ namespace std_e {
   }
 }
 
-#define LOG(...) std_e::log(__VA_ARGS__);
+#define LOG(...) std_e::mlog(__VA_ARGS__);
 
-#define ELOG(x) std_e::log(#x," = ",x);
+#define ELOG(x) std_e::mlog(#x," = ",x);
 
 #define MELOG(...) std_e::log_with_var_names(#__VA_ARGS__,__VA_ARGS__);
