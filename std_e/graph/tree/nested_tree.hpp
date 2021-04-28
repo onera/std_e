@@ -169,7 +169,7 @@ class nested_tree {
     nested_tree_dfs_with_preordering(nested_tree_type&& t, nested_tree_visitor_type&& f) -> void;
 
     constexpr auto
-    append_child(const nested_tree& t) -> void {
+    append_child(const nested_tree& t) -> auto& {
       //static_assert(Memory_ressource::owns_memory);
       size_t old_size = size();
       size_t new_size = old_size+t.size();
@@ -179,6 +179,7 @@ class nested_tree {
       std_e::copy_n(begin(t.nodes),t.size(),begin(nodes)+old_size);
       std_e::copy_n(begin(t.sizes),t.size(),begin(sizes)+old_size);
       sizes[0] += t.size();
+      return *this;
     }
 
   private:
