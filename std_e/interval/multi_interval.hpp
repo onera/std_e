@@ -4,6 +4,7 @@
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/interval/interval.hpp"
+#include <bits/ranges_algo.h>
 
 
 namespace std_e {
@@ -48,6 +49,16 @@ struct multi_interval {
     multi_index_type first_;
     multi_index_type last_;
 };
+
+template<class I, int ct_rank> auto
+length(const multi_interval<I,ct_rank>& x) {
+  using len_type = typename multi_interval<I,ct_rank>::multi_index_type;
+  len_type res(x.rank());
+  for (int i=0; i<x.rank(); ++i) {
+    res[i] = length(x[i]);
+  }
+  return res;
+}
 
 
 } // std_e

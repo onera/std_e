@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "std_e/interval/multi_interval.hpp"
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include "std_e/utils/meta.hpp"
 #include <type_traits>
@@ -23,7 +24,7 @@ class block_view {
     using reference = T&;
     using const_reference = const T&;
 
-  // ctor
+  // ctors
     template<class Multi_array_type_0>
     block_view(Multi_array_type_0&& x, multi_index_type offset, multi_index_type dims)
       : origin_ma(FWD(x))
@@ -34,6 +35,11 @@ class block_view {
         total_offset[i] += origin_ma.offset(i);
       }
     }
+
+    template<class Multi_array_type_0, class I0>
+    block_view(Multi_array_type_0&& x, const multi_interval<I0>& sub_interval)
+      : block_view(FWD(x),sub_interval.first(),length(sub_interval))
+    {}
 
   // dimensions
     // Note: there is a trick here:
@@ -126,6 +132,10 @@ class block_view {
 template<class Multi_array_type, class multi_index_type = typename std::decay_t<Multi_array_type>::multi_index_type> auto
 make_block_view(Multi_array_type&& x, multi_index_type offset, multi_index_type dims) {
   return block_view<Multi_array_type&&>(FWD(x),offset,dims);
+}
+template<class Multi_array_type, class I0 = int> auto
+make_block_view(Multi_array_type&& x, const multi_interval<I0>& sub_interval) {
+  return block_view<Multi_array_type&&>(FWD(x),sub_interval);
 }
 
 } // std_e
