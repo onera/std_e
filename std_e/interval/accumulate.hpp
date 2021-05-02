@@ -14,8 +14,8 @@ template<class T, class I, class Func, class Binary_op> inline auto
 // requires I is integral type
 // requires Func(I) -> T && Binary_op(T,T) -> T
 apply_accumulate(const interval<I>& range, Func f, T init, Binary_op op) {
-  // Precondition: range.first <= range.last
-  for (I i=range.first; i<range.last; ++i) {
+  // Precondition: range.first() <= range.last()
+  for (I i=range.first(); i<range.last(); ++i) {
     init = op(init,f(i));
   }
   return init;

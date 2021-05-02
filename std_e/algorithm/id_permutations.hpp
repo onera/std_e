@@ -21,7 +21,7 @@ template<class I> auto
 permute_id_if_in_range(I& id, const std::vector<I>& permutation, interval<I> inter) -> void {
   // Precondition: size(inter) == permutation.size()
   if ( is_in(id,inter) ) {
-    permute_id(id,permutation,inter.first);
+    permute_id(id,permutation,inter.first());
   }
 }
 
