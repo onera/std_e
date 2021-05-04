@@ -173,7 +173,7 @@ struct operation_closure {
     } else if constexpr (supports_std_op<Ts...>) {
       return operation_std_overload_set<op_k>(FWD(xs)...);
     } else {
-      throw not_implemented_exception("in function" + std::string(__PRETTY_FUNCTION__)+": unsupported type for "+to_string(op_k));
+      throw not_implemented_exception("in function " + std::string(__PRETTY_FUNCTION__)+": unsupported type for "+to_string(op_k));
       return any_return_type{};
     }
   }
