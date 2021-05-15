@@ -19,20 +19,17 @@ less_by_level = [](const auto& x, const auto& y) -> bool {
 
 template<class T, class Bin_pred> constexpr auto
 equivalent_by_node_and_outwards(const T& x, const T& y, Bin_pred eq) -> bool {
-  return eq(node(x),node(y)) && out_ptrs(x)==out_ptrs(y);
+  return eq(node(x),node(y)) && out_adjacencies(x)==out_adjacencies(y);
 }
 template<class T, class Bin_pred_0, class Bin_pred_1> constexpr auto
 less_by_node_and_outwards(const T& x, const T& y, Bin_pred_0 eq, Bin_pred_1 less) -> bool {
-  return less(node(x),node(y)) || (eq(node(x),node(y)) && (out_ptrs(x)<out_ptrs(y)));
+  return less(node(x),node(y)) || (eq(node(x),node(y)) && (out_adjacencies(x)<out_adjacencies(y)));
 }
 
 
-template<class T_ref, class Bin_pred> constexpr auto
-// requires T_ref is std_e::reference_wrapper<...> TODO
-redirect_super_expressions_to_equivalent(T_ref x_p, T_ref y_p, Bin_pred eq) -> bool {
-  auto x = get_pointer(*x_p);
-  auto x_eq = get_pointer(*y_p);
-  if (eq(*x,*x_eq)) {
+template<class T, class Bin_pred> constexpr auto
+redirect_super_expressions_to_equivalent(T x, T x_eq, Bin_pred eq) -> bool {
+  if (eq(x,x_eq)) {
     redirect_entering_adjacencies(x,x_eq);
     return true;
   }

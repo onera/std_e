@@ -52,10 +52,23 @@ class adjacency {
     adjacencies() const -> adjacency_range<const adjacency_graph_type> {
       return {g,node_idx};
     }
+
+    template<class AGT0, class AGT1> friend constexpr auto
+    operator==(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool;
   private:
     adjacency_graph_type* g;
     index_type node_idx;
 };
+template<class AGT0, class AGT1> constexpr auto
+operator==(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool {
+  return
+      x.g == y.g
+   && x.node_idx == y.node_idx;
+}
+template<class AGT0, class AGT1> constexpr auto
+operator!=(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool {
+  return !(x==y);
+}
 
 
 template<class adjacency_graph_type>
@@ -128,10 +141,23 @@ class io_adjacency {
     out_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
+
+    template<class AGT0, class AGT1> friend constexpr auto
+    operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool;
   private:
     adjacency_graph_type* g;
     index_type node_idx;
 };
+template<class AGT0, class AGT1> constexpr auto
+operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
+  return
+      x.g == y.g
+   && x.node_idx == y.node_idx;
+}
+template<class AGT0, class AGT1> constexpr auto
+operator!=(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
+  return !(x==y);
+}
 
 
 } // std_e

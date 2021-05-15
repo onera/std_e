@@ -46,8 +46,7 @@ struct adjacency_graph_base_traits<adjacency_graph_base<NT,ET,adj_list_type>> {
   using node_range_type     = range_from_outer<adj_list_type,NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,ET>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_base_traits& x, const adjacency_graph_base_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_base_traits&) const = default;
 };
 template<class NT, class ET, class adj_list_type>
 struct adjacency_graph_base_traits<const adjacency_graph_base<NT,ET,adj_list_type>> {
@@ -59,8 +58,7 @@ struct adjacency_graph_base_traits<const adjacency_graph_base<NT,ET,adj_list_typ
   using node_range_type     = range_from_outer<adj_list_type,const NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,const ET>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_base_traits& x, const adjacency_graph_base_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_base_traits&) const = default;
 };
 // adjacency_graph_base_traits }
 
@@ -83,8 +81,7 @@ struct adjacency_graph_traits<adjacency_graph<NT,ET,adj_list_type>>
   //using adjacency_range_type = adjacency_range<adjacency_graph_type>;
   //using const_adjacency_range_type = adjacency_range<const adjacency_graph_type>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_traits& x, const adjacency_graph_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 template<class NT, class ET, class adj_list_type>
 struct adjacency_graph_traits<const adjacency_graph<NT,ET,adj_list_type>>
@@ -100,8 +97,7 @@ struct adjacency_graph_traits<const adjacency_graph<NT,ET,adj_list_type>>
   //using adjacency_range_type = adjacency_range<adjacency_graph_type>;
   //using const_adjacency_range_type = adjacency_range<const adjacency_graph_type>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_traits& x, const adjacency_graph_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 // adjacency_graph_traits }
 
@@ -124,8 +120,7 @@ struct adjacency_graph_traits<io_adjacency_graph<NT,ET,adj_list_type>>
   //using adjacency_range_type = io_adjacency_range<adjacency_graph_type>;
   //using const_adjacency_range_type = io_adjacency_range<const adjacency_graph_type>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_traits& x, const adjacency_graph_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 template<class NT, class ET, class adj_list_type>
 struct adjacency_graph_traits<const io_adjacency_graph<NT,ET,adj_list_type>>
@@ -141,8 +136,7 @@ struct adjacency_graph_traits<const io_adjacency_graph<NT,ET,adj_list_type>>
   //using adjacency_range_type = io_adjacency_range<adjacency_graph_type>;
   //using const_adjacency_range_type = io_adjacency_range<const adjacency_graph_type>;
 
-  friend constexpr auto
-  operator==(const adjacency_graph_traits& x, const adjacency_graph_traits& y) -> bool = default;
+  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 // adjacency_graph_traits }
 
