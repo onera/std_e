@@ -82,6 +82,10 @@ class adjacency_graph_from_traits
 };
 
 
+// end-user classes {
+/// NOTE: they could be aliases instead of aliases,
+///       but being proper classes, the name appears
+///       in compiler error messages, and this more readable
 template<class NT, class ET, class adj_list_type>
 class adjacency_graph
   : public
@@ -99,6 +103,7 @@ class io_adjacency_graph
         orientation::in_out
       >
 {};
+// end-user classes }
 
 
 

@@ -37,12 +37,12 @@ template<class adjacency_graph_type, adj_orientation orientation = adj_orientati
 // forward decl }
 
 
-// adjacency_graph_base_traits {
+// adjacency_graph_traits {
 template<class graph_type>
-struct adjacency_graph_base_traits;
+struct adjacency_graph_traits;
 
 template<template<class...> class Graph_type, class NT, class ET, class adj_list_type>
-struct adjacency_graph_base_traits<Graph_type<NT,ET,adj_list_type>> {
+struct adjacency_graph_traits<Graph_type<NT,ET,adj_list_type>> {
   using adjacency_graph_type = Graph_type<NT,ET,adj_list_type>;
 
   using index_type          = value_type<adj_list_type>;
@@ -53,10 +53,10 @@ struct adjacency_graph_base_traits<Graph_type<NT,ET,adj_list_type>> {
   using node_range_type     = range_from_outer<adj_list_type,NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,ET>;
 
-  constexpr auto operator<=>(const adjacency_graph_base_traits&) const = default;
+  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 template<template<class...> class Graph_type, class NT, class ET, class adj_list_type>
-struct adjacency_graph_base_traits<const Graph_type<NT,ET,adj_list_type>> {
+struct adjacency_graph_traits<const Graph_type<NT,ET,adj_list_type>> {
   using adjacency_graph_type = const Graph_type<NT,ET,adj_list_type>;
 
   using index_type          = value_type<adj_list_type>;
@@ -67,62 +67,6 @@ struct adjacency_graph_base_traits<const Graph_type<NT,ET,adj_list_type>> {
   using node_range_type     = range_from_outer<adj_list_type,const NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,const ET>;
 
-  constexpr auto operator<=>(const adjacency_graph_base_traits&) const = default;
-};
-// adjacency_graph_base_traits }
-
-
-// adjacency_graph_traits {
-namespace detail {
-  template<class T>
-  struct is_adjacency_graph {
-    static constexpr bool value = false;
-  };
-  template<class... Ts>
-  struct is_adjacency_graph<adjacency_graph<Ts...>> {
-    static constexpr bool value = true;
-  };
-}
-template<class T> constexpr bool is_adjacency_graph = detail::is_adjacency_graph<std::remove_const_t<T>>::value;
-
-
-namespace detail {
-template<class T>
-  struct is_io_adjacency_graph {
-    static constexpr bool value = false;
-  };
-  template<class... Ts>
-  struct is_io_adjacency_graph<io_adjacency_graph<Ts...>> {
-    static constexpr bool value = true;
-  };
-} // detail
-template<class T> constexpr bool is_io_adjacency_graph = detail::is_io_adjacency_graph<std::remove_const_t<T>>::value;
-
-
-template<class adjacency_graph_type>
-struct adjacency_graph_traits;
-
-template<class adjacency_graph_type>
-  requires is_adjacency_graph<adjacency_graph_type>
-struct adjacency_graph_traits<adjacency_graph_type>
-  : adjacency_graph_base_traits<adjacency_graph_type>
-{
-  using adjacency_type = adjacency<adjacency_graph_type>;
-  using const_adjacency_type = adjacency<const adjacency_graph_type>;
-  //using adjacency_iterator_type = adjacency_node_iterator<adjacency_graph_type>;
-  //using const_adjacency_iterator_type = adjacency_node_iterator<const adjacency_graph_type>;
-  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
-};
-
-template<class adjacency_graph_type>
-  requires is_io_adjacency_graph<adjacency_graph_type>
-struct adjacency_graph_traits<adjacency_graph_type>
-  : adjacency_graph_base_traits<adjacency_graph_type>
-{
-  using adjacency_type = io_adjacency<adjacency_graph_type>;
-  using const_adjacency_type = io_adjacency<const adjacency_graph_type>;
-  //using adjacency_iterator_type = adjacency_node_iterator<adjacency_graph_type>;
-  //using const_adjacency_iterator_type = adjacency_node_iterator<const adjacency_graph_type>;
   constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 // adjacency_graph_traits }
