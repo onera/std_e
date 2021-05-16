@@ -13,19 +13,38 @@
 namespace std_e {
 
 
-template<class adjacency_graph_traits_type>
-class adjacency_graph_from_traits
-  : public adjacency_graph_traits_type
-  , public adjacency_graph_traits_type::adjacency_graph_base_type // TODO merge in here or above ?
-{
-    using base = typename adjacency_graph_traits_type::adjacency_graph_base_type;
-    using index_type = typename adjacency_graph_traits_type::index_type;
-    using adjacency_type = typename adjacency_graph_traits_type::adjacency_type;
-    using const_adjacency_type = typename adjacency_graph_traits_type::const_adjacency_type;
+namespace detail {
+  template<class graph_type, orientation ori>
+  struct associated_adjacency_type;
 
-    using this_type = adjacency_graph_from_traits<adjacency_graph_traits_type>;
+  template<class graph_type>
+  struct associated_adjacency_type<graph_type,orientation::none> {
+    using type = adjacency<graph_type>;
+  };
+  template<class graph_type>
+  struct associated_adjacency_type<graph_type,orientation::in_out> {
+    using type = io_adjacency<graph_type>;
+  };
+}
+template<class graph_type, orientation ori>
+using associated_adjacency_type = typename detail::associated_adjacency_type<graph_type,ori>::type;
+
+
+
+template<class graph_base, orientation ori>
+class adjacency_graph_from_traits
+  : public graph_base // TODO merge in here or above ?
+{
+    using base = graph_base;
+    using this_type = adjacency_graph_from_traits<graph_base,ori>;
+
+    using index_type = typename graph_base::index_type;
+
+    using adjacency_type = associated_adjacency_type<this_type,ori>;
+    using const_adjacency_type = associated_adjacency_type<const this_type,ori>;
+
     using adjacency_iterator_type = adjacency_node_iterator<this_type>;
-    using const_adjacency_iterator_type = const adjacency_node_iterator<this_type>;
+    using const_adjacency_iterator_type = adjacency_node_iterator<const this_type>;
   public:
   // ctor
     constexpr
@@ -65,8 +84,22 @@ class adjacency_graph_from_traits
 
 template<class NT, class ET, class adj_list_type>
 class adjacency_graph
-  : public adjacency_graph_from_traits<adjacency_graph_traits<adjacency_graph<NT,ET,adj_list_type>>>
+  : public
+      adjacency_graph_from_traits<
+        adjacency_graph_base<NT,ET,adj_list_type>,
+        orientation::none
+      >
 {};
+
+template<class NT, class ET, class adj_list_type>
+class io_adjacency_graph
+  : public
+      adjacency_graph_from_traits<
+        io_adjacency_graph_base<NT,ET,adj_list_type>,
+        orientation::in_out
+      >
+{};
+
 
 
 } // std_e

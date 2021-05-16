@@ -3,7 +3,6 @@
 
 #include "std_e/graph/adjacency_graph/io_adjacency.hpp"
 #include "std_e/graph/test/io_graph.hpp"
-#include "std_e/log.hpp" // TODO
 
 
 using namespace graph;
@@ -99,5 +98,5 @@ TEST_CASE("make_bidirectional_from_outward_edges") {
   io_graph<S> expected_g(expected_idx_adjs);
   make_bidirectional_from_outward_edges(expected_g);
 
-  CHECK( mg == expected_g);
+  CHECK( mg == expected_g );
 }

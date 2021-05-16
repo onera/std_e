@@ -140,8 +140,9 @@ class adjacency_graph_base
   : public node_mixin<NT,adj_list_type>
   , public edge_mixin<ET,adj_list_type>
 {
-    using index_type = value_type<adj_list_type>;
   public:
+    using index_type = value_type<adj_list_type>;
+
     // Class invariant: adj_list.size() == nodes.size() == edges.size()
     // Class invariant: adj_list[i].size() == edges[i].size() for all i in [0,adj_list.size())
     constexpr auto size() const -> index_type { return this->nodes.size(); }
@@ -154,8 +155,9 @@ class io_adjacency_graph_base
   : public node_mixin<NT,adj_list_type>
   , public io_edge_mixin<ET,adj_list_type>
 {
-    using index_type = value_type<adj_list_type>;
   public:
+    using index_type = value_type<adj_list_type>;
+
     // Class invariant: size() == adj_list.size() == nodes.size() == edges.size()
     // Class invariant: [in|out]degree == [in|out]adj_list[i].size() == [in|out]edges[i].size() for all i in [0,[in|out]adj_list.size())
     constexpr auto size() const -> index_type { return this->nodes().size(); }

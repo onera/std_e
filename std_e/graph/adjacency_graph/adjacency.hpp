@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "std_e/base/not_implemented_exception.hpp" // TODO
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
 
 
@@ -140,6 +141,11 @@ class io_adjacency {
     constexpr auto
     out_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::out> {
       return {g,node_idx};
+    }
+    auto
+    operator=(const io_adjacency& old) -> io_adjacency& {
+      throw not_implemented_exception("op =");
+      return *this;
     }
 
     template<class AGT0, class AGT1> friend constexpr auto

@@ -8,11 +8,6 @@
 namespace std_e {
 
 
-template<class NT, class ET, class adj_list_type>
-class io_adjacency_graph
-  : public adjacency_graph_from_traits<adjacency_graph_traits<io_adjacency_graph<NT,ET,adj_list_type>>>
-{};
-
 template<class NT> auto
 make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
   io_adjacency_graph<NT> res;
