@@ -13,6 +13,6 @@ std_e_log(const Ts&... xs) -> void {
   std_e::log(msg);
 }
 
-#define LOG std_e_log
+#define LOG(...) std_e_log(__VA_ARGS__);
 
 #define ELOG(x) std_e_log(#x," = ",x);

@@ -77,7 +77,7 @@ struct integer_closed_range {
     : first(first)
     , last(last)
   {
-    STD_E_ASSERT(first<=last);
+    STD_E_ASSERT(first-1<=last); // so that empty intervals can be represented by [i,i-1]
   }
 
   template<class I0>
