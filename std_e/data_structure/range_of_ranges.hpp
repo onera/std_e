@@ -4,7 +4,6 @@
 namespace std_e {
 
 
-// ror means range of ranges
 template<class T, template<class...> class Outer_range, template<class...> class Inner_range = Outer_range>
 using range_of_ranges = Outer_range<Inner_range<T>>;
 

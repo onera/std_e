@@ -2,7 +2,7 @@
 
 
 #include "std_e/algorithm/for_each.hpp"
-#include "std_e/graph/adjacency_graph/io_adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
 #include "std_e/future/contract.hpp"
 
 
@@ -51,8 +51,8 @@ redirect_inward_adjacencies(Adj& old, Adj& new_adj) -> void {
 
 template<class T, class Bin_pred> constexpr auto
 redirect_inward_to_equivalent(T x, T x_eq, Bin_pred eq) -> bool {
-  if (eq(x,x_eq)) {
-    redirect_inward_adjacencies(x,x_eq);
+  if (eq(*x,*x_eq)) {
+    redirect_inward_adjacencies(*x,*x_eq);
     return true;
   }
   return false;
@@ -81,7 +81,7 @@ class level_comparison_generator {
     }
     constexpr auto
     operator*() const {
-      return [lvl = this->lvl](const auto& n){ return height(n)==lvl; };
+      return [lvl = this->lvl](const auto& n){ return height(node(n))==lvl; };
     }
   private:
     int lvl;
@@ -101,7 +101,7 @@ merge_from_leaves(io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> v
 
   // 1. level by level, rebind nodes
   auto sort_redirect = [eq_,less_](auto f, auto l){ sort_redirect_inward_to_equivalent(f,l,eq_,less_); };
-  int first_level = height(g[0].node());
+  int first_level = height(node(g[0]));
   std_e::for_each_partition(
     begin(g),end(g),
     level_comparison_generator(first_level),
@@ -110,8 +110,9 @@ merge_from_leaves(io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> v
 
   // 2. only keep first node of equivalents
   auto new_last = std::unique(begin(g),end(g),eq_);
-  auto new_sz = new_last-begin(g);
-  g.resize(new_sz);
+  //auto new_sz = new_last-begin(g); // TODO !!!
+  auto new_sz = std::distance(begin(g),new_last);
+  //g.resize(new_sz); // TODO!!!
 }
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto

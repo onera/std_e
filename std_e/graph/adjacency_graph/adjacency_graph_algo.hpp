@@ -19,106 +19,6 @@ make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
   return res;
 }
 
-// Node_adjacency interface {
-template<class AGT> constexpr auto
-node(adjacency<AGT>& adj) -> auto& {
-  return adj.node();
-}
-template<class AGT> constexpr auto
-node(const adjacency<AGT>& adj) -> const auto& {
-  return adj.node();
-}
-
-// TODO rename out_nodes
-template<class AGT> constexpr auto
-children(io_adjacency<AGT>& adj) {
-  return adj.out_adjacencies();
-}
-template<class AGT> constexpr auto
-children(const adjacency<AGT>& adj) {
-  return adj.out_adjacencies();
-}
-template<class AGT> constexpr auto
-first_child(adjacency<AGT>& adj) {
-  return adj.out_adjacencies().begin();
-}
-template<class AGT> constexpr auto
-first_child(const adjacency<AGT>& adj) {
-  return adj.out_adjacencies().begin();
-}
-template<class AGT> constexpr auto
-last_child(adjacency<AGT>& adj) {
-  return adj.out_adjacencies().end();
-}
-template<class AGT> constexpr auto
-last_child(const adjacency<AGT>& adj) {
-  return adj.out_adjacencies().end();
-}
-
-template<class adjacency_graph_type>
-class rooted_graph {
-  public:
-    using index_type = typename adjacency_graph_type::index_type;
-    using adjacency_iterator_type = typename adjacency_graph_type::adjacency_iterator_type;
-    using const_adjacency_iterator_type = typename adjacency_graph_type::const_adjacency_iterator_type;
-
-    constexpr
-    rooted_graph(adjacency_graph_type* g, index_type root_idx)
-      : g(g)
-      , root_idx(root_idx)
-    {}
-
-    constexpr auto
-    begin() -> adjacency_iterator_type {
-      return {g,root_idx};
-    }
-    constexpr auto
-    begin() const -> const_adjacency_iterator_type {
-      return {g,root_idx};
-    }
-    constexpr auto
-    end() -> adjacency_iterator_type {
-      return {g,root_idx+1};
-    }
-    constexpr auto
-    end() const -> const_adjacency_iterator_type {
-      return {g,root_idx+1};
-    }
-  private:
-  // data
-    adjacency_graph_type* g;
-    index_type root_idx;
-};
-
-// rooted graph view {
-template<class AGT> auto
-rooted_graph_view(AGT& g, int root_idx) -> rooted_graph<AGT> {
-  return {g,root_idx};
-}
-// TODO
-//template<class T> auto
-//rooted_graph_view(const adjacency<AGT>& root) {
-//  return io_adj_ptr_vector<T>{&root};
-//}
-
-template<class AGT> constexpr auto
-first_root(rooted_graph<AGT>& root_g) {
-  return root_g.begin();
-}
-template<class AGT> constexpr auto
-first_root(const rooted_graph<AGT>& root_g) {
-  return root_g.begin();
-}
-template<class AGT> constexpr auto
-last_root(rooted_graph<AGT>& root_g) {
-  return root_g.end();
-}
-template<class AGT> constexpr auto
-last_root(const rooted_graph<AGT>& root_g) {
-  return root_g.end();
-}
-// rooted graph view }
-
 
 // algorithm {
 template<class T> constexpr auto
@@ -137,22 +37,22 @@ make_bidirectional_from_outward_edges(io_adjacency_graph<T>& g) {
 
 
 //// TODO new interface names => report in concept + nested_tree...
-//template<class T> constexpr auto
-//out_adjacencies(adjacency<AGT>& adj) {
-//  return std_e::make_dereferencing_range(adj.outwards);
-//}
-//template<class T> constexpr auto
-//out_adjacencies(const adjacency<AGT>& adj) {
-//  return std_e::make_dereferencing_range(adj.outwards);
-//}
-//template<class T> constexpr auto
-//in_adjacencies(adjacency<AGT>& adj) {
-//  return std_e::make_dereferencing_range(adj.inwards);
-//}
-//template<class T> constexpr auto
-//in_adjacencies(const adjacency<AGT>& adj) {
-//  return std_e::make_dereferencing_range(adj.inwards);
-//}
+template<class AGT> constexpr auto
+out_adjacencies(adjacency<AGT>& adj) {
+  return adj.out_adjacencies();
+}
+template<class AGT> constexpr auto
+out_adjacencies(const adjacency<AGT>& adj) {
+  return adj.out_adjacencies();
+}
+template<class AGT> constexpr auto
+in_adjacencies(adjacency<AGT>& adj) {
+  return adj.in_adjacencies();
+}
+template<class AGT> constexpr auto
+in_adjacencies(const adjacency<AGT>& adj) {
+  return adj.in_adjacencies();
+}
 //// Node_adjacency interface }
 //
 //template<class T> constexpr auto

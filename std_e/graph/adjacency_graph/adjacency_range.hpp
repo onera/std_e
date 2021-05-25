@@ -2,6 +2,7 @@
 
 
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
+#include <algorithm>
 
 
 namespace std_e {
@@ -10,10 +11,10 @@ namespace std_e {
 template<class adjacency_graph_type, adj_orientation orientation>
 class adjacency_range {
   public:
-    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::adjacency_type;
-    using const_adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::const_adjacency_type;
-    using adjacency_iterator_type = adjacency_connection_iterator<adjacency_graph_type,orientation>;
+    using index_type = typename adjacency_graph_type::index_type;
+    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
+    using const_adjacency_type = typename adjacency_graph_type::const_adjacency_type;
+    using adjacency_iterator_type = adjacency_connection_iterator_type_of<adjacency_graph_type>;
     using const_adjacency_iterator_type = adjacency_connection_iterator<const adjacency_graph_type,orientation>;
 
     constexpr
@@ -61,16 +62,18 @@ class adjacency_range {
     operator[](index_type i) const -> const_adjacency_type {
       return {g,index(i)};
     }
+
   private:
   // functions
     constexpr auto
     index(index_type i) const -> index_type {
       if constexpr (orientation==adj_orientation::none) {
-        return g->adjacency_list    ()[node_idx][i];
+        return g->index(node_idx,i);
       } else if constexpr (orientation==adj_orientation::in) {
-        return g->in_adjacency_list ()[node_idx][i];
+        return g->in_index(node_idx,i);
       } else {
-        return g->out_adjacency_list()[node_idx][i];
+        static_assert(orientation==adj_orientation::out);
+        return g->out_index(node_idx,i);
       }
     }
   // data
@@ -78,5 +81,10 @@ class adjacency_range {
     index_type node_idx;
 };
 
+template<class AGT, adj_orientation ori>
+constexpr auto
+operator==(const adjacency_range<AGT,ori>& x, const adjacency_range<AGT,ori>& y) -> bool {
+  return std::equal(x.begin(),x.end(),y.begin());
+}
 
 } // std_e

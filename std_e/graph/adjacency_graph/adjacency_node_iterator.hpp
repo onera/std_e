@@ -2,6 +2,7 @@
 
 
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {
@@ -10,9 +11,17 @@ namespace std_e {
 template<class adjacency_graph_type>
 class adjacency_node_iterator {
   public:
-    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::adjacency_type;
+  // type traits
+    using index_type = typename adjacency_graph_type::index_type;
+    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
 
+    /// std::iterator type traits
+    using value_type = adjacency_type;
+    using reference = adjacency_type;
+    using difference_type = index_type;
+    using iterator_category = std::forward_iterator_tag; // TODO random
+
+  // ctors
     constexpr
     adjacency_node_iterator() = default;
 
@@ -22,6 +31,7 @@ class adjacency_node_iterator {
       , node_idx(node_idx)
     {}
 
+  // iterator interface
     constexpr auto
     operator++() -> adjacency_node_iterator& {
       ++node_idx;
@@ -49,3 +59,13 @@ class adjacency_node_iterator {
 
 
 } // std_e
+
+
+template<class AGT>
+struct std::iterator_traits<std_e::adjacency_node_iterator<AGT>> {
+  using type = std_e::adjacency_node_iterator<AGT>;
+  using value_type = typename type::value_type;
+  using reference = typename type::reference;
+  using difference_type = typename type::difference_type;
+  using iterator_category = typename type::iterator_category;
+};

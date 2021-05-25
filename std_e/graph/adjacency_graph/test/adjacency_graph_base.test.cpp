@@ -1,0 +1,33 @@
+#if __cplusplus > 201703L
+
+#include "std_e/unit_test/doctest.hpp"
+
+#include "std_e/graph/adjacency_graph/adjacency_graph_base.hpp"
+
+
+using namespace std_e;
+
+using adj_list_type = range_of_ranges<int,std::vector>;
+
+TEST_CASE("empty ctor") {
+  io_adjacency_graph_base<int,double,adj_list_type> x;
+  CHECK( x.size() == 0 );
+  CHECK( x.nodes().size() == 0 );
+  CHECK( x.in_edges().size() == 0 );
+  CHECK( x.out_edges().size() == 0 );
+  CHECK( x.in_adjacency_list().size() == 0 );
+  CHECK( x.out_adjacency_list().size() == 0 );
+}
+
+TEST_CASE("ctor from size") {
+  io_adjacency_graph_base<int,double,adj_list_type> x(10);
+  CHECK( x.size() == 10 );
+  CHECK( x.nodes().size() == 10 );
+  CHECK( x.in_edges().size() == 10 );
+  CHECK( x.out_edges().size() == 10 );
+  CHECK( x.in_adjacency_list().size() == 10 );
+  CHECK( x.out_adjacency_list().size() == 10 );
+}
+
+
+#endif // C++20

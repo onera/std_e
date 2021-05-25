@@ -1,15 +1,17 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/test_utils/io_graph.hpp"
 #include "std_e/graph/build/tree.hpp"
 
-#include "std_e/graph/test/nested_tree.hpp"
-#include "std_e/graph/test/io_graph.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
+#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 #include <numeric>
 #include <iostream>
 
 
 using namespace graph;
+using namespace std_e;
 
 // create_tree_from_nodes - same tree structure {
 struct builder_0_for_test {
@@ -34,22 +36,22 @@ tree_built_0_for_test() -> tree<int> {
   auto t4 = tree<int>{4};
   auto t7 = tree<int>{7};
   auto t9 = tree<int> {9};
-  auto t2 = create_tree(2,t4,t7,t9); 
+  auto t2 = create_tree(2,t4,t7,t9);
 
-  auto t8 = create_tree(8,t9); 
+  auto t8 = create_tree(8,t9);
 
   auto t10 = tree<int>{10};
   auto t11 = tree<int>{11};
-  auto t3 = create_tree(3,t8,t10,t11); 
+  auto t3 = create_tree(3,t8,t10,t11);
 
-  auto t1 = create_tree(1,t2,t3,t9); 
+  auto t1 = create_tree(1,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_tree_from_nodes - same tree structure") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  auto root = rooted_view(g,8);
 
   auto t = create_tree_from_nodes(root,builder_0_for_test{});
 
@@ -79,10 +81,10 @@ tree_init_1_for_test() -> tree<int> {
       9
   */
   auto t9 = tree<int> {9};
-  auto t8 = create_tree(8,t9); 
+  auto t8 = create_tree(8,t9);
 
   auto t10 = tree<int>{10};
-  auto t3 = create_tree(3,t8,t10); 
+  auto t3 = create_tree(3,t8,t10);
 
   return t3;
 }
@@ -164,10 +166,10 @@ tree_built_2_for_test() -> tree<int> {
       9
   */
   auto t9 = tree<int> {9};
-  auto t8 = create_tree(8+9,t9); 
+  auto t8 = create_tree(8+9,t9);
 
   auto t10 = tree<int>{10};
-  auto t3 = create_tree(3+8+10,t8,t10); 
+  auto t3 = create_tree(3+8+10,t8,t10);
 
   return t3;
 }
@@ -200,29 +202,29 @@ tree_built_3_for_test() -> tree<int> {
        ______1________
       /      |       \
      2       3        9
-    /|\   _ /| \ __ 
+    /|\   _ /| \ __
    4 7 9 | 8 10 11 |
          | |       |
          | 9       | -> pruned
          |________ |
 
    The nodes kept (not pruned) are multiplied by 2
-         
+
   */
   auto t4 = tree<int> {4*2};
   auto t7 = tree<int> {7*2};
   auto t9 = tree<int> {9*2};
-  auto t2 = create_tree(2*2,t4,t7,t9); 
+  auto t2 = create_tree(2*2,t4,t7,t9);
   auto t3 = tree<int> {3*2};
 
-  auto t1 = create_tree(1*2,t2,t3,t9); 
+  auto t1 = create_tree(1*2,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_pruned_tree_from_nodes") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_nodes(root,builder_3_for_test{});
 
@@ -233,7 +235,7 @@ TEST_CASE("create_pruned_tree_from_nodes") {
 // create_pruned_tree_from_adjacencies {
 struct builder_4_for_test {
   using tree_type = tree<int>;
-  using adjacency_type = io_adjacency<int>;
+  using adjacency_type = io_adjacency<rooted_view<io_adjacency_graph<int>>>;
   auto
   should_go_down(const adjacency_type& adj) -> bool {
     return node(adj)!=3;
@@ -243,7 +245,7 @@ struct builder_4_for_test {
     auto sum = node(adj);
     if (should_go_down(adj)) {
       auto cs = children(adj);
-      sum = std::accumulate(begin(cs),end(cs),sum,[](int i,auto t){ return i+node(t); });
+      sum = std::accumulate(begin(cs),end(cs),sum,[](int i,const auto& t){ return i+node(t); });
     }
     return tree<int>(sum);
   }
@@ -255,7 +257,7 @@ tree_built_4_for_test() -> tree<int> {
        ______1+2+3+9_
       /      |       \
      2+4+7+9 3        9
-    /|\   _ /| \ __ 
+    /|\   _ /| \ __
    4 7 9 | 8 10 11 |
          | |       |
          | 9       | -> pruned
@@ -264,17 +266,17 @@ tree_built_4_for_test() -> tree<int> {
   auto t4 = tree<int> {4};
   auto t7 = tree<int> {7};
   auto t9 = tree<int> {9};
-  auto t2 = create_tree(2+4+7+9,t4,t7,t9); 
+  auto t2 = create_tree(2+4+7+9,t4,t7,t9);
   auto t3 = tree<int> {3};
 
-  auto t1 = create_tree(1+2+3+9,t2,t3,t9); 
+  auto t1 = create_tree(1+2+3+9,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_pruned_tree_from_adjacencies") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_adjacencies(root,builder_4_for_test{});
 

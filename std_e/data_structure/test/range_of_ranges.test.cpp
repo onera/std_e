@@ -1,6 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/adjacency_graph/range_of_ranges.hpp"
+#include "std_e/data_structure/range_of_ranges.hpp"
 
 #include <vector>
 #include <deque>

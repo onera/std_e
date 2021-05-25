@@ -11,7 +11,7 @@ namespace graph {
 
 template<class Graph, class Unary_pred> constexpr auto
 all_of_adjacencies(Graph&& g, Unary_pred&& p) -> bool {
-  auto S = make_graph_traversal_stack(first_root(g),last_root(g));
+  auto S = graph_traversal_stack(first_root(g),last_root(g));
   preorder_depth_first_find_adjacency_stack(S,std::not_fn(p));
   return S.is_done(); // scanned until the end
 }

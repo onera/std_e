@@ -2,10 +2,11 @@
 
 #include "std_e/graph/tree/nested_tree.hpp"
 #include "std_e/graph/build/io_graph.hpp"
-#include "std_e/graph/test/nested_tree.hpp"
+#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
 
 
-using namespace graph;
+using namespace std_e;
 
 struct int_height {
   int i;
@@ -19,8 +20,13 @@ constexpr auto
 operator!=(const int_height& x, const int_height& y) -> bool {
   return !(x==y);
 }
+auto
+to_string(const int_height& x) -> std::string {
+  return '('+std::to_string(x.i)+','+std::to_string(x.height)+')';
+}
 
 struct int_height_builder {
+  using arg_type = int;
   using result_type = int_height;
 
   template<class TTT> constexpr auto
@@ -30,9 +36,9 @@ struct int_height_builder {
 };
 
 TEST_CASE("build_bidirectional_graph") {
-  auto t = create_nested_tree_for_tests();
+  auto t = graph::create_nested_tree_for_tests();
 
-  io_graph<int_height> io_g = build_bidirectional_graph(t,int_height_builder{});
+  io_adjacency_graph<int_height> io_g = build_bidirectional_graph(t,int_height_builder{});
 
   /* Reminder:
          1               lvl 3
@@ -43,19 +49,17 @@ TEST_CASE("build_bidirectional_graph") {
    /  \    |  |    \
   4    7   9  10   11    lvl 0
   */
-  using IC = std_e::connection_indices_container;
-  std_e::io_index_adjacency_vector<int_height> expected_idx_adjs = {
-    /*0*/ {{ 4,0},IC{2},IC{}     },
-    /*1*/ {{ 7,0},IC{2},IC{}     },
-    /*2*/ {{ 2,1},IC{8},IC{0,1}  },
-    /*3*/ {{ 9,0},IC{4},IC{}     },
-    /*4*/ {{ 8,1},IC{7},IC{3}    },
-    /*5*/ {{10,0},IC{7},IC{}     },
-    /*6*/ {{11,0},IC{7},IC{}     },
-    /*7*/ {{ 3,2},IC{8},IC{4,5,6}},
-    /*8*/ {{ 1,3},IC{} ,IC{2,7}  },
-  };
-  io_graph<int_height> expected_io_g(expected_idx_adjs);
+  auto expected_io_g = make_io_adjacency_graph<int_height>({
+    /*0*/ {{ 4,0}, {2}, {}     },
+    /*1*/ {{ 7,0}, {2}, {}     },
+    /*2*/ {{ 2,1}, {8}, {0,1}  },
+    /*3*/ {{ 9,0}, {4}, {}     },
+    /*4*/ {{ 8,1}, {7}, {3}    },
+    /*5*/ {{10,0}, {7}, {}     },
+    /*6*/ {{11,0}, {7}, {}     },
+    /*7*/ {{ 3,2}, {8}, {4,5,6}},
+    /*8*/ {{ 1,3}, {} , {2,7}  },
+  });
 
   CHECK( io_g == expected_io_g );
 }

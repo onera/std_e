@@ -121,10 +121,8 @@ class graph_traversal_stack {
     graph_stack<std_e::iterator_range<iterator>> S;
 };
 
-template<class iterator_type> constexpr auto
-make_graph_traversal_stack(iterator_type f, iterator_type l) {
-  return graph_traversal_stack<iterator_type>(f,l);
-}
+template<class iterator_type>
+graph_traversal_stack(iterator_type f, iterator_type l) -> graph_traversal_stack<iterator_type>;
 // graph_traversal_stack }
 
 
@@ -136,9 +134,9 @@ template<class Graph_iterator_stack, class F> constexpr auto
 preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      if (f(*v)) return v;
-      S.push_children(first_child(*v),last_child(*v));
+      auto v = *S.current_node();
+      if (f(v)) return S.current_node();
+      S.push_children(first_child(v),last_child(v));
     } else {
       S.pop_level();
       ++S.current_node();
@@ -151,19 +149,19 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr au
 depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      if (f.pre(*v)) return v;
-      S.push_children(first_child(*v),last_child(*v));
-      if (!S.level_is_done()) f.down(*v,*first_child(*v));
+      auto v = *S.current_node();
+      if (f.pre(v)) return S.current_node();
+      S.push_children(first_child(v),last_child(v));
+      if (!S.level_is_done()) f.down(v,*first_child(v));
     } else {
       S.pop_level();
-      auto v = S.current_node();
-      f.post(*v);
-      auto w = ++S.current_node();
+      auto v = *S.current_node();
+      f.post(v);
+      auto w = *++S.current_node();
       if (!S.is_done()) {
-        auto parent = S.parent_node();
-        f.up(*v,*parent);
-        if (!S.level_is_done()) f.down(*parent,*w);
+        auto parent = *S.parent_node();
+        f.up(v,parent);
+        if (!S.level_is_done()) f.down(parent,w);
       }
     }
   }
@@ -175,12 +173,13 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr au
 prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      f.pre(*v);
-      S.push_children(first_child(*v),last_child(*v));
+      auto v = *S.current_node();
+      f.pre(v);
+      S.push_children(first_child(v),last_child(v));
     } else {
       S.pop_level();
-      f.post(*S.current_node());
+      auto v = *S.current_node();
+      f.post(v);
       ++S.current_node();
     }
   }
@@ -190,19 +189,20 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr au
 depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      f.pre(*v);
-      S.push_children(first_child(*v),last_child(*v));
-      if (!S.level_is_done()) f.down(*v,*first_child(*v));
+      auto v = *S.current_node();
+      f.pre(v);
+      S.push_children(first_child(v),last_child(v));
+      auto v_first_adj = *first_child(v);
+      if (!S.level_is_done()) f.down(v,v_first_adj);
     } else {
       S.pop_level();
-      auto v = S.current_node();
-      f.post(*v);
-      auto w = ++S.current_node();
+      auto v = *S.current_node();
+      f.post(v);
+      auto w = *++S.current_node();
       if (!S.is_done()) {
-        auto parent = S.parent_node();
-        f.up(*v,*parent);
-        if (!S.level_is_done()) f.down(*parent,*w);
+        auto parent = *S.parent_node();
+        f.up(v,parent);
+        if (!S.level_is_done()) f.down(parent,w);
       }
     }
   }
@@ -213,16 +213,17 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr au
 prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      if (!f.pre(*v)) { // go down
-        S.push_children(first_child(*v),last_child(*v));
+      auto v = *S.current_node();
+      if (!f.pre(v)) { // go down
+        S.push_children(first_child(v),last_child(v));
       } else { // prune
-        S.push_children(first_child(*v),last_child(*v));
+        S.push_children(first_child(v),last_child(v));
         S.current_node() = S.last_node();
       }
     } else {
       S.pop_level();
-      f.post(*S.current_node());
+      auto v = *S.current_node();
+      f.post(v);
       ++S.current_node();
     }
   }
@@ -232,23 +233,24 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> auto
 depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto v = S.current_node();
-      if (!f.pre(*v)) { // go down
-        S.push_children(first_child(*v),last_child(*v));
-        if (!S.level_is_done()) f.down(*v,*first_child(*v));
+      auto v = *S.current_node();
+      if (!f.pre(v)) { // go down
+        S.push_children(first_child(v),last_child(v));
+        auto v_first_adj = *first_child(v);
+        if (!S.level_is_done()) f.down(v,v_first_adj);
       } else { // prune
-        S.push_children(first_child(*v),last_child(*v));
+        S.push_children(first_child(v),last_child(v));
         S.current_node() = S.last_node();
       }
     } else {
       S.pop_level();
-      auto v = S.current_node();
-      f.post(*v);
-      auto w = ++S.current_node();
+      auto v = *S.current_node();
+      f.post(v);
+      auto w = *++S.current_node();
       if (!S.is_done()) {
-        auto parent = S.parent_node();
-        f.up(*v,*parent);
-        if (!S.level_is_done()) f.down(*parent,*w);
+        auto parent = *S.parent_node();
+        f.up(v,parent);
+        if (!S.level_is_done()) f.down(parent,w);
       }
     }
   }

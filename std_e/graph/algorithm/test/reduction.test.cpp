@@ -3,7 +3,7 @@
 #include "std_e/graph/tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/reduction.hpp"
 #include "std_e/graph/algorithm/record.hpp"
-#include "std_e/graph/test/nested_tree.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
 
 
 using namespace graph;

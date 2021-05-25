@@ -2,12 +2,13 @@
 
 #include "std_e/graph/tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/algo_nodes.hpp"
-#include "std_e/graph/test/nested_tree.hpp"
-
-#include "std_e/graph/adjacency_graph/io_graph.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
+#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
 using namespace graph;
+using namespace std_e;
 using namespace std;
 
 
@@ -101,7 +102,7 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
 
     prepostorder_depth_first_scan(t,v);
 
-    string expected_s = 
+    string expected_s =
       "pre 1\n"
       "pre 2\n"
       "pre 4\n"
@@ -128,7 +129,7 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
     auto t0 = tree<int>{100};
     prepostorder_depth_first_scan(t0,v);
 
-    string expected_s = 
+    string expected_s =
       "pre 100\n"
       "post 100\n";
 
@@ -143,7 +144,7 @@ TEST_CASE("Nested tree preorder depth-first scan") {
   auto f = [&](int i){  s += "pre " + std::to_string(i) + "\n"; };
   preorder_depth_first_scan(t,f);
 
-  string expected_s = 
+  string expected_s =
     "pre 1\n"
     "pre 2\n"
     "pre 4\n"
@@ -163,7 +164,7 @@ TEST_CASE("Nested tree postorder depth-first scan") {
   auto f = [&](int i){  s += "post " + std::to_string(i) + "\n"; };
   postorder_depth_first_scan(t,f);
 
-  string expected_s = 
+  string expected_s =
     "post 4\n"
     "post 7\n"
     "post 2\n"
@@ -192,7 +193,7 @@ TEST_CASE("Nested tree depth-first scan") {
            |
            9
   */
-  string expected_s = 
+  string expected_s =
     "pre 1\n"
     "down 1 -> 2\n"
     "pre 2\n"
@@ -253,7 +254,7 @@ TEST_CASE("Nested tree depth-first prune") {
            |
            9
   */
-  string expected_s = 
+  string expected_s =
     "pre 1\n"
     "down 1 -> 2\n"
     "pre 2\n"
@@ -286,14 +287,16 @@ TEST_CASE("Nested tree depth-first prune") {
 
 
 struct visitor_for_testing_dfs_prune_adjacencies {
+  using graph_type = rooted_view<io_adjacency_graph<int>>;
+
   auto
-  pre(const io_adjacency<int>& a) -> bool {
+  pre(const io_adjacency<graph_type>& a) -> bool {
     int i = node(a);
     s += "pre " + std::to_string(i) + "\n";
     return i==2;
   }
   auto
-  post(const io_adjacency<int>& a) -> void {
+  post(const io_adjacency<graph_type>& a) -> void {
     int i = node(a);
     s += "post " + std::to_string(i) + "\n";
   }
@@ -312,24 +315,22 @@ TEST_CASE("Adj graph depth-first prune") {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  using IC = std_e::connection_indices_container;
-  std_e::io_index_adjacency_vector<int> idx_adjs = {
-    /*0*/ { 4,IC{2}    ,IC{}     },
-    /*1*/ { 7,IC{2}    ,IC{}     },
-    /*2*/ { 2,IC{8}    ,IC{0,1,3}},
-    /*3*/ { 9,IC{4,8,2},IC{}     },
-    /*4*/ { 8,IC{7}    ,IC{3}    },
-    /*5*/ {10,IC{7}    ,IC{}     },
-    /*6*/ {11,IC{7}    ,IC{}     },
-    /*7*/ { 3,IC{8}    ,IC{4,5,6}},
-    /*8*/ { 1,IC{}     ,IC{2,7,3}},
-  };
-  io_graph<int> io_g(idx_adjs);
+  auto io_g = make_io_adjacency_graph<int>({
+    /*0*/ { 4, {2}    , {}     },
+    /*1*/ { 7, {2}    , {}     },
+    /*2*/ { 2, {8}    , {0,1,3}},
+    /*3*/ { 9, {4,8,2}, {}     },
+    /*4*/ { 8, {7}    , {3}    },
+    /*5*/ {10, {7}    , {}     },
+    /*6*/ {11, {7}    , {}     },
+    /*7*/ { 3, {8}    , {4,5,6}},
+    /*8*/ { 1, {}     , {2,7,3}},
+  });
 
   visitor_for_testing_dfs_prune_adjacencies v;
-  prepostorder_depth_first_prune_adjacencies(rooted_graph_view(io_g[8]),v);
+  prepostorder_depth_first_prune_adjacencies(rooted_view(io_g,8),v);
 
-  string expected_s = 
+  string expected_s =
     "pre 1\n"
     "pre 2\n"
     "post 2\n"

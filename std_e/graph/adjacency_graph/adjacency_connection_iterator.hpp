@@ -10,9 +10,17 @@ namespace std_e {
 template<class adjacency_graph_type, adj_orientation orientation>
 class adjacency_connection_iterator {
   public:
-    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using adjacency_type = typename adjacency_graph_traits<adjacency_graph_type>::adjacency_type;
+  // type traits
+    using index_type = typename adjacency_graph_type::index_type;
+    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
 
+    /// std::iterator type traits
+    using value_type = adjacency_type;
+    using reference = adjacency_type;
+    using difference_type = index_type;
+    using iterator_category = std::forward_iterator_tag; // TODO random
+
+  // ctors
     constexpr
     adjacency_connection_iterator() = default;
 
@@ -23,6 +31,7 @@ class adjacency_connection_iterator {
       , connection_idx(connection_idx)
     {}
 
+  // iterator interface
     constexpr auto
     operator++() -> adjacency_connection_iterator& {
       ++connection_idx;
@@ -49,11 +58,12 @@ class adjacency_connection_iterator {
     constexpr auto
     index() const -> index_type {
       if constexpr (orientation==adj_orientation::none) {
-        return g->adjacency_list ()[node_idx][connection_idx];
-      } else if constexpr (orientation==adj_orientation::none) {
-        return g->in_adjacency_list()[node_idx][connection_idx];
+        return g->index(node_idx,connection_idx);
+      } else if constexpr (orientation==adj_orientation::in) {
+        return g->in_index(node_idx,connection_idx);
       } else {
-        return g->out_adjacency_list()[node_idx][connection_idx];
+        static_assert(orientation==adj_orientation::out);
+        return g->out_index(node_idx,connection_idx);
       }
     }
   // data
@@ -64,3 +74,13 @@ class adjacency_connection_iterator {
 
 
 } // std_e
+
+
+template<class AGT, std_e::adj_orientation ori>
+struct std::iterator_traits<std_e::adjacency_connection_iterator<AGT,ori>> {
+  using type = std_e::adjacency_connection_iterator<AGT,ori>;
+  using value_type = typename type::value_type;
+  using reference = typename type::reference;
+  using difference_type = typename type::difference_type;
+  using iterator_category = typename type::iterator_category;
+};

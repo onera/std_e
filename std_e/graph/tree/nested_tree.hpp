@@ -46,13 +46,13 @@ class nested_tree {
   public:
   // traits
     using node_type = T;
-    using integer_type = std_e::add_other_type_constness<int,T>;
+    using index_type = std_e::add_other_type_constness<int,T>;
 
     using nodes_mem_type = Memory_ressource<T>;
-    using sizes_mem_type = Memory_ressource<integer_type>;
+    using sizes_mem_type = Memory_ressource<index_type>;
 
-    using iterator = child_iterator<T*,integer_type*>;
-    using const_iterator = child_iterator<const T*,const integer_type*>;
+    using iterator = child_iterator<T*,index_type*>;
+    using const_iterator = child_iterator<const T*,const index_type*>;
 
     using range_type = std_e::iterator_range<iterator>;
     using const_range_type = std_e::iterator_range<const_iterator>;

@@ -1,9 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/adjacency_graph/io_adjacency.hpp"
+#include "std_e/graph/adjacency_graph/adjacency.hpp"
 
-
-using namespace graph;
 
 
 // TODO

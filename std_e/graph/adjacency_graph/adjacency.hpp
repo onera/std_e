@@ -11,8 +11,8 @@ namespace std_e {
 template<class adjacency_graph_type>
 class adjacency {
   public:
-    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
+    using index_type = typename adjacency_graph_type::index_type;
+    using node_type  = typename adjacency_graph_type::node_type;
 
     constexpr
     adjacency() = default;
@@ -75,8 +75,8 @@ operator!=(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool {
 template<class adjacency_graph_type>
 class io_adjacency {
   public:
-    using index_type = typename adjacency_graph_traits<adjacency_graph_type>::index_type;
-    using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
+    using index_type = typename adjacency_graph_type::index_type;
+    using node_type  = typename adjacency_graph_type::node_type;
 
     constexpr
     io_adjacency() = default;
@@ -156,14 +156,93 @@ class io_adjacency {
 };
 template<class AGT0, class AGT1> constexpr auto
 operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
-  return
-      x.g == y.g
-   && x.node_idx == y.node_idx;
+  // TODO TEST!!! TODO in_adjacencies !!!!!
+  return x.node()==y.node() && x.out_adjacencies()==y.out_adjacencies();
+//  return
+//      x.g == y.g
+//   && x.node_idx == y.node_idx;
 }
 template<class AGT0, class AGT1> constexpr auto
 operator!=(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
   return !(x==y);
 }
+
+template<class AGT> constexpr auto
+node(io_adjacency<AGT>& x) {
+  return x.node();
+}
+template<class AGT> constexpr auto
+node(io_adjacency<AGT>&& x) {
+  return x.node();
+}
+template<class AGT> constexpr auto
+node(const io_adjacency<AGT>& x) {
+  return x.node();
+}
+template<class AGT> constexpr auto
+in_adjacencies(io_adjacency<AGT>& x) {
+  return x.in_adjacencies();
+}
+template<class AGT> constexpr auto
+in_adjacencies(io_adjacency<AGT>&& x) {
+  return x.in_adjacencies();
+}
+template<class AGT> constexpr auto
+in_adjacencies(const io_adjacency<AGT>& x) {
+  return x.in_adjacencies();
+}
+template<class AGT> constexpr auto
+out_adjacencies(io_adjacency<AGT>& x) {
+  return x.out_adjacencies();
+}
+template<class AGT> constexpr auto
+out_adjacencies(io_adjacency<AGT>&& x) {
+  return x.out_adjacencies();
+}
+template<class AGT> constexpr auto
+out_adjacencies(const io_adjacency<AGT>& x) {
+  return x.out_adjacencies();
+}
+
+// tree interface {
+template<class AGT> constexpr auto
+first_child(io_adjacency<AGT>& x) {
+  return out_adjacencies(x).begin();
+}
+template<class AGT> constexpr auto
+first_child(io_adjacency<AGT>&& x) {
+  return out_adjacencies(x).begin();
+}
+template<class AGT> constexpr auto
+first_child(const io_adjacency<AGT>& x) {
+  return out_adjacencies(x).begin();
+}
+template<class AGT> constexpr auto
+last_child(io_adjacency<AGT>& x) {
+  return out_adjacencies(x).end();
+}
+template<class AGT> constexpr auto
+last_child(io_adjacency<AGT>&& x) {
+  return out_adjacencies(x).end();
+}
+template<class AGT> constexpr auto
+last_child(const io_adjacency<AGT>& x) {
+  return out_adjacencies(x).end();
+}
+
+template<class AGT> constexpr auto
+children(io_adjacency<AGT>& x) {
+  return out_adjacencies(x);
+}
+template<class AGT> constexpr auto
+children(io_adjacency<AGT>&& x) {
+  return out_adjacencies(x);
+}
+template<class AGT> constexpr auto
+children(const io_adjacency<AGT>& x) {
+  return out_adjacencies(x);
+}
+// tree interface}
 
 
 } // std_e
