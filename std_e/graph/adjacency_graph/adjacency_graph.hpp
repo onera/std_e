@@ -14,20 +14,22 @@ namespace std_e {
 
 
 namespace detail {
-  template<class graph_type, orientation ori>
-  struct associated_adjacency_type;
+  template<orientation ori, class... Ts>
+  struct associated_adj_graph_types;
 
-  template<class graph_type>
-  struct associated_adjacency_type<graph_type,orientation::none> {
-    using type = adjacency<graph_type>;
+  template<class... Ts>
+  struct associated_adj_graph_types<orientation::none,Ts...> {
+    using adj_type = adjacency<Ts...>;
+    using graph_base_type = adjacency_graph_base<Ts...>;
   };
-  template<class graph_type>
-  struct associated_adjacency_type<graph_type,orientation::in_out> {
-    using type = io_adjacency<graph_type>;
+  template<class... Ts>
+  struct associated_adj_graph_types<orientation::in_out,Ts...> {
+    using adj_type = io_adjacency<Ts...>;
+    using graph_base_type = io_adjacency_graph_base<Ts...>;
   };
 }
 template<class graph_type, orientation ori>
-using associated_adjacency_type = typename detail::associated_adjacency_type<graph_type,ori>::type;
+using associated_adjacency_type = typename detail::associated_adj_graph_types<ori,graph_type>::type;
 
 
 

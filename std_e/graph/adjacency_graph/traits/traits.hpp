@@ -52,8 +52,6 @@ struct adjacency_graph_traits<Graph_type<NT,ET,adj_list_type>> {
   using adjacency_list_type = adj_list_type;
   using node_range_type     = range_from_outer<adj_list_type,NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,ET>;
-
-  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 template<template<class...> class Graph_type, class NT, class ET, class adj_list_type>
 struct adjacency_graph_traits<const Graph_type<NT,ET,adj_list_type>> {
@@ -66,8 +64,6 @@ struct adjacency_graph_traits<const Graph_type<NT,ET,adj_list_type>> {
   using adjacency_list_type = const adj_list_type;
   using node_range_type     = range_from_outer<adj_list_type,const NT>;
   using edge_range_type     = range_of_ranges_from<adj_list_type,const ET>;
-
-  constexpr auto operator<=>(const adjacency_graph_traits&) const = default;
 };
 // adjacency_graph_traits }
 
