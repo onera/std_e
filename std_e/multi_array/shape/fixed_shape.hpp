@@ -2,7 +2,7 @@
 
 
 #include "std_e/multi_index/multi_index.hpp"
-#include "std_e/utils/index_sequence.hpp"
+#include "std_e/meta/index_sequence.hpp"
 #include "std_e/multi_index/cartesian_product_size.hpp"
 
 

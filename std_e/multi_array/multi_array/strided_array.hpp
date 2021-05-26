@@ -3,7 +3,7 @@
 
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include "std_e/data_structure/strided_span.hpp"
-#include "std_e/utils/meta.hpp"
+#include "std_e/meta/meta.hpp"
 #include <type_traits>
 
 

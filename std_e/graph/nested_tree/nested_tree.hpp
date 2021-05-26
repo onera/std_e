@@ -7,7 +7,7 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/utils/string.hpp"
 #include "std_e/iterator/iterator_range.hpp"
-#include "std_e/utils/meta.hpp"
+#include "std_e/meta/meta.hpp"
 #include "std_e/future/span.hpp"
 
 

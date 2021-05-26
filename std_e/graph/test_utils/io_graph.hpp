@@ -3,7 +3,7 @@
 
 #include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
-#include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/nested_tree/nested_tree.hpp"
 
 
 namespace std_e {

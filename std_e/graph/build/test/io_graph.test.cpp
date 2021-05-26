@@ -1,6 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/build/io_graph.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"

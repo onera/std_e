@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <vector>
 #include "std_e/future/span.hpp"
-#include "std_e/utils/type_traits.hpp"
+#include "std_e/meta/type_traits.hpp"
 #include "std_e/interval/knot_sequence.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/algorithm/iota.hpp"

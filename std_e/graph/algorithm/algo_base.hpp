@@ -2,7 +2,6 @@
 
 
 #include <vector>
-#include "std_e/utils/meta.hpp"
 #include "std_e/iterator/iterator_range.hpp"
 
 
