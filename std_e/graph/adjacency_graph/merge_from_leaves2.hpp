@@ -11,11 +11,11 @@ namespace std_e {
 
 constexpr auto
 equal_by_level = [](const auto& x, const auto& y) -> bool {
-  return height(x)==height(y);
+  return height(node(x)) == height(node(y));
 };
 constexpr auto
 less_by_level = [](const auto& x, const auto& y) -> bool {
-  return height(x)<height(y);
+  return height(node(x)) < height(node(y));
 };
 
 template<class T, class Bin_pred> constexpr auto
@@ -28,7 +28,7 @@ less_by_node_and_outwards(const T& x, const T& y, Bin_pred_0 eq, Bin_pred_1 less
 }
 
 template<class Adj> constexpr auto
-redirect_inward_adjacencies(Adj& old, Adj& new_adj) -> void {
+redirect_inward_adjacencies(Adj&& old, Adj&& new_adj) -> void {
   // Precondition: is_reflexive_in_adjacency(old)
   // Post conditions:
   //  - all edges previously entering "old" now enter "new_adj"
@@ -39,12 +39,10 @@ redirect_inward_adjacencies(Adj& old, Adj& new_adj) -> void {
   // for each inward in old.inwards,
   //     one element in inward.outwards points to old (by the precondition)
   //         pick this one and make it point to new_adj
-  for (auto& in_adj : old.in_adjacencies()) {
-    auto& outs_of_in = in_adj.out_adjacencies();
-    auto first = outs_of_in.data();
-    auto last = outs_of_in.data()+outs_of_in.size();
-    auto old_pos = std::find(first,last,old);
-    STD_E_ASSERT(old_pos!=last);
+  for (auto&& in_adj : old.in_adjacencies()) {
+    auto&& outs_of_in = in_adj.out_adjacencies();
+    auto old_pos = std::find(begin(outs_of_in),end(outs_of_in),old);
+    STD_E_ASSERT(old_pos!=end(outs_of_in));
     *old_pos = new_adj;
   }
 };
@@ -110,17 +108,16 @@ merge_from_leaves(io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> v
 
   // 2. only keep first node of equivalents
   auto new_last = std::unique(begin(g),end(g),eq_);
-  //auto new_sz = new_last-begin(g); // TODO !!!
-  auto new_sz = std::distance(begin(g),new_last);
-  //g.resize(new_sz); // TODO!!!
+  auto new_sz = new_last-begin(g);
+  g.resize(new_sz); // TODO!!!
 }
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto
-merge_from_leaves2(io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_adjacency_graph<T> {
+merge_from_leaves2(const io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_adjacency_graph<T> {
   if (g.size()==0) return io_adjacency_graph<T>{};
-  merge_from_leaves(g,eq,less);
-  make_bidirectional_from_outward_edges(g);
-  return g; // TODO del
+  auto g_view = make_rearranging_view(g);
+  merge_from_leaves(g_view,eq,less);
+  return bidirectional_graph_from_outward_edges(g_view);
 }
 
 

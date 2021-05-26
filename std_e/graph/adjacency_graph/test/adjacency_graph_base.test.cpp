@@ -15,8 +15,8 @@ TEST_CASE("empty ctor") {
   CHECK( x.nodes().size() == 0 );
   CHECK( x.in_edges().size() == 0 );
   CHECK( x.out_edges().size() == 0 );
-  CHECK( x.in_adjacency_list().size() == 0 );
-  CHECK( x.out_adjacency_list().size() == 0 );
+  CHECK( x.in_indices().size() == 0 );
+  CHECK( x.out_indices().size() == 0 );
 }
 
 TEST_CASE("ctor from size") {
@@ -25,8 +25,8 @@ TEST_CASE("ctor from size") {
   CHECK( x.nodes().size() == 10 );
   CHECK( x.in_edges().size() == 10 );
   CHECK( x.out_edges().size() == 10 );
-  CHECK( x.in_adjacency_list().size() == 10 );
-  CHECK( x.out_adjacency_list().size() == 10 );
+  CHECK( x.in_indices().size() == 10 );
+  CHECK( x.out_indices().size() == 10 );
 }
 
 

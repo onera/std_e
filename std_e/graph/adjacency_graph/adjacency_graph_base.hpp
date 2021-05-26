@@ -3,6 +3,7 @@
 
 #include <ranges>
 #include "std_e/data_structure/range_of_ranges.hpp"
+#include "std_e/utils/to_string.hpp"
 // TODO
 // nodes: we may want to store in SoA fashion
 //   example: node_value = tuple<int,double>
@@ -29,9 +30,12 @@ class adjacency_list_mixin {
     constexpr adjacency_list_mixin() = default;
     constexpr adjacency_list_mixin(index_type sz) : adj_list(sz) {}
   // interface
-    constexpr auto adjacency_list()       ->       adj_list_type  & { return adj_list; }
-    constexpr auto adjacency_list() const -> const adj_list_type  & { return adj_list; }
-    constexpr auto index(index_type i_node, index_type i_edge) const -> index_type { return adj_list[i_node][i_edge]; }
+    constexpr auto indices()                                           ->       auto& { return adj_list;                 }
+    constexpr auto indices()                                     const -> const auto& { return adj_list;                 }
+    constexpr auto indices(index_type i_node)                          ->       auto& { return adj_list[i_node];         }
+    constexpr auto indices(index_type i_node)                    const -> const auto& { return adj_list[i_node];         }
+    constexpr auto index  (index_type i_node, index_type i_edge)       ->       auto& { return adj_list[i_node][i_edge]; }
+    constexpr auto index  (index_type i_node, index_type i_edge) const -> const auto& { return adj_list[i_node][i_edge]; }
 
     auto operator<=>(const adjacency_list_mixin& x) const = default;
   private:
@@ -47,14 +51,19 @@ class io_adjacency_list_mixin {
     constexpr io_adjacency_list_mixin() = default;
     constexpr io_adjacency_list_mixin(index_type sz) : in_adj_list(sz), out_adj_list(sz) {}
   // interface
-    constexpr auto in_adjacency_list ()       ->       adj_list_type  & { return in_adj_list ; }
-    constexpr auto in_adjacency_list () const -> const adj_list_type  & { return in_adj_list ; }
+    constexpr auto in_indices()                                           ->       auto& { return in_adj_list;                 }
+    constexpr auto in_indices()                                     const -> const auto& { return in_adj_list;                 }
+    constexpr auto in_indices(index_type i_node)                          ->       auto& { return in_adj_list[i_node];         }
+    constexpr auto in_indices(index_type i_node)                    const -> const auto& { return in_adj_list[i_node];         }
+    constexpr auto in_index  (index_type i_node, index_type i_edge)       ->       auto& { return in_adj_list[i_node][i_edge]; }
+    constexpr auto in_index  (index_type i_node, index_type i_edge) const -> const auto& { return in_adj_list[i_node][i_edge]; }
 
-    constexpr auto out_adjacency_list()       ->       adj_list_type  & { return out_adj_list; }
-    constexpr auto out_adjacency_list() const -> const adj_list_type  & { return out_adj_list; }
-
-    constexpr auto  in_index(index_type i_node, index_type i_edge) const -> index_type { return  in_adj_list[i_node][i_edge]; }
-    constexpr auto out_index(index_type i_node, index_type i_edge) const -> index_type { return out_adj_list[i_node][i_edge]; }
+    constexpr auto out_indices()                                           ->       auto& { return out_adj_list;                 }
+    constexpr auto out_indices()                                     const -> const auto& { return out_adj_list;                 }
+    constexpr auto out_indices(index_type i_node)                          ->       auto& { return out_adj_list[i_node];         }
+    constexpr auto out_indices(index_type i_node)                    const -> const auto& { return out_adj_list[i_node];         }
+    constexpr auto out_index  (index_type i_node, index_type i_edge)       ->       auto& { return out_adj_list[i_node][i_edge]; }
+    constexpr auto out_index  (index_type i_node, index_type i_edge) const -> const auto& { return out_adj_list[i_node][i_edge]; }
 
     auto operator<=>(const io_adjacency_list_mixin& x) const = default;
   private:
@@ -87,7 +96,7 @@ class edge_mixin<void,adj_list_type>
   : adjacency_list_mixin<adj_list_type>
 {
   public:
-    constexpr auto edges() const -> const adj_list_type  & { return this->adjacency_list(); }
+    constexpr auto edges() const -> const adj_list_type  & { return this->indices(); }
 
     auto operator<=>(const edge_mixin& x) const = default;
 };
@@ -130,8 +139,8 @@ class io_edge_mixin<void,adj_list_type>
     constexpr io_edge_mixin() = default;
     constexpr io_edge_mixin(index_type sz): io_adjacency_list_mixin<adj_list_type>(sz) {}
   // interface
-    constexpr auto in_edges () const -> const adj_list_type  & { return this->in_adjacency_list (); }
-    constexpr auto out_edges() const -> const adj_list_type  & { return this->out_adjacency_list(); }
+    constexpr auto in_edges () const -> const adj_list_type  & { return this->in_indices (); }
+    constexpr auto out_edges() const -> const adj_list_type  & { return this->out_indices(); }
 
     auto operator<=>(const io_edge_mixin& x) const = default;
 };
@@ -188,7 +197,7 @@ class adjacency_graph_base
     // Class invariant: adj_list[i].size() == edges[i].size() for all i in [0,adj_list.size())
     constexpr auto size() const -> index_type { return this->nodes.size(); }
 
-    constexpr auto degree(index_type i) const -> index_type { return this->adjacency_list()[i].size(); }
+    constexpr auto degree(index_type i) const -> index_type { return this->indices(i).size(); }
 
     auto operator<=>(const adjacency_graph_base& x) const = default;
 };
@@ -211,8 +220,8 @@ class io_adjacency_graph_base
 
     constexpr auto size() const -> index_type { return this->nodes().size(); }
 
-    constexpr auto in_degree (index_type i) const -> index_type { return this->in_adjacency_list ()[i].size(); }
-    constexpr auto out_degree(index_type i) const -> index_type { return this->out_adjacency_list()[i].size(); }
+    constexpr auto in_degree (index_type i) const -> index_type { return this->in_indices ()[i].size(); }
+    constexpr auto out_degree(index_type i) const -> index_type { return this->out_indices()[i].size(); }
 
     auto operator<=>(const io_adjacency_graph_base& x) const = default;
 };
@@ -222,8 +231,8 @@ template<class NT, class ET, class ALT> auto
 to_string(const io_adjacency_graph_base<NT,ET,ALT>& x) {
   return
       "nodes: " + std_e::range_to_string(x.nodes()) + '\n'
-    + "in_adjacencies:" + std_e::range_to_string(x.in_adjacency_list()) + '\n'
-    + "out_adjacencies:" + std_e::range_to_string(x.out_adjacency_list()) + '\n';
+    + "in_indices:" + std_e::range_to_string(x.in_indices()) + '\n'
+    + "out_indices:" + std_e::range_to_string(x.out_indices()) + '\n';
 }
 
 } // std_e

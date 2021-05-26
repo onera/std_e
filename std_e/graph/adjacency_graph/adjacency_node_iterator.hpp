@@ -3,6 +3,7 @@
 
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
 #include "std_e/future/contract.hpp"
+#include <iterator>
 
 
 namespace std_e {
@@ -19,7 +20,7 @@ class adjacency_node_iterator {
     using value_type = adjacency_type;
     using reference = adjacency_type;
     using difference_type = index_type;
-    using iterator_category = std::forward_iterator_tag; // TODO random
+    using iterator_category = std::random_access_iterator_tag;
 
   // ctors
     constexpr
@@ -37,20 +38,49 @@ class adjacency_node_iterator {
       ++node_idx;
       return *this;
     }
+    constexpr auto
+    operator--() -> adjacency_node_iterator& {
+      --node_idx;
+      return *this;
+    }
+    constexpr auto
+    operator+=(index_type i) -> adjacency_node_iterator& {
+      node_idx += i;
+      return *this;
+    }
+    constexpr auto
+    operator-=(index_type i) -> adjacency_node_iterator& {
+      node_idx -= i;
+      return *this;
+    }
+    constexpr auto
+    operator+(index_type i) const -> adjacency_node_iterator {
+      return {g,node_idx+i};
+    }
+    constexpr auto
+    operator-(index_type i) const -> adjacency_node_iterator {
+      return {g,node_idx-i};
+    }
+    constexpr auto
+    operator-(const adjacency_node_iterator& x) const -> index_type {
+      STD_E_ASSERT(g==x.g);
+      return node_idx - x.node_idx;
+    }
 
     constexpr auto
     operator*() const -> adjacency_type {
       return {g,node_idx};
     }
 
-    friend constexpr auto
-    operator==(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
-      STD_E_ASSERT(x.g==y.g);
-      return x.node_idx == y.node_idx;
+    constexpr auto
+    operator==(const adjacency_node_iterator& x) const {
+      STD_E_ASSERT(g==x.g);
+      return node_idx == x.node_idx;
     }
-    friend constexpr auto
-    operator!=(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
-      return !(x==y);
+    constexpr auto
+    operator<=>(const adjacency_node_iterator& x) const {
+      STD_E_ASSERT(g==x.g);
+      return node_idx <=> x.node_idx;
     }
   private:
     adjacency_graph_type* g;

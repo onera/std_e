@@ -24,6 +24,11 @@ class adjacency {
     {}
 
     constexpr auto
+    node_index() const -> index_type {
+      return node_idx;
+    }
+
+    constexpr auto
     node() -> node_type& {
       return g->nodes()[node_idx];
     }
@@ -76,7 +81,7 @@ template<class adjacency_graph_type>
 class io_adjacency {
   public:
     using index_type = typename adjacency_graph_type::index_type;
-    using node_type  = typename adjacency_graph_type::node_type;
+    //using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
 
     constexpr
     io_adjacency() = default;
@@ -86,18 +91,40 @@ class io_adjacency {
       : g(g)
       , node_idx(node_idx)
     {}
+    constexpr
+    io_adjacency(const io_adjacency& x) = default;
 
     constexpr auto
-    index() const -> index_type {
+    index() const -> index_type { // TODO del
       return node_idx;
+    }
+    constexpr auto
+    node_index() const -> index_type {
+      return node_idx;
+    }
+    constexpr auto
+    in_edge_indices() -> auto& {
+      return g->in_indices(node_idx);
+    }
+    constexpr auto
+    in_edge_indices() const -> const auto& {
+      return g->in_indices(node_idx);
+    }
+    constexpr auto
+    out_edge_indices() -> auto& {
+      return g->out_indices(node_idx);
+    }
+    constexpr auto
+    out_edge_indices() const -> const auto& {
+      return g->out_indices(node_idx);
     }
 
     constexpr auto
-    node() -> node_type& {
+    node() -> auto& {
       return g->nodes()[node_idx];
     }
     constexpr auto
-    node() const -> const node_type& {
+    node() const -> const auto& {
       return g->nodes()[node_idx];
     }
 
@@ -165,6 +192,13 @@ operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
 template<class AGT0, class AGT1> constexpr auto
 operator!=(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
   return !(x==y);
+}
+// TODO
+template<class AGT0, class AGT1> constexpr auto
+operator<(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
+  return
+       x.node()<y.node()
+   || (x.node()==y.node() && x.out_adjacencies()<y.out_adjacencies());
 }
 
 template<class AGT> constexpr auto

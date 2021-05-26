@@ -32,7 +32,7 @@ enum class adj_orientation {
   out
 };
 template<class adjacency_graph_type, adj_orientation orientation = adj_orientation::none> class adjacency_range;
-template<class adjacency_graph_type, adj_orientation orientation = adj_orientation::none> class adjacency_connection_iterator;
+template<class adjacency_graph_type, adj_orientation orientation> class adjacency_connection_iterator;
 // forward decl }
 
 
@@ -71,19 +71,25 @@ namespace detail {
   template<class adjacency_graph_type>
   struct adjacency_type_of {
     using adj_type = typename adjacency_graph_type::adjacency_type;
-    using connec_it_type = typename adjacency_graph_type::adjacency_connection_iterator_type;
   };
-
   template<class adjacency_graph_type>
   struct adjacency_type_of<const adjacency_graph_type> {
     using adj_type = typename adjacency_graph_type::const_adjacency_type;
-    using connec_it_type = typename adjacency_graph_type::const_adjacency_connection_iterator_type;
+  };
+
+  template<class adjacency_graph_type, adj_orientation ori>
+  struct adjacency_connection_iterator_type_of {
+    using connec_it_type = adjacency_connection_iterator<adjacency_graph_type,ori>;
+  };
+  template<class adjacency_graph_type, adj_orientation ori>
+  struct adjacency_connection_iterator_type_of<const adjacency_graph_type,ori> {
+    using connec_it_type = adjacency_connection_iterator<const adjacency_graph_type,ori>;
   };
 }
 template<class adjacency_graph_type>
 using adjacency_type_of = typename detail::adjacency_type_of<adjacency_graph_type>::adj_type;
-template<class adjacency_graph_type>
-using adjacency_connection_iterator_type_of = typename detail::adjacency_type_of<adjacency_graph_type>::connec_it_type;
+template<class adjacency_graph_type, adj_orientation ori>
+using adjacency_connection_iterator_type_of = typename detail::adjacency_connection_iterator_type_of<adjacency_graph_type,ori>::connec_it_type;
 
 
 } // std_e

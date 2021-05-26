@@ -23,19 +23,19 @@ A **Reference** is never **Regular** because its assignment semantics is always 
   int& i_ref = i;
   i_ref = j; // now i == j, but i_ref did not change: it is still refering to i
 
-Because the assignment operator is already used for assigning to the underlying object, references are not re-assignable (which mean that the underlying object cannot change). And because of this, they are not default constructible, because then there would be no mean to make them refer to a valid object later on.
+Because the assignment operator is already used for assigning to the underlying object, references are not re-assignable (which mean that the underlying object cannot be replaced by another one). And because of this, they are not default constructible, because then there would be no mean to make them refer to a valid object later on.
 
 Dereferencing an iterator must always return a reference.
 
 Most of the time, references are actually **built-in references**. However, the need to create some other reference types sometimes arises. They are often called **proxy references** to distinguish them from built-in references. Proxy references have a pretty mediocre language support (no :cpp:`operator.`) and standard library support (:cpp:`Forward_iterator` requires that dereferencing returns a built-in reference); but that might change in the future.
 
 .. note::
-  :cpp:`std::reference_wrapper` is not a Reference, because its assignment operator is defined as rebinding to another object.
+  :cpp:`std::reference_wrapper` is **not** a Reference, because its assignment operator is defined as rebinding to another object.
 
 View type
 ---------
 
-A **View** is a type that behaves like a :cpp:`std::span<int>`. A view over a :cpp:`T` is a collection of elements of type :cpp:`T`, where the **elements are not owned by the view**. Moreover, a view only really makes sense over a collection (an integer view seems like a not very useful feature): the memory is supposed to be owned by some kind of container object. 
+A **View** is a type that behaves like a :cpp:`std::span<int>`. A view over a :cpp:`T` is a collection of elements of type :cpp:`T`, where the **elements are not owned by the view**. Moreover, a view only really makes sense over a collection (an integer view seems like a not very useful feature): the memory is supposed to be owned by some kind of container object.
 
 Maybe somewhat surprisingly, **views are Regular**: for all :cpp:`T x;`, we have the equivalence :cpp:`view<T> x_view(x); <=> view<T> x_view; x_view = x;`. That is why even if views and references may seem similar because they refer to external memory, their semantic is very different:
 

@@ -55,8 +55,8 @@ class adjacency_graph_from_traits
     using adjacency_node_iterator_type = adjacency_node_iterator<derived>;
     using const_adjacency_node_iterator_type = adjacency_node_iterator<const derived>;
 
-    using adjacency_connection_iterator_type = adjacency_connection_iterator<derived>;
-    using const_adjacency_connection_iterator_type = adjacency_connection_iterator<const derived>;
+    //using adjacency_connection_iterator_type = adjacency_connection_iterator<derived>;
+    //using const_adjacency_connection_iterator_type = adjacency_connection_iterator<const derived>;
   // ctor
     constexpr
     adjacency_graph_from_traits() = default;
@@ -69,31 +69,40 @@ class adjacency_graph_from_traits
   // range interface
     constexpr auto
     operator[](index_type i) -> adjacency_type {
-      return {this,i};
+      return {graph(),i};
     }
     constexpr auto
     operator[](index_type i) const -> const_adjacency_type {
-      return {this,i};
+      return {graph(),i};
     }
 
     constexpr auto
     begin() const -> const_adjacency_node_iterator_type {
-      return {this,0};
+      return {graph(),0};
     }
     constexpr auto
     begin() -> adjacency_node_iterator_type {
-      return {this,0};
+      return {graph(),0};
     }
     constexpr auto
     end() const -> const_adjacency_node_iterator_type {
-      return {this,this->size()};
+      return {graph(),this->size()};
     }
     constexpr auto
     end() -> adjacency_node_iterator_type {
-      return {this,this->size()};
+      return {graph(),this->size()};
     }
 
     auto operator<=>(const adjacency_graph_from_traits& x) const = default;
+  private:
+    auto
+    graph() {
+      return static_cast<derived*>(this);
+    }
+    auto
+    graph() const {
+      return static_cast<const derived*>(this);
+    }
 };
 
 // end-user classes {

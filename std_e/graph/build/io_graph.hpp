@@ -7,10 +7,10 @@
 
 
 namespace std_e {
-  
+
 
 /** concept Node_builder
-  result_type 
+  result_type
   F::operator()(Graph::node_type) -> T
 */
 
@@ -42,12 +42,12 @@ struct bidirectional_graph_builder {
       auto outs_lvl = outs_stack.current_level();
       auto new_n = node_builder(n,height_lvl,outs_lvl);
       g->nodes()[i] = new_n;
-      g->in_adjacency_list()[i] =  {};
-      g->out_adjacency_list()[i] = outs_lvl;
+      g->in_indices()[i] =  {};
+      g->out_indices()[i] = outs_lvl;
 
       // back-tracking (add parent as the only parent node)
       for (index_type out : outs_lvl) {
-        g->in_adjacency_list()[out] =  {i};
+        g->in_indices()[out] =  {i};
       }
 
       // prepare next iteration
@@ -61,7 +61,7 @@ struct bidirectional_graph_builder {
       ++i;
     }
   // Graph_node_visitor interface }
-  
+
   private:
     Graph* g;
     index_type i;

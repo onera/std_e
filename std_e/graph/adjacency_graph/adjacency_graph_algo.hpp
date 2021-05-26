@@ -13,8 +13,8 @@ make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
   io_adjacency_graph<NT> res;
   for (const auto& [node,ins,out] : idx_adjs) {
     res.nodes().push_back(node);
-    res.in_adjacency_list().push_back(ins);
-    res.out_adjacency_list().push_back(out);
+    res.in_indices().push_back(ins);
+    res.out_indices().push_back(out);
   }
   return res;
 }
@@ -26,9 +26,9 @@ make_bidirectional_from_outward_edges(io_adjacency_graph<T>& g) {
   int n_node = g.size();
   for (int i=0; i<n_node; ++i) {
     for (int k=0; k<g.out_degree(i); ++k) {
-      int j = g.out_adjacency_list()[i][k];
+      int j = g.out_index(i,k);
       //int e = g.out_edges()[i][k]; // TODO
-      g.in_adjacency_list()[j].push_back(i);
+      g.in_indices(j).push_back(i);
       //g.in_edges()[j].push_back(e); // TODO
     }
   }

@@ -2,8 +2,8 @@
 //#include "std_e/graph/adjacency_graph/merge_from_leaves2.hpp"
 //#include "std_e/unit_test/doctest.hpp"
 //
-//#include "std_e/graph/test/io_graph.hpp"
-//#include "std_e/graph/adjacency_graph/io_adjacency_graph.hpp"
+//#include "std_e/graph/test_utils/io_graph.hpp"
+//#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
 //
 //
 //using namespace std_e;
@@ -27,6 +27,10 @@
 //auto
 //operator==(const S1& x, const S1& y) -> bool {
 //  return eq_S(x,y);
+//}
+//auto
+//operator<=>(const S1& x, const S1& y) {
+//  return x.c <=> y.c;
 //}
 //
 //TEST_CASE("make_bidirectional_from_outward_edges") {

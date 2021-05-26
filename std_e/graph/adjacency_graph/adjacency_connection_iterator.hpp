@@ -43,15 +43,22 @@ class adjacency_connection_iterator {
       return {g,index()};
     }
 
+    // TODO <=>
     friend constexpr auto
     operator==(const adjacency_connection_iterator& x, const adjacency_connection_iterator& y) -> bool {
       STD_E_ASSERT(x.g==y.g);
       STD_E_ASSERT(x.node_idx==y.node_idx);
-      return x.connection_idx== y.connection_idx;
+      return x.connection_idx == y.connection_idx;
     }
     friend constexpr auto
     operator!=(const adjacency_connection_iterator& x, const adjacency_connection_iterator& y) -> bool {
       return !(x==y);
+    }
+    friend constexpr auto
+    operator<(const adjacency_connection_iterator& x, const adjacency_connection_iterator& y) -> bool {
+      STD_E_ASSERT(x.g==y.g);
+      STD_E_ASSERT(x.node_idx==y.node_idx);
+      return x.connection_idx < y.connection_idx;
     }
   private:
   // functions

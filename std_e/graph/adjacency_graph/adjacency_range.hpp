@@ -8,14 +8,14 @@
 namespace std_e {
 
 
-template<class adjacency_graph_type, adj_orientation orientation>
+template<class adjacency_graph_type, adj_orientation ori>
 class adjacency_range {
   public:
     using index_type = typename adjacency_graph_type::index_type;
     using adjacency_type = adjacency_type_of<adjacency_graph_type>;
     using const_adjacency_type = typename adjacency_graph_type::const_adjacency_type;
-    using adjacency_iterator_type = adjacency_connection_iterator_type_of<adjacency_graph_type>;
-    using const_adjacency_iterator_type = adjacency_connection_iterator<const adjacency_graph_type,orientation>;
+    using adjacency_iterator_type = adjacency_connection_iterator_type_of<adjacency_graph_type,ori>;
+    using const_adjacency_iterator_type = adjacency_connection_iterator<const adjacency_graph_type,ori>;
 
     constexpr
     adjacency_range() = default;
@@ -28,9 +28,9 @@ class adjacency_range {
 
     constexpr auto
     size() const -> index_type {
-      if constexpr (orientation==adj_orientation::none) {
+      if constexpr (ori==adj_orientation::none) {
         return g->degree(node_idx);
-      } else if constexpr (orientation==adj_orientation::in) {
+      } else if constexpr (ori==adj_orientation::in) {
         return g->in_degree(node_idx);
       } else {
         return g->out_degree(node_idx);
@@ -63,16 +63,34 @@ class adjacency_range {
       return {g,index(i)};
     }
 
+    // TODO <=>
+    constexpr auto
+    operator==(const adjacency_range& x) const -> bool {
+      return std::equal(begin(),end(),x.begin());
+    }
+    constexpr auto
+    operator!=(const adjacency_range& x) const -> bool {
+      return !(*this==x);
+    }
+    constexpr auto
+    operator<(const adjacency_range& x) const -> bool {
+      return std::lexicographical_compare(begin(),end(),x.begin(),x.end());
+    }
+
+    //constexpr auto
+    //operator<=>(const adjacency_range& x) const {
+    //  return std::lexicographical_compare_three_way(begin(),end(),x.begin(),x.end());
+    //}
   private:
   // functions
     constexpr auto
     index(index_type i) const -> index_type {
-      if constexpr (orientation==adj_orientation::none) {
+      if constexpr (ori==adj_orientation::none) {
         return g->index(node_idx,i);
-      } else if constexpr (orientation==adj_orientation::in) {
+      } else if constexpr (ori==adj_orientation::in) {
         return g->in_index(node_idx,i);
       } else {
-        static_assert(orientation==adj_orientation::out);
+        static_assert(ori==adj_orientation::out);
         return g->out_index(node_idx,i);
       }
     }
@@ -81,10 +99,5 @@ class adjacency_range {
     index_type node_idx;
 };
 
-template<class AGT, adj_orientation ori>
-constexpr auto
-operator==(const adjacency_range<AGT,ori>& x, const adjacency_range<AGT,ori>& y) -> bool {
-  return std::equal(x.begin(),x.end(),y.begin());
-}
 
 } // std_e
