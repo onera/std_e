@@ -3,6 +3,7 @@
 
 #include "std_e/base/not_implemented_exception.hpp" // TODO
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
+#include "std_e/log.hpp" // TODO
 
 
 namespace std_e {
@@ -103,19 +104,19 @@ class io_adjacency {
       return node_idx;
     }
     constexpr auto
-    in_edge_indices() -> auto& {
+    in_indices() -> auto& {
       return g->in_indices(node_idx);
     }
     constexpr auto
-    in_edge_indices() const -> const auto& {
+    in_indices() const -> const auto& {
       return g->in_indices(node_idx);
     }
     constexpr auto
-    out_edge_indices() -> auto& {
+    out_indices() -> auto& {
       return g->out_indices(node_idx);
     }
     constexpr auto
-    out_edge_indices() const -> const auto& {
+    out_indices() const -> const auto& {
       return g->out_indices(node_idx);
     }
 
@@ -184,7 +185,13 @@ class io_adjacency {
 template<class AGT0, class AGT1> constexpr auto
 operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
   // TODO TEST!!! TODO in_adjacencies !!!!!
-  return x.node()==y.node() && x.out_adjacencies()==y.out_adjacencies();
+  LOG("\n");
+  ELOG(x.node());
+  ELOG(y.node());
+  ELOG(x.out_indices());
+  ELOG(y.out_indices());
+  LOG("\n");
+  return x.node()==y.node() && x.out_indices()==y.out_indices();
 //  return
 //      x.g == y.g
 //   && x.node_idx == y.node_idx;
@@ -202,15 +209,15 @@ operator<(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
 }
 
 template<class AGT> constexpr auto
-node(io_adjacency<AGT>& x) {
+node(io_adjacency<AGT>& x) -> auto& {
   return x.node();
 }
 template<class AGT> constexpr auto
-node(io_adjacency<AGT>&& x) {
+node(io_adjacency<AGT>&& x) -> auto& {
   return x.node();
 }
 template<class AGT> constexpr auto
-node(const io_adjacency<AGT>& x) {
+node(const io_adjacency<AGT>& x) -> const auto& {
   return x.node();
 }
 template<class AGT> constexpr auto
@@ -275,6 +282,12 @@ children(io_adjacency<AGT>&& x) {
 template<class AGT> constexpr auto
 children(const io_adjacency<AGT>& x) {
   return out_adjacencies(x);
+}
+
+template<class AGT> auto
+to_string(const io_adjacency<AGT>& x) -> std::string {
+  using std::to_string;
+  return to_string(x.node())+" : "+range_to_string(x.in_indices())+" | "+range_to_string(x.out_indices());
 }
 // tree interface}
 

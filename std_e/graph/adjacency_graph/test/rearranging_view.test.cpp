@@ -2,7 +2,7 @@
 
 #include "std_e/graph/test_utils/io_graph.hpp"
 
-#include "std_e/graph/adjacency_graph/graph_rearranging.hpp"
+#include "std_e/graph/adjacency_graph/rearranging_view.hpp"
 #include "std_e/graph/build/io_graph.hpp"
 
 #include <algorithm>
@@ -24,7 +24,7 @@ TEST_CASE("bidirectional_graph_from_outward_edges") {
     /*3*/ {'D', {}, {}     },
   });
 
-  graph_rearranging_view reordered_g(g);
+  rearranging_view reordered_g(g);
 
   std::reverse(begin(reordered_g),end(reordered_g));
   // old pos: {0,1,2,3}
@@ -51,7 +51,7 @@ TEST_CASE("bidirectional_graph_from_outward_edges") {
 TEST_CASE("Tree reverse_levels") {
   io_adjacency_graph<int> io_g = create_io_graph_for_tests();
 
-  graph_rearranging_view reordered_g(io_g);
+  rearranging_view reordered_g(io_g);
 
   std::reverse(begin(reordered_g),end(reordered_g));
   // old pos: {0,1,2,3,4,5,6,7,8}

@@ -10,7 +10,7 @@ namespace std_e {
 
 
 /**
-*  class "graph_rearranging_view"
+*  class "rearranging_view"
 *
 *  Directly changing node positions when reordering a graph has to be done in two steps:
 *    - change position of the node
@@ -21,11 +21,12 @@ namespace std_e {
 *  The idea here is to keep a permutation table and to always access adjacencies through an indirect indexing
 */
 
-template<class adjacency_graph_type>
+template<class adjacency_graph_type, class I>
 class rearranging_adjacency {
   public:
   // type traits
-    using index_type = add_other_type_constness<typename adjacency_graph_type::index_type,adjacency_graph_type>;
+    //using index_type = add_other_type_constness<typename adjacency_graph_type::index_type,adjacency_graph_type>;
+    using index_type = I;
     using adjacency_type = adjacency_type_of<adjacency_graph_type>;
     using const_adjacency_type = adjacency_type_of<const adjacency_graph_type>;
 
@@ -48,7 +49,12 @@ class rearranging_adjacency {
     friend constexpr auto
     swap(rearranging_adjacency&& x, rearranging_adjacency&& y) -> void {
       STD_E_ASSERT(x.g==y.g);
-      std::swap(*x.perm_ptr,*y.perm_ptr);
+      //using std::swap;
+      //swap(*x.perm_ptr,*y.perm_ptr);
+      // TODO
+      auto tmp = *x.perm_ptr;
+      *x.perm_ptr = *y.perm_ptr;
+      *y.perm_ptr = tmp;
     }
 
   // get adjacency
@@ -64,14 +70,43 @@ class rearranging_adjacency {
     adjacency_graph_type* g;
     index_type* perm_ptr;
 };
+template<class AGT, class I> auto
+node(rearranging_adjacency<AGT,I>& x) -> auto& {
+  return node(x.adj());
+}
+template<class AGT, class I> auto
+node(const rearranging_adjacency<AGT,I>& x) -> const auto& {
+  return node(x.adj());
+}
+template<class AGT, class I> auto
+in_adjacencies(rearranging_adjacency<AGT,I>& x) {
+  return in_adjacencies(x.adj());
+}
+template<class AGT, class I> auto
+in_adjacencies(const rearranging_adjacency<AGT,I>& x) {
+  return in_adjacencies(x.adj());
+}
+template<class AGT, class I> auto
+out_adjacencies(rearranging_adjacency<AGT,I>& x) {
+  return out_adjacencies(x.adj());
+}
+template<class AGT, class I> auto
+out_adjacencies(const rearranging_adjacency<AGT,I>& x) {
+  return out_adjacencies(x.adj());
+}
+template<class AGT, class I> auto
+to_string(const rearranging_adjacency<AGT,I>& x) {
+  return to_string(x.adj());
+}
+
 
 // TODO generate iterator from template
-template<class adjacency_graph_type>
-class graph_rearranging_iterator {
+template<class adjacency_graph_type, class I>
+class rearranging_iterator {
   public:
   // type traits
-    using index_type = typename adjacency_graph_type::index_type;
-    using adjacency_type = rearranging_adjacency<adjacency_graph_type>;
+    using index_type = I;
+    using adjacency_type = rearranging_adjacency<adjacency_graph_type,index_type>;
 
     /// std::iterator type traits
     using value_type = adjacency_type;
@@ -81,59 +116,59 @@ class graph_rearranging_iterator {
 
   // ctors
     constexpr
-    graph_rearranging_iterator() = default;
+    rearranging_iterator() = default;
 
     constexpr
-    graph_rearranging_iterator(adjacency_graph_type* g, index_type* perm_ptr)
+    rearranging_iterator(adjacency_graph_type* g, index_type* perm_ptr)
       : g(g)
       , perm_ptr(perm_ptr)
     {}
 
   // iterator interface
     constexpr auto
-    operator++() -> graph_rearranging_iterator& {
+    operator++() -> rearranging_iterator& {
       ++perm_ptr;
       return *this;
     }
     constexpr auto
-    operator++(int) -> graph_rearranging_iterator {
-      graph_rearranging_iterator it(*this);
+    operator++(int) -> rearranging_iterator {
+      rearranging_iterator it(*this);
       ++(*this);
       return it;
     }
 
     constexpr auto
-    operator--() -> graph_rearranging_iterator& {
+    operator--() -> rearranging_iterator& {
       --perm_ptr;
       return *this;
     }
     constexpr auto
-    operator--(int) -> graph_rearranging_iterator {
-      graph_rearranging_iterator it(*this);
+    operator--(int) -> rearranging_iterator {
+      rearranging_iterator it(*this);
       --(*this);
       return it;
     }
 
     constexpr auto
-    operator+=(index_type i) -> graph_rearranging_iterator& {
+    operator+=(index_type i) -> rearranging_iterator& {
       perm_ptr += i;
       return *this;
     }
     constexpr auto
-    operator-=(index_type i) -> graph_rearranging_iterator& {
+    operator-=(index_type i) -> rearranging_iterator& {
       perm_ptr -= i;
       return *this;
     }
     constexpr auto
-    operator+(index_type i) const -> graph_rearranging_iterator {
+    operator+(index_type i) const -> rearranging_iterator {
       return {g,perm_ptr+i};
     }
     constexpr auto
-    operator-(index_type i) const -> graph_rearranging_iterator {
+    operator-(index_type i) const -> rearranging_iterator {
       return {g,perm_ptr-i};
     }
     constexpr auto
-    operator-(const graph_rearranging_iterator& x) const -> index_type {
+    operator-(const rearranging_iterator& x) const -> index_type {
       STD_E_ASSERT(g==x.g);
       return perm_ptr - x.perm_ptr;
     }
@@ -145,12 +180,12 @@ class graph_rearranging_iterator {
     }
 
     constexpr auto
-    operator==(const graph_rearranging_iterator& x) const {
+    operator==(const rearranging_iterator& x) const {
       STD_E_ASSERT(g==x.g);
       return perm_ptr == x.perm_ptr;
     }
     constexpr auto
-    operator<=>(const graph_rearranging_iterator& x) const {
+    operator<=>(const rearranging_iterator& x) const {
       STD_E_ASSERT(g==x.g);
       return perm_ptr <=> x.perm_ptr;
     }
@@ -160,16 +195,16 @@ class graph_rearranging_iterator {
 };
 
 template<class AGT>
-class graph_rearranging_view {
+class rearranging_view {
   public:
     using index_type = typename AGT::index_type;
-    using adjacency_type = rearranging_adjacency<AGT>;
-    using const_adjacency_type = rearranging_adjacency<const AGT>;
-    using iterator_type = graph_rearranging_iterator<AGT>;
-    using const_iterator_type = graph_rearranging_iterator<const AGT>;
+    using adjacency_type = rearranging_adjacency<AGT,index_type>;
+    using const_adjacency_type = rearranging_adjacency<AGT,const index_type>;
+    using iterator_type = rearranging_iterator<AGT,index_type>;
+    using const_iterator_type = rearranging_iterator<AGT,const index_type>;
 
     constexpr
-    graph_rearranging_view(AGT& g)
+    rearranging_view(AGT& g)
       : g(&g)
       , perm(g.size())
     {
@@ -225,37 +260,38 @@ class graph_rearranging_view {
 };
 
 template<class AGT> constexpr auto
-begin(graph_rearranging_view<AGT>& x) {
+begin(rearranging_view<AGT>& x) {
   return x.begin();
 }
 template<class AGT> constexpr auto
-begin(const graph_rearranging_view<AGT>& x) {
+begin(const rearranging_view<AGT>& x) {
   return x.begin();
 }
 template<class AGT> constexpr auto
-end(graph_rearranging_view<AGT>& x) {
+end(rearranging_view<AGT>& x) {
   return x.end();
 }
 template<class AGT> constexpr auto
-end(const graph_rearranging_view<AGT>& x) {
+end(const rearranging_view<AGT>& x) {
   return x.end();
 }
 
 
-template<class index_type, class AGT> constexpr auto
-propagate_outward_edges(const graph_rearranging_view<AGT>& x, const std::vector<index_type>& old_to_new_node_indices, AGT& g) {
+template<class rearranging_view_type, class index_type, class AGT> constexpr auto
+propagate_outward_edges(const rearranging_view_type& x, const std::vector<index_type>& old_to_new_node_indices, AGT& g) {
   for (index_type i=0; i<x.size(); ++i) {
-    for (auto&& old_adj_idx : x[i].adj().out_edge_indices()) {
-      g[i].out_edge_indices().push_back( old_to_new_node_indices[old_adj_idx] );
+    for (auto&& old_adj_idx : x[i].adj().out_indices()) {
+      g[i].out_indices().push_back( old_to_new_node_indices[old_adj_idx] );
     }
   }
 }
 
 template<class AGT> constexpr auto
-bidirectional_graph_from_outward_edges(const graph_rearranging_view<AGT>& x) -> AGT {
+bidirectional_graph_from_outward_edges(const rearranging_view<AGT>& x) -> AGT {
   int sz = x.size();
 
-  AGT res(sz);
+  using res_type = std::remove_const_t<AGT>;
+  res_type res(sz);
   for (int i=0; i<sz; ++i) {
     res[i].node() = x[i].adj().node();
   }
@@ -269,9 +305,9 @@ bidirectional_graph_from_outward_edges(const graph_rearranging_view<AGT>& x) -> 
 } // std_e
 
 
-template<class AGT>
-struct std::iterator_traits<std_e::graph_rearranging_iterator<AGT>> {
-  using type = std_e::graph_rearranging_iterator<AGT>;
+template<class AGT, class I>
+struct std::iterator_traits<std_e::rearranging_iterator<AGT,I>> {
+  using type = std_e::rearranging_iterator<AGT,I>;
   using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;
