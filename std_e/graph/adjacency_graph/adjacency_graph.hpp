@@ -42,6 +42,7 @@ class adjacency_graph_from_traits
   : public associated_graph_base<NT,ET,ALT,ori>
 {
   public:
+  // type traits
     using base = associated_graph_base<NT,ET,ALT,ori>;
 
     using node_type = NT;
@@ -54,6 +55,9 @@ class adjacency_graph_from_traits
 
     using adjacency_node_iterator_type = adjacency_node_iterator<derived>;
     using const_adjacency_node_iterator_type = adjacency_node_iterator<const derived>;
+
+    /// range traits
+    using difference_type = value_type<ALT>;
 
     //using adjacency_connection_iterator_type = adjacency_connection_iterator<derived>;
     //using const_adjacency_connection_iterator_type = adjacency_connection_iterator<const derived>;

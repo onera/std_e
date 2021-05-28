@@ -21,106 +21,91 @@ namespace std_e {
 *  The idea here is to keep a permutation table and to always access adjacencies through an indirect indexing
 */
 
-template<class adjacency_graph_type, class I>
-class rearranging_adjacency {
+template<class Range, class I>
+class rearranging_reference {
   public:
   // type traits
-    //using index_type = add_other_type_constness<typename adjacency_graph_type::index_type,adjacency_graph_type>;
-    using index_type = I;
-    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
-    using const_adjacency_type = adjacency_type_of<const adjacency_graph_type>;
+    using difference_type = I;
 
   // ctors
+    constexpr rearranging_reference() = delete;
+    constexpr rearranging_reference(const rearranging_reference&) = default;
+    constexpr rearranging_reference(rearranging_reference&&) = default;
+  // assignement for Reference
     constexpr
-    rearranging_adjacency() = default;
+    rearranging_reference& operator=(const rearranging_reference& x) {
+      STD_E_ASSERT(r==x.r);
+      i_ref = x.i_ref;
+      return *this;
+    }
+    constexpr
+    rearranging_reference& operator=(rearranging_reference&& x) {
+      STD_E_ASSERT(r==x.r);
+      i_ref = x.i_ref;
+      return *this;
+    }
 
     constexpr
-    rearranging_adjacency(adjacency_graph_type* g, index_type* perm_ptr)
-      : g(g)
-      , perm_ptr(perm_ptr)
+    rearranging_reference(Range* r, I& i_ref)
+      : r(r)
+      , i_ref(i_ref)
     {}
 
-  // operation for Regular
-    constexpr
-    rearranging_adjacency(const rearranging_adjacency&) = default;
-    constexpr
-    rearranging_adjacency& operator=(const rearranging_adjacency&) = default;
 
     friend constexpr auto
-    swap(rearranging_adjacency&& x, rearranging_adjacency&& y) -> void {
-      STD_E_ASSERT(x.g==y.g);
-      //using std::swap;
-      //swap(*x.perm_ptr,*y.perm_ptr);
-      // TODO
-      auto tmp = *x.perm_ptr;
-      *x.perm_ptr = *y.perm_ptr;
-      *y.perm_ptr = tmp;
+    swap(rearranging_reference&& x, rearranging_reference&& y) -> void {
+      std::swap(x.i_ref,y.i_ref);
+    }
+    friend constexpr auto
+    swap(rearranging_reference& x, rearranging_reference& y) -> void {
+      std::swap(x.i_ref,y.i_ref);
     }
 
-  // get adjacency
+  // get reference to underlying object
     auto
-    adj() -> adjacency_type {
-      return {g,*perm_ptr};
+    underlying_ref() -> decltype(auto) {
+      return (*r)[i_ref];
     }
     auto
-    adj() const -> const_adjacency_type {
-      return {g,*perm_ptr};
+    underlying_ref() const -> decltype(auto) {
+      return (*r)[i_ref];
     }
+    
+    constexpr auto
+    operator<=>(const rearranging_reference& x) const = delete;
   private:
-    adjacency_graph_type* g;
-    index_type* perm_ptr;
+    Range* r;
+    I& i_ref;
 };
-template<class AGT, class I> auto
-node(rearranging_adjacency<AGT,I>& x) -> auto& {
-  return node(x.adj());
-}
-template<class AGT, class I> auto
-node(const rearranging_adjacency<AGT,I>& x) -> const auto& {
-  return node(x.adj());
-}
-template<class AGT, class I> auto
-in_adjacencies(rearranging_adjacency<AGT,I>& x) {
-  return in_adjacencies(x.adj());
-}
-template<class AGT, class I> auto
-in_adjacencies(const rearranging_adjacency<AGT,I>& x) {
-  return in_adjacencies(x.adj());
-}
-template<class AGT, class I> auto
-out_adjacencies(rearranging_adjacency<AGT,I>& x) {
-  return out_adjacencies(x.adj());
-}
-template<class AGT, class I> auto
-out_adjacencies(const rearranging_adjacency<AGT,I>& x) {
-  return out_adjacencies(x.adj());
-}
-template<class AGT, class I> auto
-to_string(const rearranging_adjacency<AGT,I>& x) {
-  return to_string(x.adj());
+
+template<class Range, class I>
+rearranging_reference(Range* r, I& i) -> rearranging_reference<Range,I>;
+
+template<class Range, class I> auto
+to_string(const rearranging_reference<Range,I>& x) {
+  return to_string(x.underlying_ref());
 }
 
 
 // TODO generate iterator from template
-template<class adjacency_graph_type, class I>
+template<class Range, class I>
 class rearranging_iterator {
   public:
   // type traits
-    using index_type = I;
-    using adjacency_type = rearranging_adjacency<adjacency_graph_type,index_type>;
-
     /// std::iterator type traits
-    using value_type = adjacency_type;
-    using reference = adjacency_type;
-    using difference_type = index_type;
+    using difference_type = I;
+    using value_type = rearranging_reference<Range,difference_type>;
+    using reference = rearranging_reference<Range,difference_type>;
     using iterator_category = std::random_access_iterator_tag;
 
   // ctors
-    constexpr
-    rearranging_iterator() = default;
+    constexpr rearranging_iterator() = default;
+    constexpr rearranging_iterator(const rearranging_iterator&) = default;
+    constexpr rearranging_iterator& operator=(const rearranging_iterator&) = default;
 
     constexpr
-    rearranging_iterator(adjacency_graph_type* g, index_type* perm_ptr)
-      : g(g)
+    rearranging_iterator(Range* r, difference_type* perm_ptr)
+      : r(r)
       , perm_ptr(perm_ptr)
     {}
 
@@ -150,137 +135,174 @@ class rearranging_iterator {
     }
 
     constexpr auto
-    operator+=(index_type i) -> rearranging_iterator& {
+    operator+=(difference_type i) -> rearranging_iterator& {
       perm_ptr += i;
       return *this;
     }
     constexpr auto
-    operator-=(index_type i) -> rearranging_iterator& {
+    operator-=(difference_type i) -> rearranging_iterator& {
       perm_ptr -= i;
       return *this;
     }
     constexpr auto
-    operator+(index_type i) const -> rearranging_iterator {
-      return {g,perm_ptr+i};
+    operator+(difference_type i) const -> rearranging_iterator {
+      return {r,perm_ptr+i};
+    }
+    friend constexpr auto
+    operator+(difference_type i, const rearranging_iterator& x) -> rearranging_iterator {
+      return {x.r,x.perm_ptr+i};
     }
     constexpr auto
-    operator-(index_type i) const -> rearranging_iterator {
-      return {g,perm_ptr-i};
+    operator-(difference_type i) const -> rearranging_iterator {
+      return {r,perm_ptr-i};
     }
     constexpr auto
-    operator-(const rearranging_iterator& x) const -> index_type {
-      STD_E_ASSERT(g==x.g);
+    operator-(const rearranging_iterator& x) const -> difference_type {
+      STD_E_ASSERT(r==x.r);
       return perm_ptr - x.perm_ptr;
     }
 
     constexpr auto
-    operator*() const -> adjacency_type {
-      return {g,perm_ptr};
-      //return *perm_ptr;
+    operator*() const -> reference {
+      return {r,*perm_ptr};
+    }
+    constexpr auto
+    operator[](difference_type i) const -> reference {
+      return {r,*(perm_ptr+i)};
+    }
+    auto
+    operator->() const {
+      return std_e::arrow_proxy<reference>{**this};
     }
 
-    constexpr auto
-    operator==(const rearranging_iterator& x) const {
-      STD_E_ASSERT(g==x.g);
-      return perm_ptr == x.perm_ptr;
+    friend constexpr auto
+    operator==(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      STD_E_ASSERT(r==x.r);
+      return x.perm_ptr == y.perm_ptr;
     }
-    constexpr auto
-    operator<=>(const rearranging_iterator& x) const {
-      STD_E_ASSERT(g==x.g);
-      return perm_ptr <=> x.perm_ptr;
+    friend constexpr auto
+    operator!=(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      return !(x==y);
     }
+    friend constexpr auto
+    operator<(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      STD_E_ASSERT(r==x.r);
+      return x.perm_ptr < y.perm_ptr;
+    }
+    friend constexpr auto
+    operator>(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      STD_E_ASSERT(r==x.r);
+      return x.perm_ptr > y.perm_ptr;
+    }
+    friend constexpr auto
+    operator<=(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      STD_E_ASSERT(r==x.r);
+      return x.perm_ptr <= y.perm_ptr;
+    }
+    friend constexpr auto
+    operator>=(const rearranging_iterator& x, const rearranging_iterator& y) -> bool {
+      STD_E_ASSERT(r==x.r);
+      return x.perm_ptr >= y.perm_ptr;
+    }
+    //constexpr auto
+    //operator<=>(const rearranging_iterator& x) const {
+    //  STD_E_ASSERT(r==x.r);
+    //  return perm_ptr <=> x.perm_ptr;
+    //}
   private:
-    adjacency_graph_type* g;
-    index_type* perm_ptr;
+    Range* r;
+    difference_type* perm_ptr;
 };
 
-template<class AGT>
+template<class Range> // TODO Range->range R
 class rearranging_view {
   public:
-    using index_type = typename AGT::index_type;
-    using adjacency_type = rearranging_adjacency<AGT,index_type>;
-    using const_adjacency_type = rearranging_adjacency<AGT,const index_type>;
-    using iterator_type = rearranging_iterator<AGT,index_type>;
-    using const_iterator_type = rearranging_iterator<AGT,const index_type>;
+    using difference_type = typename Range::difference_type;
+    using reference = rearranging_reference<Range,difference_type>;
+    using const_reference = rearranging_reference<Range,const difference_type>;
+    using iterator_type = rearranging_iterator<Range,difference_type>;
+    using const_iterator_type = rearranging_iterator<Range,const difference_type>;
 
     constexpr
-    rearranging_view(AGT& g)
-      : g(&g)
-      , perm(g.size())
+    rearranging_view(Range& r)
+      : r(&r)
+      , perm(r.size())
     {
       std::iota(perm.begin(),perm.end(),0);
     }
 
     constexpr auto
-    size() const -> index_type {
+    size() const -> difference_type {
       return perm.size();
     }
     constexpr auto
-    resize(index_type sz) -> void {
+    resize(difference_type sz) -> void {
       STD_E_ASSERT(sz <= size());
       perm.resize(sz);
     }
 
     constexpr auto
     begin() -> iterator_type {
-      return {g,perm.data()};
+      return {r,perm.data()};
     }
     constexpr auto
     begin() const -> const_iterator_type {
-      return {g,perm.data()};
+      return {r,perm.data()};
     }
     constexpr auto
     end() -> iterator_type {
-      return {g,perm.data()+perm.size()};
+      return {r,perm.data()+perm.size()};
     }
     constexpr auto
     end() const -> const_iterator_type {
-      return {g,perm.data()+perm.size()};
+      return {r,perm.data()+perm.size()};
     }
     constexpr auto
-    operator[](index_type i) -> adjacency_type {
-      return {g,perm.data()+i};
+    operator[](difference_type i) -> reference {
+      return {r,perm[i]};
     }
     constexpr auto
-    operator[](index_type i) const -> const_adjacency_type {
-      return {g,perm.data()+i};
+    operator[](difference_type i) const -> const_reference {
+      return {r,perm[i]};
     }
 
     auto
-    old_to_new_node_indices() const {
+    old_to_new_indices() const {
       return inverse_partial_permutation(perm,initial_sz(),-1);
     }
   private:
+  public: // TODO
     auto
-    initial_sz() const -> index_type {
-      return g->size();
+    initial_sz() const -> difference_type {
+      return r->size();
     }
-    AGT* g;
-    std::vector<index_type> perm;
+    Range* r;
+    std::vector<difference_type> perm;
 };
 
-template<class AGT> constexpr auto
-begin(rearranging_view<AGT>& x) {
+template<class Range> constexpr auto
+begin(rearranging_view<Range>& x) {
   return x.begin();
 }
-template<class AGT> constexpr auto
-begin(const rearranging_view<AGT>& x) {
+template<class Range> constexpr auto
+begin(const rearranging_view<Range>& x) {
   return x.begin();
 }
-template<class AGT> constexpr auto
-end(rearranging_view<AGT>& x) {
+template<class Range> constexpr auto
+end(rearranging_view<Range>& x) {
   return x.end();
 }
-template<class AGT> constexpr auto
-end(const rearranging_view<AGT>& x) {
+template<class Range> constexpr auto
+end(const rearranging_view<Range>& x) {
   return x.end();
 }
 
 
-template<class rearranging_view_type, class index_type, class AGT> constexpr auto
-propagate_outward_edges(const rearranging_view_type& x, const std::vector<index_type>& old_to_new_node_indices, AGT& g) {
-  for (index_type i=0; i<x.size(); ++i) {
-    for (auto&& old_adj_idx : x[i].adj().out_indices()) {
+// TODO move to own algo file
+template<class rearranging_view_type, class I, class AGT> constexpr auto
+propagate_outward_edges(const rearranging_view_type& x, const std::vector<I>& old_to_new_node_indices, AGT& g) {
+  for (I i=0; i<x.size(); ++i) {
+    for (auto&& old_adj_idx : x[i].underlying_ref().out_indices()) {
       g[i].out_indices().push_back( old_to_new_node_indices[old_adj_idx] );
     }
   }
@@ -293,21 +315,22 @@ bidirectional_graph_from_outward_edges(const rearranging_view<AGT>& x) -> AGT {
   using res_type = std::remove_const_t<AGT>;
   res_type res(sz);
   for (int i=0; i<sz; ++i) {
-    res[i].node() = x[i].adj().node();
+    res[i].node() = x[i].underlying_ref().node();
   }
 
-  propagate_outward_edges(x,x.old_to_new_node_indices(),res);
+  propagate_outward_edges(x,x.old_to_new_indices(),res);
   make_bidirectional_from_outward_edges(res);
   return res;
 }
 
 
+
 } // std_e
 
 
-template<class AGT, class I>
-struct std::iterator_traits<std_e::rearranging_iterator<AGT,I>> {
-  using type = std_e::rearranging_iterator<AGT,I>;
+template<class Range, class I>
+struct std::iterator_traits<std_e::rearranging_iterator<Range,I>> {
+  using type = std_e::rearranging_iterator<Range,I>;
   using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;

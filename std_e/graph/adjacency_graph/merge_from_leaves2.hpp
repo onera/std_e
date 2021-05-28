@@ -21,11 +21,11 @@ less_by_level = [](const auto& x, const auto& y) -> bool {
 
 template<class T, class Bin_pred> constexpr auto
 equivalent_by_node_and_outwards(const T& x, const T& y, Bin_pred eq) -> bool {
-  return eq(node(x),node(y)) && out_adjacencies(x)==out_adjacencies(y);
+  return eq(node(x),node(y)) && out_indices(x)==out_indices(y);
 }
 template<class T, class Bin_pred_0, class Bin_pred_1> constexpr auto
 less_by_node_and_outwards(const T& x, const T& y, Bin_pred_0 eq, Bin_pred_1 less) -> bool {
-  return less(node(x),node(y)) || (eq(node(x),node(y)) && (out_adjacencies(x)<out_adjacencies(y)));
+  return less(node(x),node(y)) || (eq(node(x),node(y)) && (out_indices(x)<out_indices(y)));
 }
 
 template<class Adj> constexpr auto
@@ -53,9 +53,11 @@ redirect_inward_to_equivalent(T x, T x_eq, Bin_pred eq) -> bool {
   LOG("bla0:",to_string((*x)));
   LOG("bla1:",to_string((*x_eq)));
   if (eq(*x,*x_eq)) {
+    LOG("eq")
     redirect_inward_adjacencies(*x,*x_eq);
     return true;
   }
+  LOG("not eq")
   return false;
 }
 

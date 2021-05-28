@@ -94,6 +94,8 @@ class io_adjacency {
     {}
     constexpr
     io_adjacency(const io_adjacency& x) = default;
+    constexpr
+    io_adjacency(io_adjacency&& x) = default;
 
     constexpr auto
     index() const -> index_type { // TODO del
@@ -175,6 +177,11 @@ class io_adjacency {
       throw not_implemented_exception("op =");
       return *this;
     }
+    auto
+    operator=(io_adjacency&& old) -> io_adjacency& {
+      throw not_implemented_exception("op =");
+      return *this;
+    }
 
     template<class AGT0, class AGT1> friend constexpr auto
     operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool;
@@ -208,6 +215,30 @@ operator<(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
    || (x.node()==y.node() && x.out_adjacencies()<y.out_adjacencies());
 }
 
+template<class AGT> constexpr auto
+in_indices(io_adjacency<AGT>& x) -> auto& {
+  return x.in_indices();
+}
+template<class AGT> constexpr auto
+in_indices(io_adjacency<AGT>&& x) -> auto& {
+  return x.in_indices();
+}
+template<class AGT> constexpr auto
+in_indices(const io_adjacency<AGT>& x) -> const auto& {
+  return x.in_indices();
+}
+template<class AGT> constexpr auto
+out_indices(io_adjacency<AGT>& x) -> auto& {
+  return x.out_indices();
+}
+template<class AGT> constexpr auto
+out_indices(io_adjacency<AGT>&& x) -> auto& {
+  return x.out_indices();
+}
+template<class AGT> constexpr auto
+out_indices(const io_adjacency<AGT>& x) -> const auto& {
+  return x.out_indices();
+}
 template<class AGT> constexpr auto
 node(io_adjacency<AGT>& x) -> auto& {
   return x.node();
