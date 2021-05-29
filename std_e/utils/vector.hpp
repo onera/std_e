@@ -76,6 +76,10 @@ template<class T, class A, class Comp_pred = std::less<>> constexpr auto
 sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
   std::sort(begin(v),end(v),cmp);
 }
+template<class T, class A, class Comp_pred = std::less<>> constexpr auto
+stable_sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
+  std::stable_sort(begin(v),end(v),cmp);
+}
 
 template<class T, class A, class Equiv_pred = std::equal_to<>> constexpr auto
 unique(std::vector<T,A>& v, Equiv_pred eq = {}) -> void {

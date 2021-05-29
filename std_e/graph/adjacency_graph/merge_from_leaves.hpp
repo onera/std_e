@@ -105,7 +105,7 @@ merge_from_leaves(io_adjacency_graph<T>& g, std::vector<I>& perm, Bin_pred_0 eq,
 
   // 0. sort by level
   auto less_by_level_ = [&g](I i, I j){ return less_by_level(g[i],g[j]); };
-  std_e::sort(perm,less_by_level_);
+  std_e::sort(perm,less_by_level_); // TODO partition sort
 
   // 1. level by level, rebind nodes
   auto eq_ = [eq,&g](I i, I j){ return equivalent_by_node_and_outwards(g[i],g[j],eq); };

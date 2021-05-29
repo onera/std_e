@@ -21,7 +21,6 @@ propagate_outward_edges(const io_adjacency_graph<T>& x, const std::vector<I>& pe
   }
 }
 
-// TODO inplace
 template<class T, class I> constexpr auto
 bidirectional_graph_from_outward_edges(const io_adjacency_graph<T>& x, const std::vector<I>& perm) -> io_adjacency_graph<T> {
   int sz = perm.size();
@@ -35,19 +34,6 @@ bidirectional_graph_from_outward_edges(const io_adjacency_graph<T>& x, const std
   make_bidirectional_from_outward_edges(res);
   return res;
 }
-//template<class T, class I> constexpr auto
-//bidirectional_graph_from_outward_edges(io_adjacency_graph<T>& x, const std::vector<I>& perm) -> void {
-//  int sz = perm.size();
-//
-//  permute(x.begin(),perm);
-//  for (int i=0; i<sz; ++i) {
-//    res[i].node() = x[i].underlying_ref().node();
-//  }
-//
-//  propagate_outward_edges(x,x.old_to_new_indices(),res);
-//  make_bidirectional_from_outward_edges(res);
-//  return res;
-//}
 
 
 } // std_e
