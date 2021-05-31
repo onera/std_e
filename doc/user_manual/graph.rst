@@ -95,8 +95,8 @@ Example :
 
 Node 0 is connected to 1 and 2, so it forms the adjacency (0|1,2). 1 forms adjacency (1|3) and 2 forms adjacency (2|3,4). So the adjacencies of adjacency (0,1,2) is the adjacency range [ (1|3) , (2|3,4) ].
 
-adjacency_connection_iterator.hpp
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+adjacency_edge_iterator.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Iterator to iterate through an adjacency_range. Iterates through the adjacency of a node edge by edge.
 

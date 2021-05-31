@@ -39,10 +39,10 @@ to_string__impl(const io_adjacency_graph<T>& g, F node_to_string_fun) -> std::st
   for (int i=0; i<g.size(); ++i) {
     const auto& node = g[i];
     const auto& deps = node.out_indices();
-    for (int j=0; j<deps.size(); ++j) {
+    for (auto dep : deps) {
       s += std::to_string(i);
       s += " -> ";
-      s += std::to_string(deps[j]);
+      s += std::to_string(dep);
       s += "\n";
     }
   }

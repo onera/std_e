@@ -14,8 +14,8 @@ class adjacency_range {
     using index_type = typename adjacency_graph_type::index_type;
     using adjacency_type = adjacency_type_of<adjacency_graph_type>;
     using const_adjacency_type = typename adjacency_graph_type::const_adjacency_type;
-    using adjacency_iterator_type = adjacency_connection_iterator_type_of<adjacency_graph_type,ori>;
-    using const_adjacency_iterator_type = adjacency_connection_iterator<const adjacency_graph_type,ori>;
+    using adjacency_iterator_type = adjacency_edge_iterator_type_of<adjacency_graph_type,ori>;
+    using const_adjacency_iterator_type = adjacency_edge_iterator<const adjacency_graph_type,ori>;
 
     constexpr
     adjacency_range() = default;
@@ -63,24 +63,14 @@ class adjacency_range {
       return {g,index(i)};
     }
 
-    // TODO <=>
     constexpr auto
     operator==(const adjacency_range& x) const -> bool {
       return std::equal(begin(),end(),x.begin());
     }
     constexpr auto
-    operator!=(const adjacency_range& x) const -> bool {
-      return !(*this==x);
+    operator<=>(const adjacency_range& x) const {
+      return std::lexicographical_compare_three_way(begin(),end(),x.begin(),x.end());
     }
-    constexpr auto
-    operator<(const adjacency_range& x) const -> bool {
-      return std::lexicographical_compare(begin(),end(),x.begin(),x.end());
-    }
-
-    //constexpr auto
-    //operator<=>(const adjacency_range& x) const {
-    //  return std::lexicographical_compare_three_way(begin(),end(),x.begin(),x.end());
-    //}
   private:
   // functions
     constexpr auto

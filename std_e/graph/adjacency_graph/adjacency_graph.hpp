@@ -7,7 +7,7 @@
 #include "std_e/graph/adjacency_graph/adjacency.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_range.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_node_iterator.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_connection_iterator.hpp"
+#include "std_e/graph/adjacency_graph/adjacency_edge_iterator.hpp"
 
 
 namespace std_e {

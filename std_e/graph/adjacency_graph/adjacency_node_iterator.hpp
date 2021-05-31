@@ -43,6 +43,20 @@ class adjacency_node_iterator {
       --node_idx;
       return *this;
     }
+
+    constexpr auto
+    operator++(int) -> adjacency_node_iterator {
+      adjacency_node_iterator tmp(*this);
+      ++(*this);
+      return tmp;
+    }
+    constexpr auto
+    operator--(int) -> adjacency_node_iterator {
+      adjacency_node_iterator tmp(*this);
+      --(*this);
+      return tmp;
+    }
+
     constexpr auto
     operator+=(index_type i) -> adjacency_node_iterator& {
       node_idx += i;
@@ -53,34 +67,44 @@ class adjacency_node_iterator {
       node_idx -= i;
       return *this;
     }
-    constexpr auto
-    operator+(index_type i) const -> adjacency_node_iterator {
-      return {g,node_idx+i};
+
+    friend constexpr auto
+    operator+(const adjacency_node_iterator& x, index_type i) -> adjacency_node_iterator {
+      return {x.g,x.node_idx+i};
     }
-    constexpr auto
-    operator-(index_type i) const -> adjacency_node_iterator {
-      return {g,node_idx-i};
+    friend constexpr auto
+    operator-(const adjacency_node_iterator& x, index_type i) -> adjacency_node_iterator {
+      return {x.g,x.node_idx-i};
     }
-    constexpr auto
-    operator-(const adjacency_node_iterator& x) const -> index_type {
-      STD_E_ASSERT(g==x.g);
-      return node_idx - x.node_idx;
+
+    friend constexpr auto
+    operator+(index_type i, const adjacency_node_iterator& x) -> adjacency_node_iterator {
+      return x+i;
+    }
+    friend constexpr auto
+    operator-(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> index_type {
+      STD_E_ASSERT(x.g==y.g);
+      return x.node_idx - y.node_idx;
     }
 
     constexpr auto
     operator*() const -> adjacency_type {
       return {g,node_idx};
     }
-
     constexpr auto
-    operator==(const adjacency_node_iterator& x) const {
-      STD_E_ASSERT(g==x.g);
-      return node_idx == x.node_idx;
+    operator[](index_type i) const -> adjacency_type {
+      return {g,node_idx+i};
     }
-    constexpr auto
-    operator<=>(const adjacency_node_iterator& x) const {
-      STD_E_ASSERT(g==x.g);
-      return node_idx <=> x.node_idx;
+
+    friend constexpr auto
+    operator==(const adjacency_node_iterator& x, const adjacency_node_iterator& y) {
+      STD_E_ASSERT(x.g==y.g);
+      return x.node_idx == y.node_idx;
+    }
+    friend constexpr auto
+    operator<=>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) {
+      STD_E_ASSERT(x.g==y.g);
+      return x.node_idx <=> y.node_idx;
     }
   private:
     adjacency_graph_type* g;

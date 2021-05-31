@@ -21,8 +21,8 @@ class rooted_view {
     //using adjacency_node_iterator_type = adjacency_node_iterator<derived>;
     //using const_adjacency_node_iterator_type = adjacency_node_iterator<const derived>;
 
-    using adjacency_connection_iterator_type = adjacency_connection_iterator<rooted_view,adj_orientation::out>;
-    using const_adjacency_connection_iterator_type = adjacency_connection_iterator<const rooted_view,adj_orientation::out>;
+    using adjacency_connection_iterator_type = adjacency_edge_iterator<rooted_view,adj_orientation::out>;
+    using const_adjacency_connection_iterator_type = adjacency_edge_iterator<const rooted_view,adj_orientation::out>;
 
     constexpr
     rooted_view(adjacency_graph_type& g, index_type root_idx)
