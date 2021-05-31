@@ -2,6 +2,7 @@
 
 
 #include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
 #include "std_e/algorithm/permutation.hpp"
 
 

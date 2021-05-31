@@ -158,8 +158,10 @@ class node_mixin {
     constexpr node_mixin() = default;
     constexpr node_mixin(index_type sz): ns(sz) {}
   // interface
-    constexpr auto nodes()       ->       node_range_type& { return ns   ; }
-    constexpr auto nodes() const -> const node_range_type& { return ns   ; }
+    constexpr auto nodes()                  ->       auto& { return ns; }
+    constexpr auto nodes()            const -> const auto& { return ns; }
+    constexpr auto node(index_type i)       ->       auto& { return ns[i]; }
+    constexpr auto node(index_type i) const -> const auto& { return ns[i]; }
 
     auto operator<=>(const node_mixin& x) const = default;
   private:

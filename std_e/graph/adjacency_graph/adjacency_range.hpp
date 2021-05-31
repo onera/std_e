@@ -99,5 +99,21 @@ class adjacency_range {
     index_type node_idx;
 };
 
+template<class AGT, adj_orientation ori> constexpr auto
+begin(adjacency_range<AGT,ori>& g) {
+  return g.begin();
+}
+template<class AGT, adj_orientation ori> constexpr auto
+begin(const adjacency_range<AGT,ori>& g) {
+  return g.begin();
+}
+template<class AGT, adj_orientation ori> constexpr auto
+end(adjacency_range<AGT,ori>& g) {
+  return g.end();
+}
+template<class AGT, adj_orientation ori> constexpr auto
+end(const adjacency_range<AGT,ori>& g) {
+  return g.end();
+}
 
 } // std_e

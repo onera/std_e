@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "io_adjacency.hpp"
-#include "io_graph.hpp"
+#include "adjacency.hpp"
+#include "adjacency_graph.hpp"
 #include <string>
 
 
-namespace graph {
+namespace std_e {
 
 
 // TODO CLEAN
@@ -15,7 +15,7 @@ namespace graph {
 template<class T, class F> auto
 to_graphviz_node_string(int id, const io_adjacency<T>& x, F node_to_string_fun) -> std::string {
   using std::string;
-  std::string label = node_to_string_fun(x.node);
+  std::string label = node_to_string_fun(x.node());
   return std::to_string(id) + " [label=\""+label+"\"]";
 }
 
@@ -31,19 +31,18 @@ to_graphviz_node_string(int id, const io_adjacency<T>& x, F node_to_string_fun) 
 
 
 template<class T, class F> auto
-to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
+to_string__impl(const io_adjacency_graph<T>& g, F node_to_string_fun) -> std::string {
   std::string s = "digraph G {\n";
-  for (size_t i=0; i<g.size(); ++i) {
+  for (int i=0; i<g.size(); ++i) {
     s += to_graphviz_node_string(i,g[i],node_to_string_fun) + '\n';
   }
-  for (size_t i=0; i<g.size(); ++i) {
+  for (int i=0; i<g.size(); ++i) {
     const auto& node = g[i];
-    const auto& deps = node.outwards;
-    for (size_t j=0; j<deps.size(); ++j) {
+    const auto& deps = node.out_indices();
+    for (int j=0; j<deps.size(); ++j) {
       s += std::to_string(i);
       s += " -> ";
-      s += std::to_string(deps[j]-g.begin());
-      //s += std::to_string(deps[j]->index);
+      s += std::to_string(deps[j]);
       s += "\n";
     }
   }
@@ -54,13 +53,13 @@ to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
 //template<class T> auto
 //to_string_bidir__impl(const io_graph<T>& g) -> std::string { // TODO factor with to_string__impl
 //  std::string s = "digraph G {\n";
-//  for (size_t i=0; i<g.adjs.size(); ++i) {
+//  for (int i=0; i<g.adjs.size(); ++i) {
 //    s += to_graphviz_node_string(i,g.adjs[i]) + '\n';
 //  }
-//  for (size_t i=0; i<g.adjs.size(); ++i) {
+//  for (int i=0; i<g.adjs.size(); ++i) {
 //    const auto& node = g.adjs[i];
 //    const auto& deps = node.outward_indices;
-//    for (size_t j=0; j<deps.size(); ++j) {
+//    for (int j=0; j<deps.size(); ++j) {
 //      s += std::to_string(i);
 //      s += " -> ";
 //      s += std::to_string(deps[j]);
@@ -71,7 +70,7 @@ to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
 //    //auto last = std::unique(begin(outs),end(outs));
 //    //outs.resize(last-begin(outs));
 //    const auto& outs = node.out_node_ids;
-//    for (size_t j=0; j<outs.size(); ++j) {
+//    for (int j=0; j<outs.size(); ++j) {
 //      s += std::to_string(i);
 //      s += " -> ";
 //      s += std::to_string(outs[j]);
@@ -89,14 +88,14 @@ to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
 //
 //  //// 0. remove constants and params
 //  //int nb_removed = 0;
-//  //for (size_t i=0; i<ns.size(); ++i) {
+//  //for (int i=0; i<ns.size(); ++i) {
 //  //
 //  //}
-//  size_t init_size = ns.size();
-//  size_t new_size = ns.size();
-//  for (size_t i=0; i<init_size; ++i) {
+//  int init_size = ns.size();
+//  int new_size = ns.size();
+//  for (int i=0; i<init_size; ++i) {
 //    auto& deps = ns[i].outward_indices;
-//    for (size_t j=0; j<deps.size(); ++j) {
+//    for (int j=0; j<deps.size(); ++j) {
 //      int& dep = deps[j];
 //      const auto& dep_node = ns[dep].node;
 //      if (dep_node.is_constant()
@@ -117,14 +116,14 @@ const auto to_string_lambda = [](const auto& x){ return to_string(x); };
 const auto to_lite_string_lambda = [](const auto& x){ return to_lite_string(x); };
 
 template<class T, class F = decltype(to_string_lambda)> auto
-to_dot_format_string(const io_graph<T>& g, F node_to_string_fun = to_string_lambda) -> std::string {
+to_dot_format_string(const io_adjacency_graph<T>& g, F node_to_string_fun = to_string_lambda) -> std::string {
   // io_graph<T> const_param_dg = repeat_constants_and_params(g); // HACK
   //return to_string__impl(const_param_dg);
   return to_string__impl(g,node_to_string_fun);
 }
 
 template<class T> auto
-to_lite_dot_format_string(const io_graph<T>& g) -> std::string {
+to_lite_dot_format_string(const io_adjacency_graph<T>& g) -> std::string {
   return to_dot_format_string(g,to_lite_string_lambda);
 }
 
@@ -134,4 +133,4 @@ to_lite_dot_format_string(const io_graph<T>& g) -> std::string {
 //}
 
 
-} // graph
+} // std_e

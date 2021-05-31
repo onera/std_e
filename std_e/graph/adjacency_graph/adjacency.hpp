@@ -106,6 +106,10 @@ class io_adjacency {
       return node_idx;
     }
     constexpr auto
+    graph() const -> adjacency_graph_type* {
+      return g;
+    }
+    constexpr auto
     in_indices() -> auto& {
       return g->in_indices(node_idx);
     }
@@ -161,7 +165,7 @@ class io_adjacency {
       return {g,node_idx};
     }
     constexpr auto
-    in_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::in> {
+    in_adjacencies() const -> const adjacency_range<adjacency_graph_type,adj_orientation::in> {
       return {g,node_idx};
     }
     constexpr auto
@@ -169,7 +173,7 @@ class io_adjacency {
       return {g,node_idx};
     }
     constexpr auto
-    out_adjacencies() const -> adjacency_range<const adjacency_graph_type,adj_orientation::out> {
+    out_adjacencies() const -> const adjacency_range<adjacency_graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
     auto
@@ -191,17 +195,7 @@ class io_adjacency {
 };
 template<class AGT0, class AGT1> constexpr auto
 operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
-  // TODO TEST!!! TODO in_adjacencies !!!!!
-  LOG("\n");
-  ELOG(x.node());
-  ELOG(y.node());
-  ELOG(x.out_indices());
-  ELOG(y.out_indices());
-  LOG("\n");
-  return x.node()==y.node() && x.out_indices()==y.out_indices();
-//  return
-//      x.g == y.g
-//   && x.node_idx == y.node_idx;
+  return x.node()==y.node() && x.in_indices()==y.in_indices() && x.out_indices()==y.out_indices();
 }
 template<class AGT0, class AGT1> constexpr auto
 operator!=(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {

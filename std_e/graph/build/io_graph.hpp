@@ -40,10 +40,10 @@ struct bidirectional_graph_builder {
       // create node
       int height_lvl = height_stack.current_level();
       auto outs_lvl = outs_stack.current_level();
-      auto new_n = node_builder(n,height_lvl,outs_lvl);
-      g->nodes()[i] = new_n;
       g->in_indices()[i] =  {};
       g->out_indices()[i] = outs_lvl;
+      auto new_n = node_builder(n,height_lvl,(*g)[i].out_adjacencies());
+      g->node(i) = new_n;
 
       // back-tracking (add parent as the only parent node)
       for (index_type out : outs_lvl) {

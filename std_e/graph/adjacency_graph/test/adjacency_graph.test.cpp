@@ -24,7 +24,7 @@ TEST_CASE("make_bidirectional_from_outward_edges") {
 
   make_bidirectional_from_outward_edges(g);
 
-  auto expected_g = make_io_adjacency_graph( io_index_adjacency_vector<char>{
+  auto expected_g = make_io_adjacency_graph<char>({
     /*0*/ {'A', {1}   ,{}     },
     /*1*/ {'B', {}    ,{0,2,3}},
     /*2*/ {'C', {1}   ,{3}    },

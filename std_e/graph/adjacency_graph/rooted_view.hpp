@@ -29,6 +29,10 @@ class rooted_view {
       : g(&g)
       , root_idx(root_idx)
     {}
+    constexpr
+    rooted_view(const io_adjacency<adjacency_graph_type>& adj)
+      : rooted_view(*adj.graph(),adj.node_index())
+    {}
 
     auto
     first_root() -> adjacency_connection_iterator_type {
@@ -79,6 +83,9 @@ class rooted_view {
 
 template<class AGT>
 rooted_view(AGT& g, typename AGT::index_type root_idx) -> rooted_view<AGT>;
+
+template<class AGT>
+rooted_view(const io_adjacency<AGT>& adj) -> rooted_view<AGT>;
 
 
 template<class AGT> constexpr auto
