@@ -4,6 +4,7 @@
 #include <limits>
 #include <mpi.h>
 #include <vector>
+#include <numeric>
 #include "std_e/utils/tuple.hpp"
 #include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/future/make_array.hpp"
@@ -89,7 +90,16 @@ all_gather(T value, T* rbuf, MPI_Comm comm) -> void {
 
 
 template<class T> auto
-all_gather(std::vector<T> value, T* rbuf, std::vector<T> recvcounts, std::vector<T> displs, MPI_Comm comm) -> void {
+all_gather(const std::vector<T> & value, T* rbuf, const std::vector<T> & recvcounts, MPI_Comm comm) -> void {
+  
+  int comm_size;
+  MPI_Comm_size(comm, &comm_size);
+
+  std::vector<int> displs(comm_size);
+  
+  for (auto i = 0; i<displs.size(); ++i)
+    displs[i] = std::accumulate(recvcounts.begin(),recvcounts.begin()+i,0);
+
   int err = MPI_Allgatherv(value.data(), value.size(), to_mpi_type<T>, rbuf, recvcounts.data(), displs.data(), 
                            to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
