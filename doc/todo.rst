@@ -21,8 +21,6 @@ literalinclude: link to the original source file
 Build and CI
 ------------
 
-clean install.sh
-
 More CMake checks on whether we can build the documentation (sphinxcontrib-applehelp, breathe==4.17)
 
 Use CodeCoverage, Sanitizer, CppCheck, Clang-tidy

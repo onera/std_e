@@ -32,6 +32,8 @@ Most of the time, references are actually **built-in references**. However, the 
 .. note::
   :cpp:`std::reference_wrapper` is **not** a Reference, because its assignment operator is defined as rebinding to another object.
 
+.. _view_type_def:
+
 View type
 ---------
 

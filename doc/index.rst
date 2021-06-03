@@ -1,26 +1,10 @@
-.. container:: indexpage
+std_e Documentation
+===================
 
-  std_e
+**std_e** (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms. To get an overview of the main functionalities, take a look at :ref:`quick_start`.
 
-.. container:: twocol
+The following documentation assumes a good knowledge of the C++ standard library and recent C++ constructs.
 
-  .. container:: leftside
-
-    :ref:`quick_start`
-
-    :ref:`user_manual`
-
-    :ref:`installation`
-
-    :ref:`design_documents`
-
-  .. container:: rightside
-      
-    :ref:`source_generated_documentation`
-
-    :ref:`license`
-
-    :ref:`release_notes`
 
 Table of contents
 -----------------
@@ -44,3 +28,23 @@ Table of contents
 
   license
   todo
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+Docs
+====
+
+.. doxygenstruct:: cat
+   :members:
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+

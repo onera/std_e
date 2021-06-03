@@ -46,10 +46,10 @@ TEST_CASE("hvector") {
 TEST_CASE("hvector for_each algorithms") {
   hvector<int,double> hv = { vector{1,2,3,4} , vector{3.14,2.7} };
 
-  SUBCASE("for_each_vector") {
+  SUBCASE("for_each_range") {
     int res = 0;
     auto f = [&res](auto v){ res += 2*v.size(); };
-    for_each_vector(hv,f);
+    for_each_range(hv,f);
     CHECK( res == 2*4+2*2 );
   }
   SUBCASE("for_each_element") {
