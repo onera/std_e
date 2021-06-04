@@ -1,4 +1,4 @@
-in#pragma once
+#pragma once
 
 
 #include <limits>
@@ -9,8 +9,8 @@ in#pragma once
 #include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/future/make_array.hpp"
 #include "std_e/future/contract.hpp"
+#include "std_e/interval/knot_sequence.hpp"
 
-#include <iostream>
 
 namespace std_e {
 
@@ -97,9 +97,7 @@ all_gather(T value, MPI_Comm comm) -> std::vector<T> {
 
   std::vector<T> data_received(comm_size);
 
-  int err = MPI_Allgather(&value, 1, to_mpi_type<T>,
-                          data_received.data(), 1, to_mpi_type<T>, comm);
-  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+  std_e::all_gather(value,data_received.data(),comm);
 
   return data_received;
 }
@@ -116,10 +114,7 @@ all_gather(const std::vector<T> & value,MPI_Comm comm) -> std::vector<T> {
   int total_sz = std::reduce(recvcounts.begin(),recvcounts.end());
   std::vector<T> data_received(total_sz);
 
-  std::vector<int> displs(comm_size);
-  std::partial_sum(recvcounts.begin(),recvcounts.end(),displs.begin());
-  displs.insert(displs.begin(),0);
-  displs.pop_back();
+  std_e::knot_vector<int> displs = std_e::indices_from_sizes(recvcounts);
 
   int err = MPI_Allgatherv(value.data(), value.size(), to_mpi_type<T>, data_received.data(), recvcounts.data(), displs.data(),
                            to_mpi_type<T>, comm);
