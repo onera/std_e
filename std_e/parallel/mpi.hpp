@@ -3,10 +3,13 @@
 
 #include <limits>
 #include <mpi.h>
+#include <vector>
+#include <numeric>
 #include "std_e/utils/tuple.hpp"
 #include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/future/make_array.hpp"
 #include "std_e/future/contract.hpp"
+#include "std_e/interval/knot_sequence.hpp"
 
 
 namespace std_e {
@@ -84,6 +87,40 @@ all_gather(T value, T* rbuf, MPI_Comm comm) -> void {
   int err = MPI_Allgather(&value, 1, to_mpi_type<T>,
                           rbuf  , 1, to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+}
+
+template<class T> auto
+all_gather(T value, MPI_Comm comm) -> std::vector<T> {
+
+  int comm_size;
+  MPI_Comm_size(comm, &comm_size);
+
+  std::vector<T> data_received(comm_size);
+
+  std_e::all_gather(value,data_received.data(),comm);
+
+  return data_received;
+}
+
+template<class T> auto
+all_gather(const std::vector<T> & value,MPI_Comm comm) -> std::vector<T> {
+  
+  int comm_size;
+  MPI_Comm_size(comm, &comm_size);
+
+  int sz = value.size();
+  std::vector<int> recvcounts = std_e::all_gather(sz,comm);
+  
+  int total_sz = std::reduce(recvcounts.begin(),recvcounts.end());
+  std::vector<T> data_received(total_sz);
+
+  std_e::knot_vector<int> displs = std_e::indices_from_sizes(recvcounts);
+
+  int err = MPI_Allgatherv(value.data(), value.size(), to_mpi_type<T>, data_received.data(), recvcounts.data(), displs.data(),
+                           to_mpi_type<T>, comm);
+  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+
+  return data_received;
 }
 
 template<class T> auto

@@ -6,8 +6,6 @@
 using namespace std;
 
 MPI_TEST_CASE("all_gather",3) {
-  using data_t = vector<int>;
-  std::vector<data_t> data_to_send(3);
   int value;
   if (test_rank==0) {
     value = 10;
@@ -24,3 +22,36 @@ MPI_TEST_CASE("all_gather",3) {
 
   CHECK( data_received == vector{10,5,7} );
 }
+
+MPI_TEST_CASE("all_gather_alt",3) {
+  int value;
+  if (test_rank==0) {
+    value = 10;
+  } else if (test_rank==1) {
+    value = 5;
+  } else {
+    STD_E_ASSERT(std_e::rank(test_comm)==2);
+    value = 7;
+  }
+
+  vector<int> data_received = std_e::all_gather(value,test_comm);
+
+  CHECK( data_received == vector{10,5,7} );
+}
+
+MPI_TEST_CASE("all_gather_vect",3) {
+  vector<int> value;
+  if (test_rank==0) {
+    value = {1,2,3};
+  } else if (test_rank==1) {
+    value = {4,5,6,7};
+  } else {
+    STD_E_ASSERT(std_e::rank(test_comm)==2);
+    value = {8,9,10,11,12};
+  }
+
+  std::vector<int> rdata = std_e::all_gather(value,test_comm);
+  
+  CHECK(rdata == vector{1,2,3,4,5,6,7,8,9,10,11,12} );
+}
+ 
