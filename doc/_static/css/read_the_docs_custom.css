@@ -1,0 +1,11 @@
+@import 'theme.css'; /* for the Read the Docs theme */
+
+.rst-content div[class^="highlight"] pre {
+  font-size: 95%;
+}
+
+/*
+div.indexpage p {
+  font-size: 5.0em;
+}
+*/

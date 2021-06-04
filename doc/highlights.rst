@@ -1,19 +1,9 @@
-.. _quick_start:
+.. _highlights:
 
 .. currentmodule:: std_e
 
-Quick start
-===========
-
-.. contents:: :local:
-
-Installation
-------------
-
-**std_e** needs a C++17 compiler (in particular, gcc 8 and clang 8 onward are known to work). It only depends on the standard library. See :ref:`installation` for more details.
-
 Highlights
-----------
+==========
 
 Below is a succinct presentation of the main facilities of **std_e**. For a more detailed presentation, see the :ref:`user_manual`.
 
@@ -160,14 +150,30 @@ One way to get around this limitation is to apply the wanted operation as soon a
   :start-after: [Sphinx Doc] hvector find algorithms {
   :end-before: [Sphinx Doc] hvector find algorithms }
 
-2.4. Heterogenous range
+2.4. Template argument deduction
+"""""""""""""""""""""""""""""""""
+
+The template types of the :cpp:`hvector` can be deduced.
+
+.. literalinclude:: /../std_e/data_structure/test/heterogenous_vector.test.cpp
+  :language: C++
+  :start-after: [Sphinx Doc] hvector deduction {
+  :end-before: [Sphinx Doc] hvector deduction }
+
+.. note::
+
+  It only works in C++20
+
+
+2.5. Heterogenous range
 """""""""""""""""""""""
 
 A :cpp:`hvector<Ts...>` is actually just an alias to a :cpp:`hrange<vector,Ts...>`. That is, it is a particular case of a heterogenous range, and a :cpp:`hrange<Range,Ts...>` can be parametrized by other range types. For example, a :cpp:`hspan<Ts...>` is a :cpp:`hrange<span,Ts...>`.
 
 
-3. STD_E_ENUM
-^^^^^^^^^^^^^
+3. Enums convertible to strings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
 
 .. literalinclude:: /../std_e/utils/test/enum.test.cpp

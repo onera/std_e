@@ -126,8 +126,35 @@ TEST_CASE("hvector find algorithms") {
     CHECK( pos_in_tuple == 1 );
     CHECK( pos_in_vec == 0 );
   }
-
-
-
 }
 // [Sphinx Doc] hvector find algorithms }
+
+
+#if __cplusplus > 201703L
+TEST_CASE("hvector deduction guidelines") {
+  SUBCASE("rvalue") {
+    // [Sphinx Doc] hvector deduction {
+    hvector hv = { vector{1,2,3,4} , vector{3.14,2.7} };
+    static_assert( std::is_same_v< decltype(hv) , hvector<int,double> > );
+    CHECK( std_e::get<int>(hv) == vector{1,2,3,4} );
+    CHECK( std_e::get<double>(hv) == vector{3.14,2.7} );
+    // [Sphinx Doc] hvector deduction }
+  }
+  SUBCASE("ref") {
+    vector vi = {1,2,3,4};
+    vector vd = {3.14,2.7};
+    hvector hv = {vi,vd};
+    static_assert( std::is_same_v< decltype(hv) , hvector<int,double> > );
+    CHECK( std_e::get<int>(hv) == vector{1,2,3,4} );
+    CHECK( std_e::get<double>(hv) == vector{3.14,2.7} );
+  }
+  SUBCASE("const ref") {
+    const vector vi = {1,2,3,4};
+    const vector vd = {3.14,2.7};
+    hvector hv = {vi,vd};
+    static_assert( std::is_same_v< decltype(hv) , hvector<int,double> > );
+    CHECK( std_e::get<int>(hv) == vector{1,2,3,4} );
+    CHECK( std_e::get<double>(hv) == vector{3.14,2.7} );
+  }
+}
+#endif // C++20

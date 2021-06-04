@@ -121,7 +121,7 @@ TEST_CASE("multi_array range interface") {
   SUBCASE("underlying_range()") {
     std::vector<double>& v = ma.underlying_range();
     CHECK( v[3] == 5. );
-    
+
     v[0] = 100.;
     CHECK( ma(0,0) == 100. );
   }
@@ -131,7 +131,7 @@ TEST_CASE("multi_array range interface") {
 TEST_CASE("dyn_multi_array equality") {
   vector<int> v = {1,2,3,4,5,6};
   multi_index<int,2> dims = {3,2};
-  
+
   dyn_multi_array_view<int,2> x = {v.data(),dims};
 
   dyn_multi_array<int,2> y({1,2,3,4,5,6},dims);
@@ -158,7 +158,7 @@ TEST_CASE("multi_arrays of rank 0 are scalars") {
 
     dyn_multi_array<int,0> f_no_alloc;
     CHECK( f_no_alloc.rank() == 0 );
-    CHECK( f_no_alloc.size() == 1 ); 
+    CHECK( f_no_alloc.size() == 1 );
 
     // WARNING: nothing has been allocated!
     // The following would segfault

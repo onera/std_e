@@ -5,16 +5,17 @@
 
 namespace std_e {
 
+
+// hrange<Range,Ts...> holds ranges of different types
+// hrange means "heterogenous range"
+// It is a wrapper around tuple<Range<Ts...>> with convenient accessors and algorithms
 template<template<class> class Range_template, class... Ts>
 class hrange {
   public:
-    /** @name type traits */
-    ///@{
+    // type traits
     using ranges_tuple = std::tuple<Range_template<Ts>...>;
-    ///@}
 
-    /** @name ctors */
-    ///@{
+    // ctors {
     constexpr
     hrange() = default;
 
@@ -23,16 +24,13 @@ class hrange {
     hrange(Ranges&&... xs)
       : _impl(std::make_tuple(FWD(xs)...))
     {}
-    ///@}
+    // ctors }
 
-    /** @name access to underlying tuple */
-    ///@{
+    // access to underlying tuple
     constexpr auto impl()       ->       ranges_tuple& { return _impl; }
     constexpr auto impl() const -> const ranges_tuple& { return _impl; }
-    ///@}
 
-    /** @name low-level access */
-    ///@{
+    // low-level access {
     /// number of types
     static constexpr auto
     hsize() -> int {
@@ -46,23 +44,32 @@ class hrange {
       for_each(_impl,accumulate_size);
       return sz;
     }
-    ///@}
+    // low-level access }
 
-    /** @name vector-like interface */
-    ///@{
+    // vector-like interface
     template<class T> auto
     // requires T is one of the Ts
     push_back(const T& elt) {
       std::get<Range_template<T>>(_impl).push_back(elt);
     }
-    ///@}
   private:
     ranges_tuple _impl;
 };
 
 
-/** @name tuple-like get */
-///@{
+// deduction guidelines {
+template<template<class> class Range_template, class... Ts>
+hrange(Range_template<Ts>&&...) -> hrange<Range_template,Ts...>;
+
+template<template<class> class Range_template, class... Ts>
+hrange(Range_template<Ts>&...) -> hrange<Range_template,Ts...>;
+
+template<template<class> class Range_template, class... Ts>
+hrange(const Range_template<Ts>&...) -> hrange<Range_template,Ts...>;
+// deduction guidelines }
+
+
+// tuple-like get {
 template<class T, template<class> class RT, class... Ts> constexpr auto
 get(hrange<RT,Ts...>& x) -> RT<T>& {
   return std::get<RT<T>>(x.impl());
@@ -80,10 +87,9 @@ template<size_t I, template<class> class RT, class... Ts> constexpr auto
 get(const hrange<RT,Ts...>& x) -> const auto& {
   return std::get<I>(x.impl());
 }
-///@}
+// tuple-like get }
 
-/// @name tuple protocol
-///@{
+//  tuple protocol {
 } // std_e
 namespace std {
   template<template<class> class RT, class... Ts>
@@ -107,10 +113,10 @@ template <class F, template<class> class RT, class... Ts> constexpr auto
 apply(F&& f, const hrange<RT,Ts...>& x) -> decltype(auto) {
   return std::apply(f, x.impl());
 }
-///@}
+//  tuple protocol }
 
-/// @name algorithms
-///@{
+
+// algorithms {
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_range(hrange<RT,Ts...>& hr, F f) -> void {
   for_each(hr.impl(),f);
@@ -123,12 +129,12 @@ for_each_range(const hrange<RT,Ts...>& hr, F f) -> void {
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_element(hrange<RT,Ts...>& hr, F f) -> void {
   auto f_for_each = [f](auto& v){ for_each(v,f); };
-  for_each_vector(hr,f_for_each);
+  for_each_range(hr,f_for_each);
 }
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_element(const hrange<RT,Ts...>& hr, F f) -> void {
   auto f_for_each = [f](auto& v){ for_each(v,f); };
-  for_each_vector(hr,f_for_each);
+  for_each_range(hr,f_for_each);
 }
 
 // also defining this function for vector, for genericity purposes // TODO define for any Range
@@ -140,7 +146,6 @@ template<class T, class F> constexpr auto
 for_each_element(const std::vector<T>& v, F f) -> void {
   std::for_each(begin(v),end(v),f);
 }
-///@}
 
 
 namespace detail {
@@ -201,7 +206,7 @@ for_each_element_if(const hrange<RT,Ts...>& hr, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
   for_each_element(hr,f_cond);
 }
+// algorithms }
 
 
 } // std_e
-
