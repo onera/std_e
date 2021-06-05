@@ -1,38 +1,28 @@
-
-// ------------------------------------------------------------------
-// External include
-#include <iostream>
-#include <filesystem>
-#include <unistd.h>
-// ------------------------------------------------------------------
-
-// ------------------------------------------------------------------
-// Internal include
 #include "std_e/utils/pretty_print.hpp"
-// ------------------------------------------------------------------
+
+#include "std_e/future/make_array.hpp"
+#include <sstream>
+
 
 namespace std_e {
 
-// ------------------------------------------------------------------
-const std::array<std::string, 5> bytes_unit_suffix = {"B", "KB", "MB", "GB", "TB"};
 
-// ------------------------------------------------------------------
-std::string pretty_print_bytes(int64_t bytes)
-{
-  std::string s;
+const auto bytes_unit_suffix = std_e::make_array<std::string>("B", "KB", "MB", "GB", "TB");
+const int n_byte_units = bytes_unit_suffix.size();
+
+auto
+pretty_print_bytes(int64_t bytes) -> std::string {
   int i = 0;
   double dbl_bytes = bytes;
-
-  if (bytes > 1024) {
-    for (i = 0; (bytes / 1024) > 0 && i < static_cast<int>(bytes_unit_suffix.size()); i++, bytes /= 1024){
-      dbl_bytes = bytes / 1024.0;
-    }
+  while ((bytes /= 1024)>0 && i<n_byte_units-1) {
+    dbl_bytes /= 1024.;
+    ++i;
   }
+
   std::ostringstream oss;
-  oss << dbl_bytes << " " << bytes_unit_suffix[i];
-  s += oss.str();
-  return s;
+  oss << dbl_bytes;
+  return oss.str()+ " " + bytes_unit_suffix[i];
 }
 
-}  // end of namespace ----------------------------------------------------
 
+} // std_e

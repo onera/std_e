@@ -6,6 +6,9 @@
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 
+namespace {
+
+
 using namespace graph;
 
 
@@ -61,3 +64,6 @@ TEST_CASE("Tree reverse_levels") {
 
   CHECK( reverse_levels == expected_reverse_levels);
 }
+
+
+} // anon

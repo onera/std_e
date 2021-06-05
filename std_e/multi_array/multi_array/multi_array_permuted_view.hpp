@@ -6,6 +6,9 @@
 #include "std_e/multi_array/multi_array/concept.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 
+
+namespace std_e {
+
 /**
   concept Permutation
     permute(Multi_index) const -> Multi_index
@@ -28,9 +31,6 @@ permuted_shape(const Multi_array_shape& shape, const Permutation& perm) -> Multi
       perm.permute(shape.offset())
     );
 }
-
-
-namespace std_e {
 
 
 template<class T_ptr, class Multi_array_shape, class Permutation>
@@ -66,11 +66,11 @@ class multi_array_permuted_view : private Multi_array_shape, private Permutation
   // low-level
     FORCE_INLINE constexpr auto
     shape() const -> const shape_type& {
-      return *this; 
+      return *this;
     }
     FORCE_INLINE constexpr auto
     shape() -> shape_type& {
-      return *this; 
+      return *this;
     }
 
   // dimensions
@@ -96,10 +96,10 @@ class multi_array_permuted_view : private Multi_array_shape, private Permutation
   public:
   // member functions
     using permutation_type::permute;
-    
+
   /// fortran_linear_index { // TODO factorize with multi_array
   // from Multi_index
-    template<class Multi_index> FORCE_INLINE constexpr auto 
+    template<class Multi_index> FORCE_INLINE constexpr auto
     // requires Multi_index is an array && Multi_index::size()==rank()
     fortran_linear_index(const Multi_index& indices) const -> index_type {
       auto source_indices = permute(indices);

@@ -5,39 +5,41 @@
 
 using std::string;
 
-struct S0 {
-  int i;
-  double d;
-};
-struct S1 {
-  char c;
-};
-struct S2 {
-  S0 s0;
-  S1 s1;
-  size_t ui;
-};
-struct S3 {
-  S2 s2;
-  bool b;
-};
+namespace {
+  struct S0 {
+    int i;
+    double d;
+  };
+  struct S1 {
+    char c;
+  };
+  struct S2 {
+    S0 s0;
+    S1 s1;
+    size_t ui;
+  };
+  struct S3 {
+    S2 s2;
+    bool b;
+  };
 
-struct S0_names {
-  string i;
-  string d;
-};
-struct S1_names {
-  string c;
-};
-struct S2_names {
-  S0_names s0;
-  S1_names s1;
-  string ui;
-};
-struct S3_names {
-  S2_names s2;
-  string b;
-};
+  struct S0_names {
+    string i;
+    string d;
+  };
+  struct S1_names {
+    string c;
+  };
+  struct S2_names {
+    S0_names s0;
+    S1_names s1;
+    string ui;
+  };
+  struct S3_names {
+    S2_names s2;
+    string b;
+  };
+}
 
 
 TEST_CASE("hzip") {

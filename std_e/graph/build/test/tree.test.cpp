@@ -9,6 +9,7 @@
 #include <numeric>
 #include <iostream>
 
+namespace {
 
 using namespace graph;
 using namespace std_e;
@@ -283,3 +284,5 @@ TEST_CASE("create_pruned_tree_from_adjacencies") {
   CHECK( t == tree_built_4_for_test() );
 }
 // create_pruned_tree_from_adjacencies }
+
+} // anonymous namespace

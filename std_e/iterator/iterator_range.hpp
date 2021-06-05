@@ -34,7 +34,7 @@ struct iterator_range { // rename iter_span
     return std::distance(begin(),end());
   }
 
-  template<class Integer> constexpr auto 
+  template<class Integer> constexpr auto
   operator[](Integer i) -> reference {
     auto it = begin();
     std::advance(it,i);

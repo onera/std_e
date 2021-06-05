@@ -1,13 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <string>
-#include <array>
 
 namespace std_e {
 
-// ------------------------------------------------------------------
-// Procedure: pretty_print_bytes
-std::string pretty_print_bytes(int64_t bytes);
+auto pretty_print_bytes(int64_t bytes) -> std::string;
 
-}  // end of namespace -----------------------------------------------------
+} // std_e

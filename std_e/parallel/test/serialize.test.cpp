@@ -2,6 +2,9 @@
 #include "std_e/parallel/serialize.hpp"
 
 
+namespace {
+
+
 using namespace std_e;
 
 
@@ -164,3 +167,6 @@ TEST_CASE("serialize_array") {
     CHECK( offsets == knot_vector<int>{0,5,8,14} );
   }
 }
+
+
+} // anon

@@ -8,32 +8,36 @@
 
 using namespace std_e;
 
-struct int_height {
-  int i;
-  int height;
-};
-constexpr auto
-operator==(const int_height& x, const int_height& y) -> bool {
-  return x.i==y.i && x.height==y.height;
-}
-constexpr auto
-operator!=(const int_height& x, const int_height& y) -> bool {
-  return !(x==y);
-}
-auto
-to_string(const int_height& x) -> std::string {
-  return '('+std::to_string(x.i)+','+std::to_string(x.height)+')';
-}
 
-struct int_height_builder {
-  using arg_type = int;
-  using result_type = int_height;
-
-  template<class TTT> constexpr auto
-  operator()(int x, int height, TTT /*outwards*/) -> int_height { // TODO
-    return {x,height};
+namespace {
+  struct int_height {
+    int i;
+    int height;
+  };
+  constexpr auto
+  operator==(const int_height& x, const int_height& y) -> bool {
+    return x.i==y.i && x.height==y.height;
   }
-};
+  constexpr auto
+  operator!=(const int_height& x, const int_height& y) -> bool {
+    return !(x==y);
+  }
+  auto
+  to_string(const int_height& x) -> std::string {
+    return '('+std::to_string(x.i)+','+std::to_string(x.height)+')';
+  }
+
+  struct int_height_builder {
+    using arg_type = int;
+    using result_type = int_height;
+
+    template<class TTT> constexpr auto
+    operator()(int x, int height, TTT /*outwards*/) -> int_height { // TODO
+      return {x,height};
+    }
+  };
+}
+
 
 TEST_CASE("build_bidirectional_graph") {
   auto t = graph::create_nested_tree_for_tests();

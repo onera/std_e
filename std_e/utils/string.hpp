@@ -3,72 +3,30 @@
 
 #include <string>
 #include <string_view>
-#include <sstream>
 #include <vector>
-#include <algorithm>
 #include "std_e/future/algorithm.hpp"
 
 
 namespace std_e {
 
 
-inline auto
-remove_back_n(std::string& s, int n) -> std::string& {
-  s.resize( s.size()-n );
-  return s;
-}
+auto remove_back_n(std::string& s, int n) -> std::string&;
 
-inline auto
-join(const std::vector<std::string>& ss, const std::string& sep) -> std::string {
-  if (ss.size()==0) return "";
-  std::string res;
-  for (const std::string& s : ss) {
-    res += s + sep;
-  }
-  remove_back_n(res,sep.size());
-  return res;
-}
-inline auto
-split(const std::string& s, char sep) -> std::vector<std::string> {
-   std::vector<std::string> ss;
-   std::string token;
-   std::istringstream token_stream(s);
-   while (std::getline(token_stream, token, sep)) {
-      ss.push_back(token);
-   }
-   return ss;
-}
+auto join(const std::vector<std::string>& ss, const std::string& sep) -> std::string;
+auto split(const std::string& s, char sep) -> std::vector<std::string>;
 
-inline auto
-copy_without_spaces(const std::string& s) -> std::string {
-  std::string res;
-  auto not_space = [](char c){ return !isspace(c); };
-  std::copy_if(begin(s), end(s), std::back_inserter(res), not_space);
-  return res;
-}
+auto copy_without_spaces(const std::string& s) -> std::string;
 
-inline auto
-remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::string> {
-  return split(copy_without_spaces(s),sep);
-}
+auto remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::string>;
 
-// #if (__cplusplus >= 201703L) /// C++ 17
-// #if (__STDC_VERSION__ >= 201710L) /// cf. https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
-inline auto
-contains(std::string_view s, char c) -> bool {
-  auto it = std::find(begin(s),end(s),c);
-  return it!=end(s);
-}
+auto contains(std::string_view s, char c) -> bool;
+auto begins_with(const std::string& s, const std::string& prefix) -> bool;
+auto ends_with(const std::string& s, const std::string& prefix) -> bool;
+
 constexpr auto
 count_char(std::string_view s, char c) -> int {
   return count(begin(s),end(s),c);
 }
-// #endif
-// #endif
 
-inline auto
-begins_with(const std::string& s, const std::string& prefix) -> bool {
-  return s.rfind(prefix,0)==0;
-}
 
 } // std_e

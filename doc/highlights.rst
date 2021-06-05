@@ -18,12 +18,13 @@ In the examples below, when there is no ambiguity, we will assume that we are us
 
   Most of the code snippets presented here are actually directly extracted from **std_e** unit tests. A :cpp:`TEST_CASE` allows to define a unit test. Each :cpp:`SUBCASE` is independent from previous ones at the same level: if a variable is changed in one section, the change is not kept in the following ones (for more details, see :ref:`unit_tests`). The :cpp:`CHECK` command allows to easily see what the expected result is supposed to be.
 
+.. _multi_array_highlights:
 
 1. Multi-dimensional array
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 1.1. Include file
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^
 
 .. code:: c++
 
@@ -31,7 +32,7 @@ In the examples below, when there is no ambiguity, we will assume that we are us
 
 
 1.2. Basics
-"""""""""""
+^^^^^^^^^^^
 
 Multi-dimensional arrays of dynamic size can be created with :cpp:`dyn_multi_array<T,rank>`:
 
@@ -55,7 +56,7 @@ Multi-dimensional arrays can be constructed from dimensions and filled afterward
   :end-before: [Sphinx Doc] dyn_multi_array from dimensions }
 
 1.3. Sub-arrays
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 We often want to extract a sub-array of a multi-dimensional array. Depending on the shape of the original array and the shape wanted for the sub-array to be extracted, several interfaces are offered.
 
@@ -85,29 +86,29 @@ We often want to extract a sub-array of a multi-dimensional array. Depending on 
   :end-before: [Sphinx Doc] strided_array with multiple indices }
 
 1.4. Miscellaneous topics
-"""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The multi-dimensional array functionnalities offered by **std_e** are described in more depth in :ref:`multi_dimensional_arrays`. We briefly mention here some important points.
+The multi-dimensional array functionalities offered by **std_e** are described in more depth in :ref:`multi_dimensional_arrays`. We briefly mention here some important points.
 
 1. Only :cpp:`dyn_multi_array<T,rank>` has been presented here. But other classes are available with more parametrization. In particular, :cpp:`fixed_multi_array<T,N0,N1...>` can be used for compile-time fixed size multi-dimensional arrays.
 2. Arrays values are by default contiguous in memory and Fortran-ordered (also called "column major" or "co-lexicographic order"). Alternatives are available.
 3. With Fortran order, contiguous (non-strided) sub-arrays are possible if the fixed axes are the rightmost ones.
 
 
-2. Heterogenous vector and Heterogenous range
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2. Heterogenous vector
+----------------------
 
 A :cpp:`hvector<Ts...>` (short for heterogenous vector) is a wrapper around a :cpp:`std::tuple<std::vector<Ts...>>` with convenient access and algorithms.
 
 2.1. Include file
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^
 
 .. code:: c++
 
   #include "std_e/data_structure/heterogenous_vector.hpp"
 
 2.2. Basic usage
-""""""""""""""""
+^^^^^^^^^^^^^^^^
 
 .. literalinclude:: /../std_e/data_structure/test/heterogenous_vector.test.cpp
   :language: C++
@@ -115,7 +116,7 @@ A :cpp:`hvector<Ts...>` (short for heterogenous vector) is a wrapper around a :c
   :end-before: [Sphinx Doc] hvector }
 
 2.3. hvector algorithms
-"""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^
 
 2.3.1. for_each algorithms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +152,7 @@ One way to get around this limitation is to apply the wanted operation as soon a
   :end-before: [Sphinx Doc] hvector find algorithms }
 
 2.4. Template argument deduction
-"""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The template types of the :cpp:`hvector` can be deduced.
 
@@ -166,13 +167,15 @@ The template types of the :cpp:`hvector` can be deduced.
 
 
 2.5. Heterogenous range
-"""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^
 
 A :cpp:`hvector<Ts...>` is actually just an alias to a :cpp:`hrange<vector,Ts...>`. That is, it is a particular case of a heterogenous range, and a :cpp:`hrange<Range,Ts...>` can be parametrized by other range types. For example, a :cpp:`hspan<Ts...>` is a :cpp:`hrange<span,Ts...>`.
 
 
+.. _enum:
+
 3. Enums convertible to strings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 
 C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
 

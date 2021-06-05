@@ -7,6 +7,9 @@
 #include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
+namespace {
+
+
 using namespace graph;
 using namespace std_e;
 using namespace std;
@@ -350,3 +353,6 @@ TEST_CASE("Adj graph depth-first prune") {
 
   CHECK( v.s == expected_s );
 }
+
+
+} // anon

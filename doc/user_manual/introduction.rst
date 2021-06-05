@@ -40,7 +40,7 @@ Unit tests
 
 In **std_e**, unit tests serve a double purpose:
 
-* automatically ensuring code functionnality and quality
+* automatically ensuring code functionality and quality
 * propose a clear, precise documentation of the different features.
 
 Unit tests are extensively integrated in this documentation. If a feature is available in file :code:`std_e/my_feature/my_file.hpp`, then the associated unit-tests is generally in file :code:`std_e/my_feature/test/my_file.test.cpp`

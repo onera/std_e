@@ -4,16 +4,17 @@
 
 using namespace std_e;
 
-//using A = char;
-class A {
-  public:
-  A() = default;
-  A(const A&) = delete;
-  A& operator=(const A&) = delete;
-};
-using B = int;
-using C = long;
-using D = double;
+namespace {
+  class A {
+    public:
+    A() = default;
+    A(const A&) = delete;
+    A& operator=(const A&) = delete;
+  };
+  using B = int;
+  using C = long;
+  using D = double;
+}
 
 
 TEST_CASE("tuple cart prod") {

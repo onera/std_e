@@ -5,6 +5,9 @@
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 
+namespace {
+
+
 using namespace graph;
 
 
@@ -125,3 +128,6 @@ TEST_CASE("nested_tree intrusive depth-first search with pre-order") {
   std::vector<int> expected_dfs_pre_nodes = {1, 2,4,7, 3,8,9,10,11};
   CHECK( f.dfs_pre_nodes() == expected_dfs_pre_nodes );
 }
+
+
+} // anon

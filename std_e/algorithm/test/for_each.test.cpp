@@ -27,25 +27,27 @@ TEST_CASE("for_each_until") {
 }
 
 
-class id_comparison_generator {
-  public:
-    constexpr
-    id_comparison_generator(int id)
-      : id(id)
-    {}
+namespace {
+  class id_comparison_generator {
+    public:
+      constexpr
+      id_comparison_generator(int id)
+        : id(id)
+      {}
 
-    constexpr auto
-    operator++() {
-      ++id;
-      return *this;
-    }
-    constexpr auto
-    operator*() const {
-      return [id = this->id](const id_string& x){ return x.id==id; };
-    }
-  private:
-    int id;
-};
+      constexpr auto
+      operator++() {
+        ++id;
+        return *this;
+      }
+      constexpr auto
+      operator*() const {
+        return [id = this->id](const id_string& x){ return x.id==id; };
+      }
+    private:
+      int id;
+  };
+}
 
 TEST_CASE("for_each_partition") {
   std::vector<id_string> v_sorted_by_id = {
@@ -112,12 +114,12 @@ TEST_CASE("for_each_equivalent_ref") {
     {0,"10"},
     {0,"10"},
     {0,"10"},
-         
+
     {1,"20"},
     {1,"20"},
     {1,"20"},
     {1,"20"},
-         
+
     {2,"30"},
     {2,"30"},
   };

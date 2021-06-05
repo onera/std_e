@@ -6,15 +6,17 @@
 using std::vector;
 using std::tuple;
 
-struct S1{
-  int i;
-};
-struct S2{
-  int i;
-};
-struct S3{
-  int i;
-};
+namespace {
+  struct S1{
+    int i;
+  };
+  struct S2{
+    int i;
+  };
+  struct S3{
+    int i;
+  };
+}
 
 
 TEST_CASE("tuple for_each") {

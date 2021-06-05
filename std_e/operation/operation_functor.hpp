@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "std_e/base/var_arg_reduction.hpp"
 #include "std_e/operation/operation_kind.hpp"
 #include "std_e/future/is_detected.hpp"
 #include "std_e/base/lift.hpp"

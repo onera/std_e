@@ -12,5 +12,4 @@ User Manual
   introduction
   multi_dimensional_arrays
   log
-  undocumented
-  misc/misc
+  folders
