@@ -4,8 +4,10 @@
 Design documents
 ################
 
+.. currentmodule:: std_e
+
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 3
 
   aliases_vs_inheritance_vs_strong_typing
   graphs

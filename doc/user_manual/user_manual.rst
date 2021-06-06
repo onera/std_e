@@ -12,4 +12,6 @@ User Manual
   introduction
   multi_dimensional_arrays
   log
-  folders
+  lift
+  operation
+  interval

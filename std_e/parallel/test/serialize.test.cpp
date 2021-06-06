@@ -159,12 +159,12 @@ TEST_CASE("serialize_array") {
   SUBCASE("trivial") {
     std::vector v = {4,3,1,6};
     auto [offsets,data] = serialize_array(v);
-    CHECK( offsets == knot_vector<int>{0,1*sizeof(int),2*sizeof(int),3*sizeof(int),4*sizeof(int)} );
+    CHECK( offsets == interval_vector<int>{0,1*sizeof(int),2*sizeof(int),3*sizeof(int),4*sizeof(int)} );
   }
   SUBCASE("non-trivial") {
     std::vector<std::string> v = {"alice","bob","carole"};
     auto [offsets,data] = serialize_array(v);
-    CHECK( offsets == knot_vector<int>{0,5,8,14} );
+    CHECK( offsets == interval_vector<int>{0,5,8,14} );
   }
 }
 

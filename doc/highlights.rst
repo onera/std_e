@@ -20,8 +20,8 @@ In the examples below, when there is no ambiguity, we will assume that we are us
 
 .. _multi_array_highlights:
 
-1. Multi-dimensional array
---------------------------
+Introduction to multi-dimensional arrays
+----------------------------------------
 
 1.1. Include file
 ^^^^^^^^^^^^^^^^^
@@ -95,8 +95,8 @@ The multi-dimensional array functionalities offered by **std_e** are described i
 3. With Fortran order, contiguous (non-strided) sub-arrays are possible if the fixed axes are the rightmost ones.
 
 
-2. Heterogenous vector
-----------------------
+Heterogenous vector
+-------------------
 
 A :cpp:`hvector<Ts...>` (short for heterogenous vector) is a wrapper around a :cpp:`std::tuple<std::vector<Ts...>>` with convenient access and algorithms.
 
@@ -174,8 +174,8 @@ A :cpp:`hvector<Ts...>` is actually just an alias to a :cpp:`hrange<vector,Ts...
 
 .. _enum:
 
-3. Enums convertible to strings
--------------------------------
+Enums convertible to strings
+----------------------------
 
 C++ :cpp:`enum` and :cpp:`enum class` are missing two convenient features: the number of entries in the enum and conversions to :cpp:`std::string`. These features are provided by :cpp:`STD_E_ENUM` and :cpp:`STD_E_ENUM_CLASS` respectively. Example with :cpp:`STD_E_ENUM_CLASS`:
 

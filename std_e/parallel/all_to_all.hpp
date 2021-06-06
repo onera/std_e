@@ -6,7 +6,7 @@
 #include "std_e/parallel/serialize.hpp"
 #include "std_e/parallel/compressed_array.hpp"
 #include "std_e/data_structure/jagged_range.hpp"
-#include "std_e/interval/knot_sequence.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 
 
 namespace std_e {
@@ -67,10 +67,10 @@ all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = def
 }
 
 template<class Range, class F = dense_algo_family> auto
-all_to_all(const knot_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all) -> std_e::knot_vector<int> {
+all_to_all(const interval_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all) -> std_e::interval_vector<int> {
   std::vector<int> sstrides = interval_lengths(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,alltoall_algo);
-  return indices_from_sizes(rstrides);
+  return indices_from_strides(rstrides);
 }
 // all_to_all }
 
@@ -82,7 +82,7 @@ all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm, F algo_family = {}
 
   std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
 
-  knot_vector<int> roffsets = indices_from_sizes(rstrides);
+  interval_vector<int> roffsets = indices_from_strides(rstrides);
 
   std::vector<T> rbuf(roffsets.length());
   all_to_all_v(sbuf.data(), sstrides.data(), soffsets.data(),
@@ -121,7 +121,7 @@ all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm
   using T = typename Range::value_type;
   std::vector<int> sstrides = interval_lengths(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
-  knot_vector<int> rindices = indices_from_sizes(rstrides);
+  interval_vector<int> rindices = indices_from_strides(rstrides);
   std::vector<T> rbuf(rindices.length());
 
   all_to_all_v(
@@ -140,9 +140,9 @@ neighbor_all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices,
 template<class Range, class Int_range, class F = dense_algo_family> auto
 all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
-  knot_vector<int> sindices = indices_from_sizes(sindices);
+  interval_vector<int> sindices = indices_from_strides(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
-  knot_vector<int> rindices = indices_from_sizes(rstrides);
+  interval_vector<int> rindices = indices_from_strides(rstrides);
   std::vector<T> rbuf(rstrides.size());
 
   all_to_all_v(
@@ -166,7 +166,7 @@ all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = 
   const auto& data = sends.flat_ref();
   const auto& inner_indices = indices<0>(sends);
   const auto& outer_indices = indices<1>(sends);
-  knot_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
+  interval_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
 
   // TODO extract
   int nb_procs = outer_indices.size()-1;

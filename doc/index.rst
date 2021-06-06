@@ -3,7 +3,7 @@ Welcome to std_e!
 *****************
 
 
-**std_e** (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms. To get an overview of the main functionalities, take a look at :ref:`highlights`.
+**std_e** (for "standard extended") is a C++17 library. It contains general-purpose data structures and algorithms. To get an overview of the main functionalities, take a look at :ref:`highlights`. You can also browse the :ref:`folders` for a brief description of functionnalities folder by folder.
 
 The following documentation assumes a good knowledge of the C++ standard library and recent C++ constructs.
 
@@ -21,6 +21,7 @@ Table of contents
   :caption: Reference:
 
   highlights
+  user_manual/folders
   user_manual/user_manual
   installation
   design_documents/design_documents

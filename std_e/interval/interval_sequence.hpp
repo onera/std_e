@@ -12,14 +12,14 @@ namespace std_e {
 
 // fwd decls
 template<class Number> auto
-to_knot_vector(std::vector<Number> v);
+to_interval_vector(std::vector<Number> v);
 
 /**
-concept Knot_sequence : Random_access_range, Interval
+concept Interval_sequence : Random_access_range, Interval
   value_type is Number
   ordered sequence
 
-  nb_intervals() -> Integer
+  n_interval() -> Integer
   interval() -> interval<value_type>
   interval(i) -> interval<value_type>
 
@@ -29,38 +29,38 @@ concept Knot_sequence : Random_access_range, Interval
 */
 
 template<class Random_access_range>
-class [[deprecated("use interval_sequence")]] knot_sequence : private Random_access_range {
+class interval_sequence : private Random_access_range {
   public:
   // class invariants:
   //  - ordered
     using base = Random_access_range;
-    using this_type = knot_sequence<Random_access_range>;
+    using this_type = interval_sequence<Random_access_range>;
     using value_type = typename base::value_type;
 
   // ctors
-    knot_sequence() = default;
+    interval_sequence() = default;
 
-    knot_sequence(int n)
+    interval_sequence(int n)
       : base(n+1)
     {}
-    knot_sequence(int n, value_type x)
+    interval_sequence(int n, value_type x)
       : base(n+1,x)
     {}
 
     template<class Iterator>
-    knot_sequence(Iterator first, value_type n)
+    interval_sequence(Iterator first, value_type n)
       : base(first,first+n+1)
     {}
     template<class Iterator>
-    knot_sequence(Iterator first, Iterator last)
+    interval_sequence(Iterator first, Iterator last)
       : base(first,last)
     {}
 
-    knot_sequence(std::initializer_list<value_type> l)
+    interval_sequence(std::initializer_list<value_type> l)
       : base(l)
     {}
 
-  // Knot_sequence interface
+  // Interval_sequence interface
     using base::size;
     using base::begin;
     using base::end;
@@ -68,7 +68,7 @@ class [[deprecated("use interval_sequence")]] knot_sequence : private Random_acc
     using base::operator[];
     using base::back;
 
-    auto nb_intervals() const -> int {
+    auto n_interval() const -> int {
       return this->size()-1;
     }
 
@@ -76,7 +76,7 @@ class [[deprecated("use interval_sequence")]] knot_sequence : private Random_acc
       return (*this)[0];
     };
     auto inf(int i) const -> int {
-      STD_E_ASSERT(i<nb_intervals());
+      STD_E_ASSERT(i<n_interval());
       return (*this)[i];
     };
 
@@ -84,7 +84,7 @@ class [[deprecated("use interval_sequence")]] knot_sequence : private Random_acc
       return back();
     };
     auto sup(int i) const -> int {
-      STD_E_ASSERT(i<nb_intervals());
+      STD_E_ASSERT(i<n_interval());
       return (*this)[i+1];
     };
 
@@ -92,7 +92,7 @@ class [[deprecated("use interval_sequence")]] knot_sequence : private Random_acc
       return back() - (*this)[0];
     };
     auto length(int i) const -> int {
-      STD_E_ASSERT(i<nb_intervals());
+      STD_E_ASSERT(i<n_interval());
       return (*this)[i+1] - (*this)[i];
     };
 
@@ -122,87 +122,84 @@ class [[deprecated("use interval_sequence")]] knot_sequence : private Random_acc
     // Compiler hack around too eager template class non-template member instantiation
     // SEE https://stackoverflow.com/q/63810583/1583122
     template<class T0, std::enable_if_t<std::is_same_v<T0,std::vector<value_type>>,int> =0>
-    knot_sequence(T0 v)
+    interval_sequence(T0 v)
       : base(std::move(v))
     {}
-    constexpr auto friend to_knot_vector<>(std::vector<value_type> v);
+    constexpr auto friend to_interval_vector<>(std::vector<value_type> v);
 };
 
 template<class Rng0, class Rng1> constexpr auto
-operator==(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
+operator==(const interval_sequence<Rng0>& x, const interval_sequence<Rng1>& y) {
   return x.as_base() == y.as_base();
 }
 template<class Rng0, class Rng1> constexpr auto
-operator!=(const knot_sequence<Rng0>& x, const knot_sequence<Rng1>& y) {
+operator!=(const interval_sequence<Rng0>& x, const interval_sequence<Rng1>& y) {
   return !(x==y);
 }
 template<class Rng> auto
-begin(const knot_sequence<Rng>& x) {
+begin(const interval_sequence<Rng>& x) {
   return x.begin();
 }
 template<class Rng> auto
-begin(knot_sequence<Rng>& x) {
+begin(interval_sequence<Rng>& x) {
   return x.begin();
 }
 template<class Rng> auto
-end(const knot_sequence<Rng>& x) {
+end(const interval_sequence<Rng>& x) {
   return x.end();
 }
 template<class Rng> auto
-end(knot_sequence<Rng>& x) {
+end(interval_sequence<Rng>& x) {
   return x.end();
 }
 template<class Rng> auto
-to_string(const knot_sequence<Rng>& x) -> std::string {
+to_string(const interval_sequence<Rng>& x) -> std::string {
   return to_string(x.as_base());
 }
 
 
-template<class Number> using knot_vector = knot_sequence<std::vector<Number>>;
-template<class Number> using knot_span = knot_sequence<std_e::span<Number>>;
+template<class Number> using interval_vector = interval_sequence<std::vector<Number>>;
+template<class Number> using interval_span = interval_sequence<std_e::span<Number>>;
 
-template<class Number> using interval_vector = knot_sequence<std::vector<Number>>;
-template<class Number> using interval_span = knot_sequence<std_e::span<Number>>;
-
-using int_knot_vector = knot_vector<int>;
-using int_knot_span = knot_span<int>;
+using int_interval_vector = interval_vector<int>;
+using int_interval_span = interval_span<int>;
 
 template<class Number> auto
-to_knot_span(span<Number> s) {
+to_interval_span(span<Number> s) {
   STD_E_ASSERT(std::is_sorted(begin(s),end(s)));
-  return knot_span<Number>(s.data(),s.size()-1);
+  return interval_span<Number>(s.data(),s.size()-1);
 }
 template<class Rng, class I = typename Rng::value_type> auto
-to_knot_span(const knot_sequence<Rng>& x) -> knot_span<const I> {
-  return knot_span<const I>(x.data(),x.data()+x.size());
+to_interval_span(const interval_sequence<Rng>& x) -> interval_span<const I> {
+  return interval_span<const I>(x.data(),x.data()+x.size());
 }
 
 template<class Number> auto
-to_knot_vector(std::vector<Number> v) {
+to_interval_vector(std::vector<Number> v) {
   STD_E_ASSERT(std::is_sorted(begin(v),end(v)));
-  return knot_vector<Number>(std::move(v));
+  return interval_vector<Number>(std::move(v));
 }
 
 
 // algorithms {
-template<class Knot_sequence, class T = std::remove_const_t<typename Knot_sequence::value_type>> constexpr auto
-interval_lengths(const Knot_sequence& ks) -> std::vector<T> {
-  std::vector<T> res(ks.nb_intervals());
-  std::adjacent_difference(ks.begin()+1,ks.end(),begin(res));
-  res[0] = ks.length(0);
+template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
+interval_lengths(const Interval_sequence& is) -> std::vector<T> {
+  std::vector<T> res(is.n_interval());
+  std::adjacent_difference(is.begin()+1,is.end(),begin(res));
+  res[0] = is.length(0);
   return res;
 }
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
-indices_from_sizes(const Random_access_range& r) -> knot_vector<T> { // TODO rename indices_from_strides
-  knot_vector<T> indices(r.size());
+indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
+  interval_vector<T> indices(r.size());
   indices[0] = 0;
   std_e::inclusive_scan(begin(r),end(r),begin(indices)+1);
   return indices;
 }
-template<class Number, class Knot_sequence> auto
-interval_index(Number x, const Knot_sequence& ks) {
-  auto it = std::upper_bound(begin(ks),end(ks),x);
-  return it-begin(ks)-1;
+template<class Number, class Interval_sequence> auto
+interval_index(Number x, const Interval_sequence& is) {
+  auto it = std::upper_bound(begin(is),end(is),x);
+  return it-begin(is)-1;
 }
 // algorithms }
 

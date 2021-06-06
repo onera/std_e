@@ -9,7 +9,6 @@ RENAME make_sub_array -> slice ?
 strided_view of strided_view (which sometimes returns a multi_array!)
 helper_bind
 flatten_tuple
-utils/integer_range => move + facto
 utils/pretty_print => TEST
 
 
