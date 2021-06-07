@@ -4,6 +4,19 @@
 using namespace std_e;
 using namespace std;
 
+// [Sphinx Doc] jagged_vector {
+TEST_CASE("jagged_vector principle") {
+  jagged_vector<int> v = {{9,5,6,7},{1,3},{8,2,4}};
+  CHECK( v.flat_view() == vector{9,5,6,7,1,3,8,2,4} );
+  CHECK( v.indices() == interval_vector<int>{0,4,6,9} );
+
+  CHECK( v.size() == 3 );
+  CHECK( v[0] == vector{9,5,6,7} );
+  CHECK( v[1] == vector{1,3} );
+  CHECK( v[2] == vector{8,2,4} );
+}
+// [Sphinx Doc] jagged_vector }
+
 TEST_CASE("jagged_vector") {
   SUBCASE("base test") {
     jagged_vector<int> v;

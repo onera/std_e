@@ -59,7 +59,7 @@ TEST_CASE("update_ids_after_permutation__involutive") {
   vector<int> ids = {42,44,43};
 
   std_e::update_ids_after_permutation(ids,permutation,offset);
-  
+
   CHECK( ids == (vector<int>{44,42,43}) );
 }
 
@@ -70,7 +70,7 @@ TEST_CASE("update_ids_after_permutation__non_involutive") {
   vector<int> ids = {42,44,43};
 
   std_e::update_ids_after_permutation(ids,permutation,offset);
-  
+
   CHECK( ids == (vector<int>{44,43,42}) );
 }
 
@@ -81,7 +81,7 @@ TEST_CASE("update_ids_in_range_after_permutation__non_involutive") {
   vector<int> ids = {41, 42,44,43, 45};
 
   std_e::update_ids_in_range_after_permutation(ids,permutation,inter);
-  
+
   CHECK( ids == (vector<int>{41, 44,43,42, 45}) );
 }
 
@@ -95,22 +95,24 @@ TEST_CASE("offset_permutation") {
 }
 
 
-TEST_CASE("apply_permutation__involutive") {
-  std_e::offset_permutation permutation(42, {2,1,0}); // involutive permutation
+TEST_CASE("apply_permutation") {
+  SUBCASE("involutive permutation") {
+    std_e::offset_permutation permutation(42, {2,1,0}); // involutive permutation
 
-  vector<int> ids = {42,44,43};
+    vector<int> ids = {42,44,43};
 
-  std_e::apply(permutation,ids);
+    std_e::apply(permutation,ids);
 
-  CHECK( ids == (vector{44,42,43}) );
-}
+    CHECK( ids == (vector{44,42,43}) );
+  }
 
-TEST_CASE("apply_permutation__non_involutive") {
-  std_e::offset_permutation permutation(42, {2,0,1}); // non-involutive permutation
+  SUBCASE("non-involutive permutation") {
+    std_e::offset_permutation permutation(42, {2,0,1}); // non-involutive permutation
 
-  vector<int> ids = {42,44,43};
+    vector<int> ids = {42,44,43};
 
-  std_e::apply(permutation,ids);
+    std_e::apply(permutation,ids);
 
-  CHECK( ids == (vector{44,43,42}) );
+    CHECK( ids == (vector{44,43,42}) );
+  }
 }

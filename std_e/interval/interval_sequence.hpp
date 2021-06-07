@@ -161,6 +161,7 @@ to_string(const interval_sequence<Rng>& x) -> std::string {
 template<class Number> using interval_vector = interval_sequence<std::vector<Number>>;
 template<class Number> using interval_span = interval_sequence<std_e::span<Number>>;
 
+// TODO deprecate
 using int_interval_vector = interval_vector<int>;
 using int_interval_span = interval_span<int>;
 

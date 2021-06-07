@@ -17,7 +17,7 @@ Table of contents
 -----------------
 
 .. toctree::
-  :maxdepth: 4
+  :maxdepth: 6
   :caption: Reference:
 
   highlights
@@ -27,7 +27,7 @@ Table of contents
   design_documents/design_documents
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 6
   :caption: Appendix:
 
   releases/release_notes

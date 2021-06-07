@@ -32,7 +32,7 @@ concatenate_on_axis(int axis, const Multi_arrays& in_arrays, Multi_array& out_ar
   // Preconditions:
   //  - all in_arrays are of the same range
   //  - all in_arrays are of the same extent, except extent(axis)
-  //  - cat array is 
+  //  - cat array is
   //      - of the sum of in_arrays extent(axis)
   //      - of the extent of in_arrays for all other axes
   int offset = 0;

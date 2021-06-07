@@ -62,7 +62,7 @@ sort_redirect_inward_to_equivalent(I* first, I* last, io_adjacency_graph<T>& g, 
   std::stable_sort(first,last,less);
 
   auto f = [eq,&g](I* i_ptr, I* j_ptr){ return redirect_inward_to_equivalent(i_ptr,j_ptr,g,eq); };
-  std_e::for_each_equivalent(first,last,f);
+  std_e::replace_by_first_equivalent(first,last,f);
 }
 
 

@@ -16,6 +16,8 @@ Doc
 ---
 literalinclude: link to the original source file
 
+graph
+
 
 Build and CI
 ------------

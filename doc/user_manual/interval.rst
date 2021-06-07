@@ -1,6 +1,6 @@
 .. _interval:
 
-interval operations
+Interval operations
 ===================
 
 interval
@@ -30,6 +30,8 @@ Multi-intervals are the extension of intervals in n dimensions. They represent r
   :language: C++
   :start-after: [Sphinx Doc] multi_interval {
   :end-before: [Sphinx Doc] multi_interval }
+
+.. _interval_seq:
 
 interval sequences
 ------------------

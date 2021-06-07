@@ -1,6 +1,6 @@
 .. _lift:
 
-lift
+Lift
 ----
 
 :cpp:`LIFT(f)` converts an overload set named **f** into a generic lambda, callable with exactly the same arguments that would be possible for **f**. Example:

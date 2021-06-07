@@ -87,7 +87,7 @@ TEST_CASE("for_each_partition") {
 }
 
 
-TEST_CASE("for_each_equivalent_ref") {
+TEST_CASE("replace_by_first_equivalent_ref") {
   std::vector<id_string> v_sorted_by_id = {
     {0,"10"},
     {0,"11"},
@@ -108,7 +108,7 @@ TEST_CASE("for_each_equivalent_ref") {
     }
     return false;
   };
-  for_each_equivalent_ref(begin(v_sorted_by_id),end(v_sorted_by_id), replace_value_if_same_id);
+  replace_by_first_equivalent_ref(begin(v_sorted_by_id),end(v_sorted_by_id), replace_value_if_same_id);
 
   std::vector<id_string> expected_res = {
     {0,"10"},

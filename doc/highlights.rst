@@ -63,7 +63,7 @@ We often want to extract a sub-array of a multi-dimensional array. Depending on 
 1.3.1. Sub-arrays of 2D arrays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] 2D array sub-views {
   :end-before: [Sphinx Doc] 2D array sub-views }
@@ -72,7 +72,7 @@ We often want to extract a sub-array of a multi-dimensional array. Depending on 
 1.3.2. Sub-arrays along one axis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with one index {
   :end-before: [Sphinx Doc] strided_array with one index }
@@ -80,7 +80,7 @@ We often want to extract a sub-array of a multi-dimensional array. Depending on 
 1.3.3. Sub-arrays along multiple axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with multiple indices {
   :end-before: [Sphinx Doc] strided_array with multiple indices }
@@ -94,6 +94,7 @@ The multi-dimensional array functionalities offered by **std_e** are described i
 2. Arrays values are by default contiguous in memory and Fortran-ordered (also called "column major" or "co-lexicographic order"). Alternatives are available.
 3. With Fortran order, contiguous (non-strided) sub-arrays are possible if the fixed axes are the rightmost ones.
 
+.. _hvector:
 
 Heterogenous vector
 -------------------

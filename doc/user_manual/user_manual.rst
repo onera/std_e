@@ -7,11 +7,14 @@ User Manual
 .. currentmodule:: std_e
 
 .. toctree::
-  :maxdepth: 3
+  :maxdepth: 6
 
   introduction
   multi_dimensional_arrays
-  log
-  lift
-  operation
   interval
+  jagged_array
+  graph
+  log
+  operation
+  lift
+  switch

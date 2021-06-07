@@ -27,7 +27,7 @@ author = 'ONERA'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["breathe"]
+extensions = ["breathe","sphinx.ext.graphviz"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -59,13 +59,15 @@ html_static_path = ['@PROJECT_SOURCE_DIR@/doc/_static']
 
 html_style = 'css/read_the_docs_custom.css'
 
-
-# Breathe Configuration
-breathe_default_project = '@PROJECT_NAME@'
-
 # The name of the Pygments (syntax highlighting) style to use.
 # list with >>> from pygments.styles import STYLE_MAP; STYLE_MAP.keys()
 pygments_style = 'monokai'
+
+# Graphviz config
+graphviz_output_format = "svg"
+
+# Breathe config
+breathe_default_project = '@PROJECT_NAME@'
 
 rst_prolog = """
 .. role:: cpp(code)

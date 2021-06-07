@@ -236,21 +236,21 @@ Sometimes, it is not possible to create a contiguous sub-view. We must then fall
 
 Strided view along one axis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with one index {
   :end-before: [Sphinx Doc] strided_array with one index }
 
 Strided view along multiple axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] strided_array with multiple indices {
   :end-before: [Sphinx Doc] strided_array with multiple indices }
 
 Columns and rows of 2D arrays
 """""""""""""""""""""""""""""
-.. literalinclude:: /../std_e/multi_array/test/strided_array.test.cpp
+.. literalinclude:: /../std_e/multi_array/multi_array/test/strided_array.test.cpp
   :language: C++
   :start-after: [Sphinx Doc] 2D array sub-views {
   :end-before: [Sphinx Doc] 2D array sub-views }

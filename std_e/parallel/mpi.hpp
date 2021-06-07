@@ -34,7 +34,7 @@ rank(MPI_Comm comm) -> int {
   return i;
 }
 inline auto
-nb_ranks(MPI_Comm comm) -> int {
+nb_ranks(MPI_Comm comm) -> int { // TODO deprecate for n_rank
   int n;
   MPI_Comm_size(comm, &n);
   return n;

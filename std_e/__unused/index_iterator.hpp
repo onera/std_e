@@ -18,7 +18,7 @@ concept Index_iterator_traits
 */
 
 template<class index_iterator_traits_type, class Rng, class Index_it>
-// requieres index_iterator_traits_type is an index_iterator_traits_type
+// requires index_iterator_traits_type is an index_iterator_traits_type
 // requires Rng is a random access collection
 // requires Index_it is an Integer Iterator
 class index_iterator {

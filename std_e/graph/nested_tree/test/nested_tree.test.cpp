@@ -10,6 +10,25 @@ namespace {
 
 using namespace graph;
 
+// [Sphinx Doc] nested_tree {
+TEST_CASE("Nested tree principle") {
+  auto t4 = tree<int>{4};
+  auto t7 = tree<int>{7};
+  auto t2 = create_tree(2,t4,t7);
+
+  auto t3 = tree<int>{3};
+
+  auto t = create_tree(1,t2,t3);
+
+  CHECK( t.size() == 5 );
+  CHECK( root(t) == 1 );
+
+  auto cs = children(t);
+  CHECK( cs.size() == 2 );
+  CHECK( cs[0] == t2 );
+  CHECK( cs[1] == t3 );
+}
+// [Sphinx Doc] nested_tree }
 
 TEST_CASE("Nested tree basic accessors") {
   auto t = create_nested_tree_for_tests();
@@ -87,7 +106,7 @@ TEST_CASE("Nested tree is_leaf") {
 TEST_CASE("Nested tree to string") {
   auto t = create_nested_tree_for_tests();
 
-  std::string expected_t_to_string = 
+  std::string expected_t_to_string =
     "1\n"
     "  2\n"
     "    4\n"

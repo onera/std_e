@@ -5,7 +5,7 @@
 
 
 namespace std_e {
-/* 
+/*
   concept Range_function:
     has operator()(Iterator,Iterator)
 
@@ -22,7 +22,7 @@ template<class Forward_it, class S, class Predicate_generator, class Range_funct
 for_each_partition(Forward_it first, S last, Predicate_generator comparison_generator, Range_function f) {
   auto p_first = first;
   while (p_first!=last) {
-    auto p_last = std_e::partition_point(p_first,last,*comparison_generator); // TODO equal_level
+    auto p_last = std_e::partition_point(p_first,last,*comparison_generator);
     f(p_first,p_last);
 
     ++comparison_generator;
@@ -49,7 +49,7 @@ for_each_until(Forward_it first, S last, Unary_pred p, F f) -> Forward_it {
 // TODO RENAME replace_by_first_equivalent
 template<class Forward_it, class S, class Binary_pred> constexpr auto
 // requires Binary_pred(Forward_it,Forward_it) -> bool
-for_each_equivalent(Forward_it first, S last, Binary_pred f) -> void {
+replace_by_first_equivalent(Forward_it first, S last, Binary_pred f) -> void {
   if (first==last) return;
   auto first_eq = first;
   while (++first != last) {
@@ -59,9 +59,9 @@ for_each_equivalent(Forward_it first, S last, Binary_pred f) -> void {
 }
 template<class Forward_it, class S, class Binary_pred> constexpr auto
 // requires Binary_pred(Forward_it::value_type,Forward_it::value_type) -> bool
-for_each_equivalent_ref(Forward_it first, S last, Binary_pred f) -> void {
+replace_by_first_equivalent_ref(Forward_it first, S last, Binary_pred f) -> void {
   auto f_iter = [f](auto it0, auto it1){ return f(*it0,*it1); };
-  for_each_equivalent(first,last,f_iter);
+  replace_by_first_equivalent(first,last,f_iter);
 }
 
 

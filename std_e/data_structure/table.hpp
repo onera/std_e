@@ -5,7 +5,7 @@
 
 namespace std_e {
 
-// spreadsheet-like class 
+// spreadsheet-like class
 // "column" names may be used to create descriptive function names (through use of macros below)
 template<class... Ts> using table = multi_vector<Ts...>;
 
