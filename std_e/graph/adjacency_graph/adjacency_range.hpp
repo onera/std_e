@@ -8,20 +8,20 @@
 namespace std_e {
 
 
-template<class adjacency_graph_type, adj_orientation ori>
+template<class graph_type, adj_orientation ori>
 class adjacency_range {
   public:
-    using index_type = typename adjacency_graph_type::index_type;
-    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
-    using const_adjacency_type = typename adjacency_graph_type::const_adjacency_type;
-    using adjacency_iterator_type = adjacency_edge_iterator_type_of<adjacency_graph_type,ori>;
-    using const_adjacency_iterator_type = adjacency_edge_iterator<const adjacency_graph_type,ori>;
+    using index_type = typename graph_type::index_type;
+    using adjacency_type = adjacency_type_of<graph_type>;
+    using const_adjacency_type = typename graph_type::const_adjacency_type;
+    using adjacency_iterator_type = adjacency_edge_iterator_type_of<graph_type,ori>;
+    using const_adjacency_iterator_type = adjacency_edge_iterator<const graph_type,ori>;
 
     constexpr
     adjacency_range() = default;
 
     constexpr
-    adjacency_range(adjacency_graph_type* g, index_type node_idx)
+    adjacency_range(graph_type* g, index_type node_idx)
       : g(g)
       , node_idx(node_idx)
     {}
@@ -85,24 +85,24 @@ class adjacency_range {
       }
     }
   // data
-    adjacency_graph_type* g;
+    graph_type* g;
     index_type node_idx;
 };
 
-template<class AGT, adj_orientation ori> constexpr auto
-begin(adjacency_range<AGT,ori>& g) {
+template<class GT, adj_orientation ori> constexpr auto
+begin(adjacency_range<GT,ori>& g) {
   return g.begin();
 }
-template<class AGT, adj_orientation ori> constexpr auto
-begin(const adjacency_range<AGT,ori>& g) {
+template<class GT, adj_orientation ori> constexpr auto
+begin(const adjacency_range<GT,ori>& g) {
   return g.begin();
 }
-template<class AGT, adj_orientation ori> constexpr auto
-end(adjacency_range<AGT,ori>& g) {
+template<class GT, adj_orientation ori> constexpr auto
+end(adjacency_range<GT,ori>& g) {
   return g.end();
 }
-template<class AGT, adj_orientation ori> constexpr auto
-end(const adjacency_range<AGT,ori>& g) {
+template<class GT, adj_orientation ori> constexpr auto
+end(const adjacency_range<GT,ori>& g) {
   return g.end();
 }
 

@@ -8,13 +8,12 @@
 namespace std_e {
 
 
-// TODO rename adjacency_edge_iterator
-template<class adjacency_graph_type, adj_orientation orientation>
+template<class graph_type, adj_orientation orientation>
 class adjacency_edge_iterator {
   public:
   // type traits
-    using index_type = typename adjacency_graph_type::index_type;
-    using adjacency_type = adjacency_type_of<adjacency_graph_type>;
+    using index_type = typename graph_type::index_type;
+    using adjacency_type = adjacency_type_of<graph_type>;
 
     /// std::iterator type traits
     using value_type = adjacency_type;
@@ -27,7 +26,7 @@ class adjacency_edge_iterator {
     adjacency_edge_iterator() = default;
 
     constexpr
-    adjacency_edge_iterator(adjacency_graph_type* g, index_type node_idx, index_type connection_idx)
+    adjacency_edge_iterator(graph_type* g, index_type node_idx, index_type connection_idx)
       : g(g)
       , node_idx(node_idx)
       , connection_idx(connection_idx)
@@ -125,7 +124,7 @@ class adjacency_edge_iterator {
       }
     }
   // data
-    adjacency_graph_type* g;
+    graph_type* g;
     index_type node_idx;
     index_type connection_idx;
 };
@@ -134,9 +133,9 @@ class adjacency_edge_iterator {
 } // std_e
 
 
-template<class AGT, std_e::adj_orientation ori>
-struct std::iterator_traits<std_e::adjacency_edge_iterator<AGT,ori>> {
-  using type = std_e::adjacency_edge_iterator<AGT,ori>;
+template<class GT, std_e::adj_orientation ori>
+struct std::iterator_traits<std_e::adjacency_edge_iterator<GT,ori>> {
+  using type = std_e::adjacency_edge_iterator<GT,ori>;
   using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;

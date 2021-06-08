@@ -8,17 +8,17 @@
 namespace std_e {
 
 
-template<class adjacency_graph_type>
+template<class graph_type>
 class adjacency {
   public:
-    using index_type = typename adjacency_graph_type::index_type;
-    using node_type  = typename adjacency_graph_type::node_type;
+    using index_type = typename graph_type::index_type;
+    using node_type  = typename graph_type::node_type;
 
     constexpr
     adjacency() = default;
 
     constexpr
-    adjacency(adjacency_graph_type* g, index_type node_idx)
+    adjacency(graph_type* g, index_type node_idx)
       : g(g)
       , node_idx(node_idx)
     {}
@@ -51,18 +51,18 @@ class adjacency {
     }
 
     constexpr auto
-    adjacencies() -> adjacency_range<adjacency_graph_type> {
+    adjacencies() -> adjacency_range<graph_type> {
       return {g,node_idx};
     }
     constexpr auto
-    adjacencies() const -> adjacency_range<const adjacency_graph_type> {
+    adjacencies() const -> adjacency_range<const graph_type> {
       return {g,node_idx};
     }
 
     template<class AGT0, class AGT1> friend constexpr auto
     operator==(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool;
   private:
-    adjacency_graph_type* g;
+    graph_type* g;
     index_type node_idx;
 };
 template<class AGT0, class AGT1> constexpr auto
@@ -77,17 +77,17 @@ operator!=(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool {
 }
 
 
-template<class adjacency_graph_type>
+template<class graph_type>
 class io_adjacency {
   public:
-    using index_type = typename adjacency_graph_type::index_type;
-    //using node_type  = typename adjacency_graph_traits<adjacency_graph_type>::node_type;
+    using index_type = typename graph_type::index_type;
+    //using node_type  = typename adjacency_graph_traits<graph_type>::node_type;
 
     constexpr
     io_adjacency() = default;
 
     constexpr
-    io_adjacency(adjacency_graph_type* g, index_type node_idx)
+    io_adjacency(graph_type* g, index_type node_idx)
       : g(g)
       , node_idx(node_idx)
     {}
@@ -105,7 +105,7 @@ class io_adjacency {
       return node_idx;
     }
     constexpr auto
-    graph() const -> adjacency_graph_type* {
+    graph() const -> graph_type* {
       return g;
     }
     constexpr auto
@@ -160,19 +160,19 @@ class io_adjacency {
     }
 
     constexpr auto
-    in_adjacencies() -> adjacency_range<adjacency_graph_type,adj_orientation::in> {
+    in_adjacencies() -> adjacency_range<graph_type,adj_orientation::in> {
       return {g,node_idx};
     }
     constexpr auto
-    in_adjacencies() const -> const adjacency_range<adjacency_graph_type,adj_orientation::in> {
+    in_adjacencies() const -> const adjacency_range<graph_type,adj_orientation::in> {
       return {g,node_idx};
     }
     constexpr auto
-    out_adjacencies() -> adjacency_range<adjacency_graph_type,adj_orientation::out> {
+    out_adjacencies() -> adjacency_range<graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
     constexpr auto
-    out_adjacencies() const -> const adjacency_range<adjacency_graph_type,adj_orientation::out> {
+    out_adjacencies() const -> const adjacency_range<graph_type,adj_orientation::out> {
       return {g,node_idx};
     }
     auto
@@ -189,7 +189,7 @@ class io_adjacency {
     template<class AGT0, class AGT1> friend constexpr auto
     operator==(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool;
   private:
-    adjacency_graph_type* g;
+    graph_type* g;
     index_type node_idx;
 };
 template<class AGT0, class AGT1> constexpr auto
@@ -208,108 +208,108 @@ operator<(const io_adjacency<AGT0>& x, const io_adjacency<AGT1>& y) -> bool {
    || (x.node()==y.node() && x.out_adjacencies()<y.out_adjacencies());
 }
 
-template<class AGT> constexpr auto
-in_indices(io_adjacency<AGT>& x) -> auto& {
+template<class GT> constexpr auto
+in_indices(io_adjacency<GT>& x) -> auto& {
   return x.in_indices();
 }
-template<class AGT> constexpr auto
-in_indices(io_adjacency<AGT>&& x) -> auto& {
+template<class GT> constexpr auto
+in_indices(io_adjacency<GT>&& x) -> auto& {
   return x.in_indices();
 }
-template<class AGT> constexpr auto
-in_indices(const io_adjacency<AGT>& x) -> const auto& {
+template<class GT> constexpr auto
+in_indices(const io_adjacency<GT>& x) -> const auto& {
   return x.in_indices();
 }
-template<class AGT> constexpr auto
-out_indices(io_adjacency<AGT>& x) -> auto& {
+template<class GT> constexpr auto
+out_indices(io_adjacency<GT>& x) -> auto& {
   return x.out_indices();
 }
-template<class AGT> constexpr auto
-out_indices(io_adjacency<AGT>&& x) -> auto& {
+template<class GT> constexpr auto
+out_indices(io_adjacency<GT>&& x) -> auto& {
   return x.out_indices();
 }
-template<class AGT> constexpr auto
-out_indices(const io_adjacency<AGT>& x) -> const auto& {
+template<class GT> constexpr auto
+out_indices(const io_adjacency<GT>& x) -> const auto& {
   return x.out_indices();
 }
-template<class AGT> constexpr auto
-node(io_adjacency<AGT>& x) -> auto& {
+template<class GT> constexpr auto
+node(io_adjacency<GT>& x) -> auto& {
   return x.node();
 }
-template<class AGT> constexpr auto
-node(io_adjacency<AGT>&& x) -> auto& {
+template<class GT> constexpr auto
+node(io_adjacency<GT>&& x) -> auto& {
   return x.node();
 }
-template<class AGT> constexpr auto
-node(const io_adjacency<AGT>& x) -> const auto& {
+template<class GT> constexpr auto
+node(const io_adjacency<GT>& x) -> const auto& {
   return x.node();
 }
-template<class AGT> constexpr auto
-in_adjacencies(io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+in_adjacencies(io_adjacency<GT>& x) {
   return x.in_adjacencies();
 }
-template<class AGT> constexpr auto
-in_adjacencies(io_adjacency<AGT>&& x) {
+template<class GT> constexpr auto
+in_adjacencies(io_adjacency<GT>&& x) {
   return x.in_adjacencies();
 }
-template<class AGT> constexpr auto
-in_adjacencies(const io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+in_adjacencies(const io_adjacency<GT>& x) {
   return x.in_adjacencies();
 }
-template<class AGT> constexpr auto
-out_adjacencies(io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+out_adjacencies(io_adjacency<GT>& x) {
   return x.out_adjacencies();
 }
-template<class AGT> constexpr auto
-out_adjacencies(io_adjacency<AGT>&& x) {
+template<class GT> constexpr auto
+out_adjacencies(io_adjacency<GT>&& x) {
   return x.out_adjacencies();
 }
-template<class AGT> constexpr auto
-out_adjacencies(const io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+out_adjacencies(const io_adjacency<GT>& x) {
   return x.out_adjacencies();
 }
 
 // tree interface {
-template<class AGT> constexpr auto
-first_child(io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+first_child(io_adjacency<GT>& x) {
   return out_adjacencies(x).begin();
 }
-template<class AGT> constexpr auto
-first_child(io_adjacency<AGT>&& x) {
+template<class GT> constexpr auto
+first_child(io_adjacency<GT>&& x) {
   return out_adjacencies(x).begin();
 }
-template<class AGT> constexpr auto
-first_child(const io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+first_child(const io_adjacency<GT>& x) {
   return out_adjacencies(x).begin();
 }
-template<class AGT> constexpr auto
-last_child(io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+last_child(io_adjacency<GT>& x) {
   return out_adjacencies(x).end();
 }
-template<class AGT> constexpr auto
-last_child(io_adjacency<AGT>&& x) {
+template<class GT> constexpr auto
+last_child(io_adjacency<GT>&& x) {
   return out_adjacencies(x).end();
 }
-template<class AGT> constexpr auto
-last_child(const io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+last_child(const io_adjacency<GT>& x) {
   return out_adjacencies(x).end();
 }
 
-template<class AGT> constexpr auto
-children(io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+children(io_adjacency<GT>& x) {
   return out_adjacencies(x);
 }
-template<class AGT> constexpr auto
-children(io_adjacency<AGT>&& x) {
+template<class GT> constexpr auto
+children(io_adjacency<GT>&& x) {
   return out_adjacencies(x);
 }
-template<class AGT> constexpr auto
-children(const io_adjacency<AGT>& x) {
+template<class GT> constexpr auto
+children(const io_adjacency<GT>& x) {
   return out_adjacencies(x);
 }
 
-template<class AGT> auto
-to_string(const io_adjacency<AGT>& x) -> std::string {
+template<class GT> auto
+to_string(const io_adjacency<GT>& x) -> std::string {
   using std::to_string;
   return to_string(x.node())+" : "+range_to_string(x.in_indices())+" | "+range_to_string(x.out_indices());
 }

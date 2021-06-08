@@ -16,7 +16,7 @@ Doc
 ---
 literalinclude: link to the original source file
 
-graph
+graph: algorithms (dfs, rearranging, merge_from_leaves)
 
 
 Build and CI

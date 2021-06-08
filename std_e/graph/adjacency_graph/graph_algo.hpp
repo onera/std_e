@@ -37,26 +37,26 @@ make_bidirectional_from_outward_edges(io_graph<T>& g) {
 
 
 //// TODO new interface names => report in concept + nested_tree...
-template<class AGT> constexpr auto
-out_adjacencies(adjacency<AGT>& adj) {
+template<class GT> constexpr auto
+out_adjacencies(adjacency<GT>& adj) {
   return adj.out_adjacencies();
 }
-template<class AGT> constexpr auto
-out_adjacencies(const adjacency<AGT>& adj) {
+template<class GT> constexpr auto
+out_adjacencies(const adjacency<GT>& adj) {
   return adj.out_adjacencies();
 }
-template<class AGT> constexpr auto
-in_adjacencies(adjacency<AGT>& adj) {
+template<class GT> constexpr auto
+in_adjacencies(adjacency<GT>& adj) {
   return adj.in_adjacencies();
 }
-template<class AGT> constexpr auto
-in_adjacencies(const adjacency<AGT>& adj) {
+template<class GT> constexpr auto
+in_adjacencies(const adjacency<GT>& adj) {
   return adj.in_adjacencies();
 }
 //// Node_adjacency interface }
 //
 //template<class T> constexpr auto
-//equal(const adjacency<AGT>& x, const adjacency<AGT>& y, const adjacency<AGT>* x_start, const adjacency<AGT>* y_start) -> bool {
+//equal(const adjacency<GT>& x, const adjacency<GT>& y, const adjacency<GT>* x_start, const adjacency<GT>* y_start) -> bool {
 //  return
 //      x.node == y.node
 //   && std_e::equal_iterator_shifts(x.inwards,y.inwards,x_start,y_start)
@@ -69,7 +69,7 @@ in_adjacencies(const adjacency<AGT>& adj) {
 
 //// algorithms {
 //template<class T> constexpr auto
-//is_reflexive_in_adjacency(const adjacency<AGT>& x) -> bool {
+//is_reflexive_in_adjacency(const adjacency<GT>& x) -> bool {
 //  for (auto inward_ptr : x.inwards) {
 //    auto& outs_of_in = inward_ptr->outwards;
 //    auto x_pos = std::find(begin(outs_of_in),end(outs_of_in),&x);
@@ -78,7 +78,7 @@ in_adjacencies(const adjacency<AGT>& adj) {
 //  return true;
 //}
 //template<class T> constexpr auto
-//is_reflexive_out_adjacency(const adjacency<AGT>& x) -> bool {
+//is_reflexive_out_adjacency(const adjacency<GT>& x) -> bool {
 //  for (auto outward_ptr : x.outwards) {
 //    auto& ins_of_out = outward_ptr->inwards;
 //    auto x_pos = std::find(begin(ins_of_out),end(ins_of_out),&x);
@@ -87,14 +87,14 @@ in_adjacencies(const adjacency<AGT>& adj) {
 //  return true;
 //}
 //template<class T> constexpr auto
-//is_bidirectional_adjacency(const adjacency<AGT>& x) -> bool {
+//is_bidirectional_adjacency(const adjacency<GT>& x) -> bool {
 //  return is_reflexive_in_adjacency(x) && is_reflexive_out_adjacency(x);
 //}
 //
 //
 ///// redirect all edges entering "old" to now enter "new_adj"
 //template<class T> constexpr auto
-//redirect_entering_adjacencies(adjacency<AGT>* old, adjacency<AGT>* new_adj) -> void {
+//redirect_entering_adjacencies(adjacency<GT>* old, adjacency<GT>* new_adj) -> void {
 //  // Precondition: is_reflexive_in_adjacency(old)
 //  // Post conditions:
 //  //  - all edges previously entering "old" now enter "new_adj"

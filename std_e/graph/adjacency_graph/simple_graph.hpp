@@ -192,7 +192,7 @@ class node_mixin<void,adj_list_type> {
 // node_mixin }
 
 
-template<class NT, class ET, class adj_list_type>
+template<class NT, class ET, class adj_list_type = std::vector<std::vector<int>>>
 class simple_graph
   : public node_mixin<NT,adj_list_type>
   , public edge_mixin<ET,adj_list_type>
@@ -207,7 +207,7 @@ class simple_graph
     auto operator<=>(const simple_graph& x) const = default;
 };
 
-template<class NT, class ET, class adj_list_type>
+template<class NT, class ET, class adj_list_type = std::vector<std::vector<int>>>
 class io_simple_graph
   : public node_mixin<NT,adj_list_type>
   , public io_edge_mixin<ET,adj_list_type>
