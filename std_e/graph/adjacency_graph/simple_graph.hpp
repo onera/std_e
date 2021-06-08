@@ -37,6 +37,8 @@ class adjacency_list_mixin {
     constexpr auto index  (index_type i_node, index_type i_edge)       ->       auto& { return adj_list[i_node][i_edge]; }
     constexpr auto index  (index_type i_node, index_type i_edge) const -> const auto& { return adj_list[i_node][i_edge]; }
 
+    constexpr auto degree(index_type i) const -> index_type { return this->indices(i).size(); }
+
     auto operator<=>(const adjacency_list_mixin& x) const = default;
   private:
     adj_list_type adj_list;
@@ -64,6 +66,9 @@ class io_adjacency_list_mixin {
     constexpr auto out_indices(index_type i_node)                    const -> const auto& { return out_adj_list[i_node];         }
     constexpr auto out_index  (index_type i_node, index_type i_edge)       ->       auto& { return out_adj_list[i_node][i_edge]; }
     constexpr auto out_index  (index_type i_node, index_type i_edge) const -> const auto& { return out_adj_list[i_node][i_edge]; }
+
+    constexpr auto in_degree (index_type i) const -> index_type { return this->in_indices ()[i].size(); }
+    constexpr auto out_degree(index_type i) const -> index_type { return this->out_indices()[i].size(); }
 
     auto operator<=>(const io_adjacency_list_mixin& x) const = default;
   private:
@@ -188,7 +193,7 @@ class node_mixin<void,adj_list_type> {
 
 
 template<class NT, class ET, class adj_list_type>
-class adjacency_graph_base
+class simple_graph
   : public node_mixin<NT,adj_list_type>
   , public edge_mixin<ET,adj_list_type>
 {
@@ -199,13 +204,11 @@ class adjacency_graph_base
     // Class invariant: adj_list[i].size() == edges[i].size() for all i in [0,adj_list.size())
     constexpr auto size() const -> index_type { return this->nodes.size(); }
 
-    constexpr auto degree(index_type i) const -> index_type { return this->indices(i).size(); }
-
-    auto operator<=>(const adjacency_graph_base& x) const = default;
+    auto operator<=>(const simple_graph& x) const = default;
 };
 
 template<class NT, class ET, class adj_list_type>
-class io_adjacency_graph_base
+class io_simple_graph
   : public node_mixin<NT,adj_list_type>
   , public io_edge_mixin<ET,adj_list_type>
 {
@@ -214,23 +217,20 @@ class io_adjacency_graph_base
 
     // Class invariant: size() == adj_list.size() == nodes.size() == edges.size()
     // Class invariant: [in|out]degree == [in|out]adj_list[i].size() == [in|out]edges[i].size() for all i in [0,[in|out]adj_list.size())
-    constexpr io_adjacency_graph_base() = default;
-    constexpr io_adjacency_graph_base(index_type sz)
+    constexpr io_simple_graph() = default;
+    constexpr io_simple_graph(index_type sz)
       : node_mixin<NT,adj_list_type>(sz)
       , io_edge_mixin<ET,adj_list_type>(sz)
     {}
 
     constexpr auto size() const -> index_type { return this->nodes().size(); }
 
-    constexpr auto in_degree (index_type i) const -> index_type { return this->in_indices ()[i].size(); }
-    constexpr auto out_degree(index_type i) const -> index_type { return this->out_indices()[i].size(); }
-
-    auto operator<=>(const io_adjacency_graph_base& x) const = default;
+    auto operator<=>(const io_simple_graph& x) const = default;
 };
 
 
 template<class NT, class ET, class ALT> auto
-to_string(const io_adjacency_graph_base<NT,ET,ALT>& x) {
+to_string(const io_simple_graph<NT,ET,ALT>& x) {
   return
       "nodes: " + std_e::range_to_string(x.nodes()) + '\n'
     + "in_indices:" + std_e::range_to_string(x.in_indices()) + '\n'

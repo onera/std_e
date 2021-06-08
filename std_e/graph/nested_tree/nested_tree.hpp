@@ -11,7 +11,7 @@
 #include "std_e/future/span.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 /**
@@ -288,13 +288,13 @@ template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1> constexpr auto
 operator!=(const child_iterator<T_ptr0,I_ptr0>& x, const child_iterator<T_ptr1,I_ptr1>& y) {
   return !(x==y);
 }
-} // graph
+} // std_e
 
 namespace std {
 
 template<class T_ptr, class I_ptr>
-struct iterator_traits<graph::child_iterator<T_ptr,I_ptr>> {
-  using type = graph::child_iterator<T_ptr,I_ptr>;
+struct iterator_traits<std_e::child_iterator<T_ptr,I_ptr>> {
+  using type = std_e::child_iterator<T_ptr,I_ptr>;
   using difference_type = int;
   using iterator_category = std::forward_iterator_tag;
 
@@ -309,7 +309,7 @@ struct iterator_traits<graph::child_iterator<T_ptr,I_ptr>> {
 // child_iterator }
 
 
-namespace graph {
+namespace std_e {
 
 
 // public tree interface {
@@ -484,4 +484,4 @@ struct child__with_linkage {
 /// C++ hack }
 
 
-} // graph
+} // std_e

@@ -4,7 +4,7 @@
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 inline auto
@@ -35,4 +35,4 @@ create_nested_tree_for_tests() -> tree<int> {
 }
 
 
-} // graph
+} // std_e

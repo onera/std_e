@@ -4,7 +4,7 @@
 #include "std_e/graph/algorithm/algo_base.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 /**
@@ -61,7 +61,7 @@ struct visitor_for_reduction {
     }
 
   private:
-    std_e::remove_rvalue_reference<Graph_reduction> graph_red;
+    remove_rvalue_reference<Graph_reduction> graph_red;
     graph_stack<reducted_type> S;
 };
 
@@ -74,4 +74,4 @@ depth_first_reduce(Graph&& g, Graph_reduction&& f) {
 }
 
 
-} // graph 
+} // std_e 

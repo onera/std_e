@@ -1,7 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
-#include "std_e/graph/test_utils/io_graph.hpp"
+#include "std_e/graph/test_utils/graph.hpp"
 #include "std_e/graph/build/tree.hpp"
 
 #include "std_e/graph/test_utils/nested_tree.hpp"
@@ -11,7 +11,6 @@
 
 namespace {
 
-using namespace graph;
 using namespace std_e;
 
 // create_tree_from_nodes - same tree structure {
@@ -51,7 +50,7 @@ tree_built_0_for_test() -> tree<int> {
 }
 
 TEST_CASE("create_tree_from_nodes - same tree structure") {
-  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  io_graph<int> g = create_io_graph_for_tests();
   auto root = rooted_view(g,8);
 
   auto t = create_tree_from_nodes(root,builder_0_for_test{});
@@ -224,7 +223,7 @@ tree_built_3_for_test() -> tree<int> {
 }
 
 TEST_CASE("create_pruned_tree_from_nodes") {
-  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  io_graph<int> g = create_io_graph_for_tests();
   auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_nodes(root,builder_3_for_test{});
@@ -236,7 +235,7 @@ TEST_CASE("create_pruned_tree_from_nodes") {
 // create_pruned_tree_from_adjacencies {
 struct builder_4_for_test {
   using tree_type = tree<int>;
-  using adjacency_type = io_adjacency<rooted_view<io_adjacency_graph<int>>>;
+  using adjacency_type = io_adjacency<rooted_view<io_graph<int>>>;
   auto
   should_go_down(const adjacency_type& adj) -> bool {
     return node(adj)!=3;
@@ -276,7 +275,7 @@ tree_built_4_for_test() -> tree<int> {
 }
 
 TEST_CASE("create_pruned_tree_from_adjacencies") {
-  io_adjacency_graph<int> g = create_io_graph_for_tests();
+  io_graph<int> g = create_io_graph_for_tests();
   auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_adjacencies(root,builder_4_for_test{});

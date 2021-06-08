@@ -3,7 +3,7 @@
 #include "std_e/graph/algorithm/algo_nodes.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class Unary_op, class Container>
@@ -94,7 +94,7 @@ class prepostorder_recorder {
 
 
 template<class Graph, class Unary_op>
-using record_container_type = 
+using record_container_type =
   std::vector<
     std::remove_reference_t<
       std::invoke_result_t<
@@ -139,4 +139,4 @@ prepostorder_record_depth_first(const Graph& g, Unary_op_pre&& op_pre, Unary_op_
 }
 
 
-} // graph 
+} // std_e

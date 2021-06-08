@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/graph.hpp"
 
 
 namespace std_e {

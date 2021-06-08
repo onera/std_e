@@ -4,7 +4,7 @@
 #include "std_e/graph/algorithm/algo_base.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class Rooted_graph, class F> constexpr auto
@@ -61,4 +61,4 @@ preorder_depth_first_prune_adjacencies(Rooted_graph& g, F&& f) -> void {
 // special cases }
 
 
-} // graph
+} // std_e

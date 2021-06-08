@@ -8,7 +8,7 @@
 namespace {
 
 
-using namespace graph;
+using namespace std_e;
 
 // [Sphinx Doc] nested_tree {
 TEST_CASE("Nested tree principle") {

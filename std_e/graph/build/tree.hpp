@@ -5,7 +5,7 @@
 #include "std_e/utils/concatenate.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class builder_visitor_type>
@@ -66,7 +66,7 @@ template<class Graph, class builder_from_adjacency_type> inline auto
 // requires builder_from_adjacency_type::build(graph_node_type) -> tree
 create_tree_from_adjacencies(Graph& g, builder_from_adjacency_type&& b) {
   tree_builder vis(FWD(b));
-  graph::prepostorder_depth_first_scan_adjacencies(g,vis);
+  prepostorder_depth_first_scan_adjacencies(g,vis);
   return vis.retrieve_final_tree();
 }
 
@@ -75,7 +75,7 @@ template<class Graph, class builder_from_node_type> inline auto
 // requires builder_from_node_type::build(graph_node_type) -> tree
 create_tree_from_nodes(Graph& g, builder_from_node_type&& b) {
   tree_builder vis(FWD(b));
-  graph::prepostorder_depth_first_scan(g,vis);
+  prepostorder_depth_first_scan(g,vis);
   return vis.retrieve_final_tree();
 }
 
@@ -120,7 +120,7 @@ template<class Graph, class builder_from_adjacency_type> inline auto
 // requires builder_from_adjacency_type::build(graph_node_type) -> tree
 create_pruned_tree_from_adjacencies(Graph& g, builder_from_adjacency_type&& b) {
   pruned_tree_builder vis(FWD(b));
-  graph::prepostorder_depth_first_prune_adjacencies(g,vis);
+  prepostorder_depth_first_prune_adjacencies(g,vis);
   return vis.retrieve_final_tree();
 }
 
@@ -130,9 +130,9 @@ template<class Graph, class builder_from_node_type> inline auto
 // requires builder_from_node_type::build(graph_node_type) -> tree
 create_pruned_tree_from_nodes(Graph& g, builder_from_node_type&& b) {
   pruned_tree_builder vis(FWD(b));
-  graph::prepostorder_depth_first_prune(g,vis);
+  prepostorder_depth_first_prune(g,vis);
   return vis.retrieve_final_tree();
 }
 
 
-} // graph
+} // std_e

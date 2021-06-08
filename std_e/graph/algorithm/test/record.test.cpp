@@ -6,7 +6,7 @@
 #include "std_e/utils/functional.hpp"
 
 
-using namespace graph;
+using namespace std_e;
 
 
 TEST_CASE("record_depth_first") {

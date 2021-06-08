@@ -3,14 +3,13 @@
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/algo_nodes.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/adjacency_graph/graph_algo.hpp"
 #include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
 namespace {
 
 
-using namespace graph;
 using namespace std_e;
 using namespace std;
 
@@ -290,7 +289,7 @@ TEST_CASE("Nested tree depth-first prune") {
 
 
 struct visitor_for_testing_dfs_prune_adjacencies {
-  using graph_type = rooted_view<io_adjacency_graph<int>>;
+  using graph_type = rooted_view<io_graph<int>>;
 
   auto
   pre(const io_adjacency<graph_type>& a) -> bool {
@@ -318,7 +317,7 @@ TEST_CASE("Adj graph depth-first prune") {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  auto io_g = make_io_adjacency_graph<int>({
+  auto io_g = make_io_graph<int>({
     /*0*/ { 4, {2}    , {}     },
     /*1*/ { 7, {2}    , {}     },
     /*2*/ { 2, {8}    , {0,1,3}},

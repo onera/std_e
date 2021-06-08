@@ -2,7 +2,7 @@
 
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/adjacency_graph/graph_algo.hpp"
 
 
 using namespace std_e;
@@ -15,7 +15,7 @@ TEST_CASE("adjacency_node_iterator") {
            v   /
            D <-
   */
-  auto g = make_io_adjacency_graph<char>({
+  auto g = make_io_graph<char>({
     /*0*/ {'A', {}, {}     },
     /*1*/ {'B', {}, {0,2,3}},
     /*2*/ {'C', {}, {3}    },

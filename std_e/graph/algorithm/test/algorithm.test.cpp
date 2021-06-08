@@ -5,8 +5,8 @@
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 
-using namespace graph;
 using namespace std;
+using namespace std_e;
 
 
 TEST_CASE("Nested tree preorder depth-first find") {

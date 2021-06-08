@@ -1,8 +1,8 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
-#include "std_e/graph/build/io_graph.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/build/graph.hpp"
+#include "std_e/graph/adjacency_graph/graph_algo.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 
@@ -40,9 +40,9 @@ namespace {
 
 
 TEST_CASE("build_bidirectional_graph") {
-  auto t = graph::create_nested_tree_for_tests();
+  auto t = create_nested_tree_for_tests();
 
-  io_adjacency_graph<int_height> io_g = build_bidirectional_graph(t,int_height_builder{});
+  io_graph<int_height> io_g = build_bidirectional_graph(t,int_height_builder{});
 
   /* Reminder:
          1               lvl 3
@@ -53,7 +53,7 @@ TEST_CASE("build_bidirectional_graph") {
    /  \    |  |    \
   4    7   9  10   11    lvl 0
   */
-  auto expected_io_g = make_io_adjacency_graph<int_height>({
+  auto expected_io_g = make_io_graph<int_height>({
     /*0*/ {{ 4,0}, {2}, {}     },
     /*1*/ {{ 7,0}, {2}, {}     },
     /*2*/ {{ 2,1}, {8}, {0,1}  },

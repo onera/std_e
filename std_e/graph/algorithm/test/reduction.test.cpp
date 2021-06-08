@@ -9,7 +9,7 @@
 namespace {
 
 
-using namespace graph;
+using namespace std_e;
 
 
 struct node_with_level_for_test {

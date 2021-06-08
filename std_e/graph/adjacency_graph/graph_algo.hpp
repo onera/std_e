@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/graph.hpp"
 #include "std_e/graph/adjacency_graph/index_adjacency.hpp"
 
 
@@ -9,8 +9,8 @@ namespace std_e {
 
 
 template<class NT> auto
-make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
-  io_adjacency_graph<NT> res;
+make_io_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
+  io_graph<NT> res;
   for (const auto& [node,ins,out] : idx_adjs) {
     res.nodes().push_back(node);
     res.in_indices().push_back(ins);
@@ -22,7 +22,7 @@ make_io_adjacency_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
 
 // algorithm {
 template<class T> constexpr auto
-make_bidirectional_from_outward_edges(io_adjacency_graph<T>& g) {
+make_bidirectional_from_outward_edges(io_graph<T>& g) {
   int n_node = g.size();
   for (int i=0; i<n_node; ++i) {
     for (int k=0; k<g.out_degree(i); ++k) {

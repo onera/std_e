@@ -2,8 +2,8 @@
 #include "std_e/graph/adjacency_graph/merge_from_leaves.hpp"
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/test_utils/io_graph.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/test_utils/graph.hpp"
+#include "std_e/graph/adjacency_graph/graph.hpp"
 
 
 using namespace std_e;
@@ -56,7 +56,7 @@ TEST_CASE("merge_from_leaves") {
      A    B    A    C    A    B
     (0)  (1)  (2)  (3)  (4)  (5)
   */
-  auto g = make_io_adjacency_graph<S1>({
+  auto g = make_io_graph<S1>({
    /* 0*/ {S1{'A',0}, {}, {}    },
    /* 1*/ {S1{'B',0}, {}, {}    },
    /* 2*/ {S1{'A',0}, {}, {}    },
@@ -135,7 +135,7 @@ TEST_CASE("merge_from_leaves") {
        \   (1)  /    (2)
         \------/
     */
-    auto expected_g = make_io_adjacency_graph<S1>({
+    auto expected_g = make_io_graph<S1>({
      /*0*/ {S1{'A',0}, {}, {}    },
      /*1*/ {S1{'B',0}, {}, {}    },
      /*2*/ {S1{'C',0}, {}, {}    },

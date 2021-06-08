@@ -1,8 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph_algo.hpp"
+#include "std_e/graph/adjacency_graph/graph_algo.hpp"
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 
 
@@ -10,7 +9,7 @@ namespace std_e {
 
 
 inline auto
-create_io_graph_for_tests() -> io_adjacency_graph<int> {
+create_io_graph_for_tests() -> io_graph<int> {
   /*
          1               lvl 3
       /  |  \
@@ -21,7 +20,7 @@ create_io_graph_for_tests() -> io_adjacency_graph<int> {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  return make_io_adjacency_graph<int>({
+  return make_io_graph<int>({
     /*0*/ { 4, {2}    , {}     },
     /*1*/ { 7, {2}    , {}     },
     /*2*/ { 2, {8}    , {0,1,3}},
@@ -41,8 +40,8 @@ create_io_graph_for_tests() -> io_adjacency_graph<int> {
 namespace doctest {
 
 
-template<class T> struct StringMaker<std_e::io_adjacency_graph<T>> {
-  static String convert(const std_e::io_adjacency_graph<T>& x) {
+template<class T> struct StringMaker<std_e::io_graph<T>> {
+  static String convert(const std_e::io_graph<T>& x) {
     return to_string(x).c_str();
   }
 };

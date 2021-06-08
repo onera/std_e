@@ -6,7 +6,7 @@
 #include <functional>
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class Graph, class Unary_pred> constexpr auto
@@ -22,4 +22,4 @@ all_of(Graph&& g, Unary_pred&& p_node) -> bool {
 }
 
 
-} // graph
+} // std_e

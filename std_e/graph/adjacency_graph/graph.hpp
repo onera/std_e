@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph_base.hpp"
+#include "std_e/graph/adjacency_graph/simple_graph.hpp"
 #include "std_e/graph/adjacency_graph/adjacency.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_range.hpp"
 #include "std_e/graph/adjacency_graph/adjacency_node_iterator.hpp"
@@ -21,29 +21,29 @@ namespace detail {
   template<>
   struct associated_adj_graph_types<orientation::none> {
     template<class graph_type> using adj_type        = adjacency<graph_type>;
-    template<class... Ts>      using graph_base_type = adjacency_graph_base<Ts...>;
+    template<class... Ts>      using graph_base_type = simple_graph<Ts...>;
   };
   template<>
   struct associated_adj_graph_types<orientation::in_out> {
     template<class graph_type> using adj_type        = io_adjacency<graph_type>;
-    template<class... Ts>      using graph_base_type = io_adjacency_graph_base<Ts...>;
+    template<class... Ts>      using graph_base_type = io_simple_graph<Ts...>;
   };
 }
 template<class graph_type, orientation ori>
 using associated_adjacency_type = typename detail::associated_adj_graph_types<ori>::template adj_type<graph_type>;
 
 template<class NT, class ET, class ALT, orientation ori>
-using associated_graph_base = typename detail::associated_adj_graph_types<ori>::template graph_base_type<NT,ET,ALT>;
+using associated_simple_graph = typename detail::associated_adj_graph_types<ori>::template graph_base_type<NT,ET,ALT>;
 // adjacency_graph associated types }
 
 
 template<class derived, class NT, class ET, class ALT, orientation ori>
-class adjacency_graph_from_traits
-  : public associated_graph_base<NT,ET,ALT,ori>
+class graph_base
+  : public associated_simple_graph<NT,ET,ALT,ori>
 {
   public:
   // type traits
-    using base = associated_graph_base<NT,ET,ALT,ori>;
+    using base = associated_simple_graph<NT,ET,ALT,ori>;
 
     using node_type = NT;
     using edge_type = ET;
@@ -63,48 +63,48 @@ class adjacency_graph_from_traits
     //using const_adjacency_connection_iterator_type = adjacency_connection_iterator<const derived>;
   // ctor
     constexpr
-    adjacency_graph_from_traits() = default;
+    graph_base() = default;
 
     constexpr
-    adjacency_graph_from_traits(index_type sz)
+    graph_base(index_type sz)
       : base(sz)
     {}
 
   // range interface
     constexpr auto
     operator[](index_type i) -> adjacency_type {
-      return {graph(),i};
+      return {derived_graph(),i};
     }
     constexpr auto
     operator[](index_type i) const -> const_adjacency_type {
-      return {graph(),i};
+      return {derived_graph(),i};
     }
 
     constexpr auto
     begin() const -> const_adjacency_node_iterator_type {
-      return {graph(),0};
+      return {derived_graph(),0};
     }
     constexpr auto
     begin() -> adjacency_node_iterator_type {
-      return {graph(),0};
+      return {derived_graph(),0};
     }
     constexpr auto
     end() const -> const_adjacency_node_iterator_type {
-      return {graph(),this->size()};
+      return {derived_graph(),this->size()};
     }
     constexpr auto
     end() -> adjacency_node_iterator_type {
-      return {graph(),this->size()};
+      return {derived_graph(),this->size()};
     }
 
-    auto operator<=>(const adjacency_graph_from_traits& x) const = default;
+    auto operator<=>(const graph_base& x) const = default;
   private:
     auto
-    graph() {
+    derived_graph() {
       return static_cast<derived*>(this);
     }
     auto
-    graph() const {
+    derived_graph() const {
       return static_cast<const derived*>(this);
     }
 };
@@ -116,20 +116,20 @@ class adjacency_graph_from_traits
 ///           This implies the use of the infamous CRTP
 ///           Hope it can be replaced by strong types
 template<class NT, class ET, class adj_list_type>
-class adjacency_graph
+class graph
   : public
-      adjacency_graph_from_traits<
-        adjacency_graph<NT,ET,adj_list_type>,
+      graph_base<
+        graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
         orientation::none
       >
 {};
 
 template<class NT, class ET, class adj_list_type>
-class io_adjacency_graph
+class io_graph
   : public
-      adjacency_graph_from_traits<
-        io_adjacency_graph<NT,ET,adj_list_type>,
+      graph_base<
+        io_graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
         orientation::in_out
       >

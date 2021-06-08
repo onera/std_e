@@ -3,7 +3,6 @@
 
 #include "std_e/base/not_implemented_exception.hpp" // TODO
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
-#include "std_e/log.hpp" // TODO
 
 
 namespace std_e {

@@ -5,7 +5,7 @@
 #include "std_e/iterator/iterator_range.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 // graph_traversal_stack {
@@ -323,4 +323,4 @@ preorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, F&& f) -> vo
 // only pre or post scans }
 
 
-} // graph
+} // std_e

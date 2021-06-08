@@ -2,7 +2,7 @@
 
 
 #include "std_e/algorithm/for_each.hpp"
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/graph.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/graph/adjacency_graph/rearranging_algo.hpp"
 
@@ -29,7 +29,7 @@ less_by_node_and_outwards(const T& x, const T& y, Bin_pred_0 eq, Bin_pred_1 less
 }
 
 template<class I, class T> constexpr auto
-redirect_inward_adjacencies(I old, I new_adj, io_adjacency_graph<T>& g) -> void {
+redirect_inward_adjacencies(I old, I new_adj, io_graph<T>& g) -> void {
   // Precondition: is_reflexive_in_adjacency(old)
   // Post conditions:
   //  - all edges previously entering "old" now enter "new_adj"
@@ -49,7 +49,7 @@ redirect_inward_adjacencies(I old, I new_adj, io_adjacency_graph<T>& g) -> void 
 };
 
 template<class I, class T, class Bin_pred> constexpr auto
-redirect_inward_to_equivalent(I* x, I* x_eq, io_adjacency_graph<T>& g, Bin_pred eq) -> bool {
+redirect_inward_to_equivalent(I* x, I* x_eq, io_graph<T>& g, Bin_pred eq) -> bool {
   if (eq(*x,*x_eq)) {
     redirect_inward_adjacencies(*x,*x_eq,g);
     return true;
@@ -58,7 +58,7 @@ redirect_inward_to_equivalent(I* x, I* x_eq, io_adjacency_graph<T>& g, Bin_pred 
 }
 
 template<class I, class T, class Bin_pred_0, class Bin_pred_1> constexpr auto
-sort_redirect_inward_to_equivalent(I* first, I* last, io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> void {
+sort_redirect_inward_to_equivalent(I* first, I* last, io_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> void {
   std::stable_sort(first,last,less);
 
   auto f = [eq,&g](I* i_ptr, I* j_ptr){ return redirect_inward_to_equivalent(i_ptr,j_ptr,g,eq); };
@@ -69,10 +69,10 @@ sort_redirect_inward_to_equivalent(I* first, I* last, io_adjacency_graph<T>& g, 
 template<class T>
 class level_comparison_generator {
   public:
-    using index_type = typename io_adjacency_graph<T>::index_type;
+    using index_type = typename io_graph<T>::index_type;
 
     constexpr
-    level_comparison_generator(const io_adjacency_graph<T>& g)
+    level_comparison_generator(const io_graph<T>& g)
       : g(g)
       , lvl(min_level(g))
     {}
@@ -89,17 +89,17 @@ class level_comparison_generator {
   private:
   // function
     static constexpr auto
-    min_level(const io_adjacency_graph<T>& g) -> int {
+    min_level(const io_graph<T>& g) -> int {
       auto min_lvl_node = std::min_element(begin(g),end(g),less_by_level);
       return height(node(*min_lvl_node));
     }
   // data members
-    const io_adjacency_graph<T>& g;
+    const io_graph<T>& g;
     int lvl;
 };
 
 template<class T, class I, class Bin_pred_0, class Bin_pred_1> auto
-merge_from_leaves(io_adjacency_graph<T>& g, std::vector<I>& perm, Bin_pred_0 eq, Bin_pred_1 less) -> void {
+merge_from_leaves(io_graph<T>& g, std::vector<I>& perm, Bin_pred_0 eq, Bin_pred_1 less) -> void {
   STD_E_ASSERT(g.size()!=0);
   //STD_E_ASSERT(is_bidirectional_graph(g));//TODO
 
@@ -122,10 +122,10 @@ merge_from_leaves(io_adjacency_graph<T>& g, std::vector<I>& perm, Bin_pred_0 eq,
 }
 
 template<class T, class Bin_pred_0, class Bin_pred_1> auto
-merge_from_leaves(io_adjacency_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_adjacency_graph<T> {
-  if (g.size()==0) return io_adjacency_graph<T>{};
+merge_from_leaves(io_graph<T>& g, Bin_pred_0 eq, Bin_pred_1 less) -> io_graph<T> {
+  if (g.size()==0) return io_graph<T>{};
 
-  using index_type = typename io_adjacency_graph<T>::index_type;
+  using index_type = typename io_graph<T>::index_type;
   std::vector<index_type> perm(g.size());
   std::iota(begin(perm),end(perm),0);
 

@@ -4,7 +4,7 @@
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class T, template<class> class M> auto
@@ -27,4 +27,4 @@ to_string__recursive_dfs_with_postordering(const nested_tree<T,M>& t, std::strin
 }
 
 
-} // graph
+} // std_e

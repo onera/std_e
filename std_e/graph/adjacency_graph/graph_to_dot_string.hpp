@@ -2,7 +2,7 @@
 
 
 #include "adjacency.hpp"
-#include "adjacency_graph.hpp"
+#include "graph.hpp"
 #include <string>
 
 

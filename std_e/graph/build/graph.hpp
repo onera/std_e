@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/adjacency_graph/adjacency_graph.hpp"
+#include "std_e/graph/adjacency_graph/graph.hpp"
 #include "std_e/graph/algorithm/algo_nodes.hpp"
 #include "std_e/utils/functional.hpp"
 
@@ -65,8 +65,8 @@ struct bidirectional_graph_builder {
   private:
     Graph* g;
     index_type i;
-    graph::graph_stack<adj_list_inner_type> outs_stack;
-    graph::graph_stack<int> height_stack;
+    graph_stack<adj_list_inner_type> outs_stack;
+    graph_stack<int> height_stack;
     std_e::remove_rvalue_reference<Node_builder> node_builder;
 };
 
@@ -74,9 +74,9 @@ struct bidirectional_graph_builder {
 template<class Graph, class Node_builder> constexpr auto
 build_bidirectional_graph(const Graph& g, Node_builder&& node_builder) {
   using T = typename std::decay_t<Node_builder>::result_type;
-  io_adjacency_graph<T> res(g.size());
+  io_graph<T> res(g.size());
 
-  bidirectional_graph_builder<io_adjacency_graph<T>,Node_builder> vis(&res,FWD(node_builder));
+  bidirectional_graph_builder<io_graph<T>,Node_builder> vis(&res,FWD(node_builder));
   prepostorder_depth_first_scan(g,vis);
 
   return res;
