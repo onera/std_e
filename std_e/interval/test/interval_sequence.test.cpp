@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 
@@ -89,3 +90,4 @@ TEST_CASE("interval_index") {
   CHECK( interval_index( 5.  ,iv) == 2 );
   CHECK( interval_index(15.  ,iv) == 3 ); // 15 should be inserted after the last interval (i.e. interval 2)
 }
+#endif // C++20

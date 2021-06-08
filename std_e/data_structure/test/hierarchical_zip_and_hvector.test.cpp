@@ -29,8 +29,8 @@ namespace {
   auto set_str_val(HS0_names& x, const string& s) { x.i = s; }
   auto set_str_val(HS1_names& x, const string& s) { x.d = s; }
 
-  auto to_string(const HS0_names& x) { return x.i; }
-  auto to_string(const HS1_names& x) { return x.d; }
+  [[maybe_unused]] auto to_string(const HS0_names& x) { return x.i; }
+  [[maybe_unused]] auto to_string(const HS1_names& x) { return x.d; }
 }
 
 // struct fundamental_hierarchy {

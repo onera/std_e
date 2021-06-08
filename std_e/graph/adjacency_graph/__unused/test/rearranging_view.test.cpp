@@ -1,3 +1,5 @@
+#if __cplusplus > 201703L
+
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/adjacency_graph/__unused/rearranging_view.hpp"
@@ -126,3 +128,4 @@ TEST_CASE("rearranging_view") {
     }
   }
 }
+#endif // C++20

@@ -6,7 +6,7 @@
 //using std::vector;
 //
 //TEST_CASE("index_iterator") {
-//  std::vector<double> v = {3.14,42.,5.,10,7,2.7}; 
+//  std::vector<double> v = {3.14,42.,5.,10,7,2.7};
 //  std::vector<int> sub_v_indices = {0,2,5};
 //  auto sub_range = std_e::make_indexed_range(v,sub_v_indices);
 //

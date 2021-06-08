@@ -28,7 +28,7 @@ namespace std_e {
 
 /// Default implementations {
 template<operation_kind op_k> constexpr auto
-operation_overload_set = [](auto&& x, auto&&... xs) -> never_enable<decltype(x)> {};
+operation_overload_set = [](auto&& x, auto&&...) -> never_enable<decltype(x)> {};
 
 template<operation_kind op_k> constexpr auto
 operation_std_overload_set = operation_overload_set<op_k>;

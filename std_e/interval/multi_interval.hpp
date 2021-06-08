@@ -4,7 +4,6 @@
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/interval/interval.hpp"
-#include <bits/ranges_algo.h>
 
 
 namespace std_e {

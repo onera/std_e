@@ -11,8 +11,10 @@ TEST_CASE("fixed shape") {
   static_assert( fixed_shape_type::rank() == 4 );
   static_assert( fixed_shape_type::size() == 5*4*3*2 );
 
+  #if __cplusplus > 201703L // clang <=10 problem
   static_assert( fixed_shape_type::extent() == multi_index<int,4>{5,4,3,2} );
   static_assert( fixed_shape_type::offset() == zero_multi_index<int,4> );
+  #endif
  
 
   SUBCASE("also works for a specific axis") {

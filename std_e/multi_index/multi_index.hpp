@@ -9,7 +9,7 @@
 #include "std_e/utils/array.hpp"
 #include <iterator>
 #include <stdexcept>
-#if __cplusplus <= 201703L
+#if __cplusplus > 201703L
   #include <ranges>
 #endif
 
@@ -31,6 +31,7 @@ struct multi_index;
 //       (and we will need to define a fair number of multi_index functions)
 template<class Int, int N>
 struct multi_index : std::array<Int,N> {
+  static constexpr int ct_rank = N;
   static constexpr auto
   rank() -> int {
     return N;
@@ -39,6 +40,7 @@ struct multi_index : std::array<Int,N> {
 
 template<class Int>
 struct multi_index<Int,dynamic_size> : std::vector<Int> {
+  static constexpr int ct_rank = dynamic_size;
   using base = std::vector<Int>;
   using base::base; // inherit ctors too
   multi_index(base x)
@@ -87,8 +89,10 @@ struct enable_is_multi_index<cx_multi_index> : std::true_type {};
 template<class T>
 constexpr bool is_multi_index = enable_is_multi_index<std::decay_t<T>>::value;
 
-template<class T>
-concept Multi_index2 = std::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
+#if __cplusplus > 201703L
+  template<class T>
+  concept Multi_index = std::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
+#endif
 // is_multi_index }
 
 // index_type_of {

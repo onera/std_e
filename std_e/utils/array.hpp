@@ -7,7 +7,6 @@
 #include "std_e/base/macros.hpp"
 #include <algorithm>
 #include <type_traits>
-#include "std_e/future/constexpr_vector.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 
 

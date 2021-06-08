@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -285,3 +286,4 @@ TEST_CASE("create_pruned_tree_from_adjacencies") {
 // create_pruned_tree_from_adjacencies }
 
 } // anonymous namespace
+#endif // C++20

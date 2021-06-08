@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/test_utils/graph.hpp"
@@ -77,3 +78,4 @@ TEST_CASE("Tree reverse_levels") {
 
   CHECK( permuted_g == expected_permuted_g );
 }
+#endif // C++20

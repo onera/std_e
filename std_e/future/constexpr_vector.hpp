@@ -125,7 +125,9 @@ class constexpr_vector {
       return elts[sz-1];
     }
 
+  #if __cplusplus > 201703L
     constexpr auto operator<=>(const constexpr_vector&) const = default;
+  #endif
   private:
     size_t sz;
     std::array<T,max_size> elts;
@@ -148,6 +150,22 @@ template<class T, size_t N> FORCE_INLINE constexpr auto
 end(const constexpr_vector<T,N>& x) -> const T* {
   return x.end();
 }
+
+#if __cplusplus <= 201703L
+template<class T, size_t N> constexpr auto
+operator==(const constexpr_vector<T,N>& x, const constexpr_vector<T,N>& y) -> bool {
+  if (x.size() != y.size()) return false;
+  return equal(begin(x),end(x),begin(y));
+}
+template<class T, size_t N> constexpr auto
+operator!=(const constexpr_vector<T,N>& x, const constexpr_vector<T,N>& y) -> bool {
+  return !(x==y);
+}
+template<class T, size_t N> constexpr auto
+operator<(const constexpr_vector<T,N>& x, const constexpr_vector<T,N>& y) -> bool {
+  return lexicographical_compare(begin(x),end(x), begin(y),end(y));
+}
+#endif
 
 /// C++ < C++20 hack {
 /// (give linkage to constexpr sub-object so it can be passed as template reference)

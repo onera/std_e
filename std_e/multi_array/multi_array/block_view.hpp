@@ -14,6 +14,7 @@ class block_view {
   public:
   // type traits
     static constexpr bool mem_is_owned = false;
+    static constexpr int ct_rank = std::decay_t<Multi_array_type>::ct_rank;
     using multi_index_type = typename std::decay_t<Multi_array_type>::multi_index_type;
     using index_type = typename std::decay_t<Multi_array_type>::index_type;
 
@@ -88,30 +89,29 @@ class block_view {
   /// linear_index {
     /// from Multi_index
     template<
-      class Multi_index
+      class MI
       #if __cplusplus <= 201703L
-      , std::enable_if_t< is_multi_index<Multi_index> , int > =0
+      , std::enable_if_t< is_multi_index<MI> , int > =0
       #endif
     >
       #if __cplusplus > 201703L
-        requires Multi_index2<Multi_index>
+        requires Multi_index<MI> && (MI::ct_rank==ct_rank)
       #endif
     FORCE_INLINE constexpr auto
-    // requires Multi_index::size()==rank()
-    linear_index(const Multi_index& indices) const -> index_type {
+    linear_index(const MI& indices) const -> index_type {
       return fortran_order_from_dimensions(origin_ma.extent(),total_offset,indices);
     }
     /// from indices
     template<
       class... Integers
       #if __cplusplus <= 201703L
-      , std::enable_if_t< std::conjunction_v< std::bool_constant<std::is_integral_v<Integers>> ... > , int > =0
+      , std::enable_if_t< are_integral<Integers...> , int > =0
       #endif
     >
       #if __cplusplus > 201703L
-        requires std::conjunction_v< std::bool_constant<std::is_integral_v<Integers>>...> FORCE_INLINE constexpr auto
+        requires are_integral<Integers...>
       #endif
-    // requires sizeof...(Integers)==rank()
+    FORCE_INLINE constexpr auto
     linear_index(Integers... is) const -> index_type {
       //STD_E_ASSERT(sizeof...(Integers)==rank());
       return linear_index(multi_index_type{is...});

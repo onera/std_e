@@ -1,7 +1,9 @@
+#if __cplusplus > 201703L
+
+
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/adjacency_graph/adjacency.hpp"
-
 
 
 // TODO
@@ -13,3 +15,6 @@
 //}
 //TEST_CASE("redirect_entering_adjacencies") {
 //}
+
+
+#endif // C++20

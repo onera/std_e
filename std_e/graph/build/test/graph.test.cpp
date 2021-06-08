@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -22,7 +23,7 @@ namespace {
   operator!=(const int_height& x, const int_height& y) -> bool {
     return !(x==y);
   }
-  auto
+  [[maybe_unused]] auto
   to_string(const int_height& x) -> std::string {
     return '('+std::to_string(x.i)+','+std::to_string(x.height)+')';
   }
@@ -67,3 +68,4 @@ TEST_CASE("build_bidirectional_graph") {
 
   CHECK( io_g == expected_io_g );
 }
+#endif // C++20
