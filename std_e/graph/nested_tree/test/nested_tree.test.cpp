@@ -12,11 +12,11 @@ using namespace std_e;
 
 // [Sphinx Doc] nested_tree {
 TEST_CASE("Nested tree principle") {
-  auto t4 = tree<int>{4};
-  auto t7 = tree<int>{7};
+  auto t4 = nested_tree<int>{4};
+  auto t7 = nested_tree<int>{7};
   auto t2 = create_tree(2,t4,t7);
 
-  auto t3 = tree<int>{3};
+  auto t3 = nested_tree<int>{3};
 
   auto t = create_tree(1,t2,t3);
 
@@ -65,7 +65,7 @@ TEST_CASE("Nested tree children") {
 TEST_CASE("Nested tree append") {
   auto t = create_nested_tree_for_tests();
 
-  auto c2 = tree<int>{42};
+  auto c2 = nested_tree<int>{42};
   t.append_child(c2);
 
   // is appended as a child

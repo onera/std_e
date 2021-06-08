@@ -61,10 +61,10 @@ TEST_CASE("zip_graphs") {
        /  \    /
       40   70  80
     */
-    auto t40 = tree<int>{40};
-    auto t70 = tree<int>{70};
+    auto t40 = nested_tree<int>{40};
+    auto t70 = nested_tree<int>{70};
     auto t20 = create_tree(20,t40,t70);
-    auto t80 = tree<int> {80};
+    auto t80 = nested_tree<int> {80};
     auto t30 = create_tree(30,t80);
     auto t10 = create_tree(10,t20,t30);
 

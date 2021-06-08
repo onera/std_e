@@ -33,16 +33,16 @@ namespace std_e {
 template<class T> using std_alloc_vector = std::vector<T>;
 template<class T> using dyn_span = std_e::span<T>;
 
-template<class T, template<class> class Memory_ressource> class nested_tree;
-template<class T> using tree = nested_tree<T,std_alloc_vector>;
-template<class T> using tree_view = nested_tree<T,dyn_span>;
-template<class T> using const_tree_view = nested_tree<const T,dyn_span>;
+template<class T, template<class> class Memory_ressource> class nested_tree_base;
+template<class T> using nested_tree = nested_tree_base<T,std_alloc_vector>;
+template<class T> using nested_tree_view = nested_tree_base<T,dyn_span>;
+template<class T> using const_nested_tree_view = nested_tree_base<const T,dyn_span>;
 
 template<class T_ptr, class I_ptr> class child_iterator;
 
 template<class T, template<class> class Memory_ressource>
 // requires T is Regular, Memory_ressource with max_size
-class nested_tree {
+class nested_tree_base {
   public:
   // traits
     using node_type = T;
@@ -57,35 +57,35 @@ class nested_tree {
     using range_type = std_e::iterator_range<iterator>;
     using const_range_type = std_e::iterator_range<const_iterator>;
 
-    using node_adj_type = const_tree_view<T>; // TODO DEL
+    using node_adj_type = const_nested_tree_view<T>; // TODO DEL
 
     static constexpr size_t is_nested_tree = true;
-    template<class T0, template<class> class M0> friend class nested_tree;
+    template<class T0, template<class> class M0> friend class nested_tree_base;
 
   // ctors
     FORCE_NO_INLINE constexpr
-    nested_tree()
+    nested_tree_base()
     {}
 
     FORCE_NO_INLINE explicit constexpr
-    nested_tree(T x)
+    nested_tree_base(T x)
       : nodes{std::move(x)}
       , sizes{1}
     {}
     FORCE_NO_INLINE constexpr
-    nested_tree(const nodes_mem_type& nodes, const sizes_mem_type& sizes)
+    nested_tree_base(const nodes_mem_type& nodes, const sizes_mem_type& sizes)
       : nodes(nodes)
       , sizes(sizes)
     {}
 
     template<class T0, template<class> class M0> FORCE_NO_INLINE constexpr
-    nested_tree(const nested_tree<T0,M0>& t)
+    nested_tree_base(const nested_tree_base<T0,M0>& t)
       : nodes(t.nodes.data(),t.nodes.data()+t.nodes.size())
       , sizes(t.sizes.data(),t.sizes.data()+t.sizes.size())
     {}
 
     template<class T0, template<class> class M0> FORCE_NO_INLINE constexpr auto
-    operator=(const nested_tree<T0,M0>& t) -> nested_tree& {
+    operator=(const nested_tree_base<T0,M0>& t) -> nested_tree_base& {
       nodes = nodes_mem_type(t.nodes.data(),t.nodes.data()+t.nodes.size());
       sizes = sizes_mem_type(t.sizes.data(),t.sizes.data()+t.sizes.size());
       return *this;
@@ -93,9 +93,9 @@ class nested_tree {
 
   // comparisons
     template<class T0, template<class> class M0, template<class> class M1> friend constexpr auto
-    operator==(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool;
+    operator==(const nested_tree_base<T0,M0>& x, const nested_tree_base<T0,M1>& y) -> bool;
     template<class T0, template<class> class M0, template<class> class M1> friend constexpr auto
-    operator<(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool;
+    operator<(const nested_tree_base<T0,M0>& x, const nested_tree_base<T0,M1>& y) -> bool;
 
   // member functions
     FORCE_INLINE constexpr auto
@@ -113,11 +113,11 @@ class nested_tree {
       return nodes[0];
     }
     FORCE_INLINE constexpr auto
-    view() -> tree_view<T> {
+    view() -> nested_tree_view<T> {
       return {std_e::make_span(nodes.data()),std_e::make_span(sizes.data())};
     }
     FORCE_INLINE constexpr auto
-    const_view() const -> const_tree_view<T> {
+    const_view() const -> const_nested_tree_view<T> {
       return {std_e::make_span(nodes.data()),std_e::make_span(sizes.data())};
     }
 
@@ -169,7 +169,7 @@ class nested_tree {
     nested_tree_dfs_with_preordering(nested_tree_type&& t, nested_tree_visitor_type&& f) -> void;
 
     constexpr auto
-    append_child(const nested_tree& t) -> auto& {
+    append_child(const nested_tree_base& t) -> auto& {
       //static_assert(Memory_ressource::owns_memory);
       size_t old_size = size();
       size_t new_size = old_size+t.size();
@@ -189,17 +189,17 @@ class nested_tree {
 };
 
 template<class T0, template<class> class M0, template<class> class M1> constexpr auto
-operator==(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+operator==(const nested_tree_base<T0,M0>& x, const nested_tree_base<T0,M1>& y) -> bool {
   if (x.size() != y.size()) return false;
   auto n = x.size();
   return std_e::equal_n(begin(x.nodes),begin(y.nodes),n) && std_e::equal_n(begin(x.sizes),begin(y.sizes),n);
 }
 template<class T0, template<class> class M0, template<class> class M1> constexpr auto
-operator!=(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+operator!=(const nested_tree_base<T0,M0>& x, const nested_tree_base<T0,M1>& y) -> bool {
   return !(x==y);
 }
 template<class T0, template<class> class M0, template<class> class M1> constexpr auto
-operator<(const nested_tree<T0,M0>& x, const nested_tree<T0,M1>& y) -> bool {
+operator<(const nested_tree_base<T0,M0>& x, const nested_tree_base<T0,M1>& y) -> bool {
   return (x.sizes<y.sizes) || (x.sizes==y.sizes && x.nodes<y.nodes);
 }
 
@@ -212,14 +212,14 @@ class child_iterator {
   public:
     using node_type = std::remove_pointer_t<T_ptr>;
   // std::iterator type traits
-    using value_type = tree<node_type>;
+    using value_type = nested_tree<node_type>;
     using difference_type = int;
     using iterator_category = std::forward_iterator_tag;
 
     using iterator = child_iterator<T_ptr,I_ptr>;
     using const_iterator = child_iterator<const T_ptr,const I_ptr>;
-    using reference = tree_view<node_type>;
-    using const_reference = const_tree_view<node_type>;
+    using reference = nested_tree_view<node_type>;
+    using const_reference = const_nested_tree_view<node_type>;
   // ctors
     constexpr
     child_iterator()
@@ -374,7 +374,7 @@ last_child(nested_tree_type&& t) {
   return FWD(t).last_child();
 }
 template<class T, template<class> class M> constexpr auto
-nb_children(const nested_tree<T,M>& t) -> int {
+nb_children(const nested_tree_base<T,M>& t) -> int {
   return children(t).size();
 }
 template<
@@ -386,7 +386,7 @@ child(nested_tree_type&& t, int i) {
 }
 
 template<class T, template<class> class M> constexpr auto
-is_leaf(const nested_tree<T,M>& t) -> bool {
+is_leaf(const nested_tree_base<T,M>& t) -> bool {
   return t.size()==1;
 }
 // public tree interface }
@@ -466,7 +466,7 @@ class to_string_dfs_visitor {
     std::string indent = "";
 };
 template<class T, template<class> class M> auto
-to_string(const nested_tree<T,M>& t) -> std::string {
+to_string(const nested_tree_base<T,M>& t) -> std::string {
   to_string_dfs_visitor f;
   nested_tree_dfs_with_preordering(t,f);
   return f.str();

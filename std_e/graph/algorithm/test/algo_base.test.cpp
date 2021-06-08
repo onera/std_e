@@ -128,7 +128,7 @@ TEST_CASE("Nested tree prepostorder depth-first scan") {
   }
 
   SUBCASE("only one node") {
-    auto t0 = tree<int>{100};
+    auto t0 = nested_tree<int>{100};
     prepostorder_depth_first_scan(t0,v);
 
     string expected_s =
