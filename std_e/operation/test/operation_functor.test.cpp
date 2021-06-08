@@ -1,3 +1,5 @@
+#if __cplusplus > 201703L
+
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/operation/operation_kind.hpp"
 #include "std_e/operation/operation_functor.hpp"
@@ -108,3 +110,4 @@ TEST_CASE("operation_functor for user-defined type") {
   CHECK ( op_t(x) == tensor_like_type_for_test{43.,42.} );
   CHECK ( op_tr(x) == 42.+43. );
 }
+#endif // C++20

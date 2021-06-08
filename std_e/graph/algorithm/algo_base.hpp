@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "std_e/iterator/iterator_range.hpp"
+#include "std_e/meta/meta.hpp"
 
 
 namespace std_e {
@@ -117,7 +118,7 @@ class graph_traversal_stack {
       return S.is_at_root_level() && level_is_done();
     }
   private:
-    graph_stack<std_e::iterator_range<iterator>> S;
+    graph_stack<iterator_range<iterator>> S;
 };
 
 template<class iterator_type>
@@ -278,7 +279,7 @@ class preorder_visitor_adaptor {
     template<class Node_adjacency> constexpr auto
     post(Node_adjacency&&) {}
   private:
-    std_e::remove_rvalue_reference<F> f;
+    remove_rvalue_reference<F> f;
 };
 
 template<class F>
@@ -301,7 +302,7 @@ class postorder_visitor_adaptor {
       return f(na);
     }
   private:
-    std_e::remove_rvalue_reference<F> f;
+    remove_rvalue_reference<F> f;
 };
 
 template<class Graph_iterator_stack, class F> constexpr auto
