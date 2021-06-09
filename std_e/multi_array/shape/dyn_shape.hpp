@@ -32,9 +32,7 @@ class dyn_shape_base {
     {
       STD_E_ASSERT(extent().size()==offset().size());
     }
-    template<class Multi_index = multi_index_type
-      , std::enable_if_t< is_multi_index<Multi_index> , int > =0
-    > FORCE_INLINE constexpr
+    template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
     dyn_shape_base(Multi_index ext)
       : extent_(convert_to<multi_index_type>(std::move(ext)))
       , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))

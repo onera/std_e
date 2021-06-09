@@ -35,7 +35,7 @@ TEST_CASE("buffer_span") {
       // when erasing the type, we usally don't care about constness
       // so std_e::buffer_const_view does not exist,
       // but std_e::buffer_span does not const_cast implicitly
-      
+
       // This would result in a compilation error:
       /*
       const std::vector<int> v;
