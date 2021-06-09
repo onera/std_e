@@ -5,7 +5,7 @@
 #include <utility>
 #include <exception>
 #include <array>
-#include "std_e/utils/index_sequence.hpp"
+#include "std_e/meta/index_sequence.hpp"
 #include "std_e/future/make_array.hpp"
 
 

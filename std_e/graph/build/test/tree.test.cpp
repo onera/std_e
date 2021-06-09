@@ -1,27 +1,30 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/nested_tree/nested_tree.hpp"
+#include "std_e/graph/test_utils/graph.hpp"
 #include "std_e/graph/build/tree.hpp"
 
-#include "std_e/graph/test/nested_tree.hpp"
-#include "std_e/graph/test/io_graph.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
+#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 #include <numeric>
 #include <iostream>
 
+namespace {
 
-using namespace graph;
+using namespace std_e;
 
 // create_tree_from_nodes - same tree structure {
 struct builder_0_for_test {
-  using tree_type = tree<int>;
+  using tree_type = nested_tree<int>;
   auto
-  build(int node) -> tree<int> {
-    return tree<int>(node);
+  build(int node) -> nested_tree<int> {
+    return nested_tree<int>(node);
   }
 };
 
 auto
-tree_built_0_for_test() -> tree<int> {
+tree_built_0_for_test() -> nested_tree<int> {
   /* Tree equivalent to the graph of create_io_graph_for_tests()
        ____1____
       /    |    \
@@ -31,25 +34,25 @@ tree_built_0_for_test() -> tree<int> {
          |
          9
   */
-  auto t4 = tree<int>{4};
-  auto t7 = tree<int>{7};
-  auto t9 = tree<int> {9};
-  auto t2 = create_tree(2,t4,t7,t9); 
+  auto t4 = nested_tree<int>{4};
+  auto t7 = nested_tree<int>{7};
+  auto t9 = nested_tree<int> {9};
+  auto t2 = create_tree(2,t4,t7,t9);
 
-  auto t8 = create_tree(8,t9); 
+  auto t8 = create_tree(8,t9);
 
-  auto t10 = tree<int>{10};
-  auto t11 = tree<int>{11};
-  auto t3 = create_tree(3,t8,t10,t11); 
+  auto t10 = nested_tree<int>{10};
+  auto t11 = nested_tree<int>{11};
+  auto t3 = create_tree(3,t8,t10,t11);
 
-  auto t1 = create_tree(1,t2,t3,t9); 
+  auto t1 = create_tree(1,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_tree_from_nodes - same tree structure") {
   io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  auto root = rooted_view(g,8);
 
   auto t = create_tree_from_nodes(root,builder_0_for_test{});
 
@@ -60,17 +63,17 @@ TEST_CASE("create_tree_from_nodes - same tree structure") {
 
 // create_tree_from_nodes - more complex tree structure {
 struct builder_1_for_test {
-  using tree_type = tree<double>;
+  using tree_type = nested_tree<double>;
   auto
-  build(int node) -> tree<double> {
-    auto tl = tree<double>(node*0.5);
-    auto tr = tree<double>(node*1.5);
+  build(int node) -> nested_tree<double> {
+    auto tl = nested_tree<double>(node*0.5);
+    auto tr = nested_tree<double>(node*1.5);
     return create_tree(node,tl,tr);
   }
 };
 
 auto
-tree_init_1_for_test() -> tree<int> {
+tree_init_1_for_test() -> nested_tree<int> {
   /*
         3
       /   \
@@ -78,16 +81,16 @@ tree_init_1_for_test() -> tree<int> {
       |
       9
   */
-  auto t9 = tree<int> {9};
-  auto t8 = create_tree(8,t9); 
+  auto t9 = nested_tree<int> {9};
+  auto t8 = create_tree(8,t9);
 
-  auto t10 = tree<int>{10};
-  auto t3 = create_tree(3,t8,t10); 
+  auto t10 = nested_tree<int>{10};
+  auto t3 = create_tree(3,t8,t10);
 
   return t3;
 }
 auto
-tree_built_1_for_test() -> tree<double> {
+tree_built_1_for_test() -> nested_tree<double> {
 /*
 Reminder: t_init
   3
@@ -109,16 +112,16 @@ Result tree:
       5.
       15.
   */
-  auto t1_5 = tree<double>{1.5};
-  auto t4_5 = tree<double>{4.5};
+  auto t1_5 = nested_tree<double>{1.5};
+  auto t4_5 = nested_tree<double>{4.5};
 
-  auto t4 = tree<double>{4.};
-  auto t12 = tree<double>{12.};
+  auto t4 = nested_tree<double>{4.};
+  auto t12 = nested_tree<double>{12.};
 
-  auto t13_5 = tree<double>{13.5};
+  auto t13_5 = nested_tree<double>{13.5};
 
-  auto t5 = tree<double>{5.};
-  auto t15 = tree<double>{15.};
+  auto t5 = nested_tree<double>{5.};
+  auto t15 = nested_tree<double>{15.};
 
 
   auto t9 = create_tree(9,t4_5,t13_5);
@@ -133,7 +136,7 @@ Result tree:
 
 
 TEST_CASE("create_tree_from_nodes - more complex tree structure") {
-  tree<int> t_init = tree_init_1_for_test();
+  nested_tree<int> t_init = tree_init_1_for_test();
 
   auto t = create_tree_from_nodes(t_init,builder_1_for_test{});
 
@@ -144,18 +147,18 @@ TEST_CASE("create_tree_from_nodes - more complex tree structure") {
 
 // create_tree_from_adjacencies {
 struct builder_2_for_test {
-  using tree_type = tree<int>;
-  using adjacency_type = const_tree_view<int>;
+  using tree_type = nested_tree<int>;
+  using adjacency_type = const_nested_tree_view<int>;
   auto
-  build(const adjacency_type& adj) -> tree<int> {
+  build(const adjacency_type& adj) -> nested_tree<int> {
     auto sum = node(adj);
     auto cs = children(adj);
     sum = std::accumulate(begin(cs),end(cs),sum,[](int i,auto t){ return i+node(t); });
-    return tree<int>(sum);
+    return nested_tree<int>(sum);
   }
 };
 auto
-tree_built_2_for_test() -> tree<int> {
+tree_built_2_for_test() -> nested_tree<int> {
   /*
         3+8+10
       /   \
@@ -163,16 +166,16 @@ tree_built_2_for_test() -> tree<int> {
       |
       9
   */
-  auto t9 = tree<int> {9};
-  auto t8 = create_tree(8+9,t9); 
+  auto t9 = nested_tree<int> {9};
+  auto t8 = create_tree(8+9,t9);
 
-  auto t10 = tree<int>{10};
-  auto t3 = create_tree(3+8+10,t8,t10); 
+  auto t10 = nested_tree<int>{10};
+  auto t3 = create_tree(3+8+10,t8,t10);
 
   return t3;
 }
 TEST_CASE("create_tree_from_adjacencies") {
-  tree<int> t_init = tree_init_1_for_test();
+  nested_tree<int> t_init = tree_init_1_for_test();
 
   auto t = create_tree_from_adjacencies(t_init,builder_2_for_test{});
 
@@ -183,46 +186,46 @@ TEST_CASE("create_tree_from_adjacencies") {
 
 // create_pruned_tree_from_nodes {
 struct builder_3_for_test {
-  using tree_type = tree<int>;
+  using tree_type = nested_tree<int>;
   auto
   should_go_down(int node) -> bool {
     return node!=3;
   }
   auto
-  build(int node) -> tree<int> {
-    return tree<int>(node*2);
+  build(int node) -> nested_tree<int> {
+    return nested_tree<int>(node*2);
   }
 };
 
 auto
-tree_built_3_for_test() -> tree<int> {
+tree_built_3_for_test() -> nested_tree<int> {
   /*
        ______1________
       /      |       \
      2       3        9
-    /|\   _ /| \ __ 
+    /|\   _ /| \ __
    4 7 9 | 8 10 11 |
          | |       |
          | 9       | -> pruned
          |________ |
 
    The nodes kept (not pruned) are multiplied by 2
-         
-  */
-  auto t4 = tree<int> {4*2};
-  auto t7 = tree<int> {7*2};
-  auto t9 = tree<int> {9*2};
-  auto t2 = create_tree(2*2,t4,t7,t9); 
-  auto t3 = tree<int> {3*2};
 
-  auto t1 = create_tree(1*2,t2,t3,t9); 
+  */
+  auto t4 = nested_tree<int> {4*2};
+  auto t7 = nested_tree<int> {7*2};
+  auto t9 = nested_tree<int> {9*2};
+  auto t2 = create_tree(2*2,t4,t7,t9);
+  auto t3 = nested_tree<int> {3*2};
+
+  auto t1 = create_tree(1*2,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_pruned_tree_from_nodes") {
   io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_nodes(root,builder_3_for_test{});
 
@@ -232,52 +235,55 @@ TEST_CASE("create_pruned_tree_from_nodes") {
 
 // create_pruned_tree_from_adjacencies {
 struct builder_4_for_test {
-  using tree_type = tree<int>;
-  using adjacency_type = io_adjacency<int>;
+  using tree_type = nested_tree<int>;
+  using adjacency_type = io_adjacency<rooted_view<io_graph<int>>>;
   auto
   should_go_down(const adjacency_type& adj) -> bool {
     return node(adj)!=3;
   }
   auto
-  build(const adjacency_type& adj) -> tree<int> {
+  build(const adjacency_type& adj) -> nested_tree<int> {
     auto sum = node(adj);
     if (should_go_down(adj)) {
       auto cs = children(adj);
-      sum = std::accumulate(begin(cs),end(cs),sum,[](int i,auto t){ return i+node(t); });
+      sum = std::accumulate(begin(cs),end(cs),sum,[](int i,const auto& t){ return i+node(t); });
     }
-    return tree<int>(sum);
+    return nested_tree<int>(sum);
   }
 };
 
 auto
-tree_built_4_for_test() -> tree<int> {
+tree_built_4_for_test() -> nested_tree<int> {
   /*
        ______1+2+3+9_
       /      |       \
      2+4+7+9 3        9
-    /|\   _ /| \ __ 
+    /|\   _ /| \ __
    4 7 9 | 8 10 11 |
          | |       |
          | 9       | -> pruned
          |________ |
   */
-  auto t4 = tree<int> {4};
-  auto t7 = tree<int> {7};
-  auto t9 = tree<int> {9};
-  auto t2 = create_tree(2+4+7+9,t4,t7,t9); 
-  auto t3 = tree<int> {3};
+  auto t4 = nested_tree<int> {4};
+  auto t7 = nested_tree<int> {7};
+  auto t9 = nested_tree<int> {9};
+  auto t2 = create_tree(2+4+7+9,t4,t7,t9);
+  auto t3 = nested_tree<int> {3};
 
-  auto t1 = create_tree(1+2+3+9,t2,t3,t9); 
+  auto t1 = create_tree(1+2+3+9,t2,t3,t9);
 
   return t1;
 }
 
 TEST_CASE("create_pruned_tree_from_adjacencies") {
   io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_graph_view(g[8]);
+  auto root = rooted_view(g,8);
 
   auto t = create_pruned_tree_from_adjacencies(root,builder_4_for_test{});
 
   CHECK( t == tree_built_4_for_test() );
 }
 // create_pruned_tree_from_adjacencies }
+
+} // anonymous namespace
+#endif // C++20

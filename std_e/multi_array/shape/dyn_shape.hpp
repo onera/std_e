@@ -32,7 +32,9 @@ class dyn_shape_base {
     {
       STD_E_ASSERT(extent().size()==offset().size());
     }
-    template<class Multi_index = multi_index_type> FORCE_INLINE constexpr
+    template<class Multi_index = multi_index_type
+      , std::enable_if_t< is_multi_index<Multi_index> , int > =0
+    > FORCE_INLINE constexpr
     dyn_shape_base(Multi_index ext)
       : extent_(convert_to<multi_index_type>(std::move(ext)))
       , offset_(make_zero_multi_index<multi_index_type>(extent_.size()))
@@ -128,23 +130,27 @@ class dyn_shape<Integer,dynamic_size> : public dyn_shape_base<Integer,dynamic_si
 };
 
 
+template<class Integer> constexpr auto
+make_sub_shape(const dyn_shape<Integer,dynamic_size>& shape, int right_restriction) {
+  int sub_shape_rank = shape.rank()-right_restriction;
+  return dyn_shape<Integer,dynamic_size>(
+    make_sub_array(shape.extent(),0,sub_shape_rank),
+    make_sub_array(shape.offset(),0,sub_shape_rank)
+  );
+}
 template<int right_restriction, class Integer, int N> constexpr auto
 make_sub_shape(const dyn_shape<Integer,N>& shape) {
   if constexpr (N==dynamic_size) {
-    int sub_shape_rank = N-right_restriction;
-    return dyn_shape<Integer,dynamic_size>(
-      make_sub_array(shape.extent(),0,sub_shape_rank),
-      make_sub_array(shape.offset(),0,sub_shape_rank)
-    );
+    return make_sub_shape(shape,right_restriction);
   } else {
     constexpr int sub_shape_rank = N-right_restriction;
-    auto xx = dyn_shape<Integer,sub_shape_rank>(
+    return dyn_shape<Integer,sub_shape_rank>(
       make_sub_array<0,sub_shape_rank>(shape.extent()),
       make_sub_array<0,sub_shape_rank>(shape.offset())
     );
-    return xx;
   }
 }
+
 template<class Integer, int N, class Multi_index> constexpr auto
 make_sub_shape(const dyn_shape<Integer,N>& shape, const Multi_index& fixed_dim_indices) {
   constexpr int fixed_rank = rank_of<Multi_index>;
@@ -164,6 +170,28 @@ make_sub_shape(const dyn_shape<Integer,N>& shape, const Multi_index& fixed_dim_i
     }
   }
   return dyn_shape<Integer,rank>(extent,offset);
+}
+
+// TODO factorize with above
+template<class Integer, class Multi_index> constexpr auto
+make_sub_shape(const dyn_shape<Integer,dynamic_size>& shape, const Multi_index& fixed_dim_indices) {
+  int fixed_rank = fixed_dim_indices.size();
+  int rank = shape.rank() - fixed_rank;
+  // NOTE: zip | copy_if
+  multi_index<Integer> extent(rank);
+  multi_index<Integer> offset(rank);
+  int k0 = 0;
+  int k1 = 0;
+  for (int i=0; i<shape.rank(); ++i) {
+    if (k0<fixed_rank && i==fixed_dim_indices[k0]) {
+      ++k0;
+    } else {
+      extent[k1] = shape.extent(i);
+      offset[k1] = shape.offset(i);
+      ++k1;
+    }
+  }
+  return dyn_shape<Integer,dynamic_size>(extent,offset);
 }
 
 

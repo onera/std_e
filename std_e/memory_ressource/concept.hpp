@@ -6,7 +6,7 @@ namespace std_e {
 
 /*
   concept Memory_ressource:
-    Regular value_type 
+    Regular value_type
     reference_type
     pointer_type
     begin() -> pointer_type

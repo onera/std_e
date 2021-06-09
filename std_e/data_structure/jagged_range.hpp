@@ -1,12 +1,12 @@
 #pragma once
 
 #include "std_e/future/span.hpp"
-#include "std_e/interval/knot_sequence.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 #include <vector>
 #include <algorithm>
 #include "std_e/data_structure/multi_range.hpp"
-#include "std_e/log.hpp" // TODO
 // TODO clean up!
+// TODO jagged -> compressed
 
 
 namespace std_e {
@@ -177,12 +177,12 @@ class jagged_range {
     auto index_array() const -> const auto& {
       return idx_array;
     }
-    auto indices() const -> knot_span<const I> {
+    auto indices() const -> interval_span<const I> {
       static_assert(rank==2);
-      return to_knot_span(make_span(idx_array));
+      return to_interval_span(make_span(idx_array));
     }
     template<int lvl>
-    auto indices() const -> knot_span<const I> {
+    auto indices() const -> interval_span<const I> {
       static_assert(lvl>=0 && lvl<rank);
       return indices_impl<lvl+1>();
     }
@@ -238,9 +238,9 @@ class jagged_range {
   private:
     template<class R0, class R1, int R> friend class jagged_range;
     template<int lvl>
-    auto indices_impl() const -> knot_span<const I> {
+    auto indices_impl() const -> interval_span<const I> {
       if constexpr (lvl==0) {
-        return to_knot_span(flat_view());
+        return to_interval_span(flat_view());
       } else if constexpr (rank==2 && lvl==1) {
         return indices();
       } else {
@@ -342,14 +342,14 @@ downscale_separators(Range0& upper_separators, const Range1& lower_separators) -
   }
 }
 template<class Range0, class Range1, class T = typename Range0::value_type> auto
-upscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> knot_vector<T> {
-  knot_vector<T> upscaled_seps(begin(upper_separators),end(upper_separators));
+upscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> interval_vector<T> {
+  interval_vector<T> upscaled_seps(begin(upper_separators),end(upper_separators));
   upscale_separators(upscaled_seps,lower_separators);
   return upscaled_seps;
 }
 template<class Range0, class Range1, class T = typename Range0::value_type> auto
-downscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> knot_vector<T> {
-  knot_vector<T> downscaled_seps(begin(upper_separators),end(upper_separators));
+downscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> interval_vector<T> {
+  interval_vector<T> downscaled_seps(begin(upper_separators),end(upper_separators));
   downscale_separators(downscaled_seps,lower_separators);
   return downscaled_seps;
 }
@@ -364,7 +364,7 @@ flatten_last_level(jagged_range<R00,R01,3> x) -> jagged_range<R00,R01,2> {
 }
 template<class R00, class R01, class Knot_sequence, class T = typename R00::value_type, class I = typename R01::value_type> auto
 view_with_new_level(const jagged_range<R00,R01,2>& x, const Knot_sequence& new_level) -> jagged_span<const T,3,const I> {
-  return jagged_span<const T,3,const I>(x.flat_view(),x.indices(),to_knot_span(new_level));
+  return jagged_span<const T,3,const I>(x.flat_view(),x.indices(),to_interval_span(new_level));
 }
 
 template<

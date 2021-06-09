@@ -26,23 +26,26 @@ to_string(T* ptr) -> std::string {
 
 
 template<class Forward_iterator, class S> auto
-to_string(Forward_iterator first, S last, const std::string& pre, const std::string& inter, const std::string& post) -> std::string {
+to_string(Forward_iterator first, S last, const std::string& inter) -> std::string {
   using std::to_string;
   using std_e::to_string;
 
-  std::string s = pre;
+  std::string s;
   if (first!=last) {
     s += to_string(*first++);
   }
   while (first!=last) {
     s+= inter + to_string(*first++);
   }
-  s += post;
   return s;
 }
 template<class R> auto
+range_to_lite_string(const R& x, const std::string& inter) -> std::string {
+  return to_string(begin(x),end(x),inter);
+}
+template<class R> auto
 range_to_string(const R& x, const std::string& pre, const std::string& inter, const std::string& post) -> std::string {
-  return to_string(begin(x),end(x),pre,inter,post);
+  return pre+range_to_lite_string(x,inter)+post;
 }
 
 

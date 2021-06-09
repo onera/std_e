@@ -29,7 +29,7 @@ concept Knot_sequence : Random_access_range, Interval
 */
 
 template<class Random_access_range>
-class knot_sequence : private Random_access_range {
+class [[deprecated("use interval_sequence")]] knot_sequence : private Random_access_range {
   public:
   // class invariants:
   //  - ordered

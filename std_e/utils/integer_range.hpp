@@ -13,7 +13,7 @@ namespace std_e {
 /// integer_range is a semi-open range [first,last)
 template<class I>
 // requires I is integral type
-struct integer_range {
+struct [[deprecated("use interval")]] integer_range {
   I first;
   I last;
 
@@ -66,7 +66,7 @@ template<class I> using integer_range_ref = integer_range<I&>;
 // closed_integer_range {
 template<class I>
 // requires I is integral type
-struct integer_closed_range {
+struct [[deprecated("use closed_interval")]] integer_closed_range {
   I first;
   I last;
 

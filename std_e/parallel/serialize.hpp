@@ -3,8 +3,8 @@
 #include <type_traits>
 #include <vector>
 #include "std_e/future/span.hpp"
-#include "std_e/utils/type_traits.hpp"
-#include "std_e/interval/knot_sequence.hpp"
+#include "std_e/meta/type_traits.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/algorithm/iota.hpp"
 #include "std_e/utils/concatenate.hpp"
@@ -25,7 +25,7 @@ namespace std_e {
 
 
 struct serialized_array { // TODO invert field
-  int_knot_vector offsets;
+  int_interval_vector offsets;
   std::vector<std::byte> data;
 };
 
@@ -117,8 +117,8 @@ deserialize_to_span(const std::byte* v_ptr, int n) -> std_e::span<const T> {
 }
 
 template<class T, std::enable_if_t<std::is_trivially_copyable_v<T>, int> =0> auto
-deserialize_to_knot_span(const std::byte* v_ptr, int n) -> std_e::knot_span<const T> {
-  return to_knot_span(deserialize_to_span<T>(v_ptr,n+1));
+deserialize_to_interval_span(const std::byte* v_ptr, int n) -> std_e::interval_span<const T> {
+  return to_interval_span(deserialize_to_span<T>(v_ptr,n+1));
 }
 /// deserialize }
 
@@ -131,8 +131,8 @@ serialize_array(const span<T>& x) -> serialized_array {
   auto serial_view = serialize(x);
   std::vector<std::byte> data(serial_view.begin(),serial_view.end());
 
-  int nb_elts = x.size();
-  std_e::int_knot_vector offsets(nb_elts);
+  int n_elt = x.size();
+  std_e::int_interval_vector offsets(n_elt);
   std_e::exclusive_iota_n(begin(offsets),offsets.size(),0,(int)sizeof(T));
 
   return {offsets,data};
@@ -150,12 +150,12 @@ deserialize_array(const serialized_array& x) -> std::vector<T> {
 
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int>> auto
 serialize_array(const span<T>& x) -> serialized_array {
-  int nb_elts = x.size();
-  std_e::int_knot_vector offsets(nb_elts);
+  int n_elt = x.size();
+  std_e::int_interval_vector offsets(n_elt);
   std::vector<std::byte> data;
 
   int offset = 0;
-  for (int i=0; i<nb_elts; ++i) {
+  for (int i=0; i<n_elt; ++i) {
     offsets[i] = offset;
     auto elt_data = serialize(x[i]);
     append(data,elt_data);
@@ -172,30 +172,30 @@ serialize_array(const std::vector<T>& x) -> serialized_array {
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 serialize(const span<T>& x) -> std::vector<std::byte> {
   auto [offsets,data] = serialize_array(x);
-  int nb_elts = offsets.nb_intervals();
-  int serialized_size = (1+nb_elts+1)*sizeof(int) + data.size();
+  int n_elt = offsets.n_interval();
+  int serialized_size = (1+n_elt+1)*sizeof(int) + data.size();
   std::vector<std::byte> res(serialized_size);
 
    // position zero (section A) holds the number of elements
-  int* nb_elts_position = (int*)res.data();
-  *nb_elts_position = nb_elts;
+  int* n_elt_position = (int*)res.data();
+  *n_elt_position = n_elt;
 
-  // positions in [1,nb_elts+1) (section B) hold the offset of each serialized object
+  // positions in [1,n_elt+1) (section B) hold the offset of each serialized object
   int* offset_position = (int*)res.data()+1;
   std::copy(begin(offsets),end(offsets),offset_position);
 
   // rest of the serialized array (section C) holds the concatenated data of each of its elements
-  std::byte* data_position = res.data() + (1+nb_elts+1)*sizeof(int);
+  std::byte* data_position = res.data() + (1+n_elt+1)*sizeof(int);
   std::copy(begin(data),end(data),data_position);
   return res;
 }
 
 template<class T, class Knot_sequence, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> =0> auto
 deserialize_array_into(const std::byte* v_ptr, const Knot_sequence& offsets, std::vector<T>& out) -> void {
-  const int nb_elts = offsets.nb_intervals();
+  const int n_elt = offsets.n_interval();
 
-  out.resize(nb_elts);
-  for (int i=0; i<nb_elts; ++i) {
+  out.resize(n_elt);
+  for (int i=0; i<n_elt; ++i) {
     const std::byte* elt_ptr = v_ptr+offsets[i];
     deserialize_into(elt_ptr,offsets.length(i),out[i]);
   }
@@ -214,19 +214,19 @@ deserialize_array(const serialized_array& x) -> std::vector<T> {
 template<class T, std::enable_if_t<!std::is_trivially_copyable_v<T>, int> > auto
 deserialize_into(const std::byte* v_ptr, int n, std::vector<T>& out) -> void {
   // section (A) holds holds the number of elements
-  const int* nb_elts_position = (const int*)v_ptr;
-  const int nb_elts = *nb_elts_position;
+  const int* n_elt_position = (const int*)v_ptr;
+  const int n_elt = *n_elt_position;
 
   // section (B) holds the offset of each serialized object
   auto offsets_start = v_ptr + sizeof(int);
-  auto offsets = deserialize_to_knot_span<int>(offsets_start,nb_elts);
+  auto offsets = deserialize_to_interval_span<int>(offsets_start,n_elt);
 
   // section (C) the rest of the serialized array holds the concatenated data of each of its elements
-  auto data_start = v_ptr + (1+nb_elts+1)*sizeof(int);
+  auto data_start = v_ptr + (1+n_elt+1)*sizeof(int);
   deserialize_array_into<T>(data_start,offsets,out);
 
   int section_A_size = sizeof(int);
-  int section_B_size = (nb_elts+1)*sizeof(int);
+  int section_B_size = (n_elt+1)*sizeof(int);
   int section_C_size = offsets.length();
   STD_E_ASSERT(section_A_size+section_B_size+section_C_size==n);
 }

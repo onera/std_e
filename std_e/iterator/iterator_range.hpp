@@ -18,6 +18,16 @@ struct iterator_range { // rename iter_span
   Iterator first;
   Iterator last;
 
+// ctor
+  constexpr
+  iterator_range() = default;
+
+  constexpr
+  iterator_range(Iterator first, Iterator last)
+    : first(first)
+    , last(last)
+  {}
+
 // iteration
   constexpr auto
   begin() const -> Iterator {
@@ -34,7 +44,7 @@ struct iterator_range { // rename iter_span
     return std::distance(begin(),end());
   }
 
-  template<class Integer> constexpr auto 
+  template<class Integer> constexpr auto
   operator[](Integer i) -> reference {
     auto it = begin();
     std::advance(it,i);

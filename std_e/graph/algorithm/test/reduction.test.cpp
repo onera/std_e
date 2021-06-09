@@ -1,12 +1,15 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/reduction.hpp"
 #include "std_e/graph/algorithm/record.hpp"
-#include "std_e/graph/test/nested_tree.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
 
 
-using namespace graph;
+namespace {
+
+
+using namespace std_e;
 
 
 struct node_with_level_for_test {
@@ -19,7 +22,7 @@ level(const node_with_level_for_test& x) {
   return x.reverse_level;
 }
 
-using nested_tree_with_level_for_tests = tree<node_with_level_for_test>;
+using nested_tree_with_level_for_tests = nested_tree<node_with_level_for_test>;
 
 struct graph_with_levels_creator {
   public:
@@ -61,3 +64,6 @@ TEST_CASE("Tree reverse_levels") {
 
   CHECK( reverse_levels == expected_reverse_levels);
 }
+
+
+} // anon

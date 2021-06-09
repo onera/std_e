@@ -1,6 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/multi_index/algorithm.hpp"
-#include "std_e/log.hpp"
 
 
 using namespace std_e;

@@ -40,9 +40,9 @@ Unit tests
 
 In **std_e**, unit tests serve a double purpose:
 
-* automatically ensuring code functionnality and quality
-* propose a clear, precise documentation of the different features. 
-  
+* automatically ensuring code functionality and quality
+* propose a clear, precise documentation of the different features.
+
 Unit tests are extensively integrated in this documentation. If a feature is available in file :code:`std_e/my_feature/my_file.hpp`, then the associated unit-tests is generally in file :code:`std_e/my_feature/test/my_file.test.cpp`
 
 Unit tests are written using `doctest <https://github.com/onqtam/doctest>`_. **doctest** is a lightweight, `Catch <https://github.com/catchorg/Catch2>`_\ -like framework. Different tests can be grouped by :cpp:`SUBCASE` under a :cpp:`TEST_CASE`. All subcases of a test case are independent. Example:
@@ -63,7 +63,7 @@ This will print:
 
 Thas is, the common parts of a test case are executed once every subcase.
 
-Subcases can be nested. 
+Subcases can be nested.
 
 Concepts
 ^^^^^^^^
@@ -72,7 +72,7 @@ Concepts are not available in the language in C++17. In **std_e**, they are main
 
 .. code:: c++
 
-  template<class Array> auto 
+  template<class Array> auto
   // the template parameter is supposed to model the Array concept
   my_array_function(Array& x) {
     // ...
@@ -85,7 +85,7 @@ A SFINAE constraint is sometimes used...
   template<
     class Array,
     std::enable_if_t< is_array<Array> , int > =0
-  > auto 
+  > auto
   my_array_function(Array& x) {
     // ...
   }
@@ -96,26 +96,24 @@ If the template parameter does not model any concept, its name is often suffixed
 
 .. code:: c++
 
-  template<class some_parameter_type> auto 
+  template<class some_parameter_type> auto
   my_templatefunction(some_parameter_type& x) {
     // ...
   }
 
 
 Miscellaneous
-^^^^^^^^^^^^^
-
+-------------
 Signed integers
-"""""""""""""""
-
+^^^^^^^^^^^^^^^
 Signed integers are prefered. The problem with unsigned integers arises when they are mixed with signed ones: conversions lead to surprising results.
 
-But mixes happens as soon as math operations are used. The most common example is for array sizes. Array sizes must be positive, but they are most of the time used in combination with indices, and indices are signed. The standard library uses :cpp:`size_t` for sizes, but this is a design error (that has been acknowledged since, but is keeped for retro-compatibility). In **std_e**, sizes are signed integers.
+But mixes happens as soon as math operations are used. The most common example is for array sizes. Array sizes must be positive, but they are most of the time used in combination with indices, and indices are signed. The standard library uses :cpp:`size_t` for sizes, but this is a design error (that has been acknowledged since, but is kept for retro-compatibility). In **std_e**, sizes are signed integers.
 
 Unsigned integer types are only used for bit manipulations (bitmasks, hashes...).
 
 See also: `Jon Kalb - unsigned: A Guideline for Better Code <https://www.youtube.com/watch?v=wvtFGa6XJDU>`_.
 
 to_string
-"""""""""
-Many objects can be converted to strings (in particular for display) with the :cpp:`std_e::to_string(const T& x)` function. 
+^^^^^^^^^
+Many objects can be converted to strings (in particular for display) with the :cpp:`std_e::to_string(const T& x)` function.

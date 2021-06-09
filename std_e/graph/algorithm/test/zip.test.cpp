@@ -1,14 +1,15 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/graph/tree/nested_tree.hpp"
+#include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/algo_nodes.hpp"
-#include "std_e/graph/test/nested_tree.hpp"
+#include "std_e/graph/test_utils/nested_tree.hpp"
 
 #include "std_e/graph/algorithm/zip.hpp"
 
+using namespace std_e;
 
 TEST_CASE("zip_graphs") {
-  auto t0 = graph::create_nested_tree_for_tests();
+  auto t0 = create_nested_tree_for_tests();
   /* t0 =
          1
       /     \
@@ -20,8 +21,8 @@ TEST_CASE("zip_graphs") {
   */
 
   SUBCASE("same graph shape") {
-    auto t1 = graph::create_nested_tree_for_tests();
-    graph::preorder_depth_first_scan(t1,[](auto& node){ node *= 3; });
+    auto t1 = create_nested_tree_for_tests();
+    preorder_depth_first_scan(t1,[](auto& node){ node *= 3; });
     /* t1 = 3*t0, so t1 =
            3
         /     \
@@ -32,10 +33,10 @@ TEST_CASE("zip_graphs") {
              27
     */
 
-    auto t = std_e::zip_graphs(t0,t1);
+    auto t = zip_graphs(t0,t1);
 
     std::string s;
-    auto f = [&](const auto& x){  s += std::to_string(graph::node(x.first)) + "," + std::to_string(graph::node(x.second)) + "\n"; };
+    auto f = [&](const auto& x){  s += std::to_string(node(x.first)) + "," + std::to_string(node(x.second)) + "\n"; };
     preorder_depth_first_scan_adjacencies(t,f);
 
     std::string expected_s =
@@ -60,18 +61,18 @@ TEST_CASE("zip_graphs") {
        /  \    /
       40   70  80
     */
-    auto t40 = graph::tree<int>{40};
-    auto t70 = graph::tree<int>{70};
-    auto t20 = graph::create_tree(20,t40,t70);
-    auto t80 = graph::tree<int> {80};
-    auto t30 = graph::create_tree(30,t80);
-    auto t10 = graph::create_tree(10,t20,t30);
+    auto t40 = nested_tree<int>{40};
+    auto t70 = nested_tree<int>{70};
+    auto t20 = create_tree(20,t40,t70);
+    auto t80 = nested_tree<int> {80};
+    auto t30 = create_tree(30,t80);
+    auto t10 = create_tree(10,t20,t30);
 
     auto t = std_e::zip_graphs(t0,t10);
 
     std::string s;
     auto f = [&](const auto& x){
-      s += std::to_string(graph::node(x.first)) + "," + std::to_string(graph::node(x.second)) + "\n";
+      s += std::to_string(node(x.first)) + "," + std::to_string(node(x.second)) + "\n";
       return nb_children(x.first) != nb_children(x.second);
     };
     preorder_depth_first_prune_adjacencies(t,f);

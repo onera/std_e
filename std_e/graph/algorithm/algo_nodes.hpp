@@ -5,7 +5,7 @@
 #include "std_e/graph/algorithm/adjacency_to_node_visitor_adaptor.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class Graph, class F> constexpr auto
@@ -47,4 +47,4 @@ prepostorder_depth_first_prune(Graph&& g, Graph_node_visitor&& f_node) -> void {
 }
 
 
-} // graph 
+} // std_e

@@ -12,6 +12,7 @@
 #include "std_e/multi_array/shape/fixed_dyn_shape_common.hpp"
 #include "std_e/memory_ressource/memory_ressource.hpp"
 #include "std_e/future/span.hpp"
+#include "std_e/meta/type_traits.hpp"
 
 
 namespace std_e {
@@ -38,10 +39,6 @@ class multi_array : private Multi_array_shape {
 
     static constexpr bool mem_is_owned = memory_is_owned<underlying_range_type>;
 
-    // meta-progamming stuff for constraints
-    template<class T> static constexpr bool is_index_type = std::is_same_v<T,index_type>;
-    template<class T> using is_index_type_t = std::bool_constant<is_index_type<T>>;
-
   // constructors {
     FORCE_INLINE constexpr multi_array() = default;
     FORCE_INLINE constexpr multi_array(const multi_array& ) = default;
@@ -57,7 +54,7 @@ class multi_array : private Multi_array_shape {
     {}
 
     template<class... Integers,
-      std::enable_if_t<std::conjunction_v<is_index_type_t<Integers>...>,int> =0
+      std::enable_if_t<are_integral<Integers...>,int> =0
     >
     multi_array(underlying_range_type rng, Integers... dims)
       : shape_type({dims...})
@@ -81,7 +78,7 @@ class multi_array : private Multi_array_shape {
 
   /// ctors with dimensions {
     template<class... Integers,
-      std::enable_if_t<std::conjunction_v<is_index_type_t<Integers>...>,int> =0
+      std::enable_if_t<are_integral<Integers...>,int> =0
     >
     multi_array(Integers... dims)
       : shape_type({dims...})
@@ -164,25 +161,34 @@ class multi_array : private Multi_array_shape {
     // linear_index {
     /// from Multi_index
     template<
-      class Multi_index,
-      std::enable_if_t< is_multi_index<Multi_index> , int > =0
-    > FORCE_INLINE constexpr auto
-    // requires Multi_index::size()==rank()
-    linear_index(const Multi_index& indices) const -> index_type {
+      class MI
+      #if __cplusplus <= 201703L
+      , std::enable_if_t< is_multi_index<MI> , int > =0
+      #endif
+    >
+      #if __cplusplus > 201703L
+        requires Multi_index<MI> && (MI::ct_rank==ct_rank)
+      #endif
+    FORCE_INLINE constexpr auto
+    linear_index(const MI& indices) const -> index_type {
       return fortran_order_from_dimensions(extent(),offset(),indices);
     }
     /// from indices
     template<
-      class... Integers,
-      std::enable_if_t< std::conjunction_v< std::bool_constant<std::is_integral_v<Integers>> ... > , int > =0
-    > FORCE_INLINE constexpr auto
-    // requires sizeof...(Integers)==rank()
+      class... Integers
+      #if __cplusplus <= 201703L
+      , std::enable_if_t< are_integral<Integers...> , int > =0
+      #endif
+    >
+      #if __cplusplus > 201703L
+        requires are_integral<Integers...>
+      #endif
+    FORCE_INLINE constexpr auto
     linear_index(Integers... is) const -> index_type {
       STD_E_ASSERT(sizeof...(Integers)==rank());
       return linear_index(multi_index_type{is...});
     }
     FORCE_INLINE constexpr auto
-    // requires ints are integers && sizeof...(ints)==rank()
     linear_index() const -> index_type { // Note: rank 0 case // TODO why fortran_order_from_dimensions does not return 0?
       return 0;
     }
@@ -342,7 +348,7 @@ template<
   class M0, class M1, class I,
   std::enable_if_t< std::is_integral_v<I> , int > =0
 > auto
-make_sub_array(const multi_array<M0,M1>& x, int i) {
+make_sub_array(const multi_array<M0,M1>& x, I i) {
   return make_sub_array(x,std_e::multi_index<int,1>{i});
 }
 template<

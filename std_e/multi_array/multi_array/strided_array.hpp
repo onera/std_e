@@ -3,6 +3,8 @@
 
 #include "std_e/multi_array/multi_array/multi_array.hpp"
 #include "std_e/data_structure/strided_span.hpp"
+#include "std_e/meta/meta.hpp"
+#include <type_traits>
 
 
 namespace std_e {
@@ -25,15 +27,36 @@ origin_indices(const multi_index<int,fixed_rank>& fixed_dim_indices, const multi
   }
   return origin_is;
 }
-  
+// TODO facto with above
+template<class Int> constexpr auto
+origin_indices(const multi_index<int,dynamic_size>& fixed_dim_indices, const multi_index<Int,dynamic_size>& fixed_indices, const multi_index<Int,dynamic_size>& indices) {
+  int fixed_rank = fixed_dim_indices.size();
+  int rank = indices.size();
+  int origin_rank = fixed_rank + rank;
+  multi_index<Int> origin_is(origin_rank);
+  int k0=0;
+  int k1=0;
+  for (int i=0; i<origin_rank; ++i) {
+    if (k0<fixed_rank && i==fixed_dim_indices[k0]) {
+      origin_is[i] = fixed_indices[k0];
+      ++k0;
+    } else {
+      origin_is[i] = indices[k1];
+      ++k1;
+    }
+  }
+  return origin_is;
+}
 
-template<class T, class Multi_array_shape, class Multi_array_shape_origin>
+
+template<class Multi_array, class Multi_array_shape, class Multi_index>
 class strided_array : private Multi_array_shape {
   public:
   // type traits
     using base = Multi_array_shape;
     using shape_type = Multi_array_shape;
-    using origin_shape_type = Multi_array_shape_origin;
+    using T = add_other_type_constness<typename std::decay_t<Multi_array>::value_type,std::remove_reference_t<Multi_array>>; // TODO why is remove_reference needed?
+    using origin_shape_type = typename std::decay_t<Multi_array>::shape_type;
 
     static constexpr int ct_rank = shape_type::ct_rank;
     static constexpr int ct_origin_rank = origin_shape_type::ct_rank;
@@ -48,16 +71,16 @@ class strided_array : private Multi_array_shape {
     using const_reference = const T&;
 
     static constexpr bool mem_is_owned = false;
+    static_assert(is_multi_index<Multi_index>);
 
   // ctor
-    template<class Multi_array, class Multi_index> constexpr
+    template<class Multi_array_0> constexpr
     // requires Multi_array::value_type==T
     // requires Multi_array::shape_type==Multi_array_shape,
     // requires rank = Multi_array::rank - rank_of<Multi_index>
-    strided_array(Multi_array& x, multi_index<int,ct_fixed_rank> fixed_dim_is, Multi_index fixed_is)
+    strided_array(Multi_array_0&& x, Multi_index fixed_dim_is, Multi_index fixed_is)
       : shape_type(make_sub_shape(x.shape(),fixed_dim_is))
-      , ptr(x.data())
-      , origin_shape(x.shape())
+      , origin_ma(FWD(x))
       , fixed_dim_indices(std::move(fixed_dim_is))
       , fixed_indices(std::move(fixed_is))
     {}
@@ -73,11 +96,11 @@ class strided_array : private Multi_array_shape {
     }
     FORCE_INLINE auto
     data() -> pointer {
-      return ptr;
+      return origin_ma.data();
     }
     FORCE_INLINE constexpr auto
     data() const -> const_pointer {
-      return ptr;
+      return origin_ma.data();
     }
 
   // dimensions
@@ -97,23 +120,23 @@ class strided_array : private Multi_array_shape {
   // element access
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) const -> const_reference {
-      static_assert(sizeof...(Ts)==rank());
-      return ptr[linear_index(std::forward<Ts>(xs)...)];
+      //static_assert(sizeof...(Ts)==rank());
+      return origin_ma.underlying_range()[linear_index(std::forward<Ts>(xs)...)];
     }
     template<class... Ts> FORCE_INLINE constexpr auto
     operator()(Ts&&... xs) -> reference {
-      static_assert(sizeof...(Ts)==rank());
-      return ptr[linear_index(std::forward<Ts>(xs)...)];
+      //static_assert(sizeof...(Ts)==rank());
+      return origin_ma.underlying_range()[linear_index(std::forward<Ts>(xs)...)];
     }
 
   private:
   /// linear_index {
   // from Multi_index
-    template<class Multi_index> FORCE_INLINE constexpr auto
+    template<class Multi_index0> FORCE_INLINE constexpr auto
     // requires Multi_index is an array && Multi_index::size()==rank()
-    linear_index(const Multi_index& indices) const -> index_type {
+    linear_index(const Multi_index0& indices) const -> index_type {
       auto origin_is = origin_indices(fixed_dim_indices,fixed_indices,indices);
-      return fortran_order_from_dimensions(origin_shape.extent(),origin_shape.offset(),origin_is);
+      return fortran_order_from_dimensions(origin_ma.extent(),origin_ma.offset(),origin_is);
     }
   // from indices
     template<class Integer, class... Integers> FORCE_INLINE constexpr auto
@@ -137,10 +160,9 @@ class strided_array : private Multi_array_shape {
   /// linear_index }
 
 // data members
-    T* ptr;
-    origin_shape_type origin_shape;
-    multi_index<int,ct_fixed_rank> fixed_dim_indices;
-    multi_index<index_type,ct_fixed_rank> fixed_indices;
+    std_e::remove_rvalue_reference<Multi_array> origin_ma;
+    Multi_index fixed_dim_indices;
+    Multi_index fixed_indices;
 };
 
 
@@ -152,13 +174,21 @@ template<
 > constexpr auto
 // requires Multi_array::shape_type is dyn_shape
 // requires Multi_array of fixed rank
-make_strided_array(Multi_array& x, multi_index<int,fixed_dims_rank> fixed_dim_indices, multi_index<index_type,fixed_dims_rank> fixed_is) {
-  using T = typename Multi_array::value_type;
-  using origin_shape_type = typename Multi_array::shape_type;
-  constexpr int origin_rank = Multi_array::rank();
+make_strided_array(Multi_array&& x, multi_index<int,fixed_dims_rank> fixed_dim_indices, multi_index<index_type,fixed_dims_rank> fixed_is) {
+  constexpr int origin_rank = std::decay_t<Multi_array>::rank();
   constexpr int strided_rank = origin_rank - fixed_dims_rank;
   using shape_type = dyn_shape<index_type,strided_rank>;
-  return strided_array<T,shape_type,origin_shape_type>(x,std::move(fixed_dim_indices),std::move(fixed_is));
+  return strided_array<Multi_array&&,shape_type,multi_index<int,fixed_dims_rank>>(FWD(x),std::move(fixed_dim_indices),std::move(fixed_is));
+}
+template<
+  class Multi_array,
+  class index_type = typename Multi_array::index_type
+> auto
+// requires Multi_array::shape_type is dyn_shape
+// requires Multi_array of fixed rank
+make_strided_array(Multi_array&& x, multi_index<int,dynamic_size> fixed_dim_indices, multi_index<index_type,dynamic_size> fixed_is) {
+  using shape_type = dyn_shape<index_type,dynamic_size>;
+  return strided_array<Multi_array&&,shape_type,multi_index<int,dynamic_size>>(FWD(x),std::move(fixed_dim_indices),std::move(fixed_is));
 }
 
 /// NOTE: overload to match a initialization list of dimensions

@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "std_e/utils/tuple.hpp"
-#include "std_e/utils/flatten_tuple.hpp"
+#include "std_e/meta/flatten_tuple.hpp"
 #include "std_e/utils/transform_tuple.hpp"
 
 

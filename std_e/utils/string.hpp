@@ -3,8 +3,8 @@
 
 #include <string>
 #include <string_view>
-#include <sstream>
 #include <vector>
+#include <sstream>
 #include <algorithm>
 #include "std_e/future/algorithm.hpp"
 
@@ -52,23 +52,26 @@ remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::stri
   return split(copy_without_spaces(s),sep);
 }
 
-// #if (__cplusplus >= 201703L) /// C++ 17
-// #if (__STDC_VERSION__ >= 201710L) /// cf. https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
 inline auto
 contains(std::string_view s, char c) -> bool {
   auto it = std::find(begin(s),end(s),c);
   return it!=end(s);
 }
+inline auto
+begins_with(const std::string& s, const std::string& prefix) -> bool {
+  if (prefix.size() > s.size()) return false;
+  return std::equal(prefix.begin(), prefix.end(), s.begin());
+}
+inline auto
+ends_with(const std::string& s, const std::string& suffix) -> bool {
+  if (suffix.size() > s.size()) return false;
+  return std::equal(suffix.rbegin(), suffix.rend(), s.rbegin());
+}
+
 constexpr auto
 count_char(std::string_view s, char c) -> int {
   return count(begin(s),end(s),c);
 }
-// #endif
-// #endif
 
-inline auto
-begins_with(const std::string& s, const std::string& prefix) -> bool {
-  return s.rfind(prefix,0)==0;
-}
 
 } // std_e

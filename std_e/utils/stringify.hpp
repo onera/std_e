@@ -1,37 +1,33 @@
 #pragma once
 
+#include "std_e/utils/string.hpp"
 #include <iostream>
-#include <string>
 
 namespace std_e {
 
 // ------------------------------------------------------------------
 // Procedure: startswith
-inline bool startswith(std::string const & value, std::string const & starting)
+[[deprecated("use begins_with")]] inline bool startswith(std::string const & s, std::string const & prefix)
 {
-  if (starting.size() > value.size())
-    return false;
-  return std::equal(starting.begin(), starting.end(), value.begin());
+  return begins_with(s,prefix);
 }
 
 // ------------------------------------------------------------------
 // Procedure: endswith
-inline bool endswith(std::string const & value, std::string const & ending)
+[[deprecated("use ends_with")]] inline bool endswith(std::string const & s, std::string const & suffix)
 {
-  if (ending.size() > value.size())
-    return false;
-  return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+  return ends_with(s,suffix);
 }
 
 // ------------------------------------------------------------------
 // Procedure: stringify
-template <typename T>
+template <typename T> [[deprecated("use to_string")]]
 void ostreamize(std::ostringstream& oss, T&& token) {
   oss << std::forward<T>(token);
 }
 
 // Procedure: stringify
-template <typename T, typename... Rest>
+template <typename T, typename... Rest> [[deprecated("use to_string")]]
 void ostreamize(std::ostringstream& oss, T&& token, Rest&&... rest) {
   oss << std::forward<T>(token);
   ostreamize(oss, std::forward<Rest>(rest)...);

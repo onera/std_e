@@ -7,12 +7,19 @@
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
 #include "std_e/utils/array.hpp"
+#include <iterator>
+#include <stdexcept>
+#if __cplusplus > 201703L
+  #include <ranges>
+#endif
 
 
 namespace std_e {
 
 
 // multi_index {
+template<class Int, int N = dynamic_size>
+struct multi_index;
 
 // IMPLEMENTATION DESIGN NOTE: we use inheritance to define multi_index
 //   - inheritance should be viewed as an implementation detail:
@@ -24,29 +31,21 @@ namespace std_e {
 //       (and we will need to define a fair number of multi_index functions)
 template<class Int, int N>
 struct multi_index : std::array<Int,N> {
+  static constexpr int ct_rank = N;
   static constexpr auto
   rank() -> int {
     return N;
   }
 };
 
-template<class Int, int N> constexpr auto
-operator==(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
-  // NOTE: operator==(std::array) is constexpr only in C++20
-  for (int i=0; i<N; ++i) {
-    if (x[i] != y[i]) return false;
-  }
-  return true;
-}
-template<class Int, int N> constexpr auto
-operator!=(const multi_index<Int,N>& x, const multi_index<Int,N>& y) {
-  return !(x==y);
-}
-
 template<class Int>
 struct multi_index<Int,dynamic_size> : std::vector<Int> {
+  static constexpr int ct_rank = dynamic_size;
   using base = std::vector<Int>;
   using base::base; // inherit ctors too
+  multi_index(base x)
+    : base(std::move(x))
+  {}
 
   constexpr auto
   rank() const -> int {
@@ -88,7 +87,12 @@ template<>
 struct enable_is_multi_index<cx_multi_index> : std::true_type {};
 
 template<class T>
-constexpr bool is_multi_index = enable_is_multi_index<T>::value;
+constexpr bool is_multi_index = enable_is_multi_index<std::decay_t<T>>::value;
+
+#if __cplusplus > 201703L
+  template<class T>
+  concept Multi_index = std::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
+#endif
 // is_multi_index }
 
 // index_type_of {

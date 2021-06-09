@@ -1,5 +1,7 @@
 build/*
+.cache/*
 *.swp
+*compile_commands.json
 
 # Latex
 *.aux
@@ -7,3 +9,4 @@ build/*
 *.out
 *.toc
 *.data
+

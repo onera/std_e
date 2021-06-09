@@ -5,13 +5,17 @@
 
 namespace std_e {
 
+
+// hrange<Range,Ts...> holds ranges of different types
+// hrange means "heterogenous range"
+// It is a wrapper around tuple<Range<Ts...>> with convenient accessors and algorithms
 template<template<class> class Range_template, class... Ts>
 class hrange {
   public:
-  // type traits
+    // type traits
     using ranges_tuple = std::tuple<Range_template<Ts>...>;
 
-  // ctors
+    // ctors {
     constexpr
     hrange() = default;
 
@@ -20,19 +24,19 @@ class hrange {
     hrange(Ranges&&... xs)
       : _impl(std::make_tuple(FWD(xs)...))
     {}
+    // ctors }
 
-  // low-level access
+    // access to underlying tuple
     constexpr auto impl()       ->       ranges_tuple& { return _impl; }
     constexpr auto impl() const -> const ranges_tuple& { return _impl; }
 
-  // size
-    //! \brief Heterogenous size: number of different types
+    // low-level access {
+    /// number of types
     static constexpr auto
     hsize() -> int {
       return sizeof...(Ts);
     }
-
-    //! \brief Total size: sum(ranges.size())
+    /// total number of elements
     constexpr auto
     size() const -> size_t {
       size_t sz = 0;
@@ -40,8 +44,9 @@ class hrange {
       for_each(_impl,accumulate_size);
       return sz;
     }
+    // low-level access }
 
-  // vector-like interface
+    // vector-like interface
     template<class T> auto
     // requires T is one of the Ts
     push_back(const T& elt) {
@@ -52,6 +57,19 @@ class hrange {
 };
 
 
+// deduction guidelines {
+template<template<class> class Range_template, class... Ts>
+hrange(Range_template<Ts>&&...) -> hrange<Range_template,Ts...>;
+
+template<template<class> class Range_template, class... Ts>
+hrange(Range_template<Ts>&...) -> hrange<Range_template,Ts...>;
+
+template<template<class> class Range_template, class... Ts>
+hrange(const Range_template<Ts>&...) -> hrange<Range_template,Ts...>;
+// deduction guidelines }
+
+
+// tuple-like get {
 template<class T, template<class> class RT, class... Ts> constexpr auto
 get(hrange<RT,Ts...>& x) -> RT<T>& {
   return std::get<RT<T>>(x.impl());
@@ -69,8 +87,9 @@ template<size_t I, template<class> class RT, class... Ts> constexpr auto
 get(const hrange<RT,Ts...>& x) -> const auto& {
   return std::get<I>(x.impl());
 }
+// tuple-like get }
 
-// tuple protocol {
+//  tuple protocol {
 } // std_e
 namespace std {
   template<template<class> class RT, class... Ts>
@@ -84,9 +103,8 @@ namespace std {
     using type = tuple_element_t<I, ranges_tuple>;
   };
 } // std
-
-// TODO DEL or RENAME (not clear if we apply to vectors or elts in vectors
 namespace std_e {
+
 template <class F, template<class> class RT, class... Ts> constexpr auto
 apply(F&& f, hrange<RT,Ts...>& x) -> decltype(auto) {
   return std::apply(f, x.impl());
@@ -95,26 +113,28 @@ template <class F, template<class> class RT, class... Ts> constexpr auto
 apply(F&& f, const hrange<RT,Ts...>& x) -> decltype(auto) {
   return std::apply(f, x.impl());
 }
-// tuple protocol }
+//  tuple protocol }
 
-template<class... Ts, template<class> class RT, class F> constexpr auto // TODO Rename _vector -> _range
-for_each_vector(hrange<RT,Ts...>& hr, F f) -> void {
+
+// algorithms {
+template<class... Ts, template<class> class RT, class F> constexpr auto
+for_each_range(hrange<RT,Ts...>& hr, F f) -> void {
   for_each(hr.impl(),f);
 }
 template<class... Ts, template<class> class RT, class F> constexpr auto
-for_each_vector(const hrange<RT,Ts...>& hr, F f) -> void {
+for_each_range(const hrange<RT,Ts...>& hr, F f) -> void {
   for_each(hr.impl(),f);
 }
 
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_element(hrange<RT,Ts...>& hr, F f) -> void {
   auto f_for_each = [f](auto& v){ for_each(v,f); };
-  for_each_vector(hr,f_for_each);
+  for_each_range(hr,f_for_each);
 }
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_element(const hrange<RT,Ts...>& hr, F f) -> void {
   auto f_for_each = [f](auto& v){ for_each(v,f); };
-  for_each_vector(hr,f_for_each);
+  for_each_range(hr,f_for_each);
 }
 
 // also defining this function for vector, for genericity purposes // TODO define for any Range
@@ -126,11 +146,11 @@ template<class T, class F> constexpr auto
 for_each_element(const std::vector<T>& v, F f) -> void {
   std::for_each(begin(v),end(v),f);
 }
-// for each element }
 
 
+namespace detail {
 template<class hrange_type, class Unary_pred, class F> constexpr auto
-find_apply__impl(hrange_type& hr, Unary_pred p, F f) -> std::pair<int,int> {
+find_apply(hrange_type& hr, Unary_pred p, F f) -> std::pair<int,int> {
   int index_in_range = 0;
   auto f_tuple = [&p,&f,&index_in_range](auto& rng){
     auto it = std::find_if(begin(rng),end(rng),p);
@@ -146,41 +166,22 @@ find_apply__impl(hrange_type& hr, Unary_pred p, F f) -> std::pair<int,int> {
   int index_in_types = for_each_until(hr.impl(),f_tuple);
   return std::make_pair(index_in_types,index_in_range);
 }
-// TODO choose between find_apply__impl and find_apply__impl2
-template<class hrange_type, class Unary_pred, class F> constexpr auto
-find_apply__impl2(hrange_type& hr, Unary_pred p, F f) -> std::pair<int,int> {
-  int index_in_range = 0;
-  auto p_tuple = [&p,&index_in_range](auto& rng){
-    auto it = std::find_if(begin(rng),end(rng),p);
-    index_in_range = it-begin(rng);
-    if (it!=end(rng)) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-  auto f_tuple = [&f,&index_in_range](auto& rng){
-    f(rng[index_in_range]);
-  };
-
-  int index_in_types = find_apply(hr.impl(),p_tuple,f_tuple);
-  return std::make_pair(index_in_types,index_in_range);
-}
+} // detail
 
 
 template<template<class> class RT, class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(hrange<RT,Ts...>& hr, Unary_pred p, F f) -> std::pair<int,int> {
-  return find_apply__impl(hr,p,f);
+  return detail::find_apply(hr,p,f);
 }
 template<template<class> class RT, class... Ts, class Unary_pred, class F> constexpr auto
 find_apply(const hrange<RT,Ts...>& hr, Unary_pred p, F f) -> std::pair<int,int> {
-  return find_apply__impl(hr,p,f);
+  return detail::find_apply(hr,p,f);
 }
 
 template<template<class> class RT, class... Ts, class Unary_pred> constexpr auto
 find_position(const hrange<RT,Ts...>& hr, Unary_pred p) -> std::pair<int,int> {
   auto no_op = [](auto&&){};
-  return find_apply__impl(hr,p,no_op);
+  return detail::find_apply(hr,p,no_op);
 }
 
 template<template<class> class RT, class... Ts, class Unary_pred, class F> constexpr auto
@@ -205,19 +206,7 @@ for_each_element_if(const hrange<RT,Ts...>& hr, Unary_pred p, F f) -> void {
   auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
   for_each_element(hr,f_cond);
 }
-
-// TODO REMOVE
-template<template<class> class RT, class... Ts, class Unary_pred, class F> [[deprecated("use for_each_element_if instead")]] constexpr auto
-for_each_if(hrange<RT,Ts...>& hr, Unary_pred p, F f) -> void {
-  auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
-  for_each_element(hr,f_cond);
-}
-template<template<class> class RT, class... Ts, class Unary_pred, class F> [[deprecated("use for_each_element_if instead")]] constexpr auto
-for_each_if(const hrange<RT,Ts...>& hr, Unary_pred p, F f) -> void {
-  auto f_cond = [p,f](auto&& x){ if (p(x)) f(x); };
-  for_each_element(hr,f_cond);
-}
+// algorithms }
 
 
 } // std_e
-

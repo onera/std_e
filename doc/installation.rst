@@ -6,7 +6,7 @@ Installation
 Dependencies
 ------------
 
-**std_e** only depends on the standard library.
+**std_e** only depends on the standard library. There is an optional dependency to MPI.
 
 The build process requires:
 
@@ -25,4 +25,14 @@ Build and install
 1. :code:`git clone https://github.com/BerengerBerthoul/std_e`
 2. :code:`cd std_e`
 3. :code:`git submodule update --init` (needed for submodule dependency **project_utils**)
-4. Use **cmake** to configure, build and install. The configuration step will automatically download **doctest**. If you are not familiar with **cmake** usage, an example is given in **scripts/install.sh**.
+4. Use **cmake** to configure, build and install. The configuration step will automatically download **doctest** (unit test library).
+
+The main **cmake** configuration variables are the following (values are the defaults):
+
+.. code:: bash
+
+  STD_E_ENABLE_CPP20=OFF # required for some functionalities, in particular graphs
+  STD_E_ENABLE_MPI=OFF # thin wrappers around MPI functions
+  STD_E_ENABLE_TEST=ON
+  STD_E_ENABLE_COVERAGE=OFF
+  STD_E_BUILD_DOCUMENTATION=OFF

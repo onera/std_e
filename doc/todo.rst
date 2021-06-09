@@ -1,28 +1,26 @@
 .. _todo:
 
-TODO
+Todo
 ====
 
 Code
 ----
-
 RENAME make_sub_array -> slice ?
 strided_view of strided_view (which sometimes returns a multi_array!)
+helper_bind
+flatten_tuple
+utils/pretty_print => TEST
 
 
 Doc
 ---
-
-source_generated_documentation
-
 literalinclude: link to the original source file
+
+graph: algorithms (dfs, rearranging, merge_from_leaves)
 
 
 Build and CI
 ------------
-
-clean install.sh
-
 More CMake checks on whether we can build the documentation (sphinxcontrib-applehelp, breathe==4.17)
 
 Use CodeCoverage, Sanitizer, CppCheck, Clang-tidy

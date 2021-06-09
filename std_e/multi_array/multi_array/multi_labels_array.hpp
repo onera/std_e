@@ -43,7 +43,7 @@ class multi_labels_array : public multi_array<std::vector<T> , dyn_shape<int,siz
     auto
     array() -> auto& {
       return *this;
-    } 
+    }
 
   private:
     std::tuple<std::vector<Ts>...> _labels;

@@ -54,7 +54,7 @@ template<class Fwd_it, class S, class Output_it0, class I, class Output_it1, cla
 // requires Sentinel<Fwd_it>==S
 // requires I is integer and I==Output_it1::value_type
 unique_compress_copy_with_index_position(
-    Fwd_it first, S last, 
+    Fwd_it first, S last,
     Output_it0 result,
     I current_new_position,
     Output_it1 old_to_new_positions,

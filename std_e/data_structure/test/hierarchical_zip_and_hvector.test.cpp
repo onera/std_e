@@ -8,28 +8,30 @@ using std::string;
 using std::vector;
 using std_e::hvector;
 
-struct HS0 {
-  int i;
-};
-struct HS1 {
-  double d;
-};
-auto to_string(const HS0& x) { return std::to_string(    x.i ); }
-auto to_string(const HS1& x) { return std::to_string(int(x.d)); }
-auto compare_to(const HS0& x, int i) { return     x.i  == i; }
-auto compare_to(const HS1& x, int i) { return int(x.d) == i; }
+namespace {
+  struct HS0 {
+    int i;
+  };
+  struct HS1 {
+    double d;
+  };
+  auto to_string(const HS0& x) { return std::to_string(    x.i ); }
+  auto to_string(const HS1& x) { return std::to_string(int(x.d)); }
+  auto compare_to(const HS0& x, int i) { return     x.i  == i; }
+  auto compare_to(const HS1& x, int i) { return int(x.d) == i; }
 
-struct HS0_names {
-  string i;
-};
-struct HS1_names {
-  string d;
-};
-auto set_str_val(HS0_names& x, const string& s) { x.i = s; }
-auto set_str_val(HS1_names& x, const string& s) { x.d = s; }
+  struct HS0_names {
+    string i;
+  };
+  struct HS1_names {
+    string d;
+  };
+  auto set_str_val(HS0_names& x, const string& s) { x.i = s; }
+  auto set_str_val(HS1_names& x, const string& s) { x.d = s; }
 
-auto to_string(const HS0_names& x) { return x.i; }
-auto to_string(const HS1_names& x) { return x.d; }
+  [[maybe_unused]] auto to_string(const HS0_names& x) { return x.i; }
+  [[maybe_unused]] auto to_string(const HS1_names& x) { return x.d; }
+}
 
 // struct fundamental_hierarchy {
 //   std_e::hvector<HS0> level1;

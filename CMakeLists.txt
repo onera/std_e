@@ -39,12 +39,18 @@ endif()
 
 ## Compiler flags
 ### Build type
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
 endif()
 ### C++ standard
-set(CMAKE_CXX_STANDARD          17 )
-set(CMAKE_CXX_EXTENSIONS        OFF)
+option(STD_E_ENABLE_CPP20 "Enable c++20 for ${PROJECT_NAME}" OFF)
+if (STD_E_ENABLE_CPP20)
+  set(CMAKE_CXX_STANDARD 20)
+else()
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON )
 ### fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -123,7 +129,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 ## Unit tests ##
 option(STD_E_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
-if(STD_E_ENABLE_TEST)
+if (STD_E_ENABLE_TEST)
   enable_testing()
   include(CTest)
   if(STD_E_ENABLE_MPI)
@@ -183,31 +189,84 @@ endif()
 # ----------------------------------------------------------------------
 option(STD_E_BUILD_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
 if(STD_E_BUILD_DOCUMENTATION)
-  # Download bootstrap style
-  FetchContent_Declare(
-    sphinx_bootstrap_theme
-    GIT_REPOSITORY https://github.com/ryan-roemer/sphinx-bootstrap-theme.git
-    GIT_TAG        v0.8.0
-  )
-  FetchContent_GetProperties(sphinx_bootstrap_theme)
-  if(NOT sphinx_bootstrap_theme_POPULATED)
-    FetchContent_Populate(sphinx_bootstrap_theme)
-  endif()
+# 0. Doxygen
+  find_package(Doxygen REQUIRED)
+
+  file(GLOB_RECURSE HEADERS ${src_dir}/*.hpp)
+
+  set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
+  set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doc/doxygen)
+  set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
+  set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile)
+  # replace @DOXYGEN_INPUT_DIR@ and @DOXYGEN_OUTPUT_DIR@ values in DOXYFILE_IN and output it to DOXYFILE_OUT
+  configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+
+  set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
+
+  file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}) # Doxygen won't create this for us
+  add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
+                     DEPENDS ${HEADERS}
+                     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+                     MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
+                     COMMENT "Generating Doxygen documentation")
+
+  add_custom_target(${PROJECT_NAME}_doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
+
+# 1. Sphinx
+  find_package(Sphinx 3 REQUIRED)
+  set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+  set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/doc/sphinx/html)
+  set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
+
+  set(SPHINX_CONF_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in)
+  set(SPHINX_CONF_OUT ${CMAKE_CURRENT_BINARY_DIR}/doc/conf.py)
+  # replace @DOXYGEN_INPUT_DIR@ and @DOXYGEN_OUTPUT_DIR@ values in DOXYFILE_IN and output it to DOXYFILE_OUT
+  configure_file(${SPHINX_CONF_IN} ${SPHINX_CONF_OUT} @ONLY)
+
+  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/doc/*)
+  add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
+                     COMMAND ${SPHINX_EXECUTABLE} -b html -c ${CMAKE_CURRENT_BINARY_DIR}/doc
+                    -Dbreathe_projects.${PROJECT_NAME}=${DOXYGEN_OUTPUT_DIR}/xml # Tell Breathe where to find the Doxygen output
+                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     DEPENDS
+                       ${doc_files}
+                       #${CMAKE_CURRENT_SOURCE_DIR}/index.rst
+                       ${DOXYGEN_INDEX_FILE}
+                     MAIN_DEPENDENCY ${SPHINX_CONF_OUT}
+                     COMMENT "Generating Sphinx documentation, using Breathe to recover xml files from Doxygen")
+
+  add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+
+  # Install
+  install(DIRECTORY ${SPHINX_BUILD}
+          DESTINATION doc/${PROJECT_NAME})
+
+  ## Download bootstrap style
+  #FetchContent_Declare(
+  #  sphinx_bootstrap_theme
+  #  GIT_REPOSITORY https://github.com/ryan-roemer/sphinx-bootstrap-theme.git
+  #  GIT_TAG        v0.8.0
+  #)
+  #FetchContent_GetProperties(sphinx_bootstrap_theme)
+  #if(NOT sphinx_bootstrap_theme_POPULATED)
+  #  FetchContent_Populate(sphinx_bootstrap_theme)
+  #endif()
 
   #include(UseBreathe)
-  include(${PROJECT_UTILS_CMAKE_DIR}/UseBreathe.cmake)
-  add_breathe_doc(TARGET_NAME ${PROJECT_NAME}_doc
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc
-    DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
-    CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in
-    BUILD_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_build
-    CACHE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_doctrees
-    HTML_DIR   ${CMAKE_CURRENT_BINARY_DIR}/html
-    COMMENT "HTML documentation"
-  )
+  #include(${PROJECT_UTILS_CMAKE_DIR}/UseBreathe.cmake)
+  #add_breathe_doc(TARGET_NAME ${PROJECT_NAME}_doc
+  #  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc
+  #  DOXY_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
+  #  CONF_FILE  ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in
+  #  BUILD_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_build
+  #  CACHE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/_doctrees
+  #  HTML_DIR   ${CMAKE_CURRENT_BINARY_DIR}/html
+  #  COMMENT "HTML documentation"
+  #)
 
-  install(DIRECTORY   ${CMAKE_CURRENT_BINARY_DIR}/html
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc)
+  #install(DIRECTORY   ${CMAKE_CURRENT_BINARY_DIR}/html
+  #        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc)
 endif()
 # ----------------------------------------------------------------------
 

@@ -4,38 +4,16 @@
 #include <vector>
 
 
-namespace graph {
+namespace std_e {
 
+using connection_indices_container = std::vector<int>;
 
-template<class Int, template<class> class Range>
-struct in_index_adjacency {
-  Range<Int> inwards;
-};
-template<class Int, template<class> class Range>
-struct out_index_adjacency {
-  Range<Int> outwards;
-};
-template<class Int, template<class> class Range>
+template<class T>
 struct io_index_adjacency {
-  Range<Int> inwards;
-  Range<Int> outwards;
+  T node;
+  connection_indices_container inwards;
+  connection_indices_container outwards;
 };
+template<class T> using io_index_adjacency_vector = std::vector<io_index_adjacency<T>>;
 
-
-template<class T, template<class> class Range>
-struct in_ptr_adjacency {
-  Range<in_ptr_adjacency<T,Range>*> inwards;
-};
-template<class T, template<class> class Range>
-struct out_ptr_adjacency {
-  Range<T*> outwards;
-};
-template<class T, template<class> class Range>
-struct io_ptr_adjacency {
-  Range<T*> inwards;
-  Range<T*> outwards;
-};
-
-
-
-} // graph
+} // std_e

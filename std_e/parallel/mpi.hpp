@@ -9,7 +9,7 @@
 #include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/future/make_array.hpp"
 #include "std_e/future/contract.hpp"
-#include "std_e/interval/knot_sequence.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 
 
 namespace std_e {
@@ -19,11 +19,11 @@ namespace std_e {
 template<class T> constexpr auto
 to_mpi_type__impl() -> MPI_Datatype {
   constexpr int sz = sizeof(T);
-  static_assert(sz==1 || sz==2 || sz==4 || sz==8,"no corresponding MPI type");
        if constexpr (sz==1) return MPI_BYTE;
   else if constexpr (sz==2) return MPI_INT16_T;
   else if constexpr (sz==4) return MPI_INT32_T;
   else if constexpr (sz==8) return MPI_INT64_T;
+  throw mpi_exception(-1,"sizeof primitive type should by 1, 2, 4 or 8");
 }
 
 template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type__impl<T>();
@@ -37,7 +37,7 @@ rank(MPI_Comm comm) -> int {
   return i;
 }
 inline auto
-nb_ranks(MPI_Comm comm) -> int {
+n_rank(MPI_Comm comm) -> int {
   int n;
   MPI_Comm_size(comm, &n);
   return n;
@@ -90,37 +90,26 @@ all_gather(T value, T* rbuf, MPI_Comm comm) -> void {
 }
 
 template<class T> auto
-all_gather(T value, MPI_Comm comm) -> std::vector<T> {
-
-  int comm_size;
-  MPI_Comm_size(comm, &comm_size);
-
-  std::vector<T> data_received(comm_size);
-
-  std_e::all_gather(value,data_received.data(),comm);
-
+all_gather(T x, MPI_Comm comm) -> std::vector<T> {
+  std::vector<T> data_received(n_rank(comm));
+  std_e::all_gather(x,data_received.data(),comm);
   return data_received;
 }
 
 template<class T> auto
-all_gather(const std::vector<T> & value,MPI_Comm comm) -> std::vector<T> {
-  
-  int comm_size;
-  MPI_Comm_size(comm, &comm_size);
+all_gather(const std::vector<T>& x,MPI_Comm comm) -> std::vector<T> {
+  int sz = x.size();
+  std::vector<int> szs = std_e::all_gather(sz,comm);
+  std_e::interval_vector<int> displs = std_e::indices_from_strides(szs);
 
-  int sz = value.size();
-  std::vector<int> recvcounts = std_e::all_gather(sz,comm);
-  
-  int total_sz = std::reduce(recvcounts.begin(),recvcounts.end());
-  std::vector<T> data_received(total_sz);
+  int total_sz = std::accumulate(szs.begin(),szs.end(),0);
+  std::vector<T> res(total_sz);
 
-  std_e::knot_vector<int> displs = std_e::indices_from_sizes(recvcounts);
-
-  int err = MPI_Allgatherv(value.data(), value.size(), to_mpi_type<T>, data_received.data(), recvcounts.data(), displs.data(),
-                           to_mpi_type<T>, comm);
+  int err = MPI_Allgatherv(x.data(), x.size(), to_mpi_type<T>,
+                           res.data(), szs.data(), displs.data(), to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 
-  return data_received;
+  return res;
 }
 
 template<class T> auto

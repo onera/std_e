@@ -7,6 +7,7 @@ namespace std_e {
 
 STD_E_ENUM(algebraic_constant_kind,
   identity_matrix,
+  i, // imaginary unit
 );
 
 } // std_e

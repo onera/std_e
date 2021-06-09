@@ -141,7 +141,7 @@ struct iterator_traits<std_e::zip_iterator<It_0,It_1>> {
 
 
 template<class Rng0, class Rng1>
-class zip_view{
+class zip_view {
   public:
     using T0 = typename Rng0::value_type;
     using T1 = typename Rng1::value_type;

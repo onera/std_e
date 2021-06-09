@@ -2,9 +2,10 @@
 
 
 #include <utility>
+#include "std_e/meta/meta.hpp"
 
 
-namespace graph {
+namespace std_e {
 
 
 template<class Graph_node_visitor>
@@ -55,4 +56,4 @@ class graph_adjacency_functor_adaptor {
 };
 
 
-} // graph
+} // std_e
