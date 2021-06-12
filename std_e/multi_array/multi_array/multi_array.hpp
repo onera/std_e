@@ -167,10 +167,11 @@ class multi_array : private Multi_array_shape {
       #endif
     >
       #if __cplusplus > 201703L
-        requires Multi_index<MI> && (MI::ct_rank==ct_rank)
+        requires Multi_index<MI>
       #endif
     FORCE_INLINE constexpr auto
     linear_index(const MI& indices) const -> index_type {
+      STD_E_ASSERT((int)indices.size()==rank());
       return fortran_order_from_dimensions(extent(),offset(),indices);
     }
     /// from indices

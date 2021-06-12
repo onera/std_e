@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <clocale>
 #include <type_traits>
 #include <utility>
 
@@ -23,43 +24,77 @@ enum class interval_kind {
 // interval_base {
 template<class I, interval_kind ik>
 // requires I is integral type
-class interval_base : private std::pair<I,I> {
+class interval_base {
   public:
     using value_type = std::decay_t<I>;
-    using base = std::pair<I,I>;
+
+    interval_base() = default;
 
     interval_base(I f, I l)
-      : base(f,l)
+      : f(f)
+      , l(l)
     {
       STD_E_ASSERT(f<=l);
     }
 
     template<class I0>
     interval_base(const interval_base<I0,ik>& other)
-      : base(other.as_base())
+      : f(other.first())
+      , l(other.last())
+    {}
+    template<class I0>
+    interval_base(interval_base<I0,ik>&& other)
+      : f(other.first())
+      , l(other.last())
     {}
     template<class I0> auto
     operator=(const interval_base<I0,ik>& other) -> interval_base& {
-      as_base() = other.as_base();
+      f = other.first();
+      l = other.last();
+      return *this;
+    }
+    template<class I0> auto
+    operator=(interval_base<I0,ik>&& other) -> interval_base& {
+      f = other.first();
+      l = other.last();
+      return *this;
+    }
+    interval_base(const interval_base& other)
+      : f(other.first())
+      , l(other.last())
+    {}
+    interval_base(interval_base&& other)
+      : f(other.first())
+      , l(other.last())
+    {}
+    auto
+    operator=(const interval_base& other) -> interval_base& {
+      f = other.first();
+      l = other.last();
+      return *this;
+    }
+    auto
+    operator=(interval_base&& other) -> interval_base& {
+      f = other.first();
+      l = other.last();
       return *this;
     }
 
-    auto first()       ->       I& { return base::first; }
-    auto first() const -> const I& { return base::first; }
-    auto last ()       ->       I& { return base::second; }
-    auto last () const -> const I& { return base::second; }
+    auto first()       ->       I& { return f; }
+    auto first() const -> const I& { return f; }
+    auto last ()       ->       I& { return l; }
+    auto last () const -> const I& { return l; }
   private:
-    template<class I0> friend class interval;
-    auto as_base()       ->       base& { return *this; }
-    auto as_base() const -> const base& { return *this; }
+    I f;
+    I l;
 };
 
-template<class I, interval_kind ik> constexpr auto
-operator==(const interval_base<I,ik>& x, const interval_base<I,ik>& y) -> bool {
+template<class I0, class I1, interval_kind ik> constexpr auto
+operator==(const interval_base<I0,ik>& x, const interval_base<I1,ik>& y) -> bool {
   return x.first()==y.first() && x.last()==y.last();
 }
-template<class I, interval_kind ik> constexpr auto
-operator!=(const interval_base<I,ik>& x, const interval_base<I,ik>& y) -> bool {
+template<class I0, class I1, interval_kind ik> constexpr auto
+operator!=(const interval_base<I0,ik>& x, const interval_base<I1,ik>& y) -> bool {
   return !(x==y);
 }
 

@@ -20,5 +20,13 @@ TEST_CASE("multi_interval basic use") {
     CHECK( mr.first() == multi_index<int>{1,10,100} );
     CHECK( mr.last () == multi_index<int>{4,40,400} );
   }
+
+  SUBCASE("operator[]") {
+    CHECK( mr[0] == interval{1,4} );
+
+    mr[1] = interval{15,45};
+    CHECK( mr.first() == multi_index<int>{1,15,100} );
+    CHECK( mr.last () == multi_index<int>{4,45,400} );
+  }
 }
 // [Sphinx Doc] multi_interval }
