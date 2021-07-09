@@ -1,50 +1,36 @@
-before_script:
-  #- mkdir -p build
-
-
 variables:
   GIT_SUBMODULE_STRATEGY: normal
 
 stages:
   - build
-  - test
-  #- pages
-  #- deploy
 
 build_job:
   stage: build
   script:
-    - echo $CMAKE_MODULE
-    - echo $CMAKE_ENABLE_CPP20
     - module purge
+    - source /scratchm/bberthou/dist/spack_dist/spack/share/spack/setup-env.sh
     - module load $CMAKE_MODULE $CXX_MODULE_COMPILER
+    - if [[ $CMAKE_ENABLE_MPI == ON ]]; then
+    -   if [[ $CXX_MODULE_COMPILER == gcc* ]]; then
+    -     module load openmpi-4.0.5-gcc-11.1.0-yshu2sh
+    -   fi
+    -   if [[ $CXX_MODULE_COMPILER == intel* ]]; then
+    -     module load impi/19
+    -   fi
+    - fi
     - mkdir -p build && cd build
     - cmake ../ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DCMAKE_CXX_FLAGS="-Wall -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG" -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DSTD_E_ENABLE_MPI=$CMAKE_ENABLE_MPI -DSTD_E_ENABLE_CPP20=$CMAKE_ENABLE_CPP20
     - make -j4
-    - ./std_e_unit_tests -r=junit > report.xml
-    - pwd
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
-    reports:
-      junit: build/report.xml
+    - ctest -V
   parallel:
     matrix:
-        - CXX_MODULE_COMPILER: ["gcc/8.3"]
-          CMAKE_BUILD_TYPE: ["Debug"]
+        - CXX_MODULE_COMPILER: ["gcc/8.3","intel/19.1.1.217"]
+          CMAKE_BUILD_TYPE: ["Release","Debug"]
           CMAKE_MODULE: ["cmake/3.19-gnu"]
-          CMAKE_ENABLE_MPI: ["OFF"]
+          CMAKE_ENABLE_MPI: ["ON","OFF"]
           CMAKE_ENABLE_CPP20: ["OFF"]
-
-test_job:
-  stage: test
-  dependencies:
-    - build_job
-  script:
-    - echo "lala"
-    - pwd
-    - ls -lArth
-    - ls build/
-    - cd build && ./std_e_unit_tests
-    - echo "tata"
+        - CXX_MODULE_COMPILER: ["gcc-11.1.0-gcc-10.2.0-p4dq6q7"]
+          CMAKE_BUILD_TYPE: ["Release","Debug"]
+          CMAKE_MODULE: ["cmake-3.20.1-gcc-11.1.0-s3wvk7v"]
+          CMAKE_ENABLE_MPI: ["ON"]
+          CMAKE_ENABLE_CPP20: ["ON"]
