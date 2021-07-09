@@ -2,6 +2,14 @@
 #include "std_e/utils/vector.hpp"
 
 
+TEST_CASE("unique(vector)") {
+  std::vector<int> v = {1,1,3,4,5,5,5,7};
+
+  std_e::unique(v);
+
+  std::vector<int> expected_v = {1,3,4,5,7};
+  CHECK( v == expected_v );
+}
 TEST_CASE("sort_unique(vector)") {
   std::vector<int> v = {9,1,1,4,3,1,9,8,4,7};
 
