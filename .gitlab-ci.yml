@@ -1,195 +1,50 @@
 before_script:
- - mkdir -p build
+  #- mkdir -p build
 
 
 variables:
   GIT_SUBMODULE_STRATEGY: normal
-  no_proxy: .onera.net,.onera.fr
-  https_proxy: proxy.onecert.fr:80
 
-#stages: # Ici on déclare toutes nos étapes
-#  - build
-#  - test
-#  - pages
-#  # - deploy
+stages:
+  - build
+  - test
+  #- pages
+  #- deploy
 
-job_spiro_dev:
-  stage: deploy
-  tags:
-    - spiro
-    - dev
+build_job:
+  stage: build
   script:
-    - echo $CI_RUNNER_DESCRIPTION
-    - echo $CI_RUNNER_TAGS
-    - module show
-    - echo $CXX_MODULE_COMPILER
     - echo $CMAKE_MODULE
-    - echo $CMAKE_BUILD_TYPE
-    - export https_proxy=proxy:80
-    - pwd
+    - echo $CMAKE_ENABLE_CPP20
     - module purge
     - module load $CMAKE_MODULE $CXX_MODULE_COMPILER
-    - module list
-    - which gcc
-    - gcc --version
-    - ls -lrt
-    - make build && cd build
-    - cmake ../ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-    - make
-    - make test
-    - ls -lrt
-    - pwd
+    - mkdir -p build && cd build
+    - cmake ../ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DCMAKE_CXX_FLAGS="-Wall -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG" -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DSTD_E_ENABLE_MPI=$CMAKE_ENABLE_MPI -DSTD_E_ENABLE_CPP20=$CMAKE_ENABLE_CPP20
+    - make -j4
     - ./std_e_unit_tests -r=junit > report.xml
+    - pwd
   artifacts:
     paths:
-      - public
+      - build/
+    expire_in: 1 day
     reports:
-      junit: report.xml
+      junit: build/report.xml
   parallel:
     matrix:
-        - CXX_MODULE_COMPILER: [gcc/8.3, gcc/9.2, gcc/10.1.0, intel/19.1.1.217]
-          CMAKE_BUILD_TYPE: [Debug, Release]
-          CMAKE_MODULE: [cmake/3.19-gnu]
+        - CXX_MODULE_COMPILER: ["gcc/8.3"]
+          CMAKE_BUILD_TYPE: ["Debug"]
+          CMAKE_MODULE: ["cmake/3.19-gnu"]
+          CMAKE_ENABLE_MPI: ["OFF"]
+          CMAKE_ENABLE_CPP20: ["OFF"]
 
-
-job_eos:
-  stage: deploy
-  tags:
-    - eos
-    - dev
+test_job:
+  stage: test
+  dependencies:
+    - build_job
   script:
-    - echo $CI_RUNNER_DESCRIPTION
-    - echo $CI_RUNNER_TAGS
-    - module show
-    - echo $CXX_MODULE_COMPILER
-    - echo $CMAKE_MODULE
-    - echo $CMAKE_BUILD_TYPE
-    - export https_proxy=proxy:80
+    - echo "lala"
     - pwd
-    - module av
-    - module purge
-    - module load $CMAKE_MODULE $CXX_MODULE_COMPILER # Attention à l'odre pb env DSI
-    - module list
-    - which gcc
-    - gcc --version
-    - ls -lrt
-    - make build && cd build
-    - cmake ../ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-    - make
-    - make test
-    - ls -lrt
-    - pwd
-    - ./std_e_unit_tests -r=junit > report.xml
-  artifacts:
-    paths:
-      - public
-    reports:
-      junit: report.xml
-  parallel:
-    matrix:
-        - CXX_MODULE_COMPILER: [gcc/8.3, gcc/9.2]
-          CMAKE_BUILD_TYPE: [Debug, Release]
-          CMAKE_MODULE: [cmake/3.19-gnu]
-
-# pages:
-#   # stage: build # On déclare que ce `job` fait partie de l'étape build
-#   script:
-#     - echo "HELLLO"
-#     - hostname
-#     - echo "HELLLO2"
-#     - which gcc
-#     - gcc --version
-#     - pwd
-#     - echo $PWD
-#     - ls -lrt
-#     # - cd ..
-#     - ls -lrt
-#     # - cmake -E remove_directory build
-#     # - cmake -B build -S std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-#     # - cmake --build build
-#     - cd build
-#     - ls -lrt
-#     - ls -lrt ..
-#     - module purge
-#     - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
-#     # - source /home/bmaugars/ENVSPIROFORDOCS8.3PY3
-#     - export https_proxy=proxy:80
-#     - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-#     - make
-#     - make test
-#     - ls -lrt
-#     - pwd
-#     - ./std_e_unit_tests -r=junit > report.xml
-#     # - make std_e_doc
-#     - ls -lrt
-#     - cp report.xml ..
-#     # - mv html ../public
-#     - ls -lrt
-#     - ls -lrt ..
-#     - ls -lrt ../../
-#     # - ls -lrt ..
-#     # - cd ..
-#     # - pwd
-#     # - ls -lrt
-#   artifacts:
-#     paths:
-#       - public
-#     reports:
-#       junit: report.xml
-
-
-
-#pages:
-#  # stage: build # On déclare que ce `job` fait partie de l'étape build
-#  script:
-#    - hostname
-#    - whoami
-#    - pwd
-#    - module av
-#    - echo $PWD
-#    - ls -lrt
-#    - cd ..
-#    - ls -lrt
-#    - rm -rf build
-#    - mkdir -p build
-#    - cd build
-#    - module purge
-#    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
-#    - export https_proxy=proxy:80
-#    - cmake ../std_e -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
-#    - make
-#    - make test
-#    - ./std_e_unit_tests -r=junit > report.xml
-#    - ls -lrt
-#    - mkdir -p ../public
-#    - cp report.xml ..
-#    - cp report.xml ../public
-#    - ls -lrt ..
-#    - ls -lrt ../public
-
-#  artifacts:
-#    paths:
-#      - public
-#    reports:
-#      junit: report.xml
-
-
-
-#test:
-#  stage: test # On déclare que ce `job` fait partie de l'étape build
-#  script:
-#   - ls -lrt
-#    - cd ../build
-#    - echo $PWD
-#    - module load gcc/8.3 cmake/3.12.3 impi/17 python/2.7.8
-#    - make test
-
-#pages:
-#  script:
-#    - ls -lrt
-#  artifacts:
-#    paths:
-#      - public
-#  only:
-#    - master
-
+    - ls -lArth
+    - ls build/
+    - cd build && ./std_e_unit_tests
+    - echo "tata"
