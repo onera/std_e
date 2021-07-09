@@ -23,7 +23,7 @@ to_mpi_type__impl() -> MPI_Datatype {
   else if constexpr (sz==2) return MPI_INT16_T;
   else if constexpr (sz==4) return MPI_INT32_T;
   else if constexpr (sz==8) return MPI_INT64_T;
-  throw mpi_exception(-1,"sizeof primitive type should by 1, 2, 4 or 8");
+  else throw mpi_exception(-1,"sizeof primitive type should by 1, 2, 4 or 8");
 }
 
 template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type__impl<T>();
