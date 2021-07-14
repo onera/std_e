@@ -111,20 +111,7 @@ if(STD_E_ENABLE_MPI)
 endif()
 
 ### Install ###
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
-install(EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Config.cmake # no dependency
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION lib/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY ${src_dir} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
-
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+target_install(${PROJECT_NAME})
 
 
 ## Unit tests ##
