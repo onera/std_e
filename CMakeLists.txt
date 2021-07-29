@@ -1,6 +1,6 @@
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # General CMake settings
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 cmake_policy(SET CMP0074 NEW) # force find_package to take <PackageName>_ROOT variables into account
 
@@ -26,12 +26,13 @@ include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_add_su
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-# ----------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Project
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 project(
   std_e VERSION 0.1.0
-  DESCRIPTION "std extended"
+  DESCRIPTION "C++ standard library extension"
   LANGUAGES CXX
 )
 
@@ -58,27 +59,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON )
 ### fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# ----------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Dependencies
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 include(FetchContent)
 ### doctest ###
 FetchContent_Declare(
   doctest
-  #GIT_REPOSITORY https://github.com/onqtam/doctest.git
-  GIT_REPOSITORY https://github.com/BerengerBerthoul/doctest.git
-  GIT_TAG        f13a00607463ce211004be23b5aa0bdf24d3ab61
-  #GIT_TAG        mpi
+  GIT_REPOSITORY https://github.com/onqtam/doctest.git
+  GIT_TAG        2.4.6
 )
-FetchContent_GetProperties(doctest)
-if(NOT doctest_POPULATED)
-  FetchContent_Populate(doctest)
-  add_subdirectory(${doctest_SOURCE_DIR} ${doctest_BINARY_DIR})
-endif()
+FetchContent_MakeAvailable(doctest)
 
-# ----------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Compilation
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 ## Find files ##
 set(src_dir ${PROJECT_SOURCE_DIR}/${PROJECT_NAME})
 set(include_dir ${PROJECT_SOURCE_DIR})
@@ -116,29 +113,34 @@ if(${PROJECT_NAME}_ENABLE_MPI)
       MPI::MPI_CXX
   )
 endif()
-# ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Install
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 target_install(${PROJECT_NAME})
-# ----------------------------------------------------------------------
 
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Testing
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 include(CTest)
 add_subdirectory(test)
-# ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# Build documentation
+# ------------------------------------------------------------------------------
+if(${PROJECT_NAME}_ENABLE_DOCUMENTATION)
+  include(${PROJECT_UTILS_CMAKE_DIR}/build_documentation.cmake)
+  build_documentation()
+endif()
+
+
+# ------------------------------------------------------------------------------
 # Coverage TODO clean
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 if(${PROJECT_NAME}_ENABLE_COVERAGE)
-  if(NOT ${PROJECT_NAME}_ENABLE_TEST)
-    message(FATAL_ERROR "You need to enable testing to enable coverage: ${PROJECT_NAME}_ENABLE_TEST is OFF")
-  endif()
   # TODO -> Make a correct exclude directory
   # NOTE : not working with gcc-9.2
   include(CodeCoverage)
@@ -156,23 +158,13 @@ if(${PROJECT_NAME}_ENABLE_COVERAGE)
     EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
   )
 endif()
-# ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
-# Build documentation
-# ----------------------------------------------------------------------
-if(${PROJECT_NAME}_ENABLE_DOCUMENTATION)
-  include(${PROJECT_UTILS_CMAKE_DIR}/build_documentation.cmake)
-  build_documentation()
-endif()
-# ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Summary
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 get_directory_property(is_top_lvl_cmakelists PARENT_DIRECTORY)
-if(is_top_lvl_cmakelists)
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
   include(FeatureSummary)
-  FEATURE_SUMMARY(WHAT ALL)
+  feature_summary(WHAT ALL)
 endif()
-# ----------------------------------------------------------------------
