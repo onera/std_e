@@ -93,9 +93,9 @@ class jagged_range {
     {
       static_assert(rank==2);
     }
-    // same as above, but by copy is different types (e.g. Range==span, data_range_type==vector)
+    // same as above, but by copy from different types (e.g. Range==span, data_range_type==vector)
     template<class Range0, class Range1>
-    jagged_range(const Range0& flat_values, const Range1& idx_array, I off = 0)
+    jagged_range(Range0&& flat_values, Range1&& idx_array, I off = 0)
       : flat_values(flat_values.begin(),flat_values.end())
       , idx_array(idx_array.begin(),idx_array.end())
       , off(off)
@@ -110,12 +110,6 @@ class jagged_range {
     {
       static_assert(rank==3);
     }
-
-    jagged_range(data_range_type flat_values, indices_array_type idx_array, I off = 0)
-      : flat_values(std::move(flat_values))
-      , idx_array(std::move(idx_array))
-      , off(off)
-    {}
 
     jagged_range(std::initializer_list<std::initializer_list<T>> ll)
       : jagged_range()

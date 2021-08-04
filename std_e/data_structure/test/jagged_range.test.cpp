@@ -18,7 +18,17 @@ TEST_CASE("jagged_vector principle") {
 // [Sphinx Doc] jagged_vector }
 
 TEST_CASE("jagged_vector") {
-  SUBCASE("base test") {
+  SUBCASE("construction from value and offset arrays") {
+    jagged_vector<int> v({10,20,30,40,50,60,70},{0,1,3,4,7});
+
+    CHECK( v.size() == 4 );
+    CHECK( v[0] == vector{10} );
+    CHECK( v[1] == vector{20,30} );
+    CHECK( v[2] == vector{40} );
+    CHECK( v[3] == vector{50,60,70} );
+  }
+
+  SUBCASE("incremental construction") {
     jagged_vector<int> v;
     v.push_level();
     v.push_back(10);
@@ -44,6 +54,7 @@ TEST_CASE("jagged_vector") {
 
     CHECK( v[2].size() == 1 );
     CHECK( v[2][0] == 40 );
+
     CHECK( v[3].size() == 3 );
     CHECK( v[3][0] == 50 );
     CHECK( v[3][1] == 60 );
@@ -102,7 +113,7 @@ TEST_CASE("jagged_vector") {
     CHECK( v[1][1] == vector{50,60,70} );
   }
 
-
+  // TODO
   //SUBCASE("iteration") {
   //}
 
