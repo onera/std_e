@@ -107,7 +107,7 @@ data_structure/
 
 multi_index/
 ============
-See :ref:`multi_array_highlights` and :ref:`multi_dimensional_arrays`. Multi-index are interger arrays used to represent indices in a multi-dimensional array.
+See :ref:`multi_array_highlights` and :ref:`multi_dimensional_arrays`. Multi-index are integer arrays used to represent indices in a multi-dimensional array.
 
 =========================== ================================================================================================================
 **multi_index.hpp**         Multi-index type :cpp:`multi_index<I,N>`. If :cpp:`N==-1` (default) the index rank is dynamic.

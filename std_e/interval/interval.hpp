@@ -33,9 +33,7 @@ class interval_base {
     interval_base(I f, I l)
       : f(f)
       , l(l)
-    {
-      STD_E_ASSERT(f<=l);
-    }
+    {}
 
     template<class I0>
     interval_base(const interval_base<I0,ik>& other)
@@ -115,16 +113,28 @@ class interval : public interval_base<I,interval_kind::closed_open> {
   public:
     using base = interval_base<I,interval_kind::closed_open>;
     using base::base;
+
+    interval(I f, I l)
+      : base(f,l)
+    {
+      STD_E_ASSERT(f<=l);
+    }
 };
 template<class I>
 class closed_interval : public interval_base<I,interval_kind::closed> {
   public:
     using base = interval_base<I,interval_kind::closed>;
     using base::base;
+
+    closed_interval(I f, I l)
+      : base(f,l)
+    {
+      STD_E_ASSERT(f-1<=l); // so that empty intervals can be represented by [i,i-1]
+    }
 };
 
-template<class I>        interval(I first_, I last_) ->        interval<I>;
-template<class I> closed_interval(I first_, I last_) -> closed_interval<I>;
+template<class I>        interval(I first, I last) ->        interval<I>;
+template<class I> closed_interval(I first, I last) -> closed_interval<I>;
 
 template<class I> constexpr auto length(       interval<I> r) { return r.last() - r.first(); }
 template<class I> constexpr auto length(closed_interval<I> r) { return r.last() - r.first() +1 ; }
