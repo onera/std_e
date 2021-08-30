@@ -21,6 +21,22 @@ get(const distributed_array<T>& a, MPI_Aint i) -> T {
   return get(a.win(),rank,offset);
 }
 
+template<class T> auto
+rget(const distributed_array<T>& a, MPI_Aint i) -> T {
+  auto [rank,offset] = rank_offset(i,a.distribution());
+  T res;
+  MPI_Request req = rget(a.win(),rank,offset,res);
+  MPI_Status status;
+  MPI_Wait(&req,&status);
+  return res;
+}
+//template<class T> auto
+//rget(const distributed_array<T>& a, MPI_Aint i) -> future<T> {
+//  auto [rank,offset] = rank_offset(i,a.distribution());
+//  future<T> fut;
+//  return rget(a.win(),rank,offset,fut.obj());
+//}
+
 //template<class T> auto
 //remote_values_from_block(distributed_array<T>& d_array, int rank, const std::vector<int>& idx) -> std::vector<T> {
 //  upcxx::global_ptr<T> remote_blk = d_array.fetch(rank).wait(); 

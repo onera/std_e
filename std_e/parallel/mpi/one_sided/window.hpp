@@ -34,19 +34,19 @@ class window {
 };
 
 
-class win_lock_all_guard {
+class window_guard {
   private:
     MPI_Win win;
   public:
     template<class T>
-    win_lock_all_guard(const window<T>& w)
+    window_guard(const window<T>& w)
       : win(w.underlying())
     {
       int assertion = 0;
       MPI_Win_lock_all(assertion,win);
     }
 
-    ~win_lock_all_guard() {
+    ~window_guard() {
       MPI_Win_unlock_all(win);
     }
 };

@@ -3,7 +3,7 @@
 #include "std_e/interval/interval_sequence.hpp"
 
 #include "std_e/log.hpp"
-#include "std_e/parallel/distributed_array_op.hpp"
+#include "std_e/parallel/struct/distributed_array_op.hpp"
 #include "std_e/algorithm/distribution.hpp"
 
 //#include <chrono>
@@ -12,6 +12,14 @@
 using namespace std_e;
 
 
+//#include <thread>
+//#include <new>
+//TEST_CASE("thread") {
+//  unsigned int n_hw_threads = std::thread::hardware_concurrency();
+//  ELOG(n_hw_threads);
+//  ELOG(std::hardware_constructive_interference_size);
+//  ELOG(std::hardware_destructive_interference_size);
+//}
 
 
 MPI_TEST_CASE("win alloc",2) {
@@ -20,7 +28,7 @@ MPI_TEST_CASE("win alloc",2) {
   distributed_array<int> a(distri , test_comm);
 
   {
-    win_lock_all_guard _0(a.win());
+    window_guard _0(a.win());
 
     if (rank(test_comm)==0) {
       a.local()[0] = 100;
@@ -40,7 +48,7 @@ MPI_TEST_CASE("win alloc",2) {
     std::vector<int> complete_array(n);
 
     {
-      win_lock_all_guard _(a.win());
+      window_guard _(a.win());
       for (int i=0; i<n; ++i) {
         complete_array[i] = get(a,i);
       }
@@ -91,6 +99,8 @@ MPI_TEST_CASE("win alloc",2) {
 }
 
 
+
+
 template<class I>
 distribution_vector<I> uniform_distribution(int size, I nb_elts) {
   distribution_vector<I> distrib(size);
@@ -107,7 +117,7 @@ MPI_TEST_CASE("win alloc 48",48) {
 
   // init
   {
-    win_lock_all_guard _(a.win());
+    window_guard _(a.win());
 
     int rk = rank(test_comm);
     std::iota(a.local().begin(),a.local().end(),rk*dn_elt);
@@ -119,15 +129,16 @@ MPI_TEST_CASE("win alloc 48",48) {
     std::vector<int> complete_array(n);
 
     {
-      win_lock_all_guard _(a.win());
+      window_guard _(a.win());
       for (int i=0; i<n; ++i) {
-        complete_array[i] = get(a,i);
+        complete_array[i] = rget(a,i);
       }
     }
 
+    MPI_Barrier(test_comm);
     ELOG(complete_array);
-    std::iota(a.local().begin(),a.local().end(),rk*dn_elt);
-    //CHECK(complete_array == std::vector{100,1,10,200,2,20,2000});
+    //std::iota(a.local().begin(),a.local().end(),rk*dn_elt);
+    //CHECK(complete_array == );
   }
 
   //ELOG(i3);

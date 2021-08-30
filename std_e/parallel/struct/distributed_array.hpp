@@ -18,20 +18,20 @@ class distributed_array {
   private:
     MPI_Comm comm;
     Distribution distri;
-    window<T> wind;
+    window<T> w;
   public:
     using value_type = T;
 
     distributed_array(Distribution distri, MPI_Comm comm)
       : comm(comm)
       , distri(std::move(distri))
-      , wind(size(),comm)
+      , w(size(),comm)
     {
-      check_unified_memory_model(wind.underlying());
+      check_unified_memory_model(w.underlying());
     }
 
-    auto local()       { return wind.local(); }
-    auto local() const { return wind.local(); }
+    auto local()       { return w.local(); }
+    auto local() const { return w.local(); }
 
     auto total_size() const {
       return length(distri);
@@ -45,8 +45,8 @@ class distributed_array {
       return distri;
     }
 
-    auto win()       ->       auto& { return wind; }
-    auto win() const -> const auto& { return wind; }
+    auto win()       ->       auto& { return w; }
+    auto win() const -> const auto& { return w; }
 };
 
 
