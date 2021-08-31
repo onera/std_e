@@ -75,7 +75,7 @@ class span : public span_size<N> {
     using span_size_type = span_size<N>;
 
     using element_type    = T;
-    using value_type      = std::remove_cv_t<T>;
+    using value_type      = std::remove_cv_t<T>; // same as C++20
     using pointer         = T*;
     using const_pointer   = const T*;
     using reference       = T&;
