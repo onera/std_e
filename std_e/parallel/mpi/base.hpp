@@ -2,6 +2,7 @@
 
 
 #include <mpi.h>
+#include "std_e/parallel/mpi/mpi_exception.hpp"
 
 
 namespace std_e {

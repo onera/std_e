@@ -5,7 +5,6 @@
 #include <vector>
 #include <numeric>
 #include "std_e/utils/tuple.hpp"
-#include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/future/make_array.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/interval/interval_sequence.hpp"

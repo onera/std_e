@@ -2,7 +2,6 @@
 
 
 #include "std_e/parallel/mpi.hpp"
-#include "std_e/parallel/mpi_exception.hpp"
 #include "std_e/parallel/serialize.hpp"
 #include "std_e/parallel/compressed_array.hpp"
 #include "std_e/data_structure/jagged_range.hpp"

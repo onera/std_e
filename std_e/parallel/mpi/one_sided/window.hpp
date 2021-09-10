@@ -11,11 +11,13 @@ template<class T>
 class window {
   private:
     MPI_Aint dn_elt;
+    MPI_Comm comm;
     MPI_Win win;
     T* ptr;
   public:
     window(MPI_Aint dn_elt, MPI_Comm comm)
       : dn_elt(dn_elt)
+      , comm(comm)
     {
       int type_sz = sizeof(T);
       MPI_Win_allocate(dn_elt*type_sz,type_sz,MPI_INFO_NULL,comm,&ptr,&win);
@@ -31,28 +33,14 @@ class window {
     underlying() const {
       return win;
     }
-};
-
-
-class window_guard {
-  private:
-    MPI_Win win;
-  public:
-    template<class T>
-    window_guard(const window<T>& w)
-      : win(w.underlying())
-    {
-      int assertion = 0;
-      MPI_Win_lock_all(assertion,win);
-    }
-
-    ~window_guard() {
-      MPI_Win_unlock_all(win);
+    auto
+    communicator() const {
+      return comm;
     }
 };
 
 
-auto
+inline auto
 check_unified_memory_model(MPI_Win win) {
   int* win_mem_model;
   int flag;

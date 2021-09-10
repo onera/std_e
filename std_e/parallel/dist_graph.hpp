@@ -2,7 +2,6 @@
 
 #include <vector>
 #include "std_e/parallel/mpi.hpp"
-#include "std_e/parallel/mpi_exception.hpp"
 
 namespace std_e {
 

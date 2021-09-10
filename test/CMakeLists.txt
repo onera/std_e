@@ -18,6 +18,7 @@ create_doctest(
   TESTED_TARGET ${PROJECT_NAME}
   LABEL         unit_tests
   SOURCES       ${unit_test_main} ${test_files}
+  #SOURCES       ${test_files}
   SERIAL_RUN    ${serial_run}
   N_PROC        ${n_proc_max_test}
 )
