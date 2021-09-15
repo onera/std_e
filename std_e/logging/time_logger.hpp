@@ -15,7 +15,7 @@ class time_logger {
       : l_ptr(l_ptr)
       , msg(std::move(s))
       , start_time(std::chrono::system_clock::now())
-    { 
+    {
       log(*l_ptr,msg+"\n");
     }
 
@@ -30,6 +30,12 @@ class time_logger {
     std::string msg;
     time_type start_time;
 };
+
+
+inline auto
+stdout_time_logger(const std::string& msg) -> time_logger {
+  return time_logger(&get_logger("terminal"),msg);
+}
 
 
 } // std_e
