@@ -26,8 +26,8 @@ class window {
       MPI_Win_free(&win);
     }
 
-    auto local()       { return make_span<      T>(ptr,dn_elt); }
-    auto local() const { return make_span<const T>(ptr,dn_elt); }
+    auto local()       { return make_span_ref<      T>(ptr,dn_elt); }
+    auto local() const { return make_span_ref<const T>(ptr,dn_elt); }
 
     auto
     underlying() const {

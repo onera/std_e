@@ -37,8 +37,9 @@ MPI_TEST_CASE("read distributed array - multiple nodes",48) { // 48 is supposed 
 }
 
 
-MPI_TEST_CASE("read distributed array",4) {
+MPI_TEST_CASE("read distributed array - small unit test",4) {
   // init data
+  int rk = test_rank;
   int n_rank = test_nb_procs;
   g_num dn_elt = 3;
   auto distri = uniform_distribution(n_rank,n_rank*dn_elt);
@@ -48,9 +49,10 @@ MPI_TEST_CASE("read distributed array",4) {
   // init distributed array
   dist_array<int> a(distri , test_comm);
   { dist_guard _(a);
-
-    int rk = rank(test_comm);
-    std::iota(a.local().begin(),a.local().end(),rk*dn_elt);
+    if (rk==0) a.local() = std::vector{ 0, 10, 20};
+    if (rk==1) a.local() = std::vector{30, 40, 50};
+    if (rk==2) a.local() = std::vector{60, 70, 80};
+    if (rk==3) a.local() = std::vector{90,100,110};
   }
 
   // comm and test
@@ -62,12 +64,12 @@ MPI_TEST_CASE("read distributed array",4) {
       }
     }
 
-    CHECK( complete_array == vector{0,1,2, 3,4,5, 6,7,8, 9,10,11} );
+    CHECK( complete_array == vector{0,10,20, 30,40,50, 60,70,80, 90,100,110} );
   }
 
   SUBCASE("contiguous read") {
     { dist_guard _(a);
-      // ask all 3 values from rank 1
+      // ask 3 values, beginning at global index 3. It corresponds to all values from rank 1
       auto blk_1 = std_e::make_span(&complete_array[3],3);
       read(a,3,blk_1);
 
@@ -76,15 +78,23 @@ MPI_TEST_CASE("read distributed array",4) {
       read(a,9,blk_3);
     }
 
-    CHECK(complete_array == vector{-1,-1,-1,  3,4,5,  -1,-1,-1,  9,10,-1} );
+    CHECK(complete_array == vector{-1,-1,-1,  30,40,50,  -1,-1,-1,  90,100,-1} );
   }
 
   //SUBCASE("indexed read") {
   //  { dist_guard _(a);
-  //    read(a,dn_elt,blk);
+  //    // ask values at global indices 3 and 5 of the array. It means value 0 and 2 at the rank 1
+  //    std::vector ids_1 = {3,5};
+  //    std::vector<int> blk_1(ids_1.size());
+  //    read(a,ids_1,blk_1);
+
+  //    // ask values at 9 and 10
+  //    std::vector ids_1 = {3,5};
+  //    std::vector<int> blk_1(ids_1.size());
+  //    read(a,ids_1,blk_1);
   //  }
 
-  //  CHECK(complete_array == vector{-1,-1, 2,3, -1,-1, -1,-1} );
+  //  CHECK(complete_array == vector{-1,-1,-1,  3,4,5,  -1,-1,-1,  9,10,-1} );
   //}
 
   SUBCASE("gather") {
