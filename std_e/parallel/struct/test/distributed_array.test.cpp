@@ -8,7 +8,7 @@ using namespace std_e;
 using std::vector;
 
 
-MPI_TEST_CASE("read distributed array - multiple nodes",48) { // 48 is supposed to be enough to force multiple nodes
+MPI_TEST_CASE("load distributed array - multiple nodes",48) { // 48 is supposed to be enough to force multiple nodes
   // init data
   int n_rank = test_nb_procs;
   g_num dn_elt = 2;
@@ -23,11 +23,11 @@ MPI_TEST_CASE("read distributed array - multiple nodes",48) { // 48 is supposed 
     std::iota(a.local().begin(),a.local().end(),rk*dn_elt);
   }
 
-  // read data
+  // load data
   std::vector<int> complete_array(n,-1);
   { dist_guard _(a);
     for (int i=0; i<n; ++i) {
-      read(a,i,complete_array[i]);
+      load(a,i,complete_array[i]);
     }
   }
 
@@ -37,13 +37,12 @@ MPI_TEST_CASE("read distributed array - multiple nodes",48) { // 48 is supposed 
 }
 
 
-MPI_TEST_CASE("read distributed array - small unit test",4) {
+MPI_TEST_CASE("load distributed array - small unit test",4) {
   // init data
   int rk = test_rank;
   int n_rank = test_nb_procs;
   g_num dn_elt = 3;
   auto distri = uniform_distribution(n_rank,n_rank*dn_elt);
-  int n = distri.length();
 
 
   // init distributed array
@@ -56,46 +55,56 @@ MPI_TEST_CASE("read distributed array - small unit test",4) {
   }
 
   // comm and test
-  std::vector<int> complete_array(n,-1);
-  SUBCASE("scalar read") {
+  SUBCASE("scalar load") {
+    int n = distri.length();
+    std::vector<int> complete_array(n,-1);
+
     { dist_guard _(a);
       for (int i=0; i<n; ++i) {
-        read(a,i,complete_array[i]);
+        load(a,i,complete_array[i]);
       }
     }
 
     CHECK( complete_array == vector{0,10,20, 30,40,50, 60,70,80, 90,100,110} );
   }
 
-  SUBCASE("contiguous read") {
-    { dist_guard _(a);
-      // ask 3 values, beginning at global index 3. It corresponds to all values from rank 1
-      auto blk_1 = std_e::make_span(&complete_array[3],3);
-      read(a,3,blk_1);
+  SUBCASE("contiguous load") {
+    vector<int> blk_1(3);
+    vector<int> blk_2(2);
+    vector<int> blk_3(2);
 
-      // ask first 2 values from rank 3
-      auto blk_3 = std_e::make_span(&complete_array[9],2);
-      read(a,9,blk_3);
+    { dist_guard _(a);
+      // ask 3 values from rank 1
+      load(a,1,0,blk_1);
+      //
+      // ask 2 first values from rank 2
+      load(a,2,0,blk_2);
+
+      // ask 2 values from rank 3, and begin at the second one
+      load(a,3,1,blk_3);
     }
 
-    CHECK(complete_array == vector{-1,-1,-1,  30,40,50,  -1,-1,-1,  90,100,-1} );
+    CHECK( blk_1 == vector{30,40,50} );
+    CHECK( blk_2 == vector{60,70}    );
+    CHECK( blk_3 == vector{100,110}  );
   }
 
-  //SUBCASE("indexed read") {
-  //  { dist_guard _(a);
-  //    // ask values at global indices 3 and 5 of the array. It means value 0 and 2 at the rank 1
-  //    std::vector ids_1 = {3,5};
-  //    std::vector<int> blk_1(ids_1.size());
-  //    read(a,ids_1,blk_1);
+  SUBCASE("indexed load") {
+    vector<int> blk_0(2);
+    vector<int> blk_2(3);
 
-  //    // ask values at 9 and 10
-  //    std::vector ids_1 = {3,5};
-  //    std::vector<int> blk_1(ids_1.size());
-  //    read(a,ids_1,blk_1);
-  //  }
+    { dist_guard _(a);
+      // ask values 0 and 2 of rank 0
+      load(a,0,vector{0,2},blk_0);
 
-  //  CHECK(complete_array == vector{-1,-1,-1,  3,4,5,  -1,-1,-1,  9,10,-1} );
-  //}
+      // ask values 0, 2 and 1 of rank 2
+      load(a,2,vector{0,2,1},blk_2);
+
+    }
+
+    CHECK( blk_0 == vector{0,20} );
+    CHECK( blk_2 == vector{60,80,70} );
+  }
 
   SUBCASE("gather") {
     //SUBCASE("asking contiguous on several ranks") {
@@ -115,7 +124,7 @@ MPI_TEST_CASE("read distributed array - small unit test",4) {
     //SUBCASE("non-contiguous on several ranks") {
     //  { dist_guard _(a);
     //    for (int i=0; i<n; i+=dn_elt) {
-    //      read(a,i,blk);
+    //      load(a,i,blk);
     //    }
     //  }
 
