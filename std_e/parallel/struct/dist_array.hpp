@@ -15,7 +15,7 @@ class dist_array {
     //   - local_block.size() == length(distri,i_rank)
   private:
     MPI_Comm comm;
-    Distribution distri;
+    Distribution distri; // TODO remove
     window<T> w;
   public:
     using value_type = T;

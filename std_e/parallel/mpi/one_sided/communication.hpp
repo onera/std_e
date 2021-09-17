@@ -46,6 +46,8 @@ get_indexed(MPI_Win win, int rank, const Int_range& ids, T* out) -> void {
     win
   );
   STD_E_ASSERT(err == MPI_SUCCESS);
+
+  MPI_Type_free(&target_type);
 }
 
 

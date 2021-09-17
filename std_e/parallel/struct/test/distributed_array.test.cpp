@@ -69,106 +69,95 @@ MPI_TEST_CASE("load distributed array - small unit test",4) {
   }
 
   SUBCASE("contiguous load") {
-    vector<int> blk_1(3);
-    vector<int> blk_2(2);
-    vector<int> blk_3(2);
+    vector<int> loc_array_1(3);
+    vector<int> loc_array_2(2);
+    vector<int> loc_array_3(2);
 
     { dist_guard _(a);
       // ask 3 values from rank 1
-      load(a,1,0,blk_1);
+      load(a,1,0,loc_array_1);
       //
       // ask 2 first values from rank 2
-      load(a,2,0,blk_2);
+      load(a,2,0,loc_array_2);
 
       // ask 2 values from rank 3, and begin at the second one
-      load(a,3,1,blk_3);
+      load(a,3,1,loc_array_3);
     }
 
-    CHECK( blk_1 == vector{30,40,50} );
-    CHECK( blk_2 == vector{60,70}    );
-    CHECK( blk_3 == vector{100,110}  );
+    CHECK( loc_array_1 == vector{30,40,50} );
+    CHECK( loc_array_2 == vector{60,70}    );
+    CHECK( loc_array_3 == vector{100,110}  );
   }
 
   SUBCASE("indexed load") {
-    vector<int> blk_0(2);
-    vector<int> blk_2(3);
+    vector<int> loc_array_0(2);
+    vector<int> loc_array_2(3);
 
     { dist_guard _(a);
       // ask values 0 and 2 of rank 0
-      load(a,0,vector{0,2},blk_0);
+      load(a,0,vector{0,2},loc_array_0);
 
       // ask values 0, 2 and 1 of rank 2
-      load(a,2,vector{0,2,1},blk_2);
+      load(a,2,vector{0,2,1},loc_array_2);
 
     }
 
-    CHECK( blk_0 == vector{0,20} );
-    CHECK( blk_2 == vector{60,80,70} );
+    CHECK( loc_array_0 == vector{0,20} );
+    CHECK( loc_array_2 == vector{60,80,70} );
   }
 
-  SUBCASE("gather") {
-    //SUBCASE("asking contiguous on several ranks") {
-    //  int first = 3;
-    //  int last = 7;
-    //  auto blk = std_e::make_span(complete_array.data()+first, complete_array.data()+last);
+  //SUBCASE("multiple indexed loads") {
+  //  jagged_array indices = {{2,1},{0,2},{1},{2,0}};
 
-    //  { dist_guard _(a);
-    //    gather(a,first,blk);
-    //  }
+  //  vector<int> local_array(7);
+  //  { dist_guard _(a);
+  //    gather_from_ranks(a,indices,loc_array);
+  //  }
 
-    //  std::vector<int> expected_array(n,-1);
-    //  std::iota(begin(expected_array)+first,end(expected_array)+last,first);
-    //  CHECK(complete_array == expected_array);
-    //}
-
-    //SUBCASE("non-contiguous on several ranks") {
-    //  { dist_guard _(a);
-    //    for (int i=0; i<n; i+=dn_elt) {
-    //      load(a,i,blk);
-    //    }
-    //  }
-
-    //  CHECK(complete_array == expected_complete_array);
-    //}
-  }
-
-  //ELOG(i3);
-  //// 2. test multiple values
-  //if (rank==0) {
-  //  std::vector<int> v = remote_values_from_block(d_array,1,{1,2,0,3});
-  //  assert( v.size() == 4 );
-  //  assert( v[0] == 2 );
-  //  assert( v[1] == 20 );
-  //  assert( v[2] == 200 );
-  //  assert( v[3] == 2000 );
+  //  CHECK( loc_array == vector{20,10,30,50,70,110,90} );
   //}
 
-  //// 3. test multiple value multiple distant
-  //if (rank==0) {
-  //  std::vector<int> v = remote_values_from_blocks(d_array,{0,1},{vector{1,2,0},vector{1,2,0,3}});
-  //  assert( v.size() == 7 );
-  //  assert( v[0] == 1 );
-  //  assert( v[1] == 10 );
-  //  assert( v[2] == 100 );
-  //  assert( v[3] == 2 );
-  //  assert( v[4] == 20 );
-  //  assert( v[5] == 200 );
-  //  assert( v[6] == 2000 );
+  //SUBCASE("gather_from_ranks") {
+  //  jagged_array indices = {{2,1},{3,5},{7},{11,9}};
+
+  //  vector<int> local_array(7);
+  //  { dist_guard _(a);
+  //    gather_from_ranks(a,indices,loc_array);
+  //  }
+
+  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
+  //}
+  //SUBCASE("sorted gather") {
+  //  jagged_array indices = {{1,2},{3,5},{7},{9,11}};
+  //  sorted_gather_protocol gp(indices)
+
+  //  vector<int> local_array(7);
+  //  { dist_guard _(a);
+  //    gp.get(a,loc_array);
+  //  }
+
+  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
   //}
 
-  //// 4. block_to_part
-  //if (rank==0) {
-  //  std::vector<int> v = block_to_part(d_array,distri,{3,1,0,5,2});
-  //  assert( v.size() == 5 );
-  //  std::cout << "v[0] = " << v[0] << "\n";
-  //  std::cout << "v[1] = " << v[1] << "\n";
-  //  std::cout << "v[2] = " << v[2] << "\n";
-  //  std::cout << "v[3] = " << v[3] << "\n";
-  //  std::cout << "v[4] = " << v[4] << "\n";
-  //  assert( v[0] == 200 );
-  //  assert( v[1] == 1   );
-  //  assert( v[2] == 100 );
-  //  assert( v[3] == 20  );
-  //  assert( v[4] == 10  );
+  //SUBCASE("gather") {
+  //  vector indices = {7,9,2,1,3,11,5};
+  //  gather_protocol gp(distri,indices);
+
+  //  vector<int> local_array(7);
+  //  { dist_guard _(a);
+  //    gp.get(a,loc_array);
+  //  }
+
+  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
+  //}
+
+  //SUBCASE("gather") {
+  //  vector<int> local_array(7);
+
+  //  { dist_guard _(a);
+  //    gather(a,vector{7,9,2,1,3,11,5},loc_array);
+  //  }
+
+  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
   //}
 }
