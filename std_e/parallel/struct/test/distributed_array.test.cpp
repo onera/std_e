@@ -117,6 +117,17 @@ MPI_TEST_CASE("load distributed array - small unit test",4) {
     CHECK( local_array == vector{20,10,30,50,70,110,90} );
   }
 
+  SUBCASE("gather_sorted") {
+    vector indices = {1,2,  3,5,  7,  9,11};
+
+    vector<int> local_array(7);
+    { dist_guard _(a);
+      gather_sorted(a,indices,local_array);
+    }
+
+    CHECK( local_array == vector{10,20,  30,50,  70,  90,110} );
+  }
+
   SUBCASE("gather") {
     vector indices = {7,9,2,1,3,11,5};
 

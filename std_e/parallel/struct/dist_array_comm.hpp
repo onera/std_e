@@ -34,6 +34,7 @@ load(const dist_array<T>& a, int rank, const Int_range& ins, Range& out) {
 }
 
 
+// TODO protocol to avoid creation of MPI indexed types
 template<class T, class TR, class IR, class Range,
   class = typename Range::value_type // constrain to enable only Ranges
 > auto
@@ -51,6 +52,25 @@ gather_from_ranks(const dist_array<T>& a, const jagged_range<TR,IR,2>& ins_by_ra
   }
 }
 
+// TODO protocol to avoid repeated copy and shift
+template<class T, class Int_range, class Range,
+  class = typename Range::value_type // constrain to enable only Ranges
+> auto
+gather_sorted(const dist_array<T>& a, Int_range ids, Range& out) {
+  STD_E_ASSERT(ids.size() == out.size());
+  STD_E_ASSERT(is_sorted(begin(ids),end(ids)));
+
+  const auto& distri = a.distribution();
+  auto partition_is = partition_indices(ids,distri);
+
+  apply_step(ids,partition_is,distri);
+  jagged_span<int,2> ins_by_rank(ids,partition_is);
+
+  gather_from_ranks(a,ins_by_rank,out);
+}
+
+
+// TODO protocol to avoid repeated partition
 template<class T, class Int_range, class Range,
   class = typename Range::value_type // constrain to enable only Ranges
 > auto
@@ -59,14 +79,14 @@ gather(const dist_array<T>& a, Int_range ids, Range& out) {
 
   const auto& distri = a.distribution();
   ELOG(distri);
-  auto [partition_indices,new_to_old] = apply_indirect_partition_sort(ids,distri);
+  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
   ELOG(ids);
-  ELOG(partition_indices);
+  ELOG(partition_is);
   ELOG(new_to_old);
 
-  apply_step(ids,partition_indices,distri);
+  apply_step(ids,partition_is,distri);
   ELOG(ids);
-  jagged_span<int,2> ins_by_rank(ids,partition_indices);
+  jagged_span<int,2> ins_by_rank(ids,partition_is);
 
   gather_from_ranks(a,ins_by_rank,out);
 }
