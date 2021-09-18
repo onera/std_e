@@ -68,10 +68,28 @@ partition_sort(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred c
 template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
 partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) -> std::vector<int> {
   int k = partition_values.size();
-  std::vector<int> partition_indices(1+k);
-  partition_indices[0] = 0;
-  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_indices)+1,comp);
+  std::vector<int> partition_indices(k);
+  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_indices),comp);
   return partition_indices;
+}
+
+template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
+indirect_partition_sort(const Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) {
+  std::vector<int> new_to_old(rng.size());
+  std::iota(begin(new_to_old),end(new_to_old),0);
+  auto indirect_comp = [&rng,comp](int i, auto&& y){ return comp(rng[i],y); }; // TODO ugly
+  auto partition_indices = std_e::partition_sort_indices(new_to_old,partition_values,indirect_comp);
+  return std::make_pair(std::move(partition_indices),std::move(new_to_old));
+}
+
+template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
+apply_indirect_partition_sort(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) {
+  auto res = std_e::indirect_partition_sort(rng,partition_values,comp);
+  const auto& new_to_old = res.second;
+
+  permute(rng,new_to_old); // TODO rename permute->inv_permute ?
+
+  return res;
 }
 
 

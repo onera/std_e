@@ -98,6 +98,12 @@ class span_base : public span_size<N> {
       : span_size_type(last-first)
       , ptr(first)
     {}
+    FORCE_INLINE constexpr explicit
+    span_base(std::vector<std::remove_const_t<T>>::iterator first, std::vector<std::remove_const_t<T>>::iterator last)
+      // Precondition: [first,last) is valid range
+      : span_size_type(last-first)
+      , ptr(&*first) // TODO
+    {}
     template<class Range, std::enable_if_t< !std::is_pointer_v<Range> , int > =0> FORCE_INLINE constexpr
     // requires Range::data() -> T*
     span_base(Range&& r)

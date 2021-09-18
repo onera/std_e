@@ -38,6 +38,10 @@ class dist_array {
       return distri.length(rank(comm));
     }
 
+    auto n_rank() const {
+      return ::std_e::n_rank(comm);
+    }
+
     auto
     distribution() const -> const auto& {
       return distri;

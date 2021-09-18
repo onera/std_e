@@ -11,7 +11,7 @@ template<class T>
 class window {
   private:
     MPI_Aint dn_elt;
-    MPI_Comm comm;
+    MPI_Comm comm; // TODO DEL
     MPI_Win win;
     T* ptr;
   public:

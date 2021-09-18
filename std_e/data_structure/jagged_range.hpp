@@ -138,11 +138,14 @@ class jagged_range {
     }
 
   // basic
-    auto nb_intervals() const -> I { // TODO private
+    auto nb_intervals() const -> I { // TODO deprecate
+      return idx_array.size()-1;
+    }
+    auto n_interval() const -> I { // TODO private
       return idx_array.size()-1;
     }
     auto size() const -> I {
-      return nb_intervals();
+      return n_interval();
     }
     auto data() const -> const T* {
       return flat_values.data();
@@ -150,7 +153,10 @@ class jagged_range {
     auto data() -> T* {
       return flat_values.data();
     }
-    auto nb_elements() const -> I {
+    auto nb_elements() const -> I { // TODO deprecate
+      return flat_values.size();
+    }
+    auto n_elt() const -> I {
       return flat_values.size();
     }
 

@@ -22,7 +22,7 @@
 
 using namespace std_e;
 
-MPI_TEST_CASE("MPI_Win fence",48) {
+MPI_TEST_CASE("MPI_Win fence - multiple compute nodes",48) {
   int n_rank = test_nb_procs;
 
   g_num dn_elt = 2;

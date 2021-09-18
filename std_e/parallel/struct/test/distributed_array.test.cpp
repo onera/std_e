@@ -8,7 +8,7 @@ using namespace std_e;
 using std::vector;
 
 
-MPI_TEST_CASE("load distributed array - multiple nodes",48) { // 48 is supposed to be enough to force multiple nodes
+MPI_TEST_CASE("load distributed array - multiple compute nodes",48) { // 48 is supposed to be enough to force multiple nodes
   // init data
   int n_rank = test_nb_procs;
   g_num dn_elt = 2;
@@ -106,16 +106,27 @@ MPI_TEST_CASE("load distributed array - small unit test",4) {
     CHECK( loc_array_2 == vector{60,80,70} );
   }
 
-  //SUBCASE("multiple indexed loads") {
-  //  jagged_array indices = {{2,1},{0,2},{1},{2,0}};
+  SUBCASE("multiple indexed loads") {
+    jagged_vector<int> indices = {{2,1},{0,2},{1},{2,0}};
 
-  //  vector<int> local_array(7);
-  //  { dist_guard _(a);
-  //    gather_from_ranks(a,indices,loc_array);
-  //  }
+    vector<int> local_array(7);
+    { dist_guard _(a);
+      gather_from_ranks(a,indices,local_array);
+    }
 
-  //  CHECK( loc_array == vector{20,10,30,50,70,110,90} );
-  //}
+    CHECK( local_array == vector{20,10,30,50,70,110,90} );
+  }
+
+  SUBCASE("gather") {
+    vector indices = {7,9,2,1,3,11,5};
+
+    vector<int> local_array(7);
+    { dist_guard _(a);
+      gather(a,indices,local_array);
+    }
+
+    CHECK( local_array == vector{70,90,20,10,30,110,50} );
+  }
 
   //SUBCASE("gather_from_ranks") {
   //  jagged_array indices = {{2,1},{3,5},{7},{11,9}};

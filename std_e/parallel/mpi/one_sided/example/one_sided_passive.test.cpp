@@ -8,7 +8,10 @@
 using namespace std_e;
 
 
-MPI_TEST_CASE("MPI_Win passive mode",48) {
+MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
+  //auto logger = &std_e::get_logger("terminal");
+  auto logger = &std_e::get_logger("file");
+
   int rk = rank(test_comm);
   int n_rank = test_nb_procs;
 
@@ -47,17 +50,17 @@ MPI_TEST_CASE("MPI_Win passive mode",48) {
   //rank,-rank,rank,-rank
 
   // barrier
-  //MPI_Barrier(test_comm);
+  MPI_Barrier(test_comm);
   //std::this_thread::sleep_for(std::chrono::milliseconds(rk*10));
   //std::this_thread::sleep_for(std::chrono::milliseconds((n_rank-rk)*5));
 
   // retrieve
   {
-    time_logger _(&std_e::get_logger("terminal"),"MPI lock");
+    time_logger _(logger,"MPI lock");
     err = MPI_Win_lock_all(assertion,win);
   }
   {
-    time_logger _(&std_e::get_logger("terminal"),"MPI get");
+    time_logger _(logger,"MPI get");
     for (int i=0; i<n; ++i) {
       auto [rank,offset] = rank_offset(i,distri);
       //complete_array[i] = get<int>(win,rank,offset);
@@ -69,14 +72,14 @@ MPI_TEST_CASE("MPI_Win passive mode",48) {
     }
   }
   {
-    time_logger _(&std_e::get_logger("terminal"),"MPI unlock");
+    time_logger _(logger,"MPI unlock");
     err = MPI_Win_unlock_all(win);
   }
 
   err = MPI_Win_free(&win);
   STD_E_ASSERT(err == MPI_SUCCESS);
 
-  ELOG(complete_array);
+  //ELOG(complete_array);
   std::vector<int> expected_complete_array(n_rank*dn_elt);
   std::iota(expected_complete_array.begin(),expected_complete_array.end(),0);
   CHECK(complete_array == expected_complete_array);

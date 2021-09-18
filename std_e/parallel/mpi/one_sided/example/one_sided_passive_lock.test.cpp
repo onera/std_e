@@ -8,7 +8,7 @@
 using namespace std_e;
 
 
-MPI_TEST_CASE("MPI_Win passive win_lock",48) {
+MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   int alloc_method = 0; // MPI_Win_allocate
   //int alloc_method = 1; // MPI_Win_create + MPI_Alloc_mem
   //int alloc_method = 2; // MPI_Win_create + malloc
@@ -69,7 +69,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock",48) {
 
   int err = MPI_Win_lock(MPI_LOCK_EXCLUSIVE, i_rank, MPI_MODE_NOCHECK, win);
   assert(err == 0);
-  printf(" test_status : %p \n", test_status);
+  //printf(" test_status : %p \n", test_status);
   int sgn = 1;
   for(int i = 0; i < dn_value; ++i){
     test_status[i] = i_rank * sgn;
@@ -105,7 +105,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock",48) {
   //MPI_Barrier(comm);
   assert(err == 0);
 
-  ELOG(check_val);
+  //ELOG(check_val);
 
   std::vector<int> expected_val(dn_value * n_rank);
   for(int i = 0; i < n_rank; ++i) {
