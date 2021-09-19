@@ -14,23 +14,25 @@ namespace std_e {
 template<class T> auto
 load(const dist_array<T>& a, MPI_Aint i, T& out) {
   auto [rank,offset] = rank_offset(i,a.distribution());
-  return get(a.win(),rank,offset,out);
+  return get_scalar(a.win(),rank,offset,out);
 }
 
-template<
-  class T, class Range,
-  class = typename Range::value_type // constrain to enable only Ranges
-> auto
-load(const dist_array<T>& a, int rank, MPI_Aint offset, Range& out) {
-  return get(a.win(),rank,offset,out);
+template<class T> auto
+get_scalar(const dist_array<T>& a, int rank, MPI_Aint offset, T& out) {
+  return get_scalar(a.win(),rank,offset,out);
+}
+
+template<class T, class Range> auto
+get_contiguous(const dist_array<T>& a, int rank, MPI_Aint offset, Range& out) {
+  return get_contiguous(a.win(),rank,offset,out);
 }
 
 template<class T, class Int_range, class Range,
   class = typename Int_range::value_type, // constrain to enable only Ranges
   class = typename Range::value_type // constrain to enable only Ranges
 > auto
-load(const dist_array<T>& a, int rank, const Int_range& ins, Range& out) {
-  return get_indexed(a.win().underlying(),rank,ins,out.data());
+get_indexed(const dist_array<T>& a, int rank, const Int_range& ins, Range& out) {
+  return get_indexed(a.win(),rank,ins,out.data());
 }
 
 
@@ -47,7 +49,7 @@ gather_from_ranks(const dist_array<T>& a, const jagged_range<TR,IR,2>& ins_by_ra
     const auto& ins = ins_by_rank[i];
     int n_i = ins.size();
     auto out_i = make_span(first,n_i);
-    load(a,i,ins,out_i);
+    get_indexed(a,i,ins,out_i);
     first += n_i;
   }
 }

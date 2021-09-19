@@ -20,7 +20,8 @@ class window {
       , comm(comm)
     {
       int type_sz = sizeof(T);
-      MPI_Win_allocate(dn_elt*type_sz,type_sz,MPI_INFO_NULL,comm,&ptr,&win);
+      int err = MPI_Win_allocate(dn_elt*type_sz,type_sz,MPI_INFO_NULL,comm,&ptr,&win);
+      STD_E_ASSERT(!err);
     }
     ~window() {
       MPI_Win_free(&win);

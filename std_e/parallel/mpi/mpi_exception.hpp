@@ -11,7 +11,7 @@ namespace std_e {
 class mpi_exception : public std::exception {
   public:
     mpi_exception() = default;
-    
+
     mpi_exception(int mpi_error_code, std::string desc)
       : desc("MPI error ["+std::to_string(mpi_error_code)+"] "+std::move(desc))
     {}

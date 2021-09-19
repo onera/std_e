@@ -18,11 +18,13 @@ class window_guard {
       , comm(w.communicator())
     {
       int assertion = 0;
-      MPI_Win_lock_all(assertion,win);
+      int err = MPI_Win_lock_all(assertion,win);
+      STD_E_ASSERT(!err);
     }
 
     ~window_guard() {
-      MPI_Win_unlock_all(win);
+      int err = MPI_Win_unlock_all(win);
+      assert(!err);
       MPI_Barrier(comm);
     }
 };
