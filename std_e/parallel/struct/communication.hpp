@@ -27,12 +27,24 @@ get_contiguous(const dist_array<T>& a, int rank, MPI_Aint offset, Range& out) {
   return get_contiguous(a.win(),rank,offset,out);
 }
 
-template<class T, class Int_range, class Range,
-  class = typename Int_range::value_type, // constrain to enable only Ranges
-  class = typename Range::value_type // constrain to enable only Ranges
-> auto
+template<class T>
+class protocol_get_indexed {
+  private:
+    protocol_win_get_indexed<T> p;
+  public:
+    template<class Int_range>
+    protocol_get_indexed(const Int_range& ins)
+      : p(ins)
+    {}
+
+    template<class Range> auto
+    request(const dist_array<T>& a, int rank, Range& out) -> void {
+      p.request(a.win(),rank,out);
+    }
+};
+template<class T, class Int_range, class Range> auto
 get_indexed(const dist_array<T>& a, int rank, const Int_range& ins, Range& out) {
-  return get_indexed(a.win(),rank,ins,out.data());
+  return protocol_get_indexed<T>(ins).request(a,rank,out);
 }
 
 

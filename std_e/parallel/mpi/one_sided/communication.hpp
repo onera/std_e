@@ -39,22 +39,40 @@ get_contiguous(const window<T>& win, int rank, MPI_Aint disp, Range& out) -> voi
   _get_contiguous(win.underlying(),rank,disp,out.size(),out.data());
 }
 
-template<class T, class Int_range> auto
-get_indexed(const window<T>& win, int rank, const Int_range& ids, T* out) -> void {
-  auto n = ids.size();
-  auto target_type = indexed_block<T>(ids);
 
-  _get_indexed(win.underlying(),rank,target_type.underlying(),n,out);
-}
+template<class T>
+class protocol_win_get_indexed {
+  private:
+    mpi_data_type target_type;
+  public:
+    template<class Int_range>
+    protocol_win_get_indexed(const Int_range& ins)
+      : target_type(indexed_block<T>(ins))
+    {}
 
-template<class T, class Int_range> auto
-get_indexed_v(const window<T>& win, int rank, const Int_range& ids, T* out) -> void {
-  throw "not implemented";
-  // auto n = ids.size();
-  // auto target_type = indexed_block<T>(ids);
+    template<class Range> auto
+    request(const window<T>& win, int rank, Range& out) -> void {
+      _get_indexed(win.underlying(),rank,target_type.underlying(),out.size(),out.data());
+    }
+};
 
-  // _get_indexed(win.underlying(),rank,target_type.underlying(),n,out);
-}
+
+//template<class T>
+//class protocol_win_get_indexed_v {
+//  private:
+//    mpi_data_type target_type;
+//  public:
+//    template<class TR, class IR>
+//    protocol_win_get_indexed(const jagged_range<TR,IR,2>& ins)
+//      : target_type(indexed<T>(ins))
+//    {}
+//
+//    template<class Range> auto
+//    request(const window<T>& win, int rank, Range& out) -> void {
+//      _get_indexed(win.underlying(),rank,target_type.underlying(),out.size(),out.data());
+//    }
+//};
+
 
 
 //template<class T> auto

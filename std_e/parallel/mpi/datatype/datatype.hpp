@@ -28,11 +28,23 @@ class mpi_data_type {
 
 
 template<class T, class Int_range> auto
-indexed_block(const Int_range& ids) {
-  auto n = ids.size();
+indexed_block(const Int_range& ins) {
+  auto n = ins.size();
 
   MPI_Datatype mpi_type;
-  int err = MPI_Type_create_indexed_block(n, 1, ids.data(), to_mpi_type<T>, &mpi_type);
+  int err = MPI_Type_create_indexed_block(n, 1, ins.data(), to_mpi_type<T>, &mpi_type);
+  STD_E_ASSERT(!err);
+
+  return mpi_data_type(mpi_type);
+}
+
+template<class T, class Int_range> auto
+indexed(const Int_range& blocklengths, const Int_range& displacements) {
+  STD_E_ASSERT(blocklengths.size()==displacements.size());
+  auto n = blocklengths.size();
+
+  MPI_Datatype mpi_type;
+  int err = MPI_Type_indexed(n, blocklengths.data(), displacements.data(), to_mpi_type<T>, &mpi_type);
   STD_E_ASSERT(!err);
 
   return mpi_data_type(mpi_type);
