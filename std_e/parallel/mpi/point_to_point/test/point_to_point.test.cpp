@@ -94,12 +94,8 @@ MPI_TEST_CASE("send and recv",2) {
 //
 //auto
 //test_comm_overlap(sender s) -> sender {
-//  //sender s0 = s | then_comm(send_recv_msg_0) | then(reverse_msg);
-//  //sender s1 = s | then_comm(send_recv_msg_1) | then(reverse_msg);
-//  //sender s0 = then( then_comm(s,send_recv_msg_0) , reverse_msg );
-//  //sender s1 = then( then_comm(s,send_recv_msg_1) , reverse_msg );
-//  sender s0 = then( then(s,send_recv_msg_0) , reverse_msg );
-//  sender s1 = then( then(s,send_recv_msg_1) , reverse_msg );
+//  sender s0 = s | then_comm(send_recv_msg_0) | then(reverse_msg);
+//  sender s1 = s | then_comm(send_recv_msg_1) | then(reverse_msg);
 //  return when_all(s0,s1)
 //}
 
