@@ -92,14 +92,14 @@ gather(const dist_array<T>& a, Int_range ids, Range& out) {
   STD_E_ASSERT(ids.size() == out.size());
 
   const auto& distri = a.distribution();
-  ELOG(distri);
+  //ELOG(distri);
   auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
-  ELOG(ids);
-  ELOG(partition_is);
-  ELOG(new_to_old);
+  //ELOG(ids);
+  //ELOG(partition_is);
+  //ELOG(new_to_old);
 
   apply_step(ids,partition_is,distri);
-  ELOG(ids);
+  //ELOG(ids);
   jagged_span<int,2> ins_by_rank(ids,partition_is);
 
   gather_from_ranks(a,ins_by_rank,out);

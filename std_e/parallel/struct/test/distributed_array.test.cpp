@@ -63,6 +63,22 @@ MPI_TEST_CASE("distributed array - load",4) {
   CHECK( complete_array == vector{0,10,20, 30,40,50, 60,70,80, 90,100,110} );
 }
 
+//ff(sender) {
+//
+//  sender | then(init_dist_array)
+//         | then(
+//
+//  vector indices = {7,9,2,1,3,11,5};
+//
+//  vector<int> local_array(7);
+//  { dist_guard _(a);
+//    gather(a,indices,local_array);
+//  }
+//
+//  //CHECK( local_array == vector{70,90,20,10,30,110,50} );
+//}
+
+
 
 MPI_TEST_CASE("distributed array - get",4) {
   g_num dn_elt = 3;
@@ -161,6 +177,7 @@ MPI_TEST_CASE("distributed array - get",4) {
 
     //CHECK( local_array == vector{70,90,20,10,30,110,50} );
   }
+
 
   //SUBCASE("gather_from_ranks") {
   //  jagged_array indices = {{2,1},{3,5},{7},{11,9}};
