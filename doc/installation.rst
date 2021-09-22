@@ -31,8 +31,8 @@ The main **cmake** configuration variables are the following (values are the def
 
 .. code:: bash
 
-  STD_E_ENABLE_CPP20=OFF # required for some functionalities, in particular graphs
-  STD_E_ENABLE_MPI=OFF # thin wrappers around MPI functions
-  STD_E_ENABLE_TEST=ON
-  STD_E_ENABLE_COVERAGE=OFF
-  STD_E_BUILD_DOCUMENTATION=OFF
+  std_e_ENABLE_CPP20=OFF # required for some functionalities, in particular graphs
+  std_e_ENABLE_MPI=OFF # thin wrappers around MPI functions
+  std_e_ENABLE_TEST=ON
+  std_e_ENABLE_COVERAGE=OFF
+  std_e_BUILD_DOCUMENTATION=OFF
