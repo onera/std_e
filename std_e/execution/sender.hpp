@@ -146,4 +146,28 @@ wait_all(Ss&&... ss) {
 
 
 
+
+template<Sender S, class F>
+class then_comm_sender : public then_sender<S,F> {
+  public:
+    using base = then_sender<S,F>;
+    using base::base;
+
+    static constexpr bool enable_sender = true;
+};
+
+
+template<Sender S, class F> auto
+then_comm(S&& s, F&& f) {
+  return then_comm_sender<S&&,F>(FWD(s),std::move(f));
+}
+
+template<class F> auto
+then_comm(F&& f) {
+  return make_pipeable([f0=std::move(f)](auto&& s) {
+    return then_comm(FWD(s),std::move(f0));
+  });
+}
+
+
 } // std_e

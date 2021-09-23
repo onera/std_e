@@ -20,6 +20,14 @@ execute(then_sender<S,F>& s) -> decltype(auto) {
     );
 }
 
+template<class S, class F> auto
+execute(then_comm_sender<S,F>& s) -> decltype(auto) {
+  return
+    s.continuation()(
+      execute(s.dependent_sender())
+    );
+}
+
 //template<class... Ss> auto
 //execute(wait_all_sender<Ss...>& s) -> decltype(auto) {
 //  return std::make_tuple(

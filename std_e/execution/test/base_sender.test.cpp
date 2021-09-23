@@ -35,6 +35,7 @@ TEST_CASE("chaining multiple then") {
   CHECK( execute(s0) == "321 olleh" ); // "olleh" is "hello" reversed
 }
 
+
 constexpr auto push_5 = [](std::vector<int>&& x){
   x.push_back(5);
   return x;
@@ -61,4 +62,26 @@ TEST_CASE("fork join") {
                                  //  reverse  /   sort
                                  // v v v v v   v v v v v
   CHECK( execute(s3) == std::vector{5,2,1,0,3,  0,1,2,3,5} );
+}
+
+
+constexpr auto get_remote_info = [](std::vector<int> x){
+  // here, suppose that we are getting info from elsewhere
+  // through an "i/o" operation, that is, an operation that needs to wait
+  // but that is not compute-intensive
+  x.push_back(6);
+  x.push_back(5);
+  x.push_back(4);
+  x.push_back(7);
+  return x;
+};
+constexpr auto max_vec = [](const std::vector<int>& x){
+  return *std::max_element(begin(x),end(x));
+};
+TEST_CASE("then comm") {
+  auto s0 = input_sender(std::vector{3,0,1,2}) | then(sort_vec) | split();
+  auto s1 = s0 | then_comm(get_remote_info);
+  auto s2 = s0 | then(max_vec);
+  auto s3 = wait_all(s1,s2);
+  CHECK( execute(s3) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
 }
