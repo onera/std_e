@@ -15,10 +15,10 @@ using namespace std_e;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 
-//TEST_CASE("input_task") {
+//TEST_CASE("input_data") {
 //  std::string str = "test_string";
 //
-//  auto s0 = input_task(std::move(str));
+//  auto s0 = input_data(std::move(str));
 //  //CHECK( execute(s0) == "test_string" );
 //}
 //
@@ -27,7 +27,7 @@ using namespace std::chrono_literals;
 //  return "hello " + x;
 //};
 //TEST_CASE("chaining input and then") {
-//  auto s0 = input_task("test_string"s) | then(say_hello);
+//  auto s0 = input_data("test_string"s) | then(say_hello);
 //  //CHECK( execute(s0) == "hello test_string" );
 //}
 //
@@ -37,7 +37,7 @@ using namespace std::chrono_literals;
 //};
 //
 //TEST_CASE("chaining multiple then") {
-//  auto s0 = input_task("123"s) | then(say_hello) | then(reverse_str);
+//  auto s0 = input_data("123"s) | then(say_hello) | then(reverse_str);
 //  //CHECK( execute(s0) == "321 olleh" ); // "olleh" is "hello" reversed
 //}
 
@@ -61,7 +61,7 @@ constexpr auto concatenate_vec = [](const std::tuple<std::vector<int>,std::vecto
 TEST_CASE("task fork join - 0") {
   task_graph tg;
 
-  auto s0 = input_task(tg,std::vector{3,0,1,2});
+  auto s0 = input_data(tg,std::vector{3,0,1,2});
   CHECK( tg.size() == 1 );
   CHECK( tg.in_indices().size() == 1 );
   CHECK( tg.out_indices().size() == 1 );
@@ -76,7 +76,7 @@ TEST_CASE("task fork join - 0") {
 TEST_CASE("task fork join - 1") {
   task_graph tg;
 
-  auto s0 = then( input_task(tg,std::vector{3,0,1,2}) , push_5);
+  auto s0 = then( input_data(tg,std::vector{3,0,1,2}) , push_5);
   CHECK( tg.size() == 2 );
   CHECK( tg.in_indices().size() == 2 );
   CHECK( tg.out_indices().size() == 2 );
@@ -94,18 +94,18 @@ TEST_CASE("task fork join - 1") {
 
   CHECK( *s0.result == std::vector{3,0,1,2,5} );
 }
-//TEST_CASE("task fork join") {
+//TEST_CASE("task fork join - 2") {
 //  task_graph tg;
-//  //auto s0 = input_task(tg,std::vector{3,0,1,2}) | then(push_5);
+//  //auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
 //  //auto s1 = wait_all(
 //  //  s0 | then(reverse_vec),
 //  //  s0 | then(sort_vec)
 //  //);
 //  //auto s2 = std::move(s1) | then(concatenate_vec);
 //
-//  //auto s0 = input_task(tg,std::vector{3,0,1,2});
+//  //auto s0 = input_data(tg,std::vector{3,0,1,2});
 //
-//  auto s0 = then( input_task(tg,std::vector{3,0,1,2}) , push_5);
+//  auto s0 = then( input_data(tg,std::vector{3,0,1,2}) , push_5);
 //  //auto s1 = join(
 //  //  then(s0 , reverse_vec),
 //  //  then(s0 , sort_vec)
@@ -151,7 +151,7 @@ TEST_CASE("task fork join - 1") {
 //  return *std::max_element(begin(x),end(x));
 //};
 //TEST_CASE("then comm") {
-//  auto s0 = input_task(std::vector{3,0,1,2}) | then(sort_vec) | split();
+//  auto s0 = input_data(std::vector{3,0,1,2}) | then(sort_vec) | split();
 //  auto s1 = s0 | then_comm(get_remote_info);
 //  auto s2 = s0 | then(max_vec);
 //  auto s3 = wait_all(s1,s2);

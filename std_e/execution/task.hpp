@@ -16,38 +16,55 @@ enum class task_kind {
 };
 
 
+template<class T>
+class input_task {
+  private:
+    T result;
+  public:
+    static constexpr bool enable_task = true;
+
+    input_task(T&& x)
+      : result(std::move(x))
+    {}
+
+    auto
+    execute() -> void {}
+
+    auto
+    kind() -> task_kind {
+      return task_kind::computation; // TODO
+    }
+
+    auto
+    result_ptr() -> void* {
+      return &result;
+    }
+};
+
 template<class F, class Arg>
 class task {
   private:
     task_kind kd;
 
-    using R_ = std::invoke_result_t<F,Arg>;
-    using R = std::conditional_t<
-      std::is_lvalue_reference_v<R_>, // if is lvalue ref...
-      std::reference_wrapper<R_>, // ...then wrap it so that it can be default-constructible...
-      std::remove_cvref_t<R_> // ...else remove reference (useful if R_ is an rvalue ref)
-    >;
+    using R = std::invoke_result_t<F,Arg>;
+    static_assert(!std::is_reference_v<R>);
 
     remove_rvalue_reference<F> f;
-    remove_rvalue_reference<Arg> arg;
+    Arg& arg;
     R result;
   public:
     using result_type = R;
     static constexpr bool enable_task = true;
 
-    task(task_kind kd, F&& f, Arg&& arg)
+    task(task_kind kd, F&& f, Arg& arg)
       : kd(kd)
       , f(FWD(f))
-      , arg(FWD(arg))
+      , arg(arg)
     {}
 
     auto
     execute() -> void {
-      if constexpr (std::is_lvalue_reference_v<Arg>) {
-        result = f(arg);
-      } else {
-        result = f(std::move(arg));
-      }
+      result = f(std::move(arg));
     }
 
     auto
@@ -71,19 +88,14 @@ struct task_graph_handle { // TODO make class (invariant: result points to tg re
   int active_node_idx;
 };
 
-template<class T> auto
-input_task(task_graph& tg, T&& x) {
-  task t(
-    task_kind::computation,
-    [](T&& y) -> T&& { return FWD(y); }, // just transfer the value
-    FWD(x)
-  );
+template<class T> requires(!std::is_lvalue_reference_v<T>) auto
+input_data(task_graph& tg, T&& x) {
+  input_task t(std::move(x));
   int n = tg.size();
-  using R = decltype(t)::result_type;
-  task_graph_handle<R> ttg;
+  task_graph_handle<T> ttg;
   ttg.tg = &tg;
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t));
-  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<T*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n;
   return ttg;
 }
@@ -91,11 +103,12 @@ input_task(task_graph& tg, T&& x) {
 
 template<class T, class U> auto
 move_if_non_lvalue_ref(U&& x) -> auto&& {
-  if constexpr (std::is_lvalue_reference_v<T>) {
-    return FWD(x);
-  } else {
-    return std::move(x);
-  }
+  //if constexpr (std::is_lvalue_reference_v<T>) {
+  //  return FWD(x);
+  //} else {
+  //  return std::move(x);
+  //}
+  return std::move(x);
 }
 
 
@@ -104,7 +117,8 @@ generic_then_task(task_kind tk, task_graph_handle<R>&& tgh, F f) {
   task t(
     tk,
     std::move(f),
-    move_if_non_lvalue_ref<R>(*tgh.result) // TODO std::forward<R>(...) should do the right thing
+    //move_if_non_lvalue_ref<R>(*tgh.result) // TODO std::forward<R>(...) should do the right thing
+    *tgh.result // TODO std::forward<R>(...) should do the right thing
   );
   using R0 = decltype(t)::result_type;
   task_graph_handle<R0> ttg;
