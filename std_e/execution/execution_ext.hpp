@@ -22,16 +22,19 @@ class any_task {
 template<class F, class Arg>
 class task : any_task {
   private:
+    task_kind kd;
+    std::atomic<int> remaining_deps;
+
     using R = std::invoke_result_t<F,Arg>;
     F f;
     Arg* arg;
     R result;
-    task_kind kd;
   public:
-    task(task_kind kd, F&& f, Arg* arg)
-      : f(std::move(f))
+    task(task_kind kd, int n_deps, F&& f, Arg* arg)
+      : kd(kd)
+      , remaining_deps(n_deps)
+      , f(std::move(f))
       , arg(arg)
-      , kd(kd)
     {}
 
     auto
@@ -59,11 +62,46 @@ class execution {
   private:
     std::deque<std::unique_ptr<any_task>> tasks;
   public:
-    void run() -> void {
+    auto run() -> void {
       std::thread comp_th;
       std::thread comm_th;
     }
 };
+
+class execution_graph {
+  private:
+    task_system& calc_tp;
+    task_system& comm_tp;
+  public:
+    execution_graph(task_system& calc_tp, task_system& comm_tp)
+      : calc_tp(calc_tp)
+      , comm_tp(comm_tp)
+    {}
+
+    template<sender S> auto
+    run(S&& s) {
+      using R = decltype(::std_e::execute(s));
+      R res = 
+      return res;
+    }
+};
+
+main() {
+  task_system calc_tp(1);
+  task_system comm_tp(8);
+
+  auto s0 = input_sender(std::vector{3,0,1,2}) | then(sort_vec) | split();
+  auto s1 = s0 | then_comm(get_remote_info);
+  auto s2 = s0 | then(max_vec);
+  auto s3 = wait_all(s1,s2);
+
+  execution_graph eg(calc_tp,comm_tp);
+  auto res = eg.run(std::move(s3));
+
+  CHECK( res == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
+}
+
+
 
 
 } // std_e

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <vector>
+#include <deque> // TODO remove
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
 #include "std_e/graph/adjacency_graph/simple_graph.hpp"
 #include "std_e/graph/adjacency_graph/adjacency.hpp"
@@ -69,6 +69,19 @@ class graph_base
     graph_base(index_type sz)
       : base(sz)
     {}
+
+    // TODO clean
+    constexpr auto
+    emplace_back(NT&& x) -> NT& {
+      NT& emplaced_x = this->nodes().emplace_back(std::move(x));
+      this->in_indices().emplace_back(std::deque<int>{});
+      this->out_indices().emplace_back(std::deque<int>{});
+      if constexpr (!std::is_same_v<ET,void>) {
+        this->in_edges().emplace_back(std::deque<ET>{});
+        this->out_edges().emplace_back(std::deque<ET>{});
+      }
+      return emplaced_x;
+    }
 
   // range interface
     constexpr auto

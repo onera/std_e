@@ -6,6 +6,7 @@
 #include <functional>
 
 // REF code from Sean Parent Better concurrency (https://www.youtube.com/watch?v=zULU6Hhp42w)
+// Note that the task_system here is generally not efficient (as mentionned in the talk)
 
 
 namespace std_e {
@@ -40,15 +41,6 @@ class notification_queue {
       return true;
     }
 
-    auto
-    try_pop(std::function<void()>& x) -> bool {
-      lock_t lock(mut,std::try_to_lock);
-      if (!lock || q.empty()) return false;
-      x = std::move(q.front());
-      q.pop_front();
-      return true;
-    }
-
     template<class F> auto
     push(F&& f) -> void {
       {
@@ -57,61 +49,41 @@ class notification_queue {
       }
       ready.notify_one();
     }
-    template<class F> auto
-    try_push(F&& f) -> bool {
-      {
-        lock_t lock(mut,std::try_to_lock);
-        if (!lock) return false;
-        q.emplace_back(FWD(f));
-      }
-      ready.notify_one();
-      return true;
-    }
 };
 
 
 class task_system {
   private:
     std::vector<std::thread> threads;
-    std::vector<notification_queue> qs;
-    std::atomic<unsigned> idx;
-    unsigned n;
+    notification_queue q;
+
   public:
-    task_system(int n_thread)
-      : n(n_thread)
-    {
+    task_system(int n_thread) {
       for (int i=0; i<n_thread; ++i) {
-        threads.emplace_back([&,i]{ run(i); });
+        threads.emplace_back([&]{ run(); }
       }
     }
 
     ~task_system() {
-      for (auto& q : qs) q.set_done();
-      for (auto& t : threads) t.join();
+      q.set_done();
+       for (auto& t : threads) {
+         t.join();
+       }
     }
 
     auto
-    run(unsigned i) -> void {
+    run() -> void {
       while (true) {
         std::function<void()> f;
-
-        for (unsigned k=0; k<n; ++k) {
-          if (qs[(i+k)%n].try_pop(f)) break;
-        }
-        if (!f && !qs[i].pop(f)) break;
+        auto could_pop = q.pop(f);
+        STD_E_ASSERT(could_pop);
         f();
       }
     }
 
     template<class F> auto
     push_task(F&& f) -> void {
-      constexpr unsigned K = 1; // number of rounds trying to find a lock without blocking
-      auto i = idx++;
-
-      for (int k=0; k<n*K; ++k) {
-        if (qs[(i+k)%n].try_push(FWD(f))) return;
-      }
-      qs[i%n_thread].push(FWD(f));
+      q.push(FWD(f));
     }
 };
 
