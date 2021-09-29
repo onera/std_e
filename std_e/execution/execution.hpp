@@ -22,9 +22,10 @@ execute(then_sender<S,F>& s) -> decltype(auto) {
 
 template<class S, class F> auto
 execute(then_comm_sender<S,F>& s) -> decltype(auto) {
+  auto&& dep_res = execute(s.dependent_sender());
   return
     s.continuation()(
-      execute(s.dependent_sender())
+      std::move(dep_res)
     );
 }
 

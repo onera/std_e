@@ -1,13 +1,19 @@
 #include "std_e/unit_test/doctest.hpp"
 
-#include "std_e/log.hpp"
+#include "std_e/log.hpp" // TODO
+#include "std_e/logging/time_logger.hpp" // TODO
 #include "std_e/execution/sender.hpp"
 #include "std_e/execution/execution.hpp"
+#include "std_e/execution/execution_ext.hpp"
 
 #include "std_e/utils/concatenate.hpp"
 
+#include <thread>
+#include <chrono>
+
 using namespace std_e;
 using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 TEST_CASE("input_sender") {
   std::string str = "test_string";
@@ -69,6 +75,7 @@ constexpr auto get_remote_info = [](std::vector<int> x){
   // here, suppose that we are getting info from elsewhere
   // through an "i/o" operation, that is, an operation that needs to wait
   // but that is not compute-intensive
+  std::this_thread::sleep_for(0.1s);
   x.push_back(6);
   x.push_back(5);
   x.push_back(4);
@@ -76,6 +83,7 @@ constexpr auto get_remote_info = [](std::vector<int> x){
   return x;
 };
 constexpr auto max_vec = [](const std::vector<int>& x){
+  std::this_thread::sleep_for(0.1s);
   return *std::max_element(begin(x),end(x));
 };
 TEST_CASE("then comm") {
@@ -83,5 +91,6 @@ TEST_CASE("then comm") {
   auto s1 = s0 | then_comm(get_remote_info);
   auto s2 = s0 | then(max_vec);
   auto s3 = wait_all(s1,s2);
+  auto _ = std_e::stdout_time_logger("execute comm and compute in par");
   CHECK( execute(s3) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
 }
