@@ -5,7 +5,7 @@
 #include <deque>
 #include <functional>
 
-// REF code from Sean Parent Better concurrency (https://www.youtube.com/watch?v=zULU6Hhp42w)
+// REF code from Sean Parent "Better concurrency" (https://www.youtube.com/watch?v=zULU6Hhp42w)
 
 
 namespace std_e {

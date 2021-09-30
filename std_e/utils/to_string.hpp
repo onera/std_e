@@ -4,6 +4,8 @@
 #include <string>
 #include "std_e/utils/string.hpp"
 #include "std_e/utils/vector.hpp"
+#include "std_e/utils/deque.hpp"
+#include "std_e/utils/tuple.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 #include <iomanip>
 #include <sstream>

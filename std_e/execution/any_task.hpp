@@ -66,5 +66,10 @@ class any_task {
     std::unique_ptr<detail::any_task_internal_base> impl;
 };
 
+inline auto
+to_string(const any_task&) -> std::string {
+  return "";
+}
+
 
 } // std_e

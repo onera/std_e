@@ -2,6 +2,7 @@
 
 #include "std_e/log.hpp" // TODO
 #include "std_e/logging/time_logger.hpp" // TODO
+#include "std_e/graph/adjacency_graph/graph_to_dot_string.hpp"
 #include "std_e/execution/task.hpp"
 //#include "std_e/execution/execution.hpp"
 //#include "std_e/execution/execution_ext.hpp"
@@ -94,27 +95,33 @@ TEST_CASE("task fork join - 1") {
 
   CHECK( *s0.result == std::vector{3,0,1,2,5} );
 }
-//TEST_CASE("task fork join - 2") {
-//  task_graph tg;
-//  //auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
-//  //auto s1 = wait_all(
-//  //  s0 | then(reverse_vec),
-//  //  s0 | then(sort_vec)
-//  //);
-//  //auto s2 = std::move(s1) | then(concatenate_vec);
-//
-//  //auto s0 = input_data(tg,std::vector{3,0,1,2});
-//
-//  auto s0 = then( input_data(tg,std::vector{3,0,1,2}) , push_5);
-//  //auto s1 = join(
-//  //  then(s0 , reverse_vec),
-//  //  then(s0 , sort_vec)
-//  //);
-//  //auto s2 = then(std::move(s1) , concatenate_vec);
-//                                 //  reverse  /   sort
-//                                 // v v v v v   v v v v v
-//  //CHECK( execute(s2) == std::vector{5,2,1,0,3,  0,1,2,3,5} );
-//}
+TEST_CASE("task fork join - 2") {
+  task_graph tg;
+  //auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
+  //auto s1 = wait_all(
+  //  s0 | then(reverse_vec),
+  //  s0 | then(sort_vec)
+  //);
+  //auto s2 = std::move(s1) | then(concatenate_vec);
+
+  auto s0 = split(then( input_data(tg,std::vector{3,0,1,2}) , push_5));
+  auto s1 = join(
+    then(s0 , reverse_vec),
+    then(s0 , sort_vec)
+  );
+  auto s2 = then(std::move(s1) , concatenate_vec);
+
+  CHECK( tg.size() == 6 );
+  tg.node(0).execute();
+  tg.node(1).execute();
+  tg.node(2).execute();
+  tg.node(3).execute();
+  tg.node(4).execute();
+  tg.node(5).execute();
+                                //  reverse  /   sort
+                                // v v v v v   v v v v v
+  CHECK( *s2.result == std::vector{5,2,1,0,3,  0,1,2,3,5} );
+}
 
 
 //template<class T>

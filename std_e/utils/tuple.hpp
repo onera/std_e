@@ -3,6 +3,7 @@
 
 #include <tuple>
 #include <type_traits>
+#include "std_e/utils/to_string_fwd.hpp"
 #include "std_e/base/macros.hpp"
 
 
@@ -139,6 +140,18 @@ for_each_until(std::tuple<Ts...>& x, F f) -> decltype(auto) {
 template<class... Ts, class F> constexpr auto
 for_each_until(const std::tuple<Ts...>& x, F f) -> decltype(auto) {
   return for_each_until__impl_tuple<0>(x,f);
+}
+
+template<class... Ts, size_t... Is> auto
+to_string__impl(const std::tuple<Ts...>& x, std::index_sequence<Is...>) -> std::string {
+  using std::to_string;
+  using std_e::to_string;
+  std::vector<std::string> s = {to_string(std::get<Is>(x))...};
+  return range_to_string(s,"<","|",">");
+}
+template<class... Ts> auto
+to_string(const std::tuple<Ts...>& x) -> std::string {
+  return to_string__impl(x,std::make_index_sequence<sizeof...(Ts)>{});
 }
 
 

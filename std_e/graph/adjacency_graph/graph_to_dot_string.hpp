@@ -30,8 +30,8 @@ to_graphviz_node_string(int id, const io_adjacency<T>& x, F node_to_string_fun) 
 //};
 
 
-template<class T, class F> auto
-to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
+template<class N, class E, class C, class F> auto
+to_string__impl(const io_graph<N,E,C>& g, F node_to_string_fun) -> std::string {
   std::string s = "digraph G {\n";
   for (int i=0; i<g.size(); ++i) {
     s += to_graphviz_node_string(i,g[i],node_to_string_fun) + '\n';
@@ -115,8 +115,8 @@ to_string__impl(const io_graph<T>& g, F node_to_string_fun) -> std::string {
 const auto to_string_lambda = [](const auto& x){ return to_string(x); };
 const auto to_lite_string_lambda = [](const auto& x){ return to_lite_string(x); };
 
-template<class T, class F = decltype(to_string_lambda)> auto
-to_dot_format_string(const io_graph<T>& g, F node_to_string_fun = to_string_lambda) -> std::string {
+template<class N, class E, class C, class F = decltype(to_string_lambda)> auto
+to_dot_format_string(const io_graph<N,E,C>& g, F node_to_string_fun = to_string_lambda) -> std::string {
   // io_graph<T> const_param_dg = repeat_constants_and_params(g); // HACK
   //return to_string__impl(const_param_dg);
   return to_string__impl(g,node_to_string_fun);
