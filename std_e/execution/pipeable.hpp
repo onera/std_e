@@ -1,11 +1,13 @@
 #pragma once
 
 
-#include "std_e/execution/sender_concept.hpp"
+#include <utility>
 
 
 namespace std_e {
 
+// TODO move
+template<class T> concept task_graph_handle = std::remove_cvref_t<T>::enable_task_graph_handle; // TODO not really a concept
 
 template<class F>
 struct pipeable_wrapper : F {
@@ -19,9 +21,9 @@ make_pipeable(F&& f) {
   return pipeable_wrapper(std::move(f));
 }
 
-template<Sender S, class F> auto
-operator|(S&& s, pipeable_wrapper<F>&& f) {
-  return f(FWD(s));
+template<task_graph_handle TGH, class F> auto
+operator|(TGH&& tgh, pipeable_wrapper<F>&& f) {
+  return f(FWD(tgh));
 }
 
 

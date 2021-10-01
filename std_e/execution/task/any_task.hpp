@@ -2,14 +2,13 @@
 
 
 #include <utility>
+#include "std_e/execution/task/task.hpp"
 
 
 namespace std_e {
 
 
 namespace detail {
-
-template<class T> concept is_task = std::remove_cvref_t<T>::enable_task; // TODO not really a concept
 
 struct any_task_internal_base {
   virtual auto execute() -> void = 0;
@@ -50,7 +49,7 @@ class any_task {
       : any_task(null_task{})
     {}
 
-    template<detail::is_task Task>
+    template<is_task Task>
     any_task(Task&& x):
       impl(std::make_unique<detail::any_task_internal_impl<std::decay_t<Task>>>(FWD(x)))
     {}
@@ -59,7 +58,7 @@ class any_task {
       impl->execute();
     }
 
-    auto result_ptr() -> void* { 
+    auto result_ptr() -> void* {
       return impl->result_ptr();
     }
   private:

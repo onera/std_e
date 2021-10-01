@@ -97,21 +97,17 @@ TEST_CASE("task fork join - 1") {
 }
 TEST_CASE("task fork join - 2") {
   task_graph tg;
-  //auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
-  //auto s1 = wait_all(
-  //  s0 | then(reverse_vec),
-  //  s0 | then(sort_vec)
-  //);
-  //auto s2 = std::move(s1) | then(concatenate_vec);
 
-  auto s0 = split(then( input_data(tg,std::vector{3,0,1,2}) , push_5));
+  auto s0 = input_data(tg,std::vector{3,0,1,2}) | then( push_5) | split();
   auto s1 = join(
-    then(s0 , reverse_vec),
-    then(s0 , sort_vec)
+    s0 | then(reverse_vec),
+    s0 | then(sort_vec)
   );
-  auto s2 = then(std::move(s1) , concatenate_vec);
+  auto s2 = s1 | then(concatenate_vec);
 
   CHECK( tg.size() == 6 );
+
+  // execute graph by hand
   tg.node(0).execute();
   tg.node(1).execute();
   tg.node(2).execute();
@@ -123,24 +119,6 @@ TEST_CASE("task fork join - 2") {
   CHECK( *s2.result == std::vector{5,2,1,0,3,  0,1,2,3,5} );
 }
 
-
-//template<class T>
-//struct iden2 {
-//  auto
-//  operator()(T& x) -> T& {
-//    return x;
-//  }
-//};
-//struct iden3 {
-//  auto
-//  operator()(int& x) -> int& {
-//    return x;
-//  }
-//};
-//
-////using FF = iden2<int>;
-//using FF = iden3;
-//using Type = std::invoke_result_t<FF,int&>;
 
 //constexpr auto get_remote_info = [](std::vector<int> x){
 //  // here, suppose that we are getting info from elsewhere

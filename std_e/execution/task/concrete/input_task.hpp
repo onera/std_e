@@ -1,0 +1,36 @@
+#pragma once
+
+
+#include "std_e/execution/task/task.hpp"
+
+
+namespace std_e {
+
+
+template<class T>
+class input_task {
+  private:
+    T result;
+  public:
+    static constexpr bool enable_task = true;
+
+    input_task(T&& x)
+      : result(std::move(x))
+    {}
+
+    auto
+    execute() -> void {}
+
+    auto
+    kind() -> task_kind {
+      return task_kind::no_op;
+    }
+
+    auto
+    result_ptr() -> void* {
+      return &result;
+    }
+};
+
+
+} // std_e
