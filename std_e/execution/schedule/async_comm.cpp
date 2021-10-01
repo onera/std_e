@@ -44,7 +44,7 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
         auto& i_done_flag = comm_status.emplace_back(std::pair{i,std::make_unique<std::atomic_bool>(false)});
         auto& done_flag = *i_done_flag.second;
         graph_state[i] = started;
-        comm_tp.push_task([&t,&done_flag](){ t.execute(); done_flag = true; });
+        comm_tp.push_task([&t,&done_flag](){ t.execute(); done_flag.store(true,std::memory_order_release); });
       } else {
         t.execute();
         graph_state[i] = finished;
@@ -58,7 +58,8 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
       while (true) {
         for (int i=0; i<n_flying_comm; ++i) {
           int& ii = comm_status[i].first;
-          if (*comm_status[i].second) {
+          bool done_flag = comm_status[i].second->load(std::memory_order_acquire);
+          if (done_flag) {
             // take into account that the task is done
             graph_state[ii] = finished;
             --n_task_remaining;

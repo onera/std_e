@@ -110,7 +110,7 @@ class thread_pool {
     template<class F> auto
     push_task(F&& f) -> void {
       constexpr unsigned K = 1; // number of rounds trying to find a lock without blocking
-      auto i = idx++;
+      unsigned i = idx.fetch_add(1,std::memory_order_relaxed);
 
       for (unsigned k=0; k<n*K; ++k) {
         if (qs[(i+k)%n].try_push(FWD(f))) return;
