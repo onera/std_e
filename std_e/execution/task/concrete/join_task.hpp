@@ -2,7 +2,7 @@
 
 
 #include "std_e/execution/task/task.hpp"
-#include "std_e/execution/pipeable.hpp" // task_graph_handle (TODO)
+#include "std_e/execution/task_graph/task_graph_handle.hpp"
 
 
 namespace std_e {
@@ -17,7 +17,7 @@ move_result_if_single_shot(R& r, std::false_type) -> R& {
   return r;
 }
 
-template<task_graph_handle... tghs>
+template<task_graph_handle... tghs> // TODO do not depend on task_g_h
 class join_task {
   private:
     using dep_result_refs = std::tuple<decltype(*std::declval<tghs>().result)&...>;
@@ -44,7 +44,7 @@ class join_task {
     }
 
     auto
-    kind() -> task_kind {
+    kind() const -> task_kind {
       return task_kind::computation;
     }
 

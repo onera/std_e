@@ -39,7 +39,7 @@ class then_task {
     }
 
     auto
-    kind() -> task_kind {
+    kind() const -> task_kind {
       return kd;
     }
 

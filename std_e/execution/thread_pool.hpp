@@ -4,6 +4,9 @@
 #include <thread>
 #include <deque>
 #include <functional>
+#include <mutex>
+#include <condition_variable>
+
 
 // REF code from Sean Parent "Better concurrency" (https://www.youtube.com/watch?v=zULU6Hhp42w)
 
@@ -18,7 +21,7 @@ class notification_queue {
   private:
     std::deque<std::function<void()>> q;
     std::mutex mut;
-    condition_variable ready;
+    std::condition_variable ready;
     bool done = false;
   public:
     auto
@@ -33,7 +36,7 @@ class notification_queue {
     auto
     pop(std::function<void()>& x) -> bool {
       lock_t lock(mut);
-      while (q.empty() && !done) ready.wait();
+      while (q.empty() && !done) ready.wait(lock);
       if (q.empty()) return false;
       x = std::move(q.front());
       q.pop_front();
@@ -70,22 +73,23 @@ class notification_queue {
 };
 
 
-class task_system {
+class thread_pool {
   private:
+    unsigned n;
     std::vector<std::thread> threads;
     std::vector<notification_queue> qs;
     std::atomic<unsigned> idx;
-    unsigned n;
   public:
-    task_system(int n_thread)
+    thread_pool(unsigned n_thread)
       : n(n_thread)
+      , qs(n_thread)
     {
-      for (int i=0; i<n_thread; ++i) {
+      for (unsigned i=0; i<n_thread; ++i) {
         threads.emplace_back([&,i]{ run(i); });
       }
     }
 
-    ~task_system() {
+    ~thread_pool() {
       for (auto& q : qs) q.set_done();
       for (auto& t : threads) t.join();
     }
@@ -108,10 +112,10 @@ class task_system {
       constexpr unsigned K = 1; // number of rounds trying to find a lock without blocking
       auto i = idx++;
 
-      for (int k=0; k<n*K; ++k) {
+      for (unsigned k=0; k<n*K; ++k) {
         if (qs[(i+k)%n].try_push(FWD(f))) return;
       }
-      qs[i%n_thread].push(FWD(f));
+      qs[i%n].push(FWD(f));
     }
 };
 

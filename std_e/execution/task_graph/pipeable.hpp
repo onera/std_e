@@ -2,12 +2,11 @@
 
 
 #include <utility>
+#include "std_e/execution/task_graph/task_graph_handle.hpp"
 
 
 namespace std_e {
 
-// TODO move
-template<class T> concept task_graph_handle = std::remove_cvref_t<T>::enable_task_graph_handle; // TODO not really a concept
 
 template<class F>
 struct pipeable_wrapper : F {

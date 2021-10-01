@@ -70,10 +70,10 @@ class execution {
 
 class execution_graph {
   private:
-    task_system& calc_tp;
-    task_system& comm_tp;
+    thread_pool& calc_tp;
+    thread_pool& comm_tp;
   public:
-    execution_graph(task_system& calc_tp, task_system& comm_tp)
+    execution_graph(thread_pool& calc_tp, thread_pool& comm_tp)
       : calc_tp(calc_tp)
       , comm_tp(comm_tp)
     {}
@@ -87,8 +87,8 @@ class execution_graph {
 };
 
 main() {
-  task_system calc_tp(1);
-  task_system comm_tp(8);
+  thread_pool calc_tp(1);
+  thread_pool comm_tp(8);
 
   auto s0 = input_sender(std::vector{3,0,1,2}) | then(sort_vec) | split();
   auto s1 = s0 | then_comm(get_remote_info);

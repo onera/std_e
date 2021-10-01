@@ -1,8 +1,9 @@
 #pragma once
 
 
-#include <utility>
+#include <memory>
 #include "std_e/execution/task/task.hpp"
+#include "std_e/base/macros.hpp"
 
 
 namespace std_e {
@@ -13,6 +14,7 @@ namespace detail {
 struct any_task_internal_base {
   virtual auto execute() -> void = 0;
   virtual auto result_ptr() -> void* = 0;
+  virtual auto kind() const -> task_kind = 0;
 
   virtual ~any_task_internal_base() {}
 };
@@ -24,11 +26,15 @@ struct any_task_internal_impl: any_task_internal_base {
       : t(std::move(t))
     {}
 
-    auto execute() -> void {
+    auto execute() -> void override {
       return t.execute();
     }
-    auto result_ptr() -> void* {
+    auto result_ptr() -> void* override {
       return t.result_ptr();
+    }
+
+    auto kind() const -> task_kind override {
+      return t.kind();
     }
   private:
     Task t;
@@ -41,6 +47,7 @@ struct null_task {
   static constexpr bool enable_task = true;
   auto execute() const -> void {}
   auto result_ptr() const -> void* { return nullptr; }
+  auto kind() const -> task_kind { return task_kind::no_op; }
 };
 
 class any_task {
@@ -60,6 +67,9 @@ class any_task {
 
     auto result_ptr() -> void* {
       return impl->result_ptr();
+    }
+    auto kind() -> task_kind {
+      return impl->kind();
     }
   private:
     std::unique_ptr<detail::any_task_internal_base> impl;

@@ -5,30 +5,12 @@
 #include "std_e/execution/task/concrete/then_task.hpp"
 #include "std_e/execution/task/concrete/join_task.hpp"
 #include "std_e/execution/task/any_task.hpp"
-#include "std_e/execution/pipeable.hpp"
-#include "std_e/meta/meta.hpp"
-#include <deque>
-#include "std_e/graph/adjacency_graph/graph.hpp"
+#include "std_e/execution/task_graph/task_graph_handle.hpp"
+#include "std_e/execution/task_graph/pipeable.hpp"
 
 
 namespace std_e {
 
-
-using task_graph_range_type = range_of_ranges<int,std::deque>;
-using task_graph = io_graph</*node_type=*/any_task,/*edge_type=*/void,/*container=*/task_graph_range_type>;
-
-
-template<class R, bool one_shot>
-struct x_shot_task_graph_handle { // TODO make class (invariant: result points to tg result)
-  static constexpr bool enable_task_graph_handle = true;
-  static constexpr bool single_shot = one_shot;
-  task_graph* tg;
-  R* result; // points to tg.result (needed to keep this as a typed information)
-  int active_node_idx;
-};
-
-template<class R> using single_shot_task_graph_handle = x_shot_task_graph_handle<R,true>;
-template<class R> using multi_shot_task_graph_handle = x_shot_task_graph_handle<R,false>;
 
 template<class T> requires(!std::is_lvalue_reference_v<T>) auto
 input_data(task_graph& tg, T&& x) {
@@ -41,6 +23,13 @@ input_data(task_graph& tg, T&& x) {
   ttg.active_node_idx = n;
   return ttg;
 }
+
+//template<class T> requires(!std::is_lvalue_reference_v<T>) auto
+//input_data(T&& x) {
+//  return make_pipeable([x0=std::move(x)](task_graph& tg) {
+//    return input_data(tg,std::move(x0));
+//  });
+//}
 
 
 template<class F> auto

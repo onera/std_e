@@ -5,7 +5,7 @@ namespace std_e {
 
 
 enum class task_kind {
-  no_op, computation, communication
+  no_op, input, computation, communication
 };
 
 

@@ -22,8 +22,8 @@ class input_task {
     execute() -> void {}
 
     auto
-    kind() -> task_kind {
-      return task_kind::no_op;
+    kind() const -> task_kind {
+      return task_kind::input;
     }
 
     auto
