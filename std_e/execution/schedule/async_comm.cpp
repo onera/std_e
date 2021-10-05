@@ -75,7 +75,7 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
         comm_tp.push_task([&t,&done_flag,&n_finished_comm_atomic](){
             t.execute();
             done_flag.store(true,std::memory_order_release);
-            n_finished_comm_atomic.fetch_add(1,std::memory_order_release);
+            n_finished_comm_atomic.fetch_add(1,std::memory_order_release); // relaxed should be enougth
             n_finished_comm_atomic.notify_one();
         });
       } else {

@@ -6,8 +6,6 @@
 #include "std_e/execution/task.hpp"
 #include "std_e/execution/schedule/seq.hpp"
 #include "std_e/execution/schedule/async_comm.hpp"
-//#include "std_e/execution/execution.hpp"
-//#include "std_e/execution/execution_ext.hpp"
 
 #include "std_e/utils/concatenate.hpp"
 
