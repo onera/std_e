@@ -9,6 +9,9 @@ namespace std_e {
 
 
 template<class F, class Arg, bool after_single_shot = true>
+requires
+    (  after_single_shot && std::invocable<remove_rvalue_reference<F>,std::remove_reference_t<Arg>&&>)
+ || ( !after_single_shot && std::invocable<remove_rvalue_reference<F>,std::remove_reference_t<Arg>& >)
 class then_task {
   private:
     task_kind kd;

@@ -32,19 +32,13 @@ input_data(task_graph& tg, T&& x) {
 //}
 
 
-template<class F> auto
-generic_then_task(task_kind tk, task_graph_handle auto&& tgh, F f) { // TODO F&&
-  using task_t = std::conditional_t<
-    std::remove_cvref_t<decltype(tgh)>::single_shot,
-    then_task<F,std::remove_cvref_t<decltype(*tgh.result)>,/*after_single_shot=*/true>,
-    then_task<F,decltype(*tgh.result)&,/*after_single_shot=*/false>
-  >;
+template<class F, task_graph_handle TGH, class task_t> auto
+generic_then_task__impl(task_kind tk, TGH&& tgh, F f) { // TODO F&&
   task_t t(
     tk,
     FWD(f),
     *tgh.result
   );
-  //decltype(t) x = "";
   using R = decltype(t)::result_type;
   single_shot_task_graph_handle<R> ttg;
   int n = tgh.tg->size();
@@ -57,6 +51,25 @@ generic_then_task(task_kind tk, task_graph_handle auto&& tgh, F f) { // TODO F&&
   ttg.active_node_idx = n; // the active task is the one we just added
   return ttg;
 }
+
+template<task_graph_handle TGH> constexpr bool is_single_shot = std::remove_cvref_t<TGH>::single_shot;
+
+template<class F, task_graph_handle TGH>
+requires (is_single_shot<TGH>)
+auto
+generic_then_task(task_kind tk, TGH&& tgh, F f) { // TODO F&&
+  using task_t = then_task<F,std::remove_cvref_t<decltype(*tgh.result)>,/*after_single_shot=*/true>;
+  return generic_then_task__impl<F,TGH,task_t>(tk,FWD(tgh),f);
+}
+
+template<class F, task_graph_handle TGH>
+requires (!is_single_shot<TGH>)
+auto
+generic_then_task(task_kind tk, TGH&& tgh, F f) { // TODO F&&
+  using task_t = then_task<F,decltype(*tgh.result)&,/*after_single_shot=*/false>;
+  return generic_then_task__impl<F,TGH,task_t>(tk,FWD(tgh),f);
+}
+
 
 template<class R> auto
 split(single_shot_task_graph_handle<R>&& tgh) {

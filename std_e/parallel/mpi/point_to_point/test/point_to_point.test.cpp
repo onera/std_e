@@ -4,7 +4,12 @@
 #include "std_e/logging/time_logger.hpp" // TODO
 #include "std_e/execution/execution.hpp"
 
+#include "std_e/graph/adjacency_graph/graph_to_dot_string.hpp"
+#include "std_e/log.hpp"
+
 using namespace std_e;
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 MPI_TEST_CASE("send and recv",2) {
   // 0. init
@@ -39,6 +44,7 @@ MPI_TEST_CASE("send and recv",2) {
 
 auto
 send_recv_msg_0(MPI_Comm comm) -> std::vector<int> {
+  std::this_thread::sleep_for(0.1s);
   int rk = rank(comm);
   // 0. init
   std::vector<int> buf;
@@ -91,23 +97,23 @@ reverse_msg(std::vector<int>&& v) -> std::vector<int> {
 
 MPI_TEST_CASE("send recv overlap",2) {
   task_graph tg;
-
   //auto s0 = s | then_comm(send_recv_msg_0) | then(reverse_msg);
   //auto s1 = s | then_comm(send_recv_msg_1) | then(reverse_msg);
-  task_graph_handle auto s = input_data(tg,0);
-  task_graph_handle auto s0 = s | then_comm([test_comm]{ send_recv_msg_0(test_comm); }) | then(reverse_msg);
-  task_graph_handle auto s1 = s | then_comm([test_comm]{ send_recv_msg_1(test_comm); }) | then(reverse_msg);
-  auto s2 = join(s0,s1);
+  task_graph_handle auto s0 = input_data(tg,0) | split(); // TODO 0 because need to input sth
+  task_graph_handle auto s1 = s0 | then_comm([test_comm](int){ return send_recv_msg_0(test_comm); }) | then(reverse_msg); // TODO int&& is for the previous "0" of input_data
+  task_graph_handle auto s2 = s0 | then_comm([test_comm](int){ return send_recv_msg_1(test_comm); }) | then(reverse_msg);
+  auto s3 = join(s1,s2);
 
-  CHECK( tg.size() == 0 );
+  CHECK( tg.size() == 6 );
 
-  SUBCASE("seq") {
-    auto _ = std_e::stdout_time_logger("execute seq");
-    CHECK( execute_seq(s2) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
-  }
+  // TODO doctest deadlocks with two SUBCASE (even if empty)
+  //SUBCASE("seq") {
+  //  auto _ = std_e::stdout_time_logger("execute seq");
+  //  CHECK( execute_seq(s3) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
+  //}
   SUBCASE("comm") {
     thread_pool comm_tp(1);
     auto _ = std_e::stdout_time_logger("execute async comm");
-    CHECK( execute_async_comm(s2,comm_tp) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
+    CHECK( execute_async_comm(s3,comm_tp) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
   }
 }
