@@ -15,7 +15,7 @@ class input_task {
     static constexpr bool enable_task = true;
 
     input_task(T&& x)
-      : result(std::move(x))
+      : result(FWD(x))
     {}
 
     auto

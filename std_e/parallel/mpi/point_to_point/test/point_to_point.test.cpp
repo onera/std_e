@@ -42,50 +42,41 @@ MPI_TEST_CASE("send and recv",2) {
 }
 
 
-auto
-send_recv_msg_0(MPI_Comm comm) -> std::vector<int> {
-  std::this_thread::sleep_for(0.1s);
-  int rk = rank(comm);
-  // 0. init
-  std::vector<int> buf;
-  if (rk == 0) {
-    buf = {0,1,2};
-  }
-  if (rk == 1) {
-    buf = {-1,-1,-1};
-  }
+namespace {
+  struct two_vec {
+    std::vector<int> v0;
+    std::vector<int> v1;
+  };
+}
 
-  // 1. send and recv
+
+namespace async_test {
+
+auto
+send_recv_msg_0(two_vec& x, MPI_Comm comm) -> std::vector<int> {
+  std::this_thread::sleep_for(10ms);
+  int rk = rank(comm);
   int tag = 42;
   if (rk == 0) {
-    send(buf,1,tag,comm);
+    send(x.v0,1,tag,comm);
   }
   if (rk == 1) {
-    recv(buf,0,tag,comm);
+    recv(x.v0,0,tag,comm);
   }
-  return buf;
+  return x.v0;
 }
 auto
-send_recv_msg_1(MPI_Comm comm) -> std::vector<int> {
+send_recv_msg_1(two_vec& x, MPI_Comm comm) -> std::vector<int> {
+  std::this_thread::sleep_for(10ms);
   int rk = rank(comm);
-  // 0. init
-  std::vector<int> buf;
-  if (rk == 0) {
-    buf = {3,4,5};
-  }
-  if (rk == 1) {
-    buf = {-1,-1,-1};
-  }
-
-  // 1. send and recv
   int tag = 43;
   if (rk == 0) {
-    send(buf,1,tag,comm);
+    send(x.v1,1,tag,comm);
   }
   if (rk == 1) {
-    recv(buf,0,tag,comm);
+    recv(x.v1,0,tag,comm);
   }
-  return buf;
+  return x.v1;
 }
 
 auto
@@ -95,13 +86,28 @@ reverse_msg(std::vector<int>&& v) -> std::vector<int> {
 }
 
 
-MPI_TEST_CASE("send recv overlap",2) {
+template<class F> auto
+then_comm(F f, MPI_Comm comm) {
+  return ::std_e::then_comm([comm,f](auto&& x){ return f(FWD(x),comm); });
+}
+
+MPI_TEST_CASE("send recv async overlap",2) {
+  int rk = rank(test_comm);
+
+  two_vec x;
+  if (rk == 0) {
+    x.v0 = {0,1,2};
+    x.v1 = {3,4,5};
+  }
+  if (rk == 1) {
+    x.v0 = {-1,-1,-1};
+    x.v1 = {-1,-1,-1};
+  }
+
   task_graph tg;
-  //auto s0 = s | then_comm(send_recv_msg_0) | then(reverse_msg);
-  //auto s1 = s | then_comm(send_recv_msg_1) | then(reverse_msg);
-  task_graph_handle auto s0 = input_data(tg,0) | split(); // TODO 0 because need to input sth
-  task_graph_handle auto s1 = s0 | then_comm([test_comm](int){ return send_recv_msg_0(test_comm); }) | then(reverse_msg); // TODO int&& is for the previous "0" of input_data
-  task_graph_handle auto s2 = s0 | then_comm([test_comm](int){ return send_recv_msg_1(test_comm); }) | then(reverse_msg);
+  task_graph_handle auto s0 = input_data(tg,std::move(x)) | split();
+  task_graph_handle auto s1 = s0 | then_comm(send_recv_msg_0,test_comm) | then(reverse_msg);
+  task_graph_handle auto s2 = s0 | then_comm(send_recv_msg_1,test_comm) | then(reverse_msg);
   auto s3 = join(s1,s2);
 
   CHECK( tg.size() == 6 );
@@ -111,9 +117,11 @@ MPI_TEST_CASE("send recv overlap",2) {
   //  auto _ = std_e::stdout_time_logger("execute seq");
   //  CHECK( execute_seq(s3) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
   //}
-  SUBCASE("comm") {
-    thread_pool comm_tp(1);
-    auto _ = std_e::stdout_time_logger("execute async comm");
+  SUBCASE("async comm") {
+    thread_pool comm_tp(2);
+    auto _ = std_e::stdout_time_logger("send recv async comm");
     CHECK( execute_async_comm(s3,comm_tp) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
   }
 }
+
+} // async_test

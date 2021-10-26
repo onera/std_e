@@ -32,8 +32,31 @@ input_data(task_graph& tg, T&& x) {
 //}
 
 
-template<class F, task_graph_handle TGH, class task_t> auto
-generic_then_task__impl(task_kind tk, TGH&& tgh, F f) { // TODO F&&
+template<task_graph_handle TGH> constexpr bool is_single_shot = std::remove_cvref_t<TGH>::single_shot;
+
+
+template<task_graph_handle TGH>
+struct task_graph_handle_result_type__impl;
+
+template<task_graph_handle TGH>
+requires (is_single_shot<TGH>)
+struct task_graph_handle_result_type__impl<TGH> {
+  using type = std::remove_cvref_t<decltype(*std::declval<TGH>().result)>;
+};
+
+template<task_graph_handle TGH>
+requires (!is_single_shot<TGH>)
+struct task_graph_handle_result_type__impl<TGH> {
+  using type = decltype(*std::declval<TGH>().result)&;
+};
+
+template<task_graph_handle TGH>
+using task_graph_handle_result_type = typename task_graph_handle_result_type__impl<std::remove_cvref_t<TGH>>::type;
+
+
+template<class F, task_graph_handle TGH> auto
+generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
+  using task_t = then_task<F,task_graph_handle_result_type<TGH>,is_single_shot<TGH>>;
   task_t t(
     tk,
     FWD(f),
@@ -52,23 +75,6 @@ generic_then_task__impl(task_kind tk, TGH&& tgh, F f) { // TODO F&&
   return ttg;
 }
 
-template<task_graph_handle TGH> constexpr bool is_single_shot = std::remove_cvref_t<TGH>::single_shot;
-
-template<class F, task_graph_handle TGH>
-requires (is_single_shot<TGH>)
-auto
-generic_then_task(task_kind tk, TGH&& tgh, F f) { // TODO F&&
-  using task_t = then_task<F,std::remove_cvref_t<decltype(*tgh.result)>,/*after_single_shot=*/true>;
-  return generic_then_task__impl<F,TGH,task_t>(tk,FWD(tgh),f);
-}
-
-template<class F, task_graph_handle TGH>
-requires (!is_single_shot<TGH>)
-auto
-generic_then_task(task_kind tk, TGH&& tgh, F f) { // TODO F&&
-  using task_t = then_task<F,decltype(*tgh.result)&,/*after_single_shot=*/false>;
-  return generic_then_task__impl<F,TGH,task_t>(tk,FWD(tgh),f);
-}
 
 
 template<class R> auto
@@ -96,8 +102,8 @@ then(F&& f) {
   });
 }
 
-template<class F> auto
-then_comm(task_graph_handle auto&& tgh, F&& f) {
+template<task_graph_handle TGH, class F> auto
+then_comm(TGH&& tgh, F&& f) {
   return generic_then_task(task_kind::communication,FWD(tgh),FWD(f));
 }
 
@@ -106,6 +112,11 @@ then_comm(F&& f) {
   return make_pipeable([f0=std::move(f)](auto&& tgh) {
     return then_comm(FWD(tgh),std::move(f0));
   });
+}
+
+template<class F, class T> auto
+then_comm(F&& f, T&& capture_arg) {
+  return then_comm([f0=std::move(f),arg=std::move(capture_arg)](auto&& x){ return f0(FWD(x),arg); });
 }
 
 
