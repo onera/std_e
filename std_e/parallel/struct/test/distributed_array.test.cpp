@@ -175,7 +175,9 @@ MPI_TEST_CASE("distributed array - get",4) {
       gather(a,indices,local_array);
     }
 
-    //CHECK( local_array == vector{70,90,20,10,30,110,50} );
+    vector<int> new_to_old = {3,2,4,6,0,5,1};
+    inv_permute(local_array,new_to_old);
+    CHECK( local_array == vector{70,90,20,10,30,110,50} );
   }
 
 

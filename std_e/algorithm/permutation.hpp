@@ -91,6 +91,7 @@ permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T>
 // REF: https://blog.merovius.de/2014/08/12/applying-permutation-in-constant.html
 // ALSO: with range-v3 https://stackoverflow.com/a/53785022/1583122
 // ALSO: (in place?) https://stackoverflow.com/a/44030600/1583122
+// TODO look in e.g. TAOCP for inplace
 template<class Rand_it, class I> auto
 permute(Rand_it it, const std::vector<I>& p) -> void {
   int sz = p.size();
@@ -115,9 +116,17 @@ permute(std::vector<T>& vec, const std::vector<I>& p) -> void {
   return permute(vec.begin(),p);
 }
 
+// TODO there should be a more efficient implementation
+template<class Range, class I> auto
+inv_permute(Range& rng, const std::vector<I>& p) -> void {
+  std::vector<I> p_inv = inverse_permutation(p);
+  return permute(rng.begin(),p_inv);
+}
+
+
 template<class Int_range, class Tuple, size_t... Is> auto
 apply_permutation__impl(const Int_range& perm, Tuple& rngs, std::index_sequence<Is...>) -> void {
-  ( permute(std::get<Is>(rngs),perm) , ... );
+  ( permute(std::get<Is>(rngs),perm) , ... ); // TODO inefficient (instead, permute(zip(rngs)))
 }
 template<class Int_range, class Tuple> auto
 apply_permutation(const Int_range& perm, Tuple& rngs) -> void {

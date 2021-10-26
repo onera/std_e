@@ -2,10 +2,11 @@
 
 #include "std_e/parallel/mpi/point_to_point/point_to_point.hpp"
 #include "std_e/logging/time_logger.hpp" // TODO
+#include "std_e/log.hpp" // TODO
 #include "std_e/execution/execution.hpp"
 
 #include "std_e/graph/adjacency_graph/graph_to_dot_string.hpp"
-#include "std_e/log.hpp"
+#include "std_e/utils/concatenate.hpp"
 
 using namespace std_e;
 using namespace std::string_literals;
@@ -84,12 +85,10 @@ reverse_msg(std::vector<int>&& v) -> std::vector<int> {
   std::reverse(begin(v),end(v));
   return v;
 }
+constexpr auto concatenate_vec = [](const std::tuple<std::vector<int>,std::vector<int>>& vs){
+  return concatenate(std::get<0>(vs),std::get<1>(vs));
+};
 
-
-template<class F> auto
-then_comm(F f, MPI_Comm comm) {
-  return ::std_e::then_comm([comm,f](auto&& x){ return f(FWD(x),comm); });
-}
 
 MPI_TEST_CASE("send recv async overlap",2) {
   int rk = rank(test_comm);
@@ -105,22 +104,22 @@ MPI_TEST_CASE("send recv async overlap",2) {
   }
 
   task_graph tg;
-  task_graph_handle auto s0 = input_data(tg,std::move(x)) | split();
-  task_graph_handle auto s1 = s0 | then_comm(send_recv_msg_0,test_comm) | then(reverse_msg);
-  task_graph_handle auto s2 = s0 | then_comm(send_recv_msg_1,test_comm) | then(reverse_msg);
-  auto s3 = join(s1,s2);
+  Task_graph_handle auto s0 = input_data(tg,std::move(x)) | split();
+  Task_graph_handle auto s1 = s0 | then_comm(send_recv_msg_0,test_comm) | then(reverse_msg);
+  Task_graph_handle auto s2 = s0 | then_comm(send_recv_msg_1,test_comm) | then(reverse_msg);
+  auto s3 = join(s1,s2) | then(concatenate_vec);
 
-  CHECK( tg.size() == 6 );
+  CHECK( tg.size() == 7 );
 
   // TODO doctest deadlocks with two SUBCASE (even if empty)
   //SUBCASE("seq") {
   //  auto _ = std_e::stdout_time_logger("execute seq");
-  //  CHECK( execute_seq(s3) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
+  //  CHECK( execute_seq(s3) == std::vector{2,1,0, 5,4,3} );
   //}
   SUBCASE("async comm") {
     thread_pool comm_tp(2);
     auto _ = std_e::stdout_time_logger("send recv async comm");
-    CHECK( execute_async_comm(s3,comm_tp) == std::tuple{std::vector{2,1,0},std::vector{5,4,3}} );
+    CHECK( execute_async_comm(s3,comm_tp) == std::vector{2,1,0, 5,4,3} );
   }
 }
 

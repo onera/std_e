@@ -17,7 +17,7 @@ move_result_if_single_shot(R& r, std::false_type) -> R& {
   return r;
 }
 
-template<task_graph_handle... tghs> // TODO do not depend on task_g_h
+template<Task_graph_handle... tghs> // TODO do not depend on task_g_h
 class join_task {
   private:
     using dep_result_refs = std::tuple<decltype(*std::declval<tghs>().result)&...>;

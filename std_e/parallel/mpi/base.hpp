@@ -43,17 +43,16 @@ mpi_comm_world_rank() -> int {
 
 
 // to_mpi_type {
-template<class T> constexpr auto
-to_mpi_type__impl() -> MPI_Datatype {
-  constexpr int sz = sizeof(T);
-       if constexpr (sz==1) return MPI_BYTE;
-  else if constexpr (sz==2) return MPI_INT16_T;
-  else if constexpr (sz==4) return MPI_INT32_T;
-  else if constexpr (sz==8) return MPI_INT64_T;
+constexpr auto
+to_mpi_type_of_size(int sz) -> MPI_Datatype {
+       if (sz==1) return MPI_BYTE;
+  else if (sz==2) return MPI_INT16_T;
+  else if (sz==4) return MPI_INT32_T;
+  else if (sz==8) return MPI_INT64_T;
   else throw mpi_exception(-1,"sizeof primitive type should by 1, 2, 4 or 8");
 }
 
-template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type__impl<T>();
+template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type_of_size(sizeof(T));
 // to_mpi_type }
 
 

@@ -8,7 +8,7 @@ namespace std_e {
 
 
 auto
-execute_seq(task_graph_handle auto& tgh) {
+execute_seq(Task_graph_handle auto& tgh) {
   task_graph& tg = *tgh.tg;
   int n = tg.size();
   for (int i=0; i<n; ++i) {

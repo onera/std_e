@@ -40,19 +40,31 @@ get_contiguous(const window<T>& win, int rank, MPI_Aint disp, Range& out) -> voi
 }
 
 
-template<class T>
 class protocol_win_get_indexed {
   private:
+    int type_sz;
+    int n_elt;
     mpi_data_type target_type;
   public:
+    protocol_win_get_indexed() = default;
+
     template<class Int_range>
-    protocol_win_get_indexed(const Int_range& ins)
-      : target_type(indexed_block<T>(ins))
+    protocol_win_get_indexed(const Int_range& ins, int type_sz)
+      : type_sz(type_sz)
+      , n_elt(ins.size())
+      , target_type(indexed_block(ins,type_sz))
     {}
 
-    template<class Range> auto
+    auto
+    number_of_elements() const -> int {
+      return n_elt;
+    }
+
+    template<class T, class Range> auto
     request(const window<T>& win, int rank, Range& out) -> void {
-      _get_indexed(win.underlying(),rank,target_type.underlying(),out.size(),out.data());
+      STD_E_ASSERT(sizeof(T)==type_sz);
+      STD_E_ASSERT((int)out.size()==n_elt);
+      _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
     }
 };
 

@@ -20,7 +20,7 @@ make_pipeable(F&& f) {
   return pipeable_wrapper(std::move(f));
 }
 
-template<task_graph_handle TGH, class F> auto
+template<Task_graph_handle TGH, class F> auto
 operator|(TGH&& tgh, pipeable_wrapper<F>&& f) {
   return f(FWD(tgh));
 }

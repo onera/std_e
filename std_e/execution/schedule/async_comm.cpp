@@ -60,7 +60,6 @@ wait_one_comm_to_finish(
 
 auto
 execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
-  STD_E_ASSERT(tg.node(0).kind()==task_kind::input);
 
   // Associate a completion state to each task of the graph
   std::vector<task_state> state_of_tasks(tg.size(),not_started);
@@ -75,7 +74,13 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
 
   // Queue of task indices to be executed
   std::queue<int> q;
-  q.push(0); // init with the root of the graph
+  // init with the queue with roots (tasks that do not depend on others)
+  for (int i=0; i<tg.size(); ++i) {
+    if (tg[i].in_degree()==0) {
+      STD_E_ASSERT(tg.node(i).kind()==task_kind::input);
+      q.push(i);
+    }
+  }
 
   int n_task_remaining = tg.size();
   while (n_task_remaining) {

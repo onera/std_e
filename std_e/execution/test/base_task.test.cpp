@@ -107,27 +107,30 @@ constexpr auto get_remote_info = [](std::vector<int> x){
   x.push_back(7);
   return x;
 };
-constexpr auto max_vec = [](const std::vector<int>& x){
+constexpr auto reverse_vec_with_delay = [](std::vector<int> v){
   std::this_thread::sleep_for(0.1s);
-  return *std::max_element(begin(x),end(x));
+  std::vector res = v;
+  std::reverse(begin(res),end(res));
+  return res;
 };
 TEST_CASE("then_comm") {
   task_graph tg;
 
   auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(sort_vec) | split();
   auto s1 = s0 | then_comm(get_remote_info);
-  auto s2 = s0 | then(max_vec);
-  auto s3 = join(s1,s2);
+  auto s2 = s0 | then(reverse_vec_with_delay);
+  auto s3 = join(s1,s2) | then(concatenate_vec);
+  ELOG(to_dot_format_string(tg));
 
-  CHECK( tg.size() == 5 );
+  CHECK( tg.size() == 6 );
 
   SUBCASE("seq") {
     auto _ = std_e::stdout_time_logger("execute seq");
-    CHECK( execute_seq(s3) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
+    CHECK( execute_seq(s3) == std::vector{0,1,2,3, 6,5,4,7,    3,2,1,0} );
   }
   SUBCASE("comm") {
     thread_pool comm_tp(1);
     auto _ = std_e::stdout_time_logger("execute async comm");
-    CHECK( execute_async_comm(s3,comm_tp) == std::tuple{std::vector{0,1,2,3, 6,5,4,7}, 3} );
+    CHECK( execute_async_comm(s3,comm_tp) == std::vector{0,1,2,3, 6,5,4,7,    3,2,1,0} );
   }
 }
