@@ -24,6 +24,10 @@ template<Task_graph_handle TGH, class F> auto
 operator|(TGH&& tgh, pipeable_wrapper<F>&& f) {
   return f(FWD(tgh));
 }
+template<Task_graph_handle... TGHs, class F> auto
+operator|(std::tuple<TGHs...>&& tghs, pipeable_wrapper<F>&& f) {
+  return f(FWD(tghs));
+}
 
 
 } // std_e

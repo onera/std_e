@@ -73,49 +73,54 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
   return ttg;
 }
 
-//template<class F, class Tuple, size_t... Is> auto
-//generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
-//  using task_t = then_task<F,task_graph_handle_result_type<TGH>>;
-//  task_t t(
-//    tk,
-//    FWD(f),
-//    *std::get<Is>(tghs>.result)...
-//  );
-//  using R = decltype(t)::result_type;
-//  task_graph_handle<R> ttg;
-//  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs
-//  int n = tg->size();
-//  ttg.tg = tg; // the new graph is the old one...
-//  auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-//  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
-//  ttg.active_node_idx = n; // the active task is the one we just added
-//
-//  ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n)...; // ... and tell the previous task that this one is following ...
-//  ttg.tg->in_indices(n).push_back(std::get<Is>(tghs).active_node_idx)...; // ... and symmetrically tell the new task that it depends one the previous one
-//
-//  return ttg;
-//}
-//
-//template<class F, Task_graph_handle... TGHs> auto
-//generic_then_task(task_kind tk, std::tuple<TGHs...>&& tghs, F&& f) {
-//  constexpr int N = sizeof...(TGHs);
-//  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
-//}
-//template<class F, Task_graph_handle... TGHs> auto
-//generic_then_task(task_kind tk, std::tuple<TGHs...>& tghs, F&& f) {
-//  constexpr int N = sizeof...(TGHs);
-//  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
-//}
-//template<class F, Task_graph_handle... TGHs> auto
-//generic_then_task(task_kind tk, const std::tuple<TGHs...>& tghs, F&& f) {
-//  constexpr int N = sizeof...(TGHs);
-//  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
-//}
+template<class F, class Tuple, size_t... Is> auto
+generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
+  using task_t = then_task<F,task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
+  task_t t(
+    tk,
+    FWD(f),
+    *std::get<Is>(tghs).result...
+  );
+  using R = decltype(t)::result_type;
+  task_graph_handle<R> ttg;
+  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs
+  int n = tg->size();
+  ttg.tg = tg; // the new graph is the old one...
+  auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
+  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
+  ttg.active_node_idx = n; // the active task is the one we just added
+
+  ( ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n) , ... ); // ... and tell the previous task that this one is following ...
+  ( ttg.tg->in_indices(n).push_back(std::get<Is>(tghs).active_node_idx) , ... ); // ... and symmetrically tell the new task that it depends one the previous one
+
+  return ttg;
+}
+
+template<class F, Task_graph_handle... TGHs> auto
+generic_then_task(task_kind tk, std::tuple<TGHs...>&& tghs, F&& f) {
+  constexpr int N = sizeof...(TGHs);
+  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
+}
+template<class F, Task_graph_handle... TGHs> auto
+generic_then_task(task_kind tk, std::tuple<TGHs...>& tghs, F&& f) {
+  constexpr int N = sizeof...(TGHs);
+  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
+}
+template<class F, Task_graph_handle... TGHs> auto
+generic_then_task(task_kind tk, const std::tuple<TGHs...>& tghs, F&& f) {
+  constexpr int N = sizeof...(TGHs);
+  return generic_then_task__impl(tk,FWD(tghs),FWD(f),std::make_index_sequence<N>{});
+}
 
 
 template<class F> auto
 then(Task_graph_handle auto&& tgh, F&& f) {
   return generic_then_task(task_kind::computation,FWD(tgh),FWD(f));
+}
+
+template<class F, Task_graph_handle... TGHs> auto
+then(std::tuple<TGHs...>&& tghs, F&& f) {
+  return generic_then_task(task_kind::computation,FWD(tghs),FWD(f));
 }
 
 template<class F> auto
@@ -128,6 +133,10 @@ then(F&& f) {
 template<Task_graph_handle TGH, class F> auto
 then_comm(TGH&& tgh, F&& f) {
   return generic_then_task(task_kind::communication,FWD(tgh),FWD(f));
+}
+template<class F, Task_graph_handle... TGHs> auto
+then_comm(std::tuple<TGHs...>&& tghs, F&& f) {
+  return generic_then_task(task_kind::communication,FWD(tghs),FWD(f));
 }
 
 template<class F> auto
@@ -143,7 +152,7 @@ then_comm(F&& f, T&& capture_arg) {
 }
 
 
-template<Task_graph_handle TGH, Task_graph_handle... TGHs, class... Ts> auto
+template<Task_graph_handle TGH, Task_graph_handle... TGHs> auto
 join(TGH&& tgh, TGHs&&... tghs) {
   // assert all tgh.tg is the same ptr
   join_task<TGH&&,TGHs&&...> t(
@@ -165,6 +174,10 @@ join(TGH&& tgh, TGHs&&... tghs) {
   return ttg;
 }
 
+template<Task_graph_handle... TGHs> auto
+join2(TGHs&&... tghs) {
+  return forward_as_tuple(FWD(tghs)...);
+}
 
 
 } // std_e

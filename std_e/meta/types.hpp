@@ -12,11 +12,12 @@ struct get_type__impl;
 
 template<int I, class T, class... Ts>
 struct get_type__impl<I,T,Ts...> {
+  static_assert(I>0);
   using type = typename get_type__impl<I-1,Ts...>::type;
 };
 
-template<class T>
-struct get_type__impl<0,T> {
+template<class T, class... Ts>
+struct get_type__impl<0,T,Ts...> {
   using type = T;
 };
 

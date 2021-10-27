@@ -32,6 +32,9 @@ constexpr auto sort_vec = [](std::vector<int> v){
 constexpr auto concatenate_vec = [](const std::tuple<std::vector<int>,std::vector<int>>& vs){
   return concatenate(std::get<0>(vs),std::get<1>(vs));
 };
+constexpr auto concatenate_vec2 = [](const std::vector<int>& x, const std::vector<int>& y){
+  return concatenate(x,y);
+};
 TEST_CASE("input_task") {
   task_graph tg;
 
@@ -75,13 +78,18 @@ TEST_CASE("task fork join") {
   task_graph tg;
 
   auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
-  auto s1 = join(
+  //auto s1 = join(
+  //  s0 | then(reverse_vec),
+  //  s0 | then(sort_vec)
+  //);
+  auto s1 = join2(
     s0 | then(reverse_vec),
     s0 | then(sort_vec)
   );
-  auto s2 = std::move(s1) | then(concatenate_vec);
+  //auto s2 = std::move(s1) | then(concatenate_vec);
+  auto s2 = then(std::move(s1) , concatenate_vec2);
 
-  CHECK( tg.size() == 6 );
+  CHECK( tg.size() == 5 );
 
   // execute graph by hand
   tg.node(0).execute();
@@ -89,7 +97,6 @@ TEST_CASE("task fork join") {
   tg.node(2).execute();
   tg.node(3).execute();
   tg.node(4).execute();
-  tg.node(5).execute();
                                 //  reverse  /   sort
                                 // v v v v v   v v v v v
   CHECK( *s2.result == std::vector{5,2,1,0,3,  0,1,2,3,5} );
@@ -119,10 +126,10 @@ TEST_CASE("then_comm") {
   auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(sort_vec);
   auto s1 = s0 | then_comm(get_remote_info);
   auto s2 = s0 | then(reverse_vec_with_delay);
-  auto s3 = join(std::move(s1),std::move(s2)) | then(concatenate_vec);
+  auto s3 = join2(std::move(s1),std::move(s2)) | then(concatenate_vec2);
   ELOG(to_dot_format_string(tg));
 
-  CHECK( tg.size() == 6 );
+  CHECK( tg.size() == 5 );
 
   SUBCASE("seq") {
     auto _ = std_e::stdout_time_logger("execute seq");
