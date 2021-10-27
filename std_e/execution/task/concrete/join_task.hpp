@@ -17,12 +17,12 @@ move_result_if_single_shot(R& r, std::false_type) -> R& {
   return r;
 }
 
-template<Task_graph_handle... tghs> // TODO do not depend on task_g_h
+template<Task_graph_handle... TGHs> // TODO do not depend on task_g_h
 class join_task {
   private:
-    using dep_result_refs = std::tuple<decltype(*std::declval<tghs>().result)&...>;
+    using dep_result_refs = std::tuple<decltype(*std::declval<std::remove_cvref_t<TGHs>>().result)&...>;
     dep_result_refs deps;
-    using R = std::tuple<decltype(move_result_if_single_shot(*std::declval<tghs>().result,std::bool_constant<tghs::single_shot>{}))...>;
+    using R = std::tuple<decltype(move_result_if_single_shot(*std::declval<std::remove_cvref_t<TGHs>>().result,std::bool_constant<is_single_shot<TGHs>>{}))...>;
     R result;
   public:
     using result_type = R;
@@ -36,7 +36,7 @@ class join_task {
 
     template<size_t... Is> auto
     execute__impl(std::index_sequence<Is...>) -> void {
-      result = R{move_result_if_single_shot(std::get<Is>(deps),std::bool_constant<tghs::single_shot>{})...};
+      result = R{move_result_if_single_shot(std::get<Is>(deps),std::bool_constant<is_single_shot<TGHs>>{})...};
     }
     auto
     execute() -> void {

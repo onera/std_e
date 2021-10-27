@@ -65,4 +65,19 @@ struct arrow_proxy {
   }
 };
 
+
+namespace detail {
+  template <class F, class Tuple, std::size_t... Is> constexpr auto
+  apply_move_impl(F&& f, Tuple&& t, std::index_sequence<Is...>) -> decltype(auto) {
+    return std::invoke(std::forward<F>(f), std::move(std::get<Is>(t))...);
+  }
+}  // namespace detail
+
+template <class F, class Tuple> constexpr auto
+apply_move(F&& f, Tuple&& t) -> decltype(auto) {
+  constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+  return detail::apply_move_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<N>{});
+}
+
+
 } // std_e

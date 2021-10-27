@@ -74,12 +74,12 @@ TEST_CASE("then_task") {
 TEST_CASE("task fork join") {
   task_graph tg;
 
-  auto s0 = input_data(tg,std::vector{3,0,1,2}) | then( push_5) | split();
+  auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
   auto s1 = join(
     s0 | then(reverse_vec),
     s0 | then(sort_vec)
   );
-  auto s2 = s1 | then(concatenate_vec);
+  auto s2 = std::move(s1) | then(concatenate_vec);
 
   CHECK( tg.size() == 6 );
 
@@ -116,10 +116,10 @@ constexpr auto reverse_vec_with_delay = [](std::vector<int> v){
 TEST_CASE("then_comm") {
   task_graph tg;
 
-  auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(sort_vec) | split();
+  auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(sort_vec);
   auto s1 = s0 | then_comm(get_remote_info);
   auto s2 = s0 | then(reverse_vec_with_delay);
-  auto s3 = join(s1,s2) | then(concatenate_vec);
+  auto s3 = join(std::move(s1),std::move(s2)) | then(concatenate_vec);
   ELOG(to_dot_format_string(tg));
 
   CHECK( tg.size() == 6 );

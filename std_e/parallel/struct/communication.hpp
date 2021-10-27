@@ -173,7 +173,7 @@ constexpr auto close_epoch = []<class T>(dist_array<T>& a) -> dist_array<T>& {
   return a;
 };
 
-template<class T> using future = multi_shot_task_graph_handle<T>;
+template<class T> using future = task_graph_handle<T>;
 
 
 constexpr auto get_protocol_indexed_fn = [](auto t) {

@@ -7,19 +7,6 @@
 
 namespace std_e {
 
-namespace detail {
-  template <class F, class Tuple, std::size_t... I> constexpr auto
-  apply_move_impl(F&& f, Tuple&& t, std::index_sequence<I...>) -> decltype(auto) {
-    return std::invoke(std::forward<F>(f), std::move(std::get<I>(t))...);
-  }
-}  // namespace detail
- 
-template <class F, class Tuple> constexpr auto
-apply_move(F&& f, Tuple&& t) -> decltype(auto) {
-  constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
-  return detail::apply_move_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<N>{});
-}
-
 
 template<bool after_single_shot, class F, class... Args>
 requires
@@ -48,9 +35,7 @@ class then_task {
     auto
     execute() -> void {
       if constexpr (after_single_shot) {
-        //result = std::apply(f,std::move(args));
         result = apply_move(f,args);
-        //result = f(std::move(std::get<0>(args)));
       } else {
         result = std::apply(f,args);
       }
