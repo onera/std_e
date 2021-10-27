@@ -2,6 +2,7 @@
 
 
 #include <functional>
+#include "std_e/meta/types.hpp"
 
 
 namespace std_e {
@@ -67,16 +68,51 @@ struct arrow_proxy {
 
 
 namespace detail {
-  template <class F, class Tuple, std::size_t... Is> constexpr auto
+  template<class F, class Tuple, size_t... Is> constexpr auto
   apply_move_impl(F&& f, Tuple&& t, std::index_sequence<Is...>) -> decltype(auto) {
     return std::invoke(std::forward<F>(f), std::move(std::get<Is>(t))...);
   }
-}  // namespace detail
+}
 
-template <class F, class Tuple> constexpr auto
+template<class F, class Tuple> constexpr auto
 apply_move(F&& f, Tuple&& t) -> decltype(auto) {
   constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
   return detail::apply_move_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<N>{});
+}
+
+
+namespace detail {
+  template<class F, class Tuple, size_t... Is> constexpr auto
+  apply_forward_impl(F&& f, Tuple&& t, std::index_sequence<Is...>) -> decltype(auto) {
+    //return std::invoke(std::forward<F>(f), std::forward<std::tuple_element_t<Is,std::remove_reference_t<Tuple>>>(std::get<Is>(t))...);
+    return f(std::forward<std::tuple_element_t<Is,std::remove_reference_t<Tuple>>>(std::get<Is>(t))...);
+  }
+}
+
+// apply f with t elements as arguments
+// elements are moved, unless they are lvalue references
+template<class F, class Tuple> constexpr auto
+apply_forward(F&& f, Tuple&& t) -> decltype(auto) {
+  constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+  return detail::apply_forward_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<N>{});
+}
+
+
+namespace detail {
+  template<class F, class Tuple, size_t... Is, class Args_types> constexpr auto
+  apply_forward_as_impl(F&& f, Tuple&& t, std::index_sequence<Is...>, Args_types) -> decltype(auto) {
+    //return std::invoke(std::forward<F>(f), std::forward<std::tuple_element_t<Is,std::remove_reference_t<Tuple>>>(std::get<Is>(t))...);
+    return f(std::forward<types_element_t<Is,Args_types>>(std::get<Is>(t))...);
+  }
+}
+
+// apply f with t elements as arguments
+// elements are moved, unless their corresponding type in "Args..." is an lvalue reference
+// TODO clean
+template<class... Args, class F, class Tuple> constexpr auto
+apply_forward_as(F&& f, Tuple&& t) -> decltype(auto) {
+  constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+  return detail::apply_forward_as_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
 }
 
 

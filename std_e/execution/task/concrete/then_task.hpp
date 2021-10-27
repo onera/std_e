@@ -8,10 +8,8 @@
 namespace std_e {
 
 
-template<bool after_single_shot, class F, class... Args>
-requires
-    (  after_single_shot && std::invocable<remove_rvalue_reference<F>,std::remove_reference_t<Args>&&...>)
- || ( !after_single_shot && std::invocable<remove_rvalue_reference<F>,std::remove_reference_t<Args>& ...>)
+template<class F, class... Args>
+requires (std::invocable<remove_rvalue_reference<F>,Args...>)
 class then_task {
   private:
     task_kind kd;
@@ -20,7 +18,10 @@ class then_task {
     //static_assert(!std::is_reference_v<R>);
 
     remove_rvalue_reference<F> f;
-    std::tuple<Args&...> args;
+    std::tuple<Args&...> args; // note: we store lvalue references
+                               // because the values are to be computed by another task
+                               // and while their address is ready (and won't move)
+                               // the value is not (and hence, can't be stored!)
     R result;
   public:
     using result_type = R;
@@ -34,11 +35,7 @@ class then_task {
 
     auto
     execute() -> void {
-      if constexpr (after_single_shot) {
-        result = apply_move(f,args);
-      } else {
-        result = std::apply(f,args);
-      }
+     result = apply_forward_as<Args...>(f,args);
     }
 
     auto

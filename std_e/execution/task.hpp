@@ -52,7 +52,7 @@ using task_graph_handle_result_type = typename task_graph_handle_result_type__im
 
 template<class F, Task_graph_handle TGH> auto
 generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
-  using task_t = then_task<is_single_shot<TGH&&>,F,task_graph_handle_result_type<TGH&&>>;
+  using task_t = then_task<F,task_graph_handle_result_type<TGH&&>>;
   task_t t(
     tk,
     FWD(f),
@@ -75,7 +75,7 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
 
 //template<class F, class Tuple, size_t... Is> auto
 //generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
-//  using task_t = then_task<is_single_shot<TGH>,F,task_graph_handle_result_type<TGH>>;
+//  using task_t = then_task<F,task_graph_handle_result_type<TGH>>;
 //  task_t t(
 //    tk,
 //    FWD(f),
@@ -90,9 +90,8 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
 //  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
 //  ttg.active_node_idx = n; // the active task is the one we just added
 //
-//  int last_active = tgh.active_node_idx;
-//  ttg.tg->out_indices(std::get<0>(tghs).active_node_idx).push_back(n)...; // ... and tell the previous task that this one is following ...
-//  ttg.tg->in_indices(n).push_back(std::get<0>(tghs).active_node_idx)...; // ... and symmetrically tell the new task that it depends one the previous one
+//  ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n)...; // ... and tell the previous task that this one is following ...
+//  ttg.tg->in_indices(n).push_back(std::get<Is>(tghs).active_node_idx)...; // ... and symmetrically tell the new task that it depends one the previous one
 //
 //  return ttg;
 //}
