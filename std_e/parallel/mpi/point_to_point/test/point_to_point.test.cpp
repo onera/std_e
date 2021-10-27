@@ -85,10 +85,7 @@ reverse_msg(std::vector<int>&& v) -> std::vector<int> {
   std::reverse(begin(v),end(v));
   return v;
 }
-constexpr auto concatenate_vec = [](const std::tuple<std::vector<int>,std::vector<int>>& vs){
-  return concatenate(std::get<0>(vs),std::get<1>(vs));
-};
-constexpr auto concatenate_vec2 = [](const std::vector<int>& x, const std::vector<int>& y){
+constexpr auto concatenate_vec = [](const std::vector<int>& x, const std::vector<int>& y){
   return concatenate(x,y);
 };
 
@@ -110,7 +107,7 @@ MPI_TEST_CASE("send recv async overlap",2) {
   Task_graph_handle auto s0 = input_data(tg,std::move(x));
   Task_graph_handle auto s1 = s0 | then_comm(send_recv_msg_0,test_comm) | then(reverse_msg);
   Task_graph_handle auto s2 = s0 | then_comm(send_recv_msg_1,test_comm) | then(reverse_msg);
-  auto s3 = join2(std::move(s1),std::move(s2)) | then(concatenate_vec2);
+  auto s3 = join(std::move(s1),std::move(s2)) | then(concatenate_vec);
 
   CHECK( tg.size() == 6 );
 

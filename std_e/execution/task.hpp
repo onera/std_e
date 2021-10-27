@@ -3,7 +3,6 @@
 
 #include "std_e/execution/task/concrete/input_task.hpp"
 #include "std_e/execution/task/concrete/then_task.hpp"
-#include "std_e/execution/task/concrete/join_task.hpp"
 #include "std_e/execution/task/any_task.hpp"
 #include "std_e/execution/task_graph/task_graph_handle.hpp"
 #include "std_e/execution/task_graph/pipeable.hpp"
@@ -151,31 +150,8 @@ then_comm(F&& f, T&& capture_arg) {
   return then_comm([f0=std::move(f),arg=std::move(capture_arg)](auto&& x){ return f0(FWD(x),arg); });
 }
 
-
-template<Task_graph_handle TGH, Task_graph_handle... TGHs> auto
-join(TGH&& tgh, TGHs&&... tghs) {
-  // assert all tgh.tg is the same ptr
-  join_task<TGH&&,TGHs&&...> t(
-    *tgh.result,*tghs.result...
-  );
-  using R = typename decltype(t)::result_type;
-  task_graph_handle<R> ttg;
-  ttg.tg = tgh.tg;
-  int n = tgh.tg->size();
-  auto& emplaced_t = ttg.tg->emplace_back(std::move(t));
-  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
-
-  ttg.tg->out_indices(tgh.active_node_idx).push_back(n);
-  ttg.tg->in_indices(n).push_back(tgh.active_node_idx);
-  ( ttg.tg->out_indices(tghs.active_node_idx).push_back(n) , ... );
-  ( ttg.tg->in_indices(n).push_back(tghs.active_node_idx) , ... );
-
-  ttg.active_node_idx = n;
-  return ttg;
-}
-
 template<Task_graph_handle... TGHs> auto
-join2(TGHs&&... tghs) {
+join(TGHs&&... tghs) {
   return forward_as_tuple(FWD(tghs)...);
 }
 
