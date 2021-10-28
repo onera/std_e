@@ -11,14 +11,14 @@
 namespace std_e {
 
 
-template<class T> requires(!std::is_lvalue_reference_v<T>) auto
+template<class T> auto //requires(!std::is_lvalue_reference_v<T>) auto
 input_data(task_graph& tg, T&& x) {
-  input_task t(std::move(x));
+  input_task<T&&> t(FWD(x));
   int n = tg.size();
   task_graph_handle<T> ttg;
   ttg.tg = &tg;
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t));
-  ttg.result = static_cast<T*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<std::remove_reference_t<T>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n;
   return ttg;
 }
@@ -62,7 +62,7 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
   int n = tgh.tg->size();
   ttg.tg = tgh.tg; // the new graph is the old one...
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<std::remove_reference_t<R>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n; // the active task is the one we just added
 
   int last_active = tgh.active_node_idx;
@@ -86,7 +86,7 @@ generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<I
   int n = tg->size();
   ttg.tg = tg; // the new graph is the old one...
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-  ttg.result = static_cast<R*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<std::remove_reference_t<R>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n; // the active task is the one we just added
 
   ( ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n) , ... ); // ... and tell the previous task that this one is following ...
@@ -95,6 +95,11 @@ generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<I
   return ttg;
 }
 
+// TODO there is a risk that the user gives a std::tuple, and it is handled here and exploded
+// (whereas the user does not want that)
+// the solution would be to use a private tuple-like type
+//    here ("generic_then_task", "then_task", "then_comm_task"),
+//    in "pipeable" and in "join"
 template<class F, Task_graph_handle... TGHs> auto
 generic_then_task(task_kind tk, std::tuple<TGHs...>&& tghs, F&& f) {
   constexpr int N = sizeof...(TGHs);

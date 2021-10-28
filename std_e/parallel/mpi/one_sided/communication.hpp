@@ -61,7 +61,7 @@ class protocol_win_get_indexed {
     }
 
     template<class T, class Range> auto
-    request(const window<T>& win, int rank, Range& out) -> void {
+    request(const window<T>& win, int rank, Range& out) const -> void {
       STD_E_ASSERT(sizeof(T)==type_sz);
       STD_E_ASSERT((int)out.size()==n_elt);
       _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());

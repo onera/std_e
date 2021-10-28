@@ -23,7 +23,7 @@ class mpi_data_type {
     }
 
     auto
-    underlying() -> MPI_Datatype {
+    underlying() const -> MPI_Datatype {
       return mpi_type;
     }
 };

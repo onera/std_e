@@ -46,7 +46,7 @@ class protocol_get_indexed {
     }
 
     template<class T, class Range> auto
-    request(const dist_array<T>& a, int rank, Range& out) -> void {
+    request(const dist_array<T>& a, int rank, Range& out) const -> void {
       p.request(a.win(),rank,out);
     }
 };
@@ -69,16 +69,17 @@ gather_protocol_from_ranks(const jagged_range<TR,IR,2>& ins_by_rank, int type_sz
   return protocols_by_rank;
 }
 
-template<class T, class Int_range, class Range> auto
-get_protocol_indexed(const dist_array<T>& a, const protocol_rank_get_indexed& protocols_by_rank, Range& out) {
+template<class T, class Range> auto
+get_protocol_indexed(const dist_array<T>& a, const protocol_rank_get_indexed& protocols_by_rank, Range& out) -> Range& {
   int n_rank = protocols_by_rank.size();
   auto first = out.data();
   for (int i=0; i<n_rank; ++i) {
     int n_i = protocols_by_rank[i].number_of_elements();
     auto out_i = make_span(first,n_i);
-    protocols_by_rank[i].request(a,rank,out_i);
+    protocols_by_rank[i].request(a,i,out_i);
     first += n_i;
   }
+  return out;
 }
 
 // TODO protocol to avoid creation of MPI indexed types
@@ -154,55 +155,53 @@ create_gather_protocol(const dist_type& distri, Int_range ids, int type_sz) {
   return gather_protocol{new_to_old,protocols_by_rank};
 }
 
-constexpr auto create_gather_protocol_fn = [](auto t) { // t is tuple<dist_array<T>,Int_range>
-  using dist_array_type = std::tuple_element_t<0,decltype(t)>;
+constexpr auto create_gather_protocol_fn = [](const auto& a, const auto& ids) { // t is tuple<dist_array<T>,Int_range>
+  using dist_array_type = std::remove_cvref_t<decltype(a)>;
   using T = typename dist_array_type::value_type;
   int type_sz = sizeof(T);
-  return create_gather_protocol<T>(std::get<0>(t).distribution(),std::get<1>(t),type_sz);
+  return create_gather_protocol(a.distribution(),ids,type_sz);
 };
 
 constexpr auto open_epoch = []<class T>(dist_array<T>& a) -> dist_array<T>& {
   int assertion = 0;
-  int err = MPI_Win_lock_all(assertion,a.win());
+  int err = MPI_Win_lock_all(assertion,a.win().underlying());
   STD_E_ASSERT(!err);
   return a;
 };
-constexpr auto close_epoch = []<class T>(dist_array<T>& a) -> dist_array<T>& {
-  int err = MPI_Win_unlock_all(a.win());
+constexpr auto close_epoch = []<class T>(dist_array<T>& a, auto&&...) -> dist_array<T>& {
+  int err = MPI_Win_unlock_all(a.win().underlying());
   STD_E_ASSERT(!err);
   return a;
 };
 
-template<class T> using future = task_graph_handle<T>;
 
-
-constexpr auto get_protocol_indexed_fn = [](auto t) {
-  return get_protocol_indexed(std::get<0>(t),std::get<1>(t).protocols_by_rank,std::get<2>(t));
+constexpr auto get_protocol_indexed_fn = [](const auto& a, const auto& protocol, auto& res) {
+  return get_protocol_indexed(a,protocol.protocols_by_rank,res);
 };
 
-constexpr auto alloc_result_fn = []<class T>(auto ids) {
-  return std::vector<T>(ids.size());
+constexpr auto alloc_result_fn = [](const auto& ids) {
+  return std::vector<int>(ids.size()); // TODO int -> T
 };
 
-constexpr auto apply_perm_fn = [](auto t) {
-  auto& local_array = std::get<0>(t);
-  auto& new_to_old = std::get<1>(t).new_to_old;
-  return inv_permute(local_array,new_to_old);
+constexpr auto apply_perm_fn = [](const auto&, auto& local_array, const auto protocol) -> auto& {
+  auto& new_to_old = protocol.new_to_old;
+  inv_permute(local_array,new_to_old);
+  return local_array;
 };
 
-constexpr auto extract_result_fn = [](auto t) {
-  return std::move(std::get<1>(t));
+constexpr auto extract_result_fn = [](const auto& x) {
+  return std::move(x);
 };
 
 template<class T, class Int_range> auto
-gather(const future<dist_array<T>>& a, const future<Int_range>& ids) -> future<std::vector<T>> {
+gather(const future<dist_array<T>&>& a, const future<Int_range>& ids) -> future<std::vector<T>> {
   auto open = a | then_comm(open_epoch);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
   auto result = ids | then(alloc_result_fn);
   auto launch_win_get_comm = join(open,protocol,result) | then_comm(get_protocol_indexed_fn);
   auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
-  auto reorder = join(close,protocol) | then(apply_perm_fn);
-  return join(reorder,result) | then(extract_result_fn);
+  auto final_res = join(close,result,protocol) | then(apply_perm_fn);
+  return final_res | then(extract_result_fn);
 }
 
 //template<class T> auto
