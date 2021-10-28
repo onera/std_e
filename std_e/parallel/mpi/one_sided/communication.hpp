@@ -55,6 +55,11 @@ class protocol_win_get_indexed {
       , target_type(indexed_block(ins,type_sz))
     {}
 
+    protocol_win_get_indexed(const protocol_win_get_indexed&) = delete;
+    protocol_win_get_indexed& operator=(const protocol_win_get_indexed&) = delete;
+    protocol_win_get_indexed(protocol_win_get_indexed&&) = default;
+    protocol_win_get_indexed& operator=(protocol_win_get_indexed&&) = default;
+
     auto
     number_of_elements() const -> int {
       return n_elt;

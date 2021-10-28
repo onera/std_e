@@ -28,6 +28,11 @@ class dist_array {
       check_unified_memory_model(w.underlying());
     }
 
+    dist_array(const dist_array&) = delete;
+    dist_array& operator=(const dist_array&) = delete;
+    dist_array(dist_array&&) = default;
+    dist_array& operator=(dist_array&&) = default;
+
     auto local()       { return w.local(); }
     auto local() const { return w.local(); }
 

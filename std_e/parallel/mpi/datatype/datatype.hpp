@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <mpi.h>
+
+
 namespace std_e {
 
 
@@ -8,7 +11,9 @@ class mpi_data_type {
   private:
     MPI_Datatype mpi_type;
   public:
-    mpi_data_type() = default;
+    mpi_data_type()
+      : mpi_type(MPI_DATATYPE_NULL)
+    {}
 
     mpi_data_type(MPI_Datatype mpi_type)
       : mpi_type(mpi_type)
@@ -17,9 +22,24 @@ class mpi_data_type {
       STD_E_ASSERT(!err);
     }
 
+    mpi_data_type(const mpi_data_type&) = delete;
+    mpi_data_type& operator=(const mpi_data_type&) = delete;
+    mpi_data_type(mpi_data_type&& x)
+      : mpi_type(x.mpi_type)
+    {
+      x.mpi_type = MPI_DATATYPE_NULL;
+    }
+    mpi_data_type& operator=(mpi_data_type&& x) {
+      mpi_type = x.mpi_type;
+      x.mpi_type = MPI_DATATYPE_NULL;
+      return *this;
+    }
+
     ~mpi_data_type() {
-      int err = MPI_Type_free(&mpi_type);
-      assert(!err);
+      if (mpi_type!=MPI_DATATYPE_NULL) {
+        int err = MPI_Type_free(&mpi_type);
+        assert(!err);
+      }
     }
 
     auto
@@ -34,6 +54,7 @@ indexed_block(const Int_range& ins, int type_sz) {
   auto n = ins.size();
 
   MPI_Datatype mpi_type;
+
   int err = MPI_Type_create_indexed_block(n, 1, ins.data(), to_mpi_type_of_size(type_sz), &mpi_type);
   STD_E_ASSERT(!err);
 

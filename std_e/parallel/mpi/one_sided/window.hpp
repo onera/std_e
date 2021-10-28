@@ -23,6 +23,30 @@ class window {
       int err = MPI_Win_allocate(dn_elt*type_sz,type_sz,MPI_INFO_NULL,comm,&ptr,&win);
       STD_E_ASSERT(!err);
     }
+
+    window(const window&) = delete;
+    window& operator=(const window&) = delete;
+    window(window&& x)
+      : dn_elt(x.dn_elt)
+      , comm(x.comm)
+      , win(x.win)
+      , ptr(x.ptr)
+    {
+      x.win = MPI_WIN_NULL;
+      x.ptr = nullptr;
+    }
+    window& operator=(window&& x) {
+      dn_elt = x.dn_elt;
+      comm = x.comm;
+      win = x.win;
+      ptr = x.ptr;
+
+      x.win = MPI_WIN_NULL;
+      x.ptr = nullptr;
+
+      return *this;
+    }
+
     ~window() {
       MPI_Win_free(&win);
     }

@@ -40,6 +40,11 @@ class protocol_get_indexed {
       : p(ins,type_sz)
     {}
 
+    protocol_get_indexed(const protocol_get_indexed&) = delete;
+    protocol_get_indexed& operator=(const protocol_get_indexed&) = delete;
+    protocol_get_indexed(protocol_get_indexed&&) = default;
+    protocol_get_indexed& operator=(protocol_get_indexed&&) = default;
+
     auto
     number_of_elements() const -> int {
       return p.number_of_elements();
@@ -126,14 +131,9 @@ gather(const dist_array<T>& a, Int_range ids, Range& out) {
   STD_E_ASSERT(ids.size() == out.size());
 
   const auto& distri = a.distribution();
-  //ELOG(distri);
   auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
-  //ELOG(ids);
-  //ELOG(partition_is);
-  //ELOG(new_to_old);
 
   apply_step(ids,partition_is,distri);
-  //ELOG(ids);
   jagged_span<int,2> ins_by_rank(ids,partition_is);
 
   gather_from_ranks(a,ins_by_rank,out);
@@ -152,14 +152,16 @@ create_gather_protocol(const dist_type& distri, Int_range ids, int type_sz) {
   jagged_span<int,2> ins_by_rank(ids,partition_is);
 
   auto protocols_by_rank = gather_protocol_from_ranks(ins_by_rank,type_sz);
-  return gather_protocol{new_to_old,protocols_by_rank};
+  return gather_protocol{new_to_old,std::move(protocols_by_rank)};
 }
 
 constexpr auto create_gather_protocol_fn = [](const auto& a, const auto& ids) { // t is tuple<dist_array<T>,Int_range>
   using dist_array_type = std::remove_cvref_t<decltype(a)>;
   using T = typename dist_array_type::value_type;
   int type_sz = sizeof(T);
-  return create_gather_protocol(a.distribution(),ids,type_sz);
+  //return create_gather_protocol(a.distribution(),ids,type_sz);
+  auto x = create_gather_protocol(a.distribution(),ids,type_sz);
+  return 0;
 };
 
 constexpr auto open_epoch = []<class T>(dist_array<T>& a) -> dist_array<T>& {
@@ -194,14 +196,15 @@ constexpr auto extract_result_fn = [](const auto& x) {
 };
 
 template<class T, class Int_range> auto
-gather(const future<dist_array<T>&>& a, const future<Int_range>& ids) -> future<std::vector<T>> {
-  auto open = a | then_comm(open_epoch);
+gather(const future<dist_array<T>&>& a, const future<Int_range>& ids) { //-> future<std::vector<T>> {
+  //auto open = a | then_comm(open_epoch);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
-  auto result = ids | then(alloc_result_fn);
-  auto launch_win_get_comm = join(open,protocol,result) | then_comm(get_protocol_indexed_fn);
-  auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
-  auto final_res = join(close,result,protocol) | then(apply_perm_fn);
-  return final_res | then(extract_result_fn);
+  return protocol;
+  //auto result = ids | then(alloc_result_fn);
+  //auto launch_win_get_comm = join(open,protocol,result) | then_comm(get_protocol_indexed_fn);
+  //auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
+  //auto final_res = join(close,result,protocol) | then(apply_perm_fn);
+  //return final_res | then(extract_result_fn);
 }
 
 //template<class T> auto
