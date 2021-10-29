@@ -2,6 +2,7 @@
 
 
 #include "std_e/execution/task_graph/task_graph.hpp"
+#include "std_e/execution/task/utils.hpp"
 
 
 namespace std_e {
@@ -13,8 +14,10 @@ template<class T> concept Task_graph_handle = std::remove_cvref_t<T>::enable_tas
 template<class R>
 struct task_graph_handle { // TODO make class (invariant: result points to tg result)
   static constexpr bool enable_task_graph_handle = true;
+  using result_type = R;
+  using result_stored_type = task_result_stored_type<R>;
   task_graph* tg;
-  std::remove_reference_t<R>* result; // points to tg.result (needed to keep this as a typed information)
+  result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
   int active_node_idx;
 };
 

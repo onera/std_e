@@ -58,6 +58,22 @@ using remove_rvalue_reference = typename remove_rvalue_reference__impl<T>::type;
 // remove_rvalue_reference }
 
 
+// replace_by_pointer_if_ref {
+namespace detail {
+  template<class T>
+  struct replace_by_pointer_if_ref_impl {
+    using type = T;
+  };
+  template<class T>
+  struct replace_by_pointer_if_ref_impl<T&> {
+    using type = T*;
+  };
+}
+template<class T>
+using replace_by_pointer_if_ref = typename detail::replace_by_pointer_if_ref_impl<T>::type;
+// replace_by_pointer_if_ref }
+
+
 // from https://quuxplusone.github.io/blog/2019/02/06/arrow-proxy/
 template<class Reference>
 struct arrow_proxy {

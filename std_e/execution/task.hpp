@@ -18,7 +18,7 @@ input_data(task_graph& tg, T&& x) {
   task_graph_handle<T> ttg;
   ttg.tg = &tg;
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t));
-  ttg.result = static_cast<std::remove_reference_t<T>*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<task_result_stored_type<T>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n;
   return ttg;
 }
@@ -36,14 +36,19 @@ struct task_graph_handle_result_type__impl;
 template<Task_graph_handle TGH>
 requires (is_single_shot<TGH>)
 struct task_graph_handle_result_type__impl<TGH> {
-  using type = std::remove_cvref_t<decltype(*std::declval<TGH>().result)>;
+  using type = typename std::decay_t<TGH>::result_stored_type;
 };
 
 template<Task_graph_handle TGH>
 requires (!is_single_shot<TGH>)
 struct task_graph_handle_result_type__impl<TGH> {
-  using type = decltype(*std::declval<TGH>().result)&;
+  using type = typename std::decay_t<TGH>::result_stored_type&;
 };
+
+//template<class R&>
+//struct task_graph_handle_result_type__impl<task_graph_handle<R&>> {
+//  using type = task_ref_result_wrapper<R&>;
+//};
 
 template<Task_graph_handle TGH>
 using task_graph_handle_result_type = typename task_graph_handle_result_type__impl<TGH>::type;
@@ -57,12 +62,12 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
     FWD(f),
     *tgh.result
   );
-  using R = decltype(t)::result_type;
+  using R = task_t::result_type;
   task_graph_handle<R> ttg;
   int n = tgh.tg->size();
   ttg.tg = tgh.tg; // the new graph is the old one...
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-  ttg.result = static_cast<std::remove_reference_t<R>*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n; // the active task is the one we just added
 
   int last_active = tgh.active_node_idx;
@@ -72,21 +77,55 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
   return ttg;
 }
 
+//template<class F, class Tuple, size_t... Is> auto
+//then_comm2__impl(Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
+//  //ELOG(std::get<0>(tghs).result);
+//  //ELOG(std::get<1>(tghs).result);
+//  task_kind tk = task_kind::communication;
+//  using task_t = then_task<F,task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
+//  task_t t(
+//    tk,
+//    FWD(f),
+//    *std::get<Is>(tghs).result...
+//  );
+//  using R = task_t::result_type;
+//  task_graph_handle<R> ttg;
+//  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs // TODO test
+//  int n = tg->size();
+//  ttg.tg = tg; // the new graph is the old one...
+//  auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
+//  ttg.result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
+//  ttg.active_node_idx = n; // the active task is the one we just added
+//
+//  ( ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n) , ... ); // ... and tell the previous task that this one is following ...
+//  ( ttg.tg->in_indices(n).push_back(std::get<Is>(tghs).active_node_idx) , ... ); // ... and symmetrically tell the new task that it depends one the previous one
+//
+//  return ttg;
+//}
+//template<class F, Task_graph_handle... TGHs> auto
+//then_comm2(std::tuple<TGHs...>&& tghs, F&& f) {
+//  constexpr int N = sizeof...(TGHs);
+//  //ELOG(std::get<0>(tghs).result);
+//  //ELOG(std::get<1>(tghs).result);
+//  LOG("________")
+//  return then_comm2__impl(FWD(tghs),FWD(f),std::make_index_sequence<N>{});
+//}
+
 template<class F, class Tuple, size_t... Is> auto
 generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
-  using task_t = then_task<F,task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
+  using task_t = then_task< F, task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
   task_t t(
     tk,
     FWD(f),
     *std::get<Is>(tghs).result...
   );
-  using R = decltype(t)::result_type;
+  using R = task_t::result_type;
   task_graph_handle<R> ttg;
-  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs
+  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs // TODO test
   int n = tg->size();
   ttg.tg = tg; // the new graph is the old one...
   auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-  ttg.result = static_cast<std::remove_reference_t<R>*>(emplaced_t.result_ptr());
+  ttg.result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
   ttg.active_node_idx = n; // the active task is the one we just added
 
   ( ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n) , ... ); // ... and tell the previous task that this one is following ...
@@ -98,7 +137,7 @@ generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<I
 // TODO there is a risk that the user gives a std::tuple, and it is handled here and exploded
 // (whereas the user does not want that)
 // the solution would be to use a private tuple-like type
-//    here ("generic_then_task", "then_task", "then_comm_task"),
+//    in "generic_then_task", "then_task", "then_comm_task",
 //    in "pipeable" and in "join"
 template<class F, Task_graph_handle... TGHs> auto
 generic_then_task(task_kind tk, std::tuple<TGHs...>&& tghs, F&& f) {

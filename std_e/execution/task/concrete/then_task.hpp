@@ -2,42 +2,68 @@
 
 
 #include "std_e/execution/task/task.hpp"
+#include "std_e/execution/task/utils.hpp"
 #include "std_e/meta/meta.hpp"
 
 
 namespace std_e {
 
-
 namespace detail {
-  template<class T>
-  struct replace_by_pointer_if_ref_impl {
-    using type = T;
-  };
-  template<class T>
-  struct replace_by_pointer_if_ref_impl<T&> {
-    using type = T*;
-  };
+  template<class F, class Tuple, size_t... Is, class Args_types> constexpr auto
+  apply_forward_as_impl2(F&& f, Tuple&& t, std::index_sequence<Is...>, Args_types) -> decltype(auto) {
+    //ELOG(typeid(Args_types).name());
+    return std::invoke(FWD(f), unwrap_task_result(std::forward<types_element_t<Is,Args_types>>(std::get<Is>(t)))...);
+  }
 }
+
+// apply f with t elements as arguments
+// elements are moved, unless their corresponding type in "Args..." is an lvalue reference
+// TODO test
+template<class... Args, class F, class Tuple> constexpr auto
+apply_forward_as2(F&& f, Tuple&& t) -> decltype(auto) {
+  static_assert(sizeof...(Args)==std::tuple_size_v<std::remove_cvref_t<Tuple>>);
+  constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+  return detail::apply_forward_as_impl2(FWD(f), FWD(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
+}
+
 template<class T>
-using replace_by_pointer_if_ref = typename detail::replace_by_pointer_if_ref_impl<T>::type;
+struct remove_ref_wrapper__impl {
+  using type = T;
+};
+template<class T>
+struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>> {
+  using type = T&;
+};
+template<class T>
+struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>&> {
+  using type = T&;
+};
+template<class T>
+struct remove_ref_wrapper__impl<const task_ref_result_wrapper<T&>&> {
+  using type = T&;
+};
+template<class T>
+struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>&&> {
+  using type = T&;
+};
+template<class T>
+using remove_ref_wrapper = typename remove_ref_wrapper__impl<T>::type;
 
 
 template<class F, class... Args>
-requires (std::invocable<remove_rvalue_reference<F>,Args...>)
+requires (std::invocable<remove_rvalue_reference<F>,remove_ref_wrapper<Args>...>)
 class then_task {
   private:
     task_kind kd;
 
-    using R = std::invoke_result_t<F,Args...>;
-    //static_assert(!std::is_reference_v<R>);
+    using R = std::invoke_result_t<F,remove_ref_wrapper<Args>...>;
 
     remove_rvalue_reference<F> f;
     std::tuple<Args&...> args; // note: we store lvalue references
                                // because the values are to be computed by another task
                                // and while their address is ready (and won't move)
                                // the value is not (and hence, can't be stored!)
-    replace_by_pointer_if_ref<R> result; // if R is a reference, we store a pointer here
-                                         // since we can't initialize it at construction-time
+    task_result_stored_type<R> result;
   public:
     using result_type = R;
     static constexpr bool enable_task = true;
@@ -46,18 +72,14 @@ class then_task {
       : kd(kd)
       , f(FWD(f))
       , args(args...)
-    {
-      if constexpr (std::is_reference_v<R>) {
-        result = nullptr;
-      }
-    }
+    {}
 
     auto
     execute() -> void {
       if constexpr (std::is_reference_v<R>) {
-        result = &apply_forward_as<Args...>(f,args);
+        result.ptr = &apply_forward_as2<Args...>(f,args);
       } else {
-        result = apply_forward_as<Args...>(f,args);
+        result = apply_forward_as2<Args...>(f,args);
       }
     }
 
@@ -68,11 +90,7 @@ class then_task {
 
     auto
     result_ptr() -> void* {
-      if constexpr (std::is_reference_v<R>) {
-        return result;
-      } else {
-        return &result;
-      }
+      return &result;
     }
 };
 
