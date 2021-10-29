@@ -42,12 +42,6 @@ class protocol_get_indexed {
 
     protocol_get_indexed(const protocol_get_indexed&) = delete;
     protocol_get_indexed& operator=(const protocol_get_indexed&) = delete;
-    //protocol_get_indexed(const protocol_get_indexed&) {
-    //  throw;
-    //}
-    //protocol_get_indexed& operator=(const protocol_get_indexed&) {
-    //  throw;
-    //}
     protocol_get_indexed(protocol_get_indexed&&) = default;
     protocol_get_indexed& operator=(protocol_get_indexed&&) = default;
 
@@ -58,7 +52,6 @@ class protocol_get_indexed {
 
     template<class T, class Range> auto
     request(const dist_array<T>& a, int rank, Range& out) const -> void {
-      //LOG("req");
       p.request(a.win(),rank,out);
     }
 };
@@ -83,22 +76,14 @@ gather_protocol_from_ranks(const jagged_range<TR,IR,2>& ins_by_rank, int type_sz
 
 template<class T, class Range> auto
 get_protocol_indexed(const dist_array<T>& a, const protocol_rank_get_indexed& protocols_by_rank, Range& out) -> Range& {
-  //LOG("get_protocol_indexed");
   int n_rank = protocols_by_rank.size();
-  //ELOG(n_rank)
   auto first = out.data();
-  //ELOG(out.size())
   for (int i=0; i<n_rank; ++i) {
-    //ELOG(i)
     int n_i = protocols_by_rank[i].number_of_elements();
-    //ELOG(n_i)
     auto out_i = make_span(first,n_i);
-    //LOG("  to01")
     protocols_by_rank[i].request(a,i,out_i);
-    //LOG("  to02")
     first += n_i;
   }
-  //ELOG(out);
   return out;
 }
 
@@ -181,60 +166,43 @@ constexpr auto open_epoch = []<class T>(dist_array<T>& aa) -> dist_array<T>& {
   int assertion = 0;
   int err = MPI_Win_lock_all(assertion,aa.win().underlying());
   STD_E_ASSERT(!err);
-  LOG("open")
-  ELOG(&aa)
   return aa;
 };
 constexpr auto close_epoch = []<class T>(dist_array<T>& a, auto&&...) -> dist_array<T>& {
-  //LOG("close beg")
   int err = MPI_Win_unlock_all(a.win().underlying());
   STD_E_ASSERT(!err);
-  //LOG("close")
   return a;
 };
 
 
 constexpr auto get_protocol_indexed_fn = [](const auto& a, const auto& protocol, auto& res) {
-  ELOG(&a)
-  //LOG("TATATA")
-  //ELOG(protocol.new_to_old);
-  //ELOG(protocol.protocols_by_rank);
   return get_protocol_indexed(a,protocol.protocols_by_rank,res);
 };
 
 template<class T>
 constexpr auto alloc_result_fn = [](const auto& ids) {
-  //ELOG(ids);
   return std::vector<T>(ids.size());
 };
 
 constexpr auto apply_perm_fn = [](const auto&, auto& local_array, const auto& protocol) -> auto& {
-  ELOG(local_array);
-  ELOG(protocol.new_to_old);
   auto& new_to_old = protocol.new_to_old;
   inv_permute(local_array,new_to_old);
-  ELOG(local_array);
   return local_array;
 };
 
 constexpr auto extract_result_fn = [](const auto& x) {
-  ELOG(x);
   return std::move(x);
 };
 
 template<class T, class Int_range> auto
 gather(const future<dist_array<T>&>& a, const future<Int_range>& ids) { //-> future<std::vector<T>> {
   future<dist_array<T>&> open = a | then_comm(open_epoch);
-  //ELOG(open.result);
-  ELOG(a.result);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
   auto result = ids | then(alloc_result_fn<T>);
   auto launch_win_get_comm = join(open,protocol,result) | then_comm(get_protocol_indexed_fn);
-  //auto launch_win_get_comm = then_comm2( join(open,a,protocol,result) , (get_protocol_indexed_fn) );
-  return  launch_win_get_comm;
-  //auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
-  //auto final_res = join(close,result,protocol) | then(apply_perm_fn);
-  //return final_res | then(extract_result_fn);
+  auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
+  auto final_res = join(close,result,protocol) | then(apply_perm_fn);
+  return final_res | then(extract_result_fn);
 }
 
 //template<class T> auto

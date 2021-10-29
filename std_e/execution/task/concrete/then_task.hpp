@@ -10,20 +10,19 @@ namespace std_e {
 
 namespace detail {
   template<class F, class Tuple, size_t... Is, class Args_types> constexpr auto
-  apply_forward_as_impl2(F&& f, Tuple&& t, std::index_sequence<Is...>, Args_types) -> decltype(auto) {
-    //ELOG(typeid(Args_types).name());
+  apply_ref_unwrap_and_forward_impl(F&& f, Tuple&& t, std::index_sequence<Is...>, Args_types) -> decltype(auto) {
     return std::invoke(FWD(f), unwrap_task_result(std::forward<types_element_t<Is,Args_types>>(std::get<Is>(t)))...);
   }
 }
-
 // apply f with t elements as arguments
 // elements are moved, unless their corresponding type in "Args..." is an lvalue reference
+// and, if they are of type task_ref_result_wrapper<T&>, the T& is extracted
 // TODO test
 template<class... Args, class F, class Tuple> constexpr auto
-apply_forward_as2(F&& f, Tuple&& t) -> decltype(auto) {
+apply_ref_unwrap_and_forward(F&& f, Tuple&& t) -> decltype(auto) {
   static_assert(sizeof...(Args)==std::tuple_size_v<std::remove_cvref_t<Tuple>>);
   constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
-  return detail::apply_forward_as_impl2(FWD(f), FWD(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
+  return detail::apply_ref_unwrap_and_forward_impl(FWD(f), FWD(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
 }
 
 template<class T>
@@ -77,9 +76,9 @@ class then_task {
     auto
     execute() -> void {
       if constexpr (std::is_reference_v<R>) {
-        result.ptr = &apply_forward_as2<Args...>(f,args);
+        result.ptr = &apply_ref_unwrap_and_forward<Args...>(f,args);
       } else {
-        result = apply_forward_as2<Args...>(f,args);
+        result = apply_ref_unwrap_and_forward<Args...>(f,args);
       }
     }
 

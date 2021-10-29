@@ -45,11 +45,6 @@ struct task_graph_handle_result_type__impl<TGH> {
   using type = typename std::decay_t<TGH>::result_stored_type&;
 };
 
-//template<class R&>
-//struct task_graph_handle_result_type__impl<task_graph_handle<R&>> {
-//  using type = task_ref_result_wrapper<R&>;
-//};
-
 template<Task_graph_handle TGH>
 using task_graph_handle_result_type = typename task_graph_handle_result_type__impl<TGH>::type;
 
@@ -76,40 +71,6 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
 
   return ttg;
 }
-
-//template<class F, class Tuple, size_t... Is> auto
-//then_comm2__impl(Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
-//  //ELOG(std::get<0>(tghs).result);
-//  //ELOG(std::get<1>(tghs).result);
-//  task_kind tk = task_kind::communication;
-//  using task_t = then_task<F,task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
-//  task_t t(
-//    tk,
-//    FWD(f),
-//    *std::get<Is>(tghs).result...
-//  );
-//  using R = task_t::result_type;
-//  task_graph_handle<R> ttg;
-//  auto* tg = std::get<0>(tghs).tg; // at this point .tg is supposed to refer to the same graph for all tgh in tghs // TODO test
-//  int n = tg->size();
-//  ttg.tg = tg; // the new graph is the old one...
-//  auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-//  ttg.result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
-//  ttg.active_node_idx = n; // the active task is the one we just added
-//
-//  ( ttg.tg->out_indices(std::get<Is>(tghs).active_node_idx).push_back(n) , ... ); // ... and tell the previous task that this one is following ...
-//  ( ttg.tg->in_indices(n).push_back(std::get<Is>(tghs).active_node_idx) , ... ); // ... and symmetrically tell the new task that it depends one the previous one
-//
-//  return ttg;
-//}
-//template<class F, Task_graph_handle... TGHs> auto
-//then_comm2(std::tuple<TGHs...>&& tghs, F&& f) {
-//  constexpr int N = sizeof...(TGHs);
-//  //ELOG(std::get<0>(tghs).result);
-//  //ELOG(std::get<1>(tghs).result);
-//  LOG("________")
-//  return then_comm2__impl(FWD(tghs),FWD(f),std::make_index_sequence<N>{});
-//}
 
 template<class F, class Tuple, size_t... Is> auto
 generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {

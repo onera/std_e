@@ -201,17 +201,12 @@ MPI_TEST_CASE("distributed array - get",4) {
     //vector indices = {0,1,2};//,3,4,5,6,7,8,9,10,11};
 
     task_graph tg;
-    Task_graph_handle auto f0 = input_data(tg,a);
-    Task_graph_handle auto f1 = input_data(tg,std::move(indices));
+    future f0 = input_data(tg,a);
+    future f1 = input_data(tg,std::move(indices));
 
-    Task_graph_handle auto f_res = gather(f0,f1);
-    //gather(f0,f1);
+    future f_res = gather(f0,f1);
 
-    execute_seq2(f_res);
-    MPI_Barrier(test_comm); // TODO del?
-    LOG("=====fin======");
-    //ELOG(execute_seq(f_res));
-    //CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
+    CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
   }
 
 
