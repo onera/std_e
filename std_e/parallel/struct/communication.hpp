@@ -123,21 +123,6 @@ gather_sorted(const dist_array<T>& a, Int_range ids, Range& out) {
 }
 
 
-// TODO protocol to avoid repeated partition
-template<class T, class Int_range, class Range,
-  class = typename Range::value_type // constrain to enable only Ranges
-> auto
-gather(const dist_array<T>& a, Int_range ids, Range& out) {
-  STD_E_ASSERT(ids.size() == out.size());
-
-  const auto& distri = a.distribution();
-  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
-
-  apply_step(ids,partition_is,distri);
-  jagged_span<int,2> ins_by_rank(ids,partition_is);
-
-  gather_from_ranks(a,ins_by_rank,out);
-}
 
 
 struct gather_protocol {
@@ -162,13 +147,13 @@ constexpr auto create_gather_protocol_fn = [](const auto& a, const auto& ids) {
   return create_gather_protocol(a.distribution(),ids,type_sz);
 };
 
-constexpr auto open_epoch = []<class T>(dist_array<T>& aa) -> dist_array<T>& {
+constexpr auto open_epoch = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
   int assertion = 0;
-  int err = MPI_Win_lock_all(assertion,aa.win().underlying());
+  int err = MPI_Win_lock_all(assertion,a.win().underlying());
   STD_E_ASSERT(!err);
-  return aa;
+  return a;
 };
-constexpr auto close_epoch = []<class T>(dist_array<T>& a, auto&&...) -> dist_array<T>& {
+constexpr auto close_epoch = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
   int err = MPI_Win_unlock_all(a.win().underlying());
   STD_E_ASSERT(!err);
   return a;
@@ -194,15 +179,27 @@ constexpr auto extract_result_fn = [](const auto& x) {
   return std::move(x);
 };
 
+// TODO protocol to avoid repeated partition
 template<class T, class Int_range> auto
-gather(const future<dist_array<T>&>& a, const future<Int_range>& ids) { //-> future<std::vector<T>> {
-  future<dist_array<T>&> open = a | then_comm(open_epoch);
+gather(future<const dist_array<T>&> a, future<Int_range> ids) -> future<std::vector<T>> {
+  auto open = a | then_comm(open_epoch);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
   auto result = ids | then(alloc_result_fn<T>);
   auto launch_win_get_comm = join(open,protocol,result) | then_comm(get_protocol_indexed_fn);
   auto close = join(a,launch_win_get_comm) | then_comm(close_epoch);
   auto final_res = join(close,result,protocol) | then(apply_perm_fn);
   return final_res | then(extract_result_fn);
+}
+
+template<class T, class Int_range> auto
+gather(const dist_array<T>& a, Int_range ids) -> std::vector<T> {
+  task_graph tg;
+  future f0 = input_data(tg,a);
+  future f1 = input_data(tg,std::move(ids));
+
+  future f_res = gather(f0,f1);
+
+  return execute_seq(f_res);
 }
 
 //template<class T> auto
