@@ -6,6 +6,7 @@
 #include "std_e/execution/task/any_task.hpp"
 #include "std_e/execution/task_graph/task_graph_handle.hpp"
 #include "std_e/execution/task_graph/pipeable.hpp"
+#include "std_e/parallel/struct/dist_array.hpp" // TODO DEL
 
 
 namespace std_e {
@@ -36,22 +37,29 @@ struct task_graph_handle_result_type__impl;
 template<Task_graph_handle TGH>
 requires (is_single_shot<TGH>)
 struct task_graph_handle_result_type__impl<TGH> {
-  using type = typename std::decay_t<TGH>::result_stored_type;
+  using stored_type = typename std::decay_t<TGH>::result_stored_type;
+  using        type = typename std::decay_t<TGH>::result_type;
 };
 
 template<Task_graph_handle TGH>
 requires (!is_single_shot<TGH>)
 struct task_graph_handle_result_type__impl<TGH> {
-  using type = typename std::decay_t<TGH>::result_stored_type&;
+  using stored_type = typename std::decay_t<TGH>::result_stored_type&;
+  using        type = typename std::decay_t<TGH>::result_type&;
 };
 
 template<Task_graph_handle TGH>
-using task_graph_handle_result_type = typename task_graph_handle_result_type__impl<TGH>::type;
+using task_graph_handle_stored_result_type = typename task_graph_handle_result_type__impl<TGH>::stored_type;
+
+template<Task_graph_handle TGH>
+using task_graph_handle_result_type        = typename task_graph_handle_result_type__impl<TGH>::type;
 
 
-template<class F, Task_graph_handle TGH> auto
+template<class F, Task_graph_handle TGH>
+requires (std::invocable<F,task_graph_handle_result_type<TGH&&>>)
+auto
 generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
-  using task_t = then_task<F,task_graph_handle_result_type<TGH&&>>;
+  using task_t = then_task<F,task_graph_handle_stored_result_type<TGH&&>>;
   task_t t(
     tk,
     FWD(f),
@@ -74,7 +82,7 @@ generic_then_task(task_kind tk, TGH&& tgh, F&& f) {
 
 template<class F, class Tuple, size_t... Is> auto
 generic_then_task__impl(task_kind tk, Tuple&& tghs, F&& f, std::index_sequence<Is...>) {
-  using task_t = then_task< F, task_graph_handle_result_type<std::tuple_element_t<Is,Tuple>>...>;
+  using task_t = then_task< F, task_graph_handle_stored_result_type<std::tuple_element_t<Is,Tuple>>...>;
   task_t t(
     tk,
     FWD(f),

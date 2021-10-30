@@ -171,8 +171,7 @@ MPI_TEST_CASE("distributed array - get",4) {
     vector indices = {7,9,2,1,3,11,5};
 
     task_graph tg;
-    const auto& aa= a; // TODO
-    future f0 = input_data(tg,aa);
+    future f0 = input_data(tg,a);
     future f1 = input_data(tg,std::move(indices));
 
     future f_res = gather(f0,f1);

@@ -10,6 +10,9 @@ namespace std_e {
 
 template<class T> concept Task_graph_handle = std::remove_cvref_t<T>::enable_task_graph_handle; // TODO not really a concept
 
+template<class R>
+using task_result_stored_type2 = task_ref_result_wrapper<std::remove_const_t<R>>;
+
 
 template<class R>
 struct task_graph_handle { // TODO make class (invariant: result points to tg result)
@@ -19,6 +22,27 @@ struct task_graph_handle { // TODO make class (invariant: result points to tg re
   task_graph* tg;
   result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
   int active_node_idx;
+
+  task_graph_handle() = default;
+  task_graph_handle(task_graph* tg, result_stored_type* result, int active_node_idx)
+    : tg(tg)
+    , result(result)
+    , active_node_idx(active_node_idx)
+  {}
+
+  // non-const to const conversion
+  template<class T>
+  operator T() const {
+    return {tg,result,active_node_idx};
+  }
+};
+
+template<class R>
+requires (std::is_same_v<R,std::remove_const_t<R>>)
+struct task_graph_handle<R&> : task_graph_handle<const R&> {
+  using base = task_graph_handle<const R&>;
+  using base::base;
+  using result_type = R&; // delegate everything to task_graph_handle<const R&> except for the result_type!
 };
 
 

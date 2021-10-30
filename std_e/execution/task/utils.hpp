@@ -33,7 +33,12 @@ struct task_ref_result_wrapper {
 template<class R>
 using task_result_stored_type = std::conditional_t<
   std::is_reference_v<R>,
-  task_ref_result_wrapper<R>,
+  task_ref_result_wrapper<std::remove_cvref_t<R>&>, // remove_cvref_t: Treat everything non-const for storing
+                                                    //   non-const to const conversions are needed (driven by the user function signatures)
+                                                    //   but then it implies to convert task_ref_result_wrapper<R&>*
+                                                    //   to task_ref_result_wrapper<const R&>*
+                                                    //   and although it is semantically safe, it is UB in the language
+                                                    // note that const-correctness is preserved in the API (or should be!)
   R
 >;
 

@@ -147,6 +147,7 @@ constexpr auto create_gather_protocol_fn = [](const auto& a, const auto& ids) {
   return create_gather_protocol(a.distribution(),ids,type_sz);
 };
 
+// TODO AAAAAAA should fail because a is non-const, but should be called with const
 constexpr auto open_epoch = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
   int assertion = 0;
   int err = MPI_Win_lock_all(assertion,a.win().underlying());
@@ -181,7 +182,7 @@ constexpr auto extract_result_fn = [](const auto& x) {
 
 // TODO protocol to avoid repeated partition
 template<class T, class Int_range> auto
-gather(future<const dist_array<T>&> a, future<Int_range> ids) -> future<std::vector<T>> {
+gather(future<const dist_array<T>&> a, future<Int_range> ids) { //-> future<std::vector<T>> {
   auto open = a | then_comm(open_epoch);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
   auto result = ids | then(alloc_result_fn<T>);

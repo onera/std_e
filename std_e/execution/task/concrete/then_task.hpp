@@ -50,7 +50,7 @@ using remove_ref_wrapper = typename remove_ref_wrapper__impl<T>::type;
 
 
 template<class F, class... Args>
-requires (std::invocable<remove_rvalue_reference<F>,remove_ref_wrapper<Args>...>)
+requires (std::invocable<remove_rvalue_reference<F>,remove_ref_wrapper<Args>...>) // TODO DEL (move upward)
 class then_task {
   private:
     task_kind kd;
@@ -76,7 +76,8 @@ class then_task {
     auto
     execute() -> void {
       if constexpr (std::is_reference_v<R>) {
-        result.ptr = &apply_ref_unwrap_and_forward<Args...>(f,args);
+        // see const_cast explanation in "task_result_stored_type" documentation
+        result.ptr = const_cast<std::remove_cvref_t<R>*>(&apply_ref_unwrap_and_forward<Args...>(f,args));
       } else {
         result = apply_ref_unwrap_and_forward<Args...>(f,args);
       }

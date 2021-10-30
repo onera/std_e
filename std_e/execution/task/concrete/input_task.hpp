@@ -19,7 +19,13 @@ class input_task {
     using result_type = R;
 
     input_task(T&& x)
+    requires (std::is_rvalue_reference_v<T&&>)
       : result(FWD(x))
+    {}
+
+    input_task(T& x)
+      // see const_cast explanation in "task_result_stored_type" documentation
+      : result(const_cast<std::remove_cvref_t<T>&>(x))
     {}
 
     auto
