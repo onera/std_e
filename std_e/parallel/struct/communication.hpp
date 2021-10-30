@@ -6,7 +6,7 @@
 #include "std_e/data_structure/jagged_range.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
 #include "std_e/algorithm/step.hpp"
-#include "std_e/execution/task_graph/task_graph_handle.hpp"
+#include "std_e/execution/future/future.hpp"
 #include "std_e/execution/task.hpp"
 
 
@@ -147,7 +147,9 @@ constexpr auto create_gather_protocol_fn = [](const auto& a, const auto& ids) {
   return create_gather_protocol(a.distribution(),ids,type_sz);
 };
 
-// TODO AAAAAAA should fail because a is non-const, but should be called with const
+
+// open/close epoch {
+// the ... args are there in case other tasks are needed before opening/closing
 constexpr auto open_epoch = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
   int assertion = 0;
   int err = MPI_Win_lock_all(assertion,a.win().underlying());
@@ -159,6 +161,7 @@ constexpr auto close_epoch = []<class T>(const dist_array<T>& a, auto&&...) -> c
   STD_E_ASSERT(!err);
   return a;
 };
+// open/close epoch }
 
 
 constexpr auto get_protocol_indexed_fn = [](const auto& a, const auto& protocol, auto& res) {
@@ -182,7 +185,7 @@ constexpr auto extract_result_fn = [](const auto& x) {
 
 // TODO protocol to avoid repeated partition
 template<class T, class Int_range> auto
-gather(future<const dist_array<T>&> a, future<Int_range> ids) { //-> future<std::vector<T>> {
+gather(future<const dist_array<T>&> a, future<Int_range> ids) -> future<std::vector<T>> {
   auto open = a | then_comm(open_epoch);
   auto protocol = join(a,ids) | then(create_gather_protocol_fn);
   auto result = ids | then(alloc_result_fn<T>);

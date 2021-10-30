@@ -2,7 +2,7 @@
 
 
 #include "std_e/execution/task/task.hpp"
-#include "std_e/execution/task/utils.hpp"
+#include "std_e/execution/task/task_result.hpp"
 #include "std_e/meta/meta.hpp"
 
 
@@ -50,7 +50,7 @@ using remove_ref_wrapper = typename remove_ref_wrapper__impl<T>::type;
 
 
 template<class F, class... Args>
-requires (std::invocable<remove_rvalue_reference<F>,remove_ref_wrapper<Args>...>) // TODO DEL (move upward)
+requires (std::invocable<F,remove_ref_wrapper<Args>...>) // TODO DEL (move upward)
 class then_task {
   private:
     task_kind kd;

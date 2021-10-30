@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "std_e/execution/task_graph/task_graph_handle.hpp"
-#include "std_e/execution/thread_pool.hpp"
+#include "std_e/execution/future/future.hpp"
+#include "std_e/execution/thread_pool/thread_pool.hpp"
 #include <mpi.h>
 
 
@@ -11,14 +11,14 @@ namespace std_e {
 auto
 execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void;
 
-auto
-execute_async_comm(Task_graph_handle auto& tgh, thread_pool& comm_tp) {
+template<class R> requires(!std::is_lvalue_reference_v<R>) auto
+execute_async_comm(future<R>& fut, thread_pool& comm_tp) -> std::remove_reference_t<R> {
   int provided_thread_support;
   MPI_Query_thread(&provided_thread_support);
   STD_E_ASSERT(provided_thread_support==MPI_THREAD_MULTIPLE);
 
-  execute_async_comm(*tgh.tg,comm_tp);
-  return *tgh.result;
+  execute_async_comm(*fut.tg,comm_tp);
+  return *fut.result;
 }
 
 

@@ -9,6 +9,9 @@
 
 
 // REF code from Sean Parent "Better concurrency" (https://www.youtube.com/watch?v=zULU6Hhp42w)
+// TODO EFFICIENCY replace std::function by a template param
+//     for task_graph, type-erasure has already been taken care of by "any_task"
+//     so there is no need to type-erase once more!
 
 
 namespace std_e {

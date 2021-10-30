@@ -2,7 +2,7 @@
 
 
 #include "std_e/execution/task/task.hpp"
-#include "std_e/execution/task/utils.hpp"
+#include "std_e/execution/task/task_result.hpp"
 #include "std_e/meta/meta.hpp"
 
 
@@ -12,15 +12,15 @@ namespace std_e {
 template<class T>
 class input_task {
   private:
-    using R = task_result_stored_type<std_e::remove_rvalue_reference<T>>;
-    R result;
+    using R = std_e::remove_rvalue_reference<T>;
+    task_result_stored_type<R> result;
   public:
     static constexpr bool enable_task = true;
     using result_type = R;
 
     input_task(T&& x)
     requires (std::is_rvalue_reference_v<T&&>)
-      : result(FWD(x))
+      : result(std::move(x))
     {}
 
     input_task(T& x)

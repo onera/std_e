@@ -167,7 +167,7 @@ MPI_TEST_CASE("distributed array - get",4) {
     CHECK( local_array == vector{70,90,20,10,30,110,50} );
   }
 
-  SUBCASE("gather - async but executed sequentially") {
+  SUBCASE("gather") {
     vector indices = {7,9,2,1,3,11,5};
 
     task_graph tg;
@@ -175,8 +175,15 @@ MPI_TEST_CASE("distributed array - get",4) {
     future f1 = input_data(tg,std::move(indices));
 
     future f_res = gather(f0,f1);
+    //ELOG(to_dot_format_string(tg));
 
-    CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
+    SUBCASE("seq") {
+      CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
+    }
+    SUBCASE("async comm") {
+      thread_pool comm_tp(2);
+      CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+    }
   }
 
   SUBCASE("gather - seq") {

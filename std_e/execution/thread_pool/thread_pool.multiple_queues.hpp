@@ -6,7 +6,7 @@
 #include <functional>
 
 // REF code from Sean Parent Better concurrency (https://www.youtube.com/watch?v=zULU6Hhp42w)
-// Note that the task_system here is generally not efficient (as mentionned in the talk)
+// Note that this task_system here is better than with only one queue, but still not efficient (as mentionned in the talk)
 
 
 namespace std_e {
@@ -55,35 +55,37 @@ class notification_queue {
 class task_system {
   private:
     std::vector<std::thread> threads;
-    notification_queue q;
+    std::vector<notification_queue> qs;
+    std::atomic<unsigned> idx;
 
+    auto n_thread() -> unsigned {
+      return threads.size()
+    }
   public:
     task_system(int n_thread) {
       for (int i=0; i<n_thread; ++i) {
-        threads.emplace_back([&]{ run(); }
+        threads.emplace_back([&,i]{ run(i); });
       }
     }
 
     ~task_system() {
-      q.set_done();
-       for (auto& t : threads) {
-         t.join();
-       }
+      for (auto& q : qs) q.set_done();
+      for (auto& t : threads) t.join();
     }
 
     auto
-    run() -> void {
+    run(unsigned i) -> void {
       while (true) {
         std::function<void()> f;
-        auto could_pop = q.pop(f);
-        STD_E_ASSERT(could_pop);
+        if (!qs[i].pop(f)) break;
         f();
       }
     }
 
     template<class F> auto
     push_task(F&& f) -> void {
-      q.push(FWD(f));
+      auto i = idx++;
+      qs[i%n_thread].push(FWD(f));
     }
 };
 
