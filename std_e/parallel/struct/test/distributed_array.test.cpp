@@ -28,7 +28,7 @@ MPI_TEST_CASE("load distributed array - multiple compute nodes",48) { // 48 is s
   std::vector<int> complete_array(n,-1);
   { dist_guard _(a);
     for (int i=0; i<n; ++i) {
-      load(a,i,complete_array[i]);
+      load(a,distri,i,complete_array[i]);
     }
   }
 
@@ -43,7 +43,7 @@ MPI_TEST_CASE("distributed array - load",4) {
   auto distri = uniform_distribution(test_nb_procs,test_nb_procs*dn_elt);
 
   // init distributed array
-  dist_array<int> a(distri , test_comm);
+  dist_array<int> a(distri, test_comm);
   { dist_guard _(a);
     if (test_rank==0) a.local() = std::vector{ 0, 10, 20};
     if (test_rank==1) a.local() = std::vector{30, 40, 50};
@@ -57,7 +57,7 @@ MPI_TEST_CASE("distributed array - load",4) {
 
   { dist_guard _(a);
     for (int i=0; i<n; ++i) {
-      load(a,i,complete_array[i]);
+      load(a,distri,i,complete_array[i]);
     }
   }
 
@@ -146,17 +146,40 @@ MPI_TEST_CASE("distributed array - get",4) {
 
     vector<int> local_array(7);
     { dist_guard _(a);
-      gather_sorted(a,indices,local_array);
+      gather_sorted(a,distri,indices,local_array);
     }
 
     CHECK( local_array == vector{10,20,  30,50,  70,  90,110} );
   }
 
   SUBCASE("gather with protocol") {
+    task_graph tg;
+
+    future f0 = input_data(tg,distri);
+    future f1 = input_data(tg,vector{7,9,2,1,3,11,5});
+
+    future gp = create_gather_protocol2(f0,std::move(f1));
+    //future gp = create_gather_protocol2(f0,f1);
+
+    future f2 = input_data(tg,a);
+    future f_res = get_from_array(gp,f2);
+
+    ELOG(to_dot_format_string(tg));
+
+    SUBCASE("seq") {
+      CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
+    }
+    //SUBCASE("async comm") {
+    //  thread_pool comm_tp(2);
+    //  CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+    //}
+  }
+
+  SUBCASE("gather with protocol - seq") {
     vector indices = {7,9,2,1,3,11,5};
 
     int type_sz = sizeof(typename decltype(a)::value_type);
-    auto p = create_gather_protocol(a.distribution(),indices,type_sz);
+    auto p = create_gather_protocol(distri,indices,type_sz);
 
     vector<int> local_array(7);
     { dist_guard _(a);
@@ -172,10 +195,10 @@ MPI_TEST_CASE("distributed array - get",4) {
 
     task_graph tg;
     future f0 = input_data(tg,a);
-    future f1 = input_data(tg,std::move(indices));
+    future f1 = input_data(tg,distri);
+    future f2 = input_data(tg,std::move(indices));
 
-    future f_res = gather(f0,f1);
-    //ELOG(to_dot_format_string(tg));
+    future f_res = gather(f0,f1,f2);
 
     SUBCASE("seq") {
       CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
@@ -187,7 +210,7 @@ MPI_TEST_CASE("distributed array - get",4) {
   }
 
   SUBCASE("gather - seq") {
-    CHECK( gather(a,vector{7,9,2,1,3,11,5}) == vector{70,90,20,10,30,110,50} );
+    CHECK( gather(a,distri,vector{7,9,2,1,3,11,5}) == vector{70,90,20,10,30,110,50} );
   }
 
 

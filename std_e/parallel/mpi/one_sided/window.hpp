@@ -11,10 +11,17 @@ template<class T>
 class window {
   private:
     MPI_Aint dn_elt;
-    MPI_Comm comm; // TODO DEL
+    MPI_Comm comm;
     MPI_Win win;
     T* ptr;
   public:
+    window()
+      : dn_elt(0)
+      , comm(MPI_COMM_NULL)
+      , win(MPI_WIN_NULL)
+      , ptr(nullptr)
+    {}
+
     window(MPI_Aint dn_elt, MPI_Comm comm)
       : dn_elt(dn_elt)
       , comm(comm)
@@ -48,9 +55,16 @@ class window {
     }
 
     ~window() {
-      MPI_Win_free(&win);
+      if (win!=MPI_WIN_NULL) {
+        MPI_Win_free(&win);
+      }
     }
 
+    auto n_rank() const {
+      return ::std_e::n_rank(comm);
+    }
+
+    auto size() const { return dn_elt; }
     auto local()       { return make_span_ref<      T>(ptr,dn_elt); }
     auto local() const { return make_span_ref<const T>(ptr,dn_elt); }
 

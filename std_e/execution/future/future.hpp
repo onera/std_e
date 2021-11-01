@@ -7,8 +7,12 @@
 
 namespace std_e {
 
+template<class R>
+struct future;
 
 template<class T> concept Future = std::remove_cvref_t<T>::enable_future; // TODO not really a concept
+
+template<class T, class R> concept Future_of = Future<T> && std::is_convertible_v<typename T::result_type,R>; // TODO not really a concept
 
 
 // A future is just a handle over a node of a task_graph
@@ -33,6 +37,24 @@ struct future { // TODO make it a class (invariant: result points to tg result)
     , active_node_idx(active_node_idx)
   {}
 };
+
+//template<class R>
+//struct future<const R&> { // TODO make it a class (invariant: result points to tg result)
+//  static constexpr bool enable_future = true;
+//  using result_type = const R&;
+//  using result_stored_type = task_result_stored_type<const R&>;
+//  task_graph* tg;
+//  result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
+//  int active_node_idx;
+//
+//  future() = default;
+//  future(task_graph* tg, result_stored_type* result, int active_node_idx)
+//    : tg(tg)
+//    , result(result)
+//    , active_node_idx(active_node_idx)
+//  {}
+//  future(task_graph* tg, result_stored_type* result, int active_node_idx)
+//};
 
 // Specialization for non-const ref:
 //   Publicly inherit from the const ref version for implicit conversions

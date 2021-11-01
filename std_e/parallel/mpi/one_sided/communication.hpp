@@ -70,19 +70,9 @@ class protocol_win_get_indexed {
 
     template<class T, class Range> auto
     request(const window<T>& win, int rank, Range& out) const -> void {
-      //LOG("low level req");
       STD_E_ASSERT(sizeof(T)==type_sz);
-      //LOG("ta");
       STD_E_ASSERT((int)out.size()==n_elt);
-      //LOG("    ta2");
-      auto xz = out.data();
-      //LOG("    ta3");
-      auto xy = target_type.underlying();
-      //LOG("    ta4");
-      auto xx = win.underlying(); /// AAAAAAA
-      //LOG("    ta5");
-      //_get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
-      _get_indexed(xx,rank,xy,n_elt,xz);
+      _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
     }
 };
 

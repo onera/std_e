@@ -7,26 +7,28 @@
 
 namespace std_e {
 
-template<class T, class Distribution = distribution_vector<g_num>>
+template<class T>
 class dist_array {
     // invariants:
     //   - handle refers to an object which is valid over comm
     //   - distri is of size n_rank+1
     //   - local_block.size() == length(distri,i_rank)
   private:
-    MPI_Comm comm;
-    Distribution distri; // TODO remove
     window<T> w;
   public:
     using value_type = T;
 
-    dist_array(Distribution distri, MPI_Comm comm)
-      : comm(comm)
-      , distri(std::move(distri))
-      , w(size(),comm)
+    dist_array() = default;
+
+    dist_array(MPI_Aint sz, MPI_Comm comm)
+      : w(sz,comm)
     {
       check_unified_memory_model(w.underlying());
     }
+    template<class I>
+    dist_array(const distribution_vector<I>& distri, MPI_Comm comm)
+      : dist_array(distri.length(rank(comm)),comm)
+    {}
 
     dist_array(const dist_array&) = delete;
     dist_array& operator=(const dist_array&) = delete;
@@ -36,20 +38,12 @@ class dist_array {
     auto local()       { return w.local(); }
     auto local() const { return w.local(); }
 
-    auto total_size() const {
-      return length(distri);
-    }
     auto size() const {
-      return distri.length(rank(comm));
+      return w.size();
     }
 
     auto n_rank() const {
-      return ::std_e::n_rank(comm);
-    }
-
-    auto
-    distribution() const -> const auto& {
-      return distri;
+      return w.n_rank();
     }
 
     auto win()       ->       auto& { return w; }
