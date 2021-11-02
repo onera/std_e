@@ -116,10 +116,15 @@ create_gather_protocol2(future<const Distribution&> distri, future<Int_range> id
   return join(distri,ids) | then(create_gather_protocol_fn2);
 }
 
+
+template<class T> concept Distributed_array = true;
+
 template<class T> auto
 // TODO future<const gather_protocol2&> (same derived class trick)
-//get_from_array(future<gather_protocol2> gp, future<dist_array<T>&> a) -> future<std::vector<T>> {
-get_from_array(Future_of<const gather_protocol2&> auto gp, Future_of<dist_array<T>&> auto a) -> future<std::vector<T>> {
+get_from_array(future<gather_protocol2> gp, future<dist_array<T>&> a) -> future<std::vector<T>> {
+//get_from_array(Future_of<const gather_protocol2&> auto&& gp, Future_of<Distributed_array&> auto&& a)  {//-> future<std::vector<typename decltype(a)::value_type>> {
+  //using dist_array_t = typename std::decay_t<decltype(a)>::result_type;
+  //using T= typename std::decay_t<dist_array_t>::value_type;
   auto a_open = a | then_comm(open_epoch);
   auto result = gp| then(alloc_result_fn2<T>);
   auto result_filled = join(gp,a_open,result) | then_comm(get_protocol_indexed_fn2);

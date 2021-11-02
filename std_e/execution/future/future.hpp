@@ -12,7 +12,7 @@ struct future;
 
 template<class T> concept Future = std::remove_cvref_t<T>::enable_future; // TODO not really a concept
 
-template<class T, class R> concept Future_of = Future<T> && std::is_convertible_v<typename T::result_type,R>; // TODO not really a concept
+template<class T, class R> concept Future_of = Future<T> && std::is_convertible_v<typename std::remove_cvref_t<T>::result_type,R>; // TODO not really a concept
 
 
 // A future is just a handle over a node of a task_graph
@@ -22,20 +22,25 @@ template<class T, class R> concept Future_of = Future<T> && std::is_convertible_
 //        - the id of the task the future is representing
 //        - a *typed* pointer to where the result of the task will be
 template<class R>
-struct future { // TODO make it a class (invariant: result points to tg result)
-  static constexpr bool enable_future = true;
-  using result_type = R;
-  using result_stored_type = task_result_stored_type<R>;
-  task_graph* tg;
-  result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
-  int active_node_idx;
+struct future; // TODO make it a class (invariant: result points to tg result)
 
-  future() = default;
-  future(task_graph* tg, result_stored_type* result, int active_node_idx)
-    : tg(tg)
-    , result(result)
-    , active_node_idx(active_node_idx)
-  {}
+template<class R>
+struct future { // TODO make it a class (invariant: result points to tg result)
+    static constexpr bool enable_future = true;
+    using result_type = R;
+    using result_stored_type = task_result_stored_type<R>;
+  //private:
+    task_graph* tg;
+    result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
+    int active_node_idx;
+
+  public:
+    future() = default;
+    future(task_graph* tg, result_stored_type* result, int active_node_idx)
+      : tg(tg)
+      , result(result)
+      , active_node_idx(active_node_idx)
+    {}
 };
 
 //template<class R>

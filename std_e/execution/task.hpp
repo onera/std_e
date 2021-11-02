@@ -35,23 +35,27 @@ generic_then_task(task_kind tk, Fut&& fut, F&& f) {
     *fut.result
   );
   using R = task_t::result_type;
+  int last_active = fut.active_node_idx;
+
+  auto* tg = fut.tg;
+  int n = tg->size();
+  auto& emplaced_t = tg->emplace_back(std::move(t)); // ... but we add the new task ...
+  auto* typed_result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
+
   future<R> ttg;
-  int n = fut.tg->size();
-  ttg.tg = fut.tg; // the new graph is the old one...
-  auto& emplaced_t = ttg.tg->emplace_back(std::move(t)); // ... but we add the new task ...
-  ttg.result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
+  ttg.tg = tg; // the new graph is the old one...
+  ttg.result = typed_result;
   ttg.active_node_idx = n; // the active task is the one we just added
 
-  int last_active = fut.active_node_idx;
-  ttg.tg->out_indices(last_active).push_back(n); // ... and tell the previous task that this one is following ...
-  ttg.tg->in_indices(n).push_back(last_active); // ... and symmetrically tell the new task that it depends one the previous one
+  tg->out_indices(last_active).push_back(n); // ... and tell the previous task that this one is following ...
+  tg->in_indices(n).push_back(last_active); // ... and symmetrically tell the new task that it depends one the previous one
 
   return ttg;
 }
 
 template<class F, class Tuple, size_t... Is> auto
 generic_then_task__impl(task_kind tk, Tuple&& futs, F&& f, std::index_sequence<Is...>) {
-  using task_t = then_task< F, future_stored_result_type<std::tuple_element_t<Is,Tuple>>...>;
+  using task_t = then_task< F, future_stored_result_type<std::tuple_element_t<Is,std::remove_cvref_t<Tuple>>>...>;
   task_t t(
     tk,
     FWD(f),
@@ -80,12 +84,27 @@ generic_then_task__impl(task_kind tk, Tuple&& futs, F&& f, std::index_sequence<I
 template<class F, Future... Futs>
 requires (std::invocable<F,future_result_type<Futs&&>...>)
 auto
-generic_then_task(task_kind tk, std::tuple<Futs...> futs, F&& f) {
+generic_then_task(task_kind tk, std::tuple<Futs...>&& futs, F&& f) {
+  constexpr int N = sizeof...(Futs);
+  return generic_then_task__impl(tk,FWD(futs),FWD(f),std::make_index_sequence<N>{});
+}
+template<class F, Future... Futs>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+generic_then_task(task_kind tk, std::tuple<Futs...>& futs, F&& f) {
+  constexpr int N = sizeof...(Futs);
+  return generic_then_task__impl(tk,FWD(futs),FWD(f),std::make_index_sequence<N>{});
+}
+template<class F, Future... Futs>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+generic_then_task(task_kind tk, const std::tuple<Futs...>& futs, F&& f) {
   constexpr int N = sizeof...(Futs);
   return generic_then_task__impl(tk,FWD(futs),FWD(f),std::make_index_sequence<N>{});
 }
 
 
+// then {
 template<Future Fut, class F>
 requires (std::invocable<F,future_result_type<Fut&&>>)
 auto
@@ -100,18 +119,50 @@ then(std::tuple<Futs...>&& futs, F&& f) {
   return generic_then_task(task_kind::computation,FWD(futs),FWD(f));
 }
 
+template<Future... Futs, class F>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+then(std::tuple<Futs...>& futs, F&& f) {
+  return generic_then_task(task_kind::computation,FWD(futs),FWD(f));
+}
+
+template<Future... Futs, class F>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+then(const std::tuple<Futs...>& futs, F&& f) {
+  return generic_then_task(task_kind::computation,FWD(futs),FWD(f));
+}
+// then }
+
+// then_comm {
 template<Future Fut, class F>
 requires (std::invocable<F,future_result_type<Fut&&>>)
 auto
 then_comm(Fut&& fut, F&& f) {
   return generic_then_task(task_kind::communication,FWD(fut),FWD(f));
 }
+
 template<Future... Futs, class F>
 requires (std::invocable<F,future_result_type<Futs&&>...>)
 auto
 then_comm(std::tuple<Futs...>&& futs, F&& f) {
   return generic_then_task(task_kind::communication,FWD(futs),FWD(f));
 }
+
+template<Future... Futs, class F>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+then_comm(std::tuple<Futs...>& futs, F&& f) {
+  return generic_then_task(task_kind::communication,FWD(futs),FWD(f));
+}
+
+template<Future... Futs, class F>
+requires (std::invocable<F,future_result_type<Futs&&>...>)
+auto
+then_comm(const std::tuple<Futs...>& futs, F&& f) {
+  return generic_then_task(task_kind::communication,FWD(futs),FWD(f));
+}
+// then_comm }
 
 
 // make pipeable {

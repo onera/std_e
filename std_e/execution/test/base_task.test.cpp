@@ -74,21 +74,31 @@ TEST_CASE("then_task") {
 TEST_CASE("task fork join") {
   task_graph tg;
 
+  LOG("toto 00")
   auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(push_5);
+  LOG("toto 01")
   auto s1 = join(
     s0 | then(reverse_vec),
     s0 | then(sort_vec)
   );
-  auto s2 = std::move(s1) | then(concatenate_vec);
+  LOG("toto 02")
+  auto s2 = s1 | then(concatenate_vec);
 
+  LOG("toto 03")
   CHECK( tg.size() == 5 );
 
+  LOG("toto 04")
   // execute graph by hand
   tg.node(0).execute();
+  LOG("toto 05")
   tg.node(1).execute();
+  LOG("toto 06")
   tg.node(2).execute();
+  LOG("toto 07")
   tg.node(3).execute();
+  LOG("toto 08")
   tg.node(4).execute();
+  LOG("toto 09")
                                 //  reverse  /   sort
                                 // v v v v v   v v v v v
   CHECK( *s2.result == std::vector{5,2,1,0,3,  0,1,2,3,5} );

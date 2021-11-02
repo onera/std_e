@@ -14,7 +14,7 @@ execute_seq(future<R>& fut) -> std::remove_reference_t<R> {
   for (int i=0; i<n; ++i) {
     tg.node(i).execute();
   }
-  return std::move(*fut.result);
+  return std::move(*fut.result); // TODO do not force move (user can use e.g. extract_result_fn)
 }
 
 
