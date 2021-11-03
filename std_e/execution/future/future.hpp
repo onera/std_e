@@ -22,46 +22,46 @@ template<class T, class R> concept Future_of = Future<T> && std::is_convertible_
 //        - the id of the task the future is representing
 //        - a *typed* pointer to where the result of the task will be
 template<class R>
-struct future; // TODO make it a class (invariant: result points to tg result)
+struct future;
 
-
-// TODO del (inline where used)
-struct task_in_graph {
-  task_graph* tg;
-  int i_node;
-};
 
 template<class R>
-class future<const R&> { // TODO make it a class (invariant: result points to tg result)
+class future { // TODO make it a class (invariant: result points to tg result)
   public:
     static constexpr bool enable_future = true;
-    using result_type = const R&;
-    using result_stored_type = task_result_stored_type<const R&>;
+    using result_type = R;
+    using result_stored_type = task_result_stored_type<R>;
 
   public:
     future() = default;
+    // TODO Class invariant:
+    //     node at position i_node in tg
+    //     is a task for which result_ptr() is indeed of type result_stored_type*
     future(task_graph* tg, int i_node, result_stored_type* res)
-      : t(tg,i_node)
+      : tg(tg)
+      , i_node(i_node)
       , res(res)
     {}
 
     auto
     graph() const -> task_graph* {
-      return t.tg;
+      return tg;
     }
     auto
     task_id() const -> int {
-      return t.i_node;
+      return i_node;
     }
 
     auto
     result() const -> result_stored_type* {
-      //any_task& t0 = t.tg->node(t.i_node);
-      //return static_cast<result_stored_type*>(t0.result_ptr());
+      // TODO
+      //any_task& t = tg->node(i_node);
+      //return static_cast<result_stored_type*>(t.result_ptr());
       return res;
     }
   private:
-    task_in_graph t;
+    task_graph* tg;
+    int i_node;
     result_stored_type* res; // class invariant: points to tg.result // TODO DEL
 };
 
@@ -77,43 +77,41 @@ class future<R&> : public future<const R&> {
     using result_type = R&;
 };
 
-template<class R>
-class future : private task_ref_result_wrapper<R&>, private future<const R&> { // TODO make it a class (invariant: result points to tg result)
-//class future : public task_in_graph { // TODO make it a class (invariant: result points to tg result)
-    static_assert(!std::is_reference_v<R>); // if is_reference, should have matched another partial specialization
-  public:
-    using base = future<const R&>;
-    static constexpr bool enable_future = true;
-    using result_type = R;
-    using result_stored_type = R;
-  //private:
-    //R* res; // points to tg.result (needed to keep this as a typed information)
-
-  public:
-    future() = default;
-    future(task_graph* tg, int i_node, R* res)
-      : task_ref_result_wrapper<R&>(*res)
-      , base(tg,i_node,as_task_ref_wrap())
-    {}
-
-    auto
-    graph() const -> task_graph* {
-      return base::graph();
-    }
-    auto
-    task_id() const -> int {
-      return base::task_id();
-    }
-
-    auto
-    as_task_ref_wrap() -> task_ref_result_wrapper<R&>* {
-      return this;
-    }
-    auto
-    result() const -> result_stored_type* {
-      return task_ref_result_wrapper<R&>::ptr;
-    }
-};
+//template<class R>
+//class future : private task_ref_result_wrapper<R&>, private future<const R&> { // TODO make it a class (invariant: result points to tg result)
+//    static_assert(!std::is_reference_v<R>); // if is_reference, should have matched another partial specialization
+//  public:
+//    using base = future<const R&>;
+//    static constexpr bool enable_future = true;
+//    using result_type = R;
+//    using result_stored_type = R;
+//
+//    future() = default;
+//    future(task_graph* tg, int i_node, R* res)
+//      : task_ref_result_wrapper<R&>(*res)
+//      , base(tg,i_node,as_task_ref_wrap())
+//    {}
+//
+//    auto
+//    graph() const -> task_graph* {
+//      return base::graph();
+//    }
+//    auto
+//    task_id() const -> int {
+//      return base::task_id();
+//    }
+//
+//    auto
+//    result() const -> result_stored_type* {
+//      return task_ref_result_wrapper<R&>::ptr;
+//    }
+//
+//  private:
+//    auto
+//    as_task_ref_wrap() -> task_ref_result_wrapper<R&>* {
+//      return this;
+//    }
+//};
 
 
 // if a future is temporary, then it has to be single_shot (i.e. its result is used only once, hence it can be moved)

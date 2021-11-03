@@ -25,24 +25,27 @@ apply_ref_unwrap_and_forward(F&& f, Tuple&& t) -> decltype(auto) {
   return detail::apply_ref_unwrap_and_forward_impl(FWD(f), FWD(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
 }
 
+// TODO
+//    Distinguish pointers coming from ptr-returning functions, and pointers coming from ref-returning functions
+//    The former should not be deref, but currently are
 template<class T>
 struct remove_ref_wrapper__impl {
   using type = T;
 };
 template<class T>
-struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>> {
+struct remove_ref_wrapper__impl<T*> {
   using type = T&;
 };
 template<class T>
-struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>&> {
+struct remove_ref_wrapper__impl<T*&> {
   using type = T&;
 };
 template<class T>
-struct remove_ref_wrapper__impl<const task_ref_result_wrapper<T&>&> {
+struct remove_ref_wrapper__impl<T* const&> {
   using type = T&;
 };
 template<class T>
-struct remove_ref_wrapper__impl<task_ref_result_wrapper<T&>&&> {
+struct remove_ref_wrapper__impl<T* &&> {
   using type = T&;
 };
 template<class T>
@@ -70,13 +73,17 @@ class then_task {
       : kd(kd)
       , f(FWD(f))
       , args(args...)
-    {}
+    {
+      if constexpr (std::is_reference_v<R>) {
+        result = nullptr;
+      }
+    }
 
     auto
     execute() -> void {
       if constexpr (std::is_reference_v<R>) {
         // see const_cast explanation in "task_result_stored_type" documentation
-        result.ptr = const_cast<std::remove_cvref_t<R>*>(&apply_ref_unwrap_and_forward<Args...>(f,args));
+        result = const_cast<std::remove_cvref_t<R>*>(&apply_ref_unwrap_and_forward<Args...>(f,args));
       } else {
         result = apply_ref_unwrap_and_forward<Args...>(f,args);
       }

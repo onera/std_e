@@ -25,7 +25,7 @@ class input_task {
 
     input_task(T& x)
       // see const_cast explanation in "task_result_stored_type" documentation
-      : result(const_cast<std::remove_cvref_t<T>&>(x))
+      : result(const_cast<std::remove_cvref_t<T>*>(&x))
     {}
 
     auto
