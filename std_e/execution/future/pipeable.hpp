@@ -26,17 +26,8 @@ operator|(Fut&& fut, pipeable_wrapper<F>&& f) {
 }
 template<Future... Futs, class F> auto
 operator|(std::tuple<Futs...>&& futs, pipeable_wrapper<F>&& f) {
-  LOG("    tg for 0 =",std::get<0>(futs).tg);
   return f(std::move(futs));
 }
-//template<Future... Futs, class F> auto
-//operator|(std::tuple<Futs...>& futs, pipeable_wrapper<F>&& f) {
-//  return f(FWD(futs));
-//}
-//template<Future... Futs, class F> auto
-//operator|(const std::tuple<Futs...>& futs, pipeable_wrapper<F>&& f) {
-//  return f(FWD(futs));
-//}
 
 
 } // std_e

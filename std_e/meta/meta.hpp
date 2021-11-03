@@ -133,4 +133,10 @@ apply_forward_as(F&& f, Tuple&& t) -> decltype(auto) {
 }
 
 
+template <class... Ts> constexpr auto
+make_non_temp_tuple(Ts&&... xs) -> std::tuple<remove_rvalue_reference<Ts>...> {
+    return {FWD(xs)...};
+}
+
+
 } // std_e

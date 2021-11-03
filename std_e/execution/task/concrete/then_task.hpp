@@ -50,7 +50,7 @@ using remove_ref_wrapper = typename remove_ref_wrapper__impl<T>::type;
 
 
 template<class F, class... Args>
-requires (std::invocable<F,remove_ref_wrapper<Args>...>) // TODO DEL (move upward)
+requires (std::invocable<F,remove_ref_wrapper<Args>...>)
 class then_task {
   private:
     task_kind kd;
@@ -59,9 +59,8 @@ class then_task {
 
     remove_rvalue_reference<F> f;
     std::tuple<Args&...> args; // note: we store lvalue references
-                               // because the values are to be computed by another task
-                               // and while their address is ready (and won't move)
-                               // the value is not (and hence, can't be stored!)
+                               // because the values are not ready (to be computed by another task)
+                               // while their address is (and won't move)
     task_result_stored_type<R> result;
   public:
     using result_type = R;
