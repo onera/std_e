@@ -46,7 +46,7 @@ TEST_CASE("input_task") {
   // execute graph by hand
   tg.node(0).execute();
 
-  CHECK( *s0.result == std::vector{3,0,1,2} );
+  CHECK( *s0.result() == std::vector{3,0,1,2} );
 }
 TEST_CASE("then_task") {
   task_graph tg;
@@ -68,7 +68,7 @@ TEST_CASE("then_task") {
   tg.node(0).execute();
   tg.node(1).execute();
 
-  CHECK( *s0.result == std::vector{3,0,1,2,5} );
+  CHECK( *s0.result() == std::vector{3,0,1,2,5} );
 }
 
 TEST_CASE("task fork join") {
@@ -91,7 +91,7 @@ TEST_CASE("task fork join") {
   tg.node(4).execute();
                                 //  reverse  /   sort
                                 // v v v v v   v v v v v
-  CHECK( *s2.result == std::vector{5,2,1,0,3,  0,1,2,3,5} );
+  CHECK( *s2.result() == std::vector{5,2,1,0,3,  0,1,2,3,5} );
 }
 
 

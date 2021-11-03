@@ -17,8 +17,8 @@ execute_async_comm(future<R>& fut, thread_pool& comm_tp) -> std::remove_referenc
   MPI_Query_thread(&provided_thread_support);
   STD_E_ASSERT(provided_thread_support==MPI_THREAD_MULTIPLE);
 
-  execute_async_comm(*fut.tg,comm_tp);
-  return *fut.result;
+  execute_async_comm(*fut.graph(),comm_tp);
+  return *fut.result();
 }
 
 

@@ -19,7 +19,7 @@ input_data(task_graph& tg, T&& x) -> future<T> {
   auto& emplaced_t = tg.emplace_back(std::move(t));
   auto* typed_result = static_cast<task_result_stored_type<T>*>(emplaced_t.result_ptr());
 
-  return {&tg,typed_result,n};
+  return {&tg,n,typed_result};
 }
 
 
@@ -31,11 +31,11 @@ generic_then_task(task_kind tk, Fut&& fut, F&& f) {
   task_t t(
     tk,
     FWD(f),
-    *fut.result
+    *fut.result()
   );
-  int last_active = fut.active_node_idx;
+  int last_active = fut.task_id();
 
-  auto* tg = fut.tg;
+  auto* tg = fut.graph();
   int n = tg->size();
   auto& emplaced_t = tg->emplace_back(std::move(t)); // Add the new task to the graph...
 
@@ -44,30 +44,30 @@ generic_then_task(task_kind tk, Fut&& fut, F&& f) {
 
   using R = task_t::result_type;
   auto* typed_result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
-  return future<R>{tg,typed_result,n};
+  return future<R>{tg,n,typed_result};
 }
 
 template<class F, class Tuple, size_t... Is> auto
 generic_then_task__impl(task_kind tk, Tuple&& futs, F&& f, std::index_sequence<Is...>) {
-  auto* tg = std::get<0>(futs).tg;
-  ( STD_E_ASSERT(std::get<Is>(futs).tg == tg) , ... ); // Dependencies are supposed to be built on the same graph!
+  auto* tg = std::get<0>(futs).graph();
+  ( STD_E_ASSERT(std::get<Is>(futs).graph() == tg) , ... ); // Dependencies are supposed to be built on the same graph!
 
   using task_t = then_task< F, future_stored_result_type<std::tuple_element_t<Is,std::remove_cvref_t<Tuple>>>...>;
   task_t t(
     tk,
     FWD(f),
-    *std::get<Is>(futs).result...
+    *std::get<Is>(futs).result()...
   );
 
   int n = tg->size();
   auto& emplaced_t = tg->emplace_back(std::move(t)); // Add the new task to the graph...
 
-  ( tg->out_indices(std::get<Is>(futs).active_node_idx).push_back(n) , ... ); // ... tell the previous tasks that this one is following ...
-  ( tg->in_indices(n).push_back(std::get<Is>(futs).active_node_idx) , ... ); // ... and symmetrically tell the new task that it depends one these previous ones
+  ( tg->out_indices(std::get<Is>(futs).task_id()).push_back(n) , ... ); // ... tell the previous tasks that this one is following ...
+  ( tg->in_indices(n).push_back(std::get<Is>(futs).task_id()) , ... ); // ... and symmetrically tell the new task that it depends one these previous ones
 
   using R = task_t::result_type;
   auto* typed_result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
-  return future<R>{tg,typed_result,n};
+  return future<R>{tg,n,typed_result};
 }
 
 // TODO there is a risk that the user gives a std::tuple, and it is handled here and exploded
