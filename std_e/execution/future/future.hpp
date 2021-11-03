@@ -34,13 +34,16 @@ class future<const R&> { // TODO make it a class (invariant: result points to tg
 
   public:
     future() = default;
-    // TODO Class invariant:
+    // Class invariant:
     //     node at position i_node in tg
-    //     is a task for which result_ptr() is indeed of type result_stored_type*
-    future(task_graph* tg, int i_node, result_stored_type* res)
+    //     is a task for which .result_ptr() is of type result_stored_type*
+    // ...unless res is not nullptr.
+    //     in this case the future<const R&> was created from future<R>
+    //     and then task().result_ptr_ptr() is of type result_stored_type*
+    future(task_graph* tg, int i_node)
       : tg(tg)
       , i_node(i_node)
-      , res(res)
+      , res(nullptr)
     {}
 
     auto
@@ -53,15 +56,23 @@ class future<const R&> { // TODO make it a class (invariant: result points to tg
     }
 
     auto
-    result() const -> result_stored_type* {
-      // TODO
-      //return static_cast<result_stored_type*>(task().result_ptr());
-      return res;
+    result() -> result_stored_type* {
+      if (res!=nullptr) { // created from future<R>
+        return res;
+      } else {
+        return static_cast<result_stored_type*>(task().result_ptr());
+      }
     }
   protected:
-     auto task() -> any_task& { // TODO const
-       return tg->node(i_node);
-     }
+    future(task_graph* tg, int i_node, result_stored_type* res)
+      : tg(tg)
+      , i_node(i_node)
+      , res(res)
+    {}
+
+    auto task() -> any_task& {
+      return tg->node(i_node);
+    }
   private:
     task_graph* tg;
     int i_node;
@@ -72,7 +83,6 @@ class future<const R&> { // TODO make it a class (invariant: result points to tg
 //   Publicly inherit from the const ref version for implicit conversions
 //   Then only "result_type" has to be overridden (contrary to the const ref version, it is not const!)
 template<class R>
-requires (!std::is_const_v<R>) // TODO DEL once not needed anymore
 class future<R&> : public future<const R&> {
   public:
     using base = future<const R&>;
@@ -80,8 +90,12 @@ class future<R&> : public future<const R&> {
     using result_type = R&;
 };
 
+
+// Specialization for value types:
+//   Publicly inherit from the ref version for implicit conversions
+//   any_task::result_ptr_ptr() exist only so we can feed the correct R** to the future<R&>
 template<class R>
-class future : public future<const R&> { // TODO make it a class (invariant: result points to tg result)
+class future : public future<const R&> { // TODO also enable future<R&>
     static_assert(!std::is_reference_v<R>); // if is_reference, should have matched another partial specialization
   public:
     using base = future<const R&>;
@@ -91,7 +105,7 @@ class future : public future<const R&> { // TODO make it a class (invariant: res
     using result_stored_ref_type = base::result_stored_type;
 
     future() = default;
-    future(task_graph* tg, int i_node, R* res)
+    future(task_graph* tg, int i_node)
       : base(tg,i_node,static_cast<result_stored_ref_type*>(tg->node(i_node).result_ptr_ptr()))
     {}
 
@@ -105,8 +119,7 @@ class future : public future<const R&> { // TODO make it a class (invariant: res
     }
 
     auto
-    result() -> result_stored_type* { // TODO const
-      //return task().result_ptr();
+    result() -> result_stored_type* {
       return static_cast<result_stored_type*>(this->task().result_ptr());
     }
 };

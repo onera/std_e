@@ -76,7 +76,7 @@ class any_task {
     auto result_ptr_ptr() -> void* {
       return impl->result_ptr_ptr();
     }
-    auto kind() -> task_kind {
+    auto kind() const -> task_kind {
       return impl->kind();
     }
   private:

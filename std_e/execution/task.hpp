@@ -16,10 +16,9 @@ input_data(task_graph& tg, T&& x) -> future<T> {
   input_task<T&&> t(FWD(x));
 
   int n = tg.size();
-  auto& emplaced_t = tg.emplace_back(std::move(t));
-  auto* typed_result = static_cast<task_result_stored_type<T>*>(emplaced_t.result_ptr());
+  tg.emplace_back(std::move(t));
 
-  return {&tg,n,typed_result};
+  return {&tg,n};
 }
 
 
@@ -37,14 +36,13 @@ generic_then_task(task_kind tk, Fut&& fut, F&& f) {
 
   auto* tg = fut.graph();
   int n = tg->size();
-  auto& emplaced_t = tg->emplace_back(std::move(t)); // Add the new task to the graph...
+  tg->emplace_back(std::move(t)); // Add the new task to the graph...
 
   tg->out_indices(last_active).push_back(n); // ... tell the previous task that this one is following ...
   tg->in_indices(n).push_back(last_active); // ... and symmetrically tell the new task that it depends one the previous one
 
   using R = task_t::result_type;
-  auto* typed_result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
-  return future<R>{tg,n,typed_result};
+  return future<R>{tg,n};
 }
 
 template<class F, class Tuple, size_t... Is> auto
@@ -60,14 +58,13 @@ generic_then_task__impl(task_kind tk, Tuple&& futs, F&& f, std::index_sequence<I
   );
 
   int n = tg->size();
-  auto& emplaced_t = tg->emplace_back(std::move(t)); // Add the new task to the graph...
+  tg->emplace_back(std::move(t)); // Add the new task to the graph...
 
   ( tg->out_indices(std::get<Is>(futs).task_id()).push_back(n) , ... ); // ... tell the previous tasks that this one is following ...
   ( tg->in_indices(n).push_back(std::get<Is>(futs).task_id()) , ... ); // ... and symmetrically tell the new task that it depends one these previous ones
 
   using R = task_t::result_type;
-  auto* typed_result = static_cast<task_result_stored_type<R>*>(emplaced_t.result_ptr());
-  return future<R>{tg,n,typed_result};
+  return future<R>{tg,n};
 }
 
 // TODO there is a risk that the user gives a std::tuple, and it is handled here and exploded

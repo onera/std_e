@@ -45,7 +45,7 @@ class input_task {
     }
 
     auto
-    execute() -> void {}
+    execute() const -> void {}
 
     auto
     kind() const -> task_kind {
