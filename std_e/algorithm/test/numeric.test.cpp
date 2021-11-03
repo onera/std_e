@@ -1,5 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
-#include "std_e/algorithm/numerics.hpp"
+#include "std_e/algorithm/numeric.hpp"
 #include <vector>
 
 TEST_CASE("partial_accumulate") {
@@ -23,4 +23,27 @@ TEST_CASE("partial_accumulate with user-defined reduction") {
   std::vector<int> expected_out = {42,  42 +2*6,  42 +2*6 +3*7,  42 +2*6 +3*7 +4*8};
 
   CHECK( out==expected_out );
+}
+
+TEST_CASE("exclusive_adjacent_difference") {
+  SUBCASE("base") {
+    std::vector<int> v = {3,10,21,50};
+    std::vector<int> res;
+
+    std_e::exclusive_adjacent_difference(begin(v),end(v),std::back_inserter(res));
+
+    REQUIRE( res.size() == 3 );
+    CHECK( res[0] == 7 );
+    CHECK( res[1] == 11 );
+    CHECK( res[2] == 29 );
+  }
+
+  SUBCASE("one-elt range") {
+    std::vector<int> v = {10};
+    std::vector<int> res;
+
+    std_e::exclusive_adjacent_difference(begin(v),end(v),std::back_inserter(res));
+
+    REQUIRE( res.size() == 0 );
+  }
 }

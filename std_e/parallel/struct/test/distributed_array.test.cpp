@@ -158,21 +158,18 @@ MPI_TEST_CASE("distributed array - get",4) {
     future f0 = input_data(tg,distri);
     future f1 = input_data(tg,vector{7,9,2,1,3,11,5});
 
-    future gp = create_gather_protocol2(f0,std::move(f1));
-    //future gp = create_gather_protocol2(f0,f1);
+    future gp = create_exchange_protocol(f0,std::move(f1));
 
     future f2 = input_data(tg,a);
-    future f_res = get_from_array(gp,f2);
-
-    ELOG(to_dot_format_string(tg));
+    future f_res = gather(gp,f2);
 
     SUBCASE("seq") {
       CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
     }
-    //SUBCASE("async comm") {
-    //  thread_pool comm_tp(2);
-    //  CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
-    //}
+    SUBCASE("async comm") {
+      thread_pool comm_tp(2);
+      CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+    }
   }
 
   SUBCASE("gather with protocol - seq") {
@@ -258,3 +255,48 @@ MPI_TEST_CASE("distributed array - get",4) {
   //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
   //}
 }
+
+MPI_TEST_CASE("distributed jagged array - gather",4) {
+  distribution_vector<g_num> distri = {0,4,6,6,8};
+
+  // init distributed array
+  interval_vector<int> indices;
+  if (test_rank==0) indices = interval_vector<int>{0,2,5,5,9};
+  if (test_rank==1) indices = interval_vector<int>{0,1,3};
+  if (test_rank==2) indices = interval_vector<int>{0};
+  if (test_rank==3) indices = interval_vector<int>{0,2,3};
+
+  dist_jagged_array<double> a(std::move(indices),test_comm);
+  { dist_guard _(a.value_dist_array());
+    if (test_rank==0) a.values() = std::vector{0.,0.1,  1.,1.1,1.2,  /*nothing*/  3.,3.1,3.2,3.3};
+    if (test_rank==1) a.values() = std::vector{4.,  5.,5.1};
+    if (test_rank==2) a.values() = std::vector<double>{};
+    if (test_rank==3) a.values() = std::vector{6.,6.1,  7.};
+  }
+
+  SUBCASE("gather with protocol") {
+    task_graph tg;
+
+    future f0 = input_data(tg,distri);
+    future f1 = input_data(tg,vector{7,6,1,2,5});
+
+    future gp = create_exchange_protocol(f0,std::move(f1));
+
+    future f2 = input_data(tg,a);
+    future f_res = gather(gp,f2);
+
+    ELOG(to_dot_format_string(tg));
+    ELOG(execute_seq(f_res));
+
+    //indices = {1,2,3,0,2}
+
+    //SUBCASE("seq") {
+    //  CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
+    //}
+    //SUBCASE("async comm") {
+    //  thread_pool comm_tp(2);
+    //  CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+    //}
+  }
+}
+

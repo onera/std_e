@@ -64,9 +64,9 @@ class window {
       return ::std_e::n_rank(comm);
     }
 
-    auto size() const { return dn_elt; }
-    auto local()       { return make_span_ref<      T>(ptr,dn_elt); }
-    auto local() const { return make_span_ref<const T>(ptr,dn_elt); }
+    auto size() const -> MPI_Aint { return dn_elt; }
+    auto local()       -> span_ref<      T> { return make_span_ref<      T>(ptr,dn_elt); }
+    auto local() const -> span_ref<const T> { return make_span_ref<const T>(ptr,dn_elt); }
 
     auto
     underlying() const {

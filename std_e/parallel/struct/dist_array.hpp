@@ -9,10 +9,6 @@ namespace std_e {
 
 template<class T>
 class dist_array {
-    // invariants:
-    //   - handle refers to an object which is valid over comm
-    //   - distri is of size n_rank+1
-    //   - local_block.size() == length(distri,i_rank)
   private:
     window<T> w;
   public:
@@ -35,12 +31,9 @@ class dist_array {
     dist_array(dist_array&&) = default;
     dist_array& operator=(dist_array&&) = default;
 
-    auto local()       { return w.local(); }
-    auto local() const { return w.local(); }
-
-    auto size() const {
-      return w.size();
-    }
+    auto size() const -> MPI_Aint { return w.size(); }
+    auto local()       -> span_ref<      T> { return w.local(); }
+    auto local() const -> span_ref<const T> { return w.local(); }
 
     auto n_rank() const {
       return w.n_rank();
@@ -48,6 +41,8 @@ class dist_array {
 
     auto win()       ->       auto& { return w; }
     auto win() const -> const auto& { return w; }
+
+    auto comm() const -> MPI_Comm { return w.communicator(); }
 };
 
 

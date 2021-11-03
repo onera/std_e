@@ -3,52 +3,55 @@
 
 #include "std_e/parallel/mpi/one_sided/window.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/struct/dist_guard.hpp"
 
 
 namespace std_e {
 
-template<class T, class Distribution = distribution_vector<g_num>>
+template<class T>
 class dist_jagged_array {
-  //  // invariants:
-  //  //   - handle refers to an object which is valid over comm
-  //  //   - distri is of size n_rank+1
-  //  //   - local_block.size() == length(distri,i_rank)
-  //private:
-  //  MPI_Comm comm;
-  //  Distribution distri; // TODO remove
-  //  window<T> w;
-  //public:
-  //  using value_type = T;
+  private:
+    interval_vector<int> idces;
+    dist_array<int> szs;
+    dist_array<T> vals;
+  public:
+    using value_type = T;
 
-  //  dist_jagged_array(Distribution distri, MPI_Comm comm)
-  //    : comm(comm)
-  //    , distri(std::move(distri))
-  //    , w(size(),comm)
-  //  {
-  //    check_unified_memory_model(w.underlying());
-  //  }
+    dist_jagged_array(interval_vector<int>&& is, MPI_Comm comm)
+      : idces(std::move(is))
+    {
+      szs = dist_array<int>(idces.size()-1,comm);
+      { dist_guard _(szs);
+        szs.local() = interval_lengths(idces);
+      }
+      vals = dist_array<T>(idces.back(),comm);
+    }
 
-  //  auto local()       { return w.local(); }
-  //  auto local() const { return w.local(); }
+    auto n_elt() const -> MPI_Aint { return idces.size(); }
+    auto size() const -> MPI_Aint { return vals.size(); }
 
-  //  auto total_size() const {
-  //    return length(distri);
-  //  }
-  //  auto size() const {
-  //    return distri.length(rank(comm));
-  //  }
+    auto indices()       -> span_ref<      int> { return idces       ; }
+    auto indices() const -> span_ref<const int> { return idces       ; }
+    auto sizes  ()       -> span_ref<      int> { return szs .local(); }
+    auto sizes  () const -> span_ref<const int> { return szs .local(); }
+    auto values ()       -> span_ref<      T  > { return vals.local(); }
+    auto values () const -> span_ref<const T  > { return vals.local(); }
 
-  //  auto n_rank() const {
-  //    return ::std_e::n_rank(comm);
-  //  }
+    // TODO jagged_ref
 
-  //  auto
-  //  distribution() const -> const auto& {
-  //    return distri;
-  //  }
+    auto n_rank() const {
+      return vals.n_rank();
+    }
 
-  //  auto win()       ->       auto& { return w; }
-  //  auto win() const -> const auto& { return w; }
+    auto sizes_dist_array() -> auto& { return szs; }
+    auto value_dist_array() -> auto& { return vals; }
+
+    auto sizes_win()       ->       auto& { return szs .win(); }
+    auto sizes_win() const -> const auto& { return szs .win(); }
+    auto value_win()       ->       auto& { return vals.win(); }
+    auto value_win() const -> const auto& { return vals.win(); }
+
+    auto comm() const -> MPI_Comm { return vals.comm(); }
 };
 
 

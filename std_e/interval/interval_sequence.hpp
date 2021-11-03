@@ -6,6 +6,7 @@
 #include <numeric>
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
+#include "std_e/algorithm/numeric.hpp"
 
 
 namespace std_e {
@@ -186,8 +187,7 @@ to_interval_vector(std::vector<Number> v) {
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
   std::vector<T> res(is.n_interval());
-  std::adjacent_difference(is.begin()+1,is.end(),begin(res));
-  res[0] = is.length(0);
+  std_e::exclusive_adjacent_difference(is.begin(),is.end(),begin(res));
   return res;
 }
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
@@ -199,7 +199,7 @@ indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
 }
 template<class Number, class Interval_sequence> auto
 interval_index(Number x, const Interval_sequence& is) {
-  auto it = std::upper_bound(begin(is),end(is),x);
+  auto it = std::upper_bound(begin(is),end(is),x); // TODO true for interval_seq with 0 sizes? test!
   return it-begin(is)-1;
 }
 // algorithms }
