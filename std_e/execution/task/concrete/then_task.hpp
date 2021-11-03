@@ -65,6 +65,7 @@ class then_task {
                                // because the values are not ready (to be computed by another task)
                                // while their address is (and won't move)
     task_result_stored_type<R> result;
+    task_result_stored_type<R>* result_p;
   public:
     using result_type = R;
     static constexpr bool enable_task = true;
@@ -77,6 +78,26 @@ class then_task {
       if constexpr (std::is_reference_v<R>) {
         result = nullptr;
       }
+      result_p = &result;
+    }
+
+    then_task(const then_task& x) = delete;
+    then_task operator=(const then_task& x) = delete;
+    //then_task(then_task&& x) = delete;
+    //then_task operator=(then_task&& x) = delete;
+
+    then_task(then_task&& x)
+      : f(std::move(x.f))
+      , args(std::move(x.args))
+      , result(std::move(x.result))
+      , result_p(&result)
+    {}
+    then_task& operator=(then_task&& x) {
+      f = std::move(x.f);
+      args = std::move(x.args);
+      result = std::move(x.result);
+      result_p = &result;
+      return *this;
     }
 
     auto
@@ -97,6 +118,10 @@ class then_task {
     auto
     result_ptr() -> void* {
       return &result;
+    }
+    auto
+    result_ptr_ptr() -> void* {
+      return &result_p;
     }
 };
 

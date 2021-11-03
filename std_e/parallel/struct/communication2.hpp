@@ -121,7 +121,7 @@ template<class T> concept Distributed_array = true;
 
 template<class T> auto
 // TODO future<const gather_protocol2&> (same derived class trick)
-get_from_array(future<gather_protocol2> gp, future<dist_array<T>&> a) -> future<std::vector<T>> {
+get_from_array(future<const gather_protocol2&> gp, future<dist_array<T>&> a) -> future<std::vector<T>> {
 //get_from_array(Future_of<const gather_protocol2&> auto&& gp, Future_of<Distributed_array&> auto&& a)  {//-> future<std::vector<typename decltype(a)::value_type>> {
   //using dist_array_t = typename std::decay_t<decltype(a)>::result_type;
   //using T= typename std::decay_t<dist_array_t>::value_type;

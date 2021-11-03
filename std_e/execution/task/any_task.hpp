@@ -14,6 +14,7 @@ namespace detail {
 struct any_task_internal_base {
   virtual auto execute() -> void = 0;
   virtual auto result_ptr() -> void* = 0;
+  virtual auto result_ptr_ptr() -> void* = 0;
   virtual auto kind() const -> task_kind = 0;
 
   virtual ~any_task_internal_base() {}
@@ -32,6 +33,9 @@ struct any_task_internal_impl: any_task_internal_base {
     auto result_ptr() -> void* override {
       return t.result_ptr();
     }
+    auto result_ptr_ptr() -> void* override {
+      return t.result_ptr_ptr();
+    }
 
     auto kind() const -> task_kind override {
       return t.kind();
@@ -47,6 +51,7 @@ struct null_task {
   static constexpr bool enable_task = true;
   auto execute() const -> void {}
   auto result_ptr() const -> void* { return nullptr; }
+  auto result_ptr_ptr() const -> void* { return nullptr; }
   auto kind() const -> task_kind { return task_kind::no_op; }
 };
 
@@ -67,6 +72,9 @@ class any_task {
 
     auto result_ptr() -> void* {
       return impl->result_ptr();
+    }
+    auto result_ptr_ptr() -> void* {
+      return impl->result_ptr_ptr();
     }
     auto kind() -> task_kind {
       return impl->kind();
