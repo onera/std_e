@@ -105,8 +105,8 @@ MPI_TEST_CASE("send recv async overlap",2) {
 
   task_graph tg;
   future s0 = input_data(tg,std::move(x));
-  future s1 = s0 | then_comm(send_recv_msg_0,test_comm) | then(reverse_msg);
-  future s2 = s0 | then_comm(send_recv_msg_1,test_comm) | then(reverse_msg);
+  future s1 = s0 | then_comm2(send_recv_msg_0,test_comm) | then(reverse_msg);
+  future s2 = s0 | then_comm2(send_recv_msg_1,test_comm) | then(reverse_msg);
   auto s3 = join(std::move(s1),std::move(s2)) | then(concatenate_vec);
 
   CHECK( tg.size() == 6 );

@@ -43,24 +43,6 @@ struct future { // TODO make it a class (invariant: result points to tg result)
     {}
 };
 
-//template<class R>
-//struct future<const R&> { // TODO make it a class (invariant: result points to tg result)
-//  static constexpr bool enable_future = true;
-//  using result_type = const R&;
-//  using result_stored_type = task_result_stored_type<const R&>;
-//  task_graph* tg;
-//  result_stored_type* result; // points to tg.result (needed to keep this as a typed information)
-//  int active_node_idx;
-//
-//  future() = default;
-//  future(task_graph* tg, result_stored_type* result, int active_node_idx)
-//    : tg(tg)
-//    , result(result)
-//    , active_node_idx(active_node_idx)
-//  {}
-//  future(task_graph* tg, result_stored_type* result, int active_node_idx)
-//};
-
 // Specialization for non-const ref:
 //   Publicly inherit from the const ref version for implicit conversions
 //   Then only "result_type" has to be overridden (contrary to the const ref version, it is not const!)
@@ -75,7 +57,8 @@ struct future<R&> : future<const R&> {
 
 // if a future is temporary, then it has to be single_shot (i.e. its result is used only once, hence it can be moved)
 // if it is not a temporary, it is assumed multi-shot, that is, its result won't be moved by default
-template<Future Fut> constexpr bool is_single_shot = std::is_rvalue_reference_v<Fut>;
+//template<Future Fut> constexpr bool is_single_shot = std::is_rvalue_reference_v<Fut>; // AAAAAA
+template<Future Fut> constexpr bool is_single_shot = !std::is_lvalue_reference_v<Fut>;
 
 
 // future_result_type {
