@@ -4,6 +4,7 @@
 #include "std_e/parallel/struct/distributed_array.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/execution/execution.hpp"
+#include "std_e/logging/time_logger.hpp" // TODO
 
 using namespace std_e;
 using std::vector;
@@ -209,51 +210,6 @@ MPI_TEST_CASE("distributed array - get",4) {
   SUBCASE("gather - seq") {
     CHECK( gather(a,distri,vector{7,9,2,1,3,11,5}) == vector{70,90,20,10,30,110,50} );
   }
-
-
-  //SUBCASE("gather_from_ranks") {
-  //  jagged_array indices = {{2,1},{3,5},{7},{11,9}};
-
-  //  vector<int> local_array(7);
-  //  { dist_guard _(a);
-  //    gather_from_ranks(a,indices,loc_array);
-  //  }
-
-  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
-  //}
-  //SUBCASE("sorted gather") {
-  //  jagged_array indices = {{1,2},{3,5},{7},{9,11}};
-  //  sorted_gather_protocol gp(indices)
-
-  //  vector<int> local_array(7);
-  //  { dist_guard _(a);
-  //    gp.get(a,loc_array);
-  //  }
-
-  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
-  //}
-
-  //SUBCASE("gather") {
-  //  vector indices = {7,9,2,1,3,11,5};
-  //  gather_protocol gp(distri,indices);
-
-  //  vector<int> local_array(7);
-  //  { dist_guard _(a);
-  //    gp.get(a,loc_array);
-  //  }
-
-  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
-  //}
-
-  //SUBCASE("gather") {
-  //  vector<int> local_array(7);
-
-  //  { dist_guard _(a);
-  //    gather(a,vector{7,9,2,1,3,11,5},loc_array);
-  //  }
-
-  //  CHECK( loc_array == vector{70,90,20,10,30,110,50} );
-  //}
 }
 
 MPI_TEST_CASE("distributed jagged array - gather",4) {
@@ -285,21 +241,15 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
     future f2 = input_data(tg,a);
     future f_res = gather(gp,f2);
 
-    ELOG(to_dot_format_string(tg));
-    ELOG(execute_seq(f_res));
-    //auto xx = execute_seq(f_res);
-    //ELOG(xx.flat_view());
-    //ELOG(xx.indices());
-
-    //indices = {1,2,3,0,2}
-
-    //SUBCASE("seq") {
-    //  CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
-    //}
-    //SUBCASE("async comm") {
-    //  thread_pool comm_tp(2);
-    //  CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
-    //}
+    SUBCASE("seq") {
+      auto _ = std_e::stdout_time_logger("gather with protocol seq");
+      CHECK( execute_seq(f_res) == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
+    }
+    SUBCASE("async comm") {
+      thread_pool comm_tp(2);
+      auto _ = std_e::stdout_time_logger("gather with protocol async comm");
+      CHECK( execute_async_comm(f_res,comm_tp) == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
+    }
   }
 }
 

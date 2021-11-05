@@ -64,9 +64,6 @@ indexed_block(const Int_range& ins, int type_sz) {
 // same as indexed block but variable stride
 template<class Int_range, class Int_contiguous_range> auto
 indexed(const Int_range& ins, const Int_contiguous_range& strides, const Int_contiguous_range& displs, int type_sz) {
-  ELOG(ins);
-  ELOG(strides);
-  ELOG(displs);
   auto n = ins.size();
 
   MPI_Datatype mpi_type;
