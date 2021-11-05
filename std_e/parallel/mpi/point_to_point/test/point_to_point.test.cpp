@@ -2,7 +2,6 @@
 
 #include "std_e/parallel/mpi/point_to_point/point_to_point.hpp"
 #include "std_e/logging/time_logger.hpp" // TODO
-#include "std_e/log.hpp" // TODO
 #include "std_e/execution/execution.hpp"
 
 #include "std_e/graph/adjacency_graph/graph_to_dot_string.hpp"
