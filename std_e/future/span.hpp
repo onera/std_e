@@ -85,6 +85,7 @@ class span_base : public span_size<N> {
     using const_iterator  = const_pointer;
 
   // ctors
+    FORCE_INLINE constexpr span_base() = default;
     // dynamic span ctor
     FORCE_INLINE constexpr explicit
     span_base(T* ptr, ptrdiff_t n)
@@ -99,7 +100,7 @@ class span_base : public span_size<N> {
       , ptr(first)
     {}
     FORCE_INLINE constexpr explicit
-    span_base(std::vector<std::remove_const_t<T>>::iterator first, std::vector<std::remove_const_t<T>>::iterator last)
+    span_base(typename std::vector<std::remove_const_t<T>>::iterator first, typename std::vector<std::remove_const_t<T>>::iterator last)
       // Precondition: [first,last) is valid range
       : span_size_type(last-first)
       , ptr(&*first) // TODO

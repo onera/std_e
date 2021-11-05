@@ -94,7 +94,7 @@ namespace detail {
 template<class F, class Tuple> constexpr auto
 apply_move(F&& f, Tuple&& t) -> decltype(auto) {
   constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
-  return detail::apply_move_impl(FWD(f), FWD<Tuple>(t), std::make_index_sequence<N>{});
+  return detail::apply_move_impl(FWD(f), FWD(t), std::make_index_sequence<N>{});
 }
 
 
@@ -127,7 +127,7 @@ namespace detail {
 // TODO test
 template<class... Args, class F, class Tuple> constexpr auto
 apply_forward_as(F&& f, Tuple&& t) -> decltype(auto) {
-  static_assert(sizeof...(Args)==std::tuple_size_v<std::remove_cvref_t<Tuple>>);
+  static_assert(sizeof...(Args)==std::tuple_size_v<std::decay_t<Tuple>>);
   constexpr auto N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
   return detail::apply_forward_as_impl(FWD(f), FWD(t), std::make_index_sequence<N>{}, std_e::types<Args...>{});
 }
