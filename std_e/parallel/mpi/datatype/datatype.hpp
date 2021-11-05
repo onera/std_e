@@ -61,13 +61,16 @@ indexed_block(const Int_range& ins, int type_sz) {
   return mpi_data_type(mpi_type);
 }
 
-template<class T, class Int_range> auto
-indexed(const Int_range& blocklengths, const Int_range& displacements) {
-  STD_E_ASSERT(blocklengths.size()==displacements.size());
-  auto n = blocklengths.size();
+// same as indexed block but variable stride
+template<class Int_range, class Int_contiguous_range> auto
+indexed(const Int_range& ins, const Int_contiguous_range& strides, const Int_contiguous_range& displs, int type_sz) {
+  ELOG(ins);
+  ELOG(strides);
+  ELOG(displs);
+  auto n = ins.size();
 
   MPI_Datatype mpi_type;
-  int err = MPI_Type_indexed(n, blocklengths.data(), displacements.data(), to_mpi_type<T>, &mpi_type);
+  int err = MPI_Type_indexed(n, strides.data(), displs.data(), to_mpi_type_of_size(type_sz), &mpi_type);
   STD_E_ASSERT(!err);
 
   return mpi_data_type(mpi_type);

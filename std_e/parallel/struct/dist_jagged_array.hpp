@@ -11,31 +11,33 @@ namespace std_e {
 template<class T>
 class dist_jagged_array {
   private:
-    interval_vector<int> idces;
-    dist_array<int> szs;
+    dist_array<int> displs;
+    dist_array<int> stris;
     dist_array<T> vals;
   public:
     using value_type = T;
 
-    dist_jagged_array(interval_vector<int>&& is, MPI_Comm comm)
-      : idces(std::move(is))
-    {
-      szs = dist_array<int>(idces.size()-1,comm);
-      { dist_guard _(szs);
-        szs.local() = interval_lengths(idces);
+    dist_jagged_array(const interval_vector<int>& ds, MPI_Comm comm) { // TODO displs directly alloc as dist_array
+      displs = dist_array<int>(ds.size(),comm);
+      { dist_guard _(displs);
+        displs.local() = ds;
       }
-      vals = dist_array<T>(idces.back(),comm);
+      stris = dist_array<int>(displs.size()-1,comm);
+      { dist_guard _(stris);
+        stris.local() = interval_lengths(ds);
+      }
+      vals = dist_array<T>(ds.back(),comm);
     }
 
-    auto n_elt() const -> MPI_Aint { return idces.size(); }
+    auto n_elt() const -> MPI_Aint { return displs.size(); }
     auto size() const -> MPI_Aint { return vals.size(); }
 
-    auto indices()       -> span_ref<      int> { return idces       ; }
-    auto indices() const -> span_ref<const int> { return idces       ; }
-    auto sizes  ()       -> span_ref<      int> { return szs .local(); }
-    auto sizes  () const -> span_ref<const int> { return szs .local(); }
-    auto values ()       -> span_ref<      T  > { return vals.local(); }
-    auto values () const -> span_ref<const T  > { return vals.local(); }
+    auto displacements()       -> span_ref<      int> { return displs.local(); }
+    auto displacements() const -> span_ref<const int> { return displs.local(); }
+    auto strides      ()       -> span_ref<      int> { return stris .local(); }
+    auto strides      () const -> span_ref<const int> { return stris .local(); }
+    auto values       ()       -> span_ref<      T  > { return vals  .local(); }
+    auto values       () const -> span_ref<const T  > { return vals  .local(); }
 
     // TODO jagged_ref
 
@@ -43,13 +45,14 @@ class dist_jagged_array {
       return vals.n_rank();
     }
 
-    auto sizes_dist_array() -> auto& { return szs; }
-    auto value_dist_array() -> auto& { return vals; }
+    auto displacements_dist_array() -> auto& { return displs; }
+    auto strides_dist_array      () -> auto& { return stris ; }
+    auto values_dist_array       () -> auto& { return vals  ; }
 
-    auto sizes_win()       ->       auto& { return szs .win(); }
-    auto sizes_win() const -> const auto& { return szs .win(); }
-    auto value_win()       ->       auto& { return vals.win(); }
-    auto value_win() const -> const auto& { return vals.win(); }
+    //auto strides_win()       ->       auto& { return stris.win(); }
+    //auto strides_win() const -> const auto& { return stris.win(); }
+    //auto values_win ()       ->       auto& { return vals .win(); }
+    //auto values_win () const -> const auto& { return vals .win(); }
 
     auto comm() const -> MPI_Comm { return vals.comm(); }
 };

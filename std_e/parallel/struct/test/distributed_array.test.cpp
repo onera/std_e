@@ -267,7 +267,7 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
   if (test_rank==3) indices = interval_vector<int>{0,2,3};
 
   dist_jagged_array<double> a(std::move(indices),test_comm);
-  { dist_guard _(a.value_dist_array());
+  { dist_guard _(a.values_dist_array());
     if (test_rank==0) a.values() = std::vector{0.,0.1,  1.,1.1,1.2,  /*nothing*/  3.,3.1,3.2,3.3};
     if (test_rank==1) a.values() = std::vector{4.,  5.,5.1};
     if (test_rank==2) a.values() = std::vector<double>{};
@@ -287,6 +287,9 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
 
     ELOG(to_dot_format_string(tg));
     ELOG(execute_seq(f_res));
+    //auto xx = execute_seq(f_res);
+    //ELOG(xx.flat_view());
+    //ELOG(xx.indices());
 
     //indices = {1,2,3,0,2}
 

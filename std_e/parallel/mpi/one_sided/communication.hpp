@@ -20,14 +20,11 @@ _get_contiguous(MPI_Win win, int rank, MPI_Aint disp, I size, T* out) -> void {
 
 template<class T, class I> auto
 _get_indexed(MPI_Win win, int rank, MPI_Datatype target_type, I size, T* out) -> void {
-  //ELOG(rank)
-  //ELOG(size)
   int err = MPI_Get(
     out    ,size, to_mpi_type<T>, // origin args
     rank, 0,   1, target_type   , // target args
     win
   );
-  //ELOG(err);
   STD_E_ASSERT(!err);
 }
 
@@ -62,6 +59,38 @@ class protocol_win_get_indexed {
     protocol_win_get_indexed& operator=(const protocol_win_get_indexed&) = delete;
     protocol_win_get_indexed(protocol_win_get_indexed&&) = default;
     protocol_win_get_indexed& operator=(protocol_win_get_indexed&&) = default;
+
+    auto
+    number_of_elements() const -> int {
+      return n_elt;
+    }
+
+    template<class T, class Range> auto
+    request(const window<T>& win, int rank, Range& out) const -> void {
+      STD_E_ASSERT(sizeof(T)==type_sz);
+      STD_E_ASSERT((int)out.size()==n_elt);
+      _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
+    }
+};
+class protocol_win_get_indexed_var_len {
+  private:
+    int type_sz;
+    int n_elt;
+    mpi_data_type target_type;
+  public:
+    protocol_win_get_indexed_var_len() = default;
+
+    template<class Int_range, class Int_contiguous_range>
+    protocol_win_get_indexed_var_len(const Int_range& ins, const Int_contiguous_range& strides, const Int_contiguous_range& displs, int type_sz)
+      : type_sz(type_sz)
+      , n_elt(std::accumulate(strides.begin(),strides.end(),0)) // TODO std_e::sum
+      , target_type(indexed(ins,strides,displs,type_sz))
+    {}
+
+    protocol_win_get_indexed_var_len(const protocol_win_get_indexed_var_len&) = delete;
+    protocol_win_get_indexed_var_len& operator=(const protocol_win_get_indexed_var_len&) = delete;
+    protocol_win_get_indexed_var_len(protocol_win_get_indexed_var_len&&) = default;
+    protocol_win_get_indexed_var_len& operator=(protocol_win_get_indexed_var_len&&) = default;
 
     auto
     number_of_elements() const -> int {
