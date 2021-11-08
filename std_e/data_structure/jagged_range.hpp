@@ -161,13 +161,16 @@ class jagged_range {
     }
 
   // accessors
+    auto flat_view() {
+      return make_span(flat_values);
+    }
     auto flat_view() const {
       return make_span(flat_values);
     }
-    auto flat_ref() const -> const auto& {
+    auto flat_ref() -> auto& {
       return flat_values;
     }
-    auto flat_ref() -> auto& {
+    auto flat_ref() const -> const auto& {
       return flat_values;
     }
     auto retrieve_values() -> std::vector<T> {

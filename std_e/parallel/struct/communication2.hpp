@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "std_e/execution/execution.hpp"
 #include "std_e/parallel/struct/dist_array.hpp"
 #include "std_e/parallel/struct/dist_jagged_array.hpp"
 #include "std_e/parallel/mpi/one_sided/communication.hpp"
@@ -41,7 +42,7 @@ class indexed_exchange_protocol {
       p.gather(a.win(),rank,out);
     }
     template<class T, class Range> auto
-    scatter(const dist_array<T>& a, int rank, Range& values) const -> void {
+    scatter(const dist_array<T>& a, int rank, const Range& values) const -> void {
       p.scatter(a.win(),rank,values);
     }
 };
@@ -106,7 +107,7 @@ create_exchange_protocol_from_ranks(const jagged_range<TR,IR,2>& indices_by_rank
 }
 
 template<class T, class Range> auto
-put_protocol_indexed(const jagged_vector<int,2>& indices_by_rank, const dist_array<T>& a, Range& values) -> void {
+put_protocol_indexed(const jagged_vector<int,2>& indices_by_rank, const dist_array<T>& a, const Range& values) -> void {
   int type_sz = sizeof(T);
   auto protocols_by_rank = create_exchange_protocol_from_ranks(indices_by_rank,type_sz);
 
@@ -174,7 +175,7 @@ constexpr auto create_exchange_protocol_fn = [](const auto& distri, const auto& 
 };
 
 
-constexpr auto permute_values_fn = [](const exchange_protocol& gp, auto& values) -> auto& {
+constexpr auto permute_values_fn = [](const exchange_protocol& gp, auto values) -> auto {
   permute(values,gp.new_to_old);
   return values;
 };
@@ -183,7 +184,7 @@ constexpr auto permute_values_fn = [](const exchange_protocol& gp, auto& values)
 constexpr auto get_protocol_indexed_fn2 = []<class T>(const exchange_protocol& gp, const dist_array<T>& a, std::vector<T>& res) {
   return get_protocol_indexed2(gp.indices_by_rank,a,res);
 };
-constexpr auto put_protocol_indexed_fn = []<class T>(const exchange_protocol& gp, const dist_array<T>& a, auto values) {
+constexpr auto put_protocol_indexed_fn = []<class T>(const exchange_protocol& gp, const dist_array<T>& a, const auto& values) {
   put_protocol_indexed(gp.indices_by_rank,a,values);
   return 0; // TODO future<void> not implemented
 };
@@ -314,7 +315,7 @@ gather(future<const exchange_protocol&> gp, future<dist_jagged_array<T>&> a) { /
 // ==================
 // scatter
 template<class T, class Range> auto
-scatter(future<const exchange_protocol&> gp, future<const dist_array<T>&> a, future<Range> values) {
+scatter(future<const exchange_protocol&> gp, future<const dist_array<T>&> a, future<const Range&> values) {
   // TODO const dist_array should result in a compilation error (not const !)
   auto open_a = a | then_comm(open_epoch);
   auto perm_values = join(gp,values) | then(permute_values_fn);
@@ -334,17 +335,17 @@ scatter(
 }
 
 template<class T, class Distribution, class Int_range, class Range> auto
-scatter(const dist_array<T>& a, const Distribution& distri, Int_range&& ids, Range&& values) -> decltype(auto) {
+scatter(const dist_array<T>& a, const Distribution& distri, Int_range&& ids, const Range& values) -> decltype(auto) {
   task_graph tg;
   future f0 = input_data(tg,a);
   future f1 = input_data(tg,distri);
   future f2 = input_data(tg,FWD(ids));
-  future f3 = input_data(tg,FWD(values));
+  future f3 = input_data(tg,values);
 
   future f_res = scatter(f0,f1,f2,f3);
 
   execute_seq(f_res);
-  MPI_Barrier(a.comm());
+  MPI_Barrier(a.comm()); // TODO in lazy version
 
   return a.local();
 }

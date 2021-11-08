@@ -84,6 +84,34 @@ struct arrow_proxy {
 };
 
 
+// element_type {
+
+template<class C>
+struct element_type__impl {
+  using type = typename C::value_type;
+};
+
+template<class T, ptrdiff_t N> class span_base; // Fwd decl
+template<class T, ptrdiff_t N> class span; // Fwd decl
+template<class T, ptrdiff_t N> class span_ref; // Fwd decl
+template<class T, ptrdiff_t N>
+struct element_type__impl<span_base<T,N>> {
+  using type = T;
+};
+template<class T, ptrdiff_t N>
+struct element_type__impl<span<T,N>> {
+  using type = T;
+};
+template<class T, ptrdiff_t N>
+struct element_type__impl<span_ref<T,N>> {
+  using type = T;
+};
+
+template<class C>
+using element_type = typename element_type__impl<C>::type;
+// element_type }
+
+
 namespace detail {
   template<class F, class Tuple, size_t... Is> constexpr auto
   apply_move_impl(F&& f, Tuple&& t, std::index_sequence<Is...>) -> decltype(auto) {

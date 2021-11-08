@@ -104,7 +104,8 @@ permute(Rand_it it, const std::vector<I>& p) -> void {
     I prev_j = i;
     I j = p[i];
     while (i != j){
-      std::swap(*(it+prev_j),*(it+j));
+      using std::swap;
+      swap(*(it+prev_j),*(it+j));
       done[j] = true;
       prev_j = j;
       j = p[j];

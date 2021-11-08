@@ -273,7 +273,7 @@ MPI_TEST_CASE("distributed array - scatter",4) {
     future f0 = input_data(tg,a);
     future f1 = input_data(tg,distri);
     future f2 = input_data(tg,std::move(indices));
-    future f3 = input_data(tg,std::move(values));
+    future f3 = input_data(tg,values);
 
     future f_res = scatter(f0,f1,f2,f3);
 
@@ -297,7 +297,7 @@ MPI_TEST_CASE("distributed array - scatter",4) {
   }
 
   SUBCASE("eager") {
-    scatter(a,distri,std::move(indices),std::move(values));
+    scatter(a,distri,std::move(indices),values);
     MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
     MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
     MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
