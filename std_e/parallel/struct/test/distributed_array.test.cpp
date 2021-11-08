@@ -253,3 +253,55 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
   }
 }
 
+
+MPI_TEST_CASE("distributed array - scatter",4) {
+  g_num dn_elt = 3;
+  auto distri = uniform_distribution(test_nb_procs,test_nb_procs*dn_elt);
+
+  dist_array<double> a(distri , test_comm);
+
+  vector<int> indices;
+  vector<double> values;
+  if (test_rank==0) { indices = {5,2,11,0,1,4,8}; values = {5.,2.,11.,0.,1.,4.,8.}; }
+  if (test_rank==1) { indices = {7}             ; values = {7.}                   ; }
+  if (test_rank==2) { indices = {}              ; values = {}                     ; }
+  if (test_rank==3) { indices = {10,3,6,9}      ; values = {10.,3.,6.,9.}         ; }
+
+  SUBCASE("future") {
+
+    task_graph tg;
+    future f0 = input_data(tg,a);
+    future f1 = input_data(tg,distri);
+    future f2 = input_data(tg,std::move(indices));
+    future f3 = input_data(tg,std::move(values));
+
+    future f_res = scatter(f0,f1,f2,f3);
+
+    SUBCASE("seq") {
+      execute_seq(f_res);
+      MPI_Barrier(test_comm); // TODO move inside scatter ?
+      MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
+      MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
+      MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
+      MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
+    }
+    SUBCASE("async comm") {
+      thread_pool comm_tp(2);
+      execute_async_comm(f_res,comm_tp);
+      MPI_Barrier(test_comm);
+      MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
+      MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
+      MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
+      MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
+    }
+  }
+
+  SUBCASE("eager") {
+    scatter(a,distri,std::move(indices),std::move(values));
+    MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
+    MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
+    MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
+    MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
+  }
+}
+

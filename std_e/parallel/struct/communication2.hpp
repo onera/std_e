@@ -38,7 +38,11 @@ class indexed_exchange_protocol {
 
     template<class T, class Range> auto
     gather(const dist_array<T>& a, int rank, Range& out) const -> void {
-      p.request(a.win(),rank,out);
+      p.gather(a.win(),rank,out);
+    }
+    template<class T, class Range> auto
+    scatter(const dist_array<T>& a, int rank, Range& values) const -> void {
+      p.scatter(a.win(),rank,values);
     }
 };
 
@@ -65,8 +69,12 @@ class indexed_exchange_protocol_var_len {
 
     template<class T, class Range> auto
     gather(const dist_array<T>& a, int rank, Range& out) const -> void {
-      p.request(a.win(),rank,out);
+      p.gather(a.win(),rank,out);
     }
+    //template<class T, class Range> auto
+    //scatter(const dist_array<T>& a, int rank, Range& values) const -> void {
+    //  p.scatter(a.win(),rank,values);
+    //}
 };
 
 using exchange_protocol_by_rank = std::vector<indexed_exchange_protocol>;
@@ -95,6 +103,21 @@ create_exchange_protocol_from_ranks(const jagged_range<TR,IR,2>& indices_by_rank
     protocols_by_rank[i] = indexed_exchange_protocol_var_len(ins,strides_i,displs_i,type_sz);
   }
   return protocols_by_rank;
+}
+
+template<class T, class Range> auto
+put_protocol_indexed(const jagged_vector<int,2>& indices_by_rank, const dist_array<T>& a, Range& values) -> void {
+  int type_sz = sizeof(T);
+  auto protocols_by_rank = create_exchange_protocol_from_ranks(indices_by_rank,type_sz);
+
+  int n_rank = protocols_by_rank.size();
+  auto first = values.data();
+  for (int i=0; i<n_rank; ++i) {
+    int n_i = protocols_by_rank[i].number_of_elements();
+    auto values_i = make_span(first,n_i);
+    protocols_by_rank[i].scatter(a,i,values_i);
+    first += n_i;
+  }
 }
 
 template<class T, class Range> auto
@@ -151,11 +174,20 @@ constexpr auto create_exchange_protocol_fn = [](const auto& distri, const auto& 
 };
 
 
+constexpr auto permute_values_fn = [](const exchange_protocol& gp, auto& values) -> auto& {
+  permute(values,gp.new_to_old);
+  return values;
+};
 
 // TODO rename
 constexpr auto get_protocol_indexed_fn2 = []<class T>(const exchange_protocol& gp, const dist_array<T>& a, std::vector<T>& res) {
   return get_protocol_indexed2(gp.indices_by_rank,a,res);
 };
+constexpr auto put_protocol_indexed_fn = []<class T>(const exchange_protocol& gp, const dist_array<T>& a, auto values) {
+  put_protocol_indexed(gp.indices_by_rank,a,values);
+  return 0; // TODO future<void> not implemented
+};
+
 constexpr auto get_protocol_indexed_var_len_fn =
   []<class T>(const exchange_protocol& gp,
               const std::vector<int>& strides, const std::vector<int>& displacements,
@@ -208,11 +240,11 @@ create_exchange_protocol(future<const Distribution&> distri, future<Int_range> i
 
 template<class T> auto
 gather(future<const exchange_protocol&> gp, future<dist_array<T>&> a) -> future<std::vector<T>> {
-  auto a_open = a | then_comm(open_epoch); // TODO RENAME open_a
+  auto open_a = a | then_comm(open_epoch);
   auto result = gp| then(alloc_result_fn2<T>);
-  auto result_filled = join(gp,a_open,result) | then_comm(get_protocol_indexed_fn2); // TODO then_comm -> split into computation (then) and comm (then_comm)
-  auto a_close = join(a,result_filled) | then_comm(close_epoch); // TODO RENAME close_a
-  auto final_res = join(gp,result,a_close) | then(apply_perm_fn2);
+  auto result_filled = join(gp,open_a,result) | then_comm(get_protocol_indexed_fn2); // TODO then_comm -> split into computation (then) and comm (then_comm)
+  auto close_a = join(a,result_filled) | then_comm(close_epoch);
+  auto final_res = join(gp,result,close_a) | then(apply_perm_fn2);
   return final_res | then(extract_result_fn);
 }
 
@@ -275,6 +307,46 @@ gather(future<const exchange_protocol&> gp, future<dist_jagged_array<T>&> a) { /
   auto values_close = join(values,val_res_filled) | then_comm(close_epoch);
   auto final_vals = join(gp,val_displs_res,final_displs_res,val_res, values_close) | then(perm_fn3);
   return join(final_displs_res,final_vals) | then(extract_res_in_jagged_array_fn);
+}
+
+
+
+// ==================
+// scatter
+template<class T, class Range> auto
+scatter(future<const exchange_protocol&> gp, future<const dist_array<T>&> a, future<Range> values) {
+  // TODO const dist_array should result in a compilation error (not const !)
+  auto open_a = a | then_comm(open_epoch);
+  auto perm_values = join(gp,values) | then(permute_values_fn);
+  auto put_op = join(gp,open_a,perm_values) | then_comm(put_protocol_indexed_fn); // TODO then_comm -> split into computation (then) and comm (then_comm)
+  auto close_a = join(a,put_op) | then_comm(close_epoch); // TODO then_comm(barrier)
+  return close_a | then(local_array_fn);
+}
+
+template<class T, class Distribution, class Int_range, class Range> auto
+scatter(
+  future<const dist_array<T>&> a, future<const Distribution&> distri,
+  future<Int_range> ids, future<Range> values
+)
+{
+  future gp = create_exchange_protocol(distri,ids); // TODO std::move(ids)
+  return scatter(gp,a,values);
+}
+
+template<class T, class Distribution, class Int_range, class Range> auto
+scatter(const dist_array<T>& a, const Distribution& distri, Int_range&& ids, Range&& values) -> decltype(auto) {
+  task_graph tg;
+  future f0 = input_data(tg,a);
+  future f1 = input_data(tg,distri);
+  future f2 = input_data(tg,FWD(ids));
+  future f3 = input_data(tg,FWD(values));
+
+  future f_res = scatter(f0,f1,f2,f3);
+
+  execute_seq(f_res);
+  MPI_Barrier(a.comm());
+
+  return a.local();
 }
 
 

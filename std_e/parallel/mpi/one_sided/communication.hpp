@@ -27,6 +27,15 @@ _get_indexed(MPI_Win win, int rank, MPI_Datatype target_type, I size, T* out) ->
   );
   STD_E_ASSERT(!err);
 }
+template<class T, class I> auto
+_put_indexed(MPI_Win win, int rank, MPI_Datatype target_type, I size, T* values) -> void {
+  int err = MPI_Put(
+    values ,size, to_mpi_type<T>, // origin args
+    rank, 0,   1, target_type   , // target args
+    win
+  );
+  STD_E_ASSERT(!err);
+}
 
 
 template<class T> auto
@@ -66,10 +75,16 @@ class protocol_win_get_indexed {
     }
 
     template<class T, class Range> auto
-    request(const window<T>& win, int rank, Range& out) const -> void {
+    gather(const window<T>& win, int rank, Range& out) const -> void {
       STD_E_ASSERT(sizeof(T)==type_sz);
       STD_E_ASSERT((int)out.size()==n_elt);
       _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
+    }
+    template<class T, class Range> auto
+    scatter(const window<T>& win, int rank, Range& values) const -> void {
+      STD_E_ASSERT(sizeof(T)==type_sz);
+      STD_E_ASSERT((int)values.size()==n_elt);
+      _put_indexed(win.underlying(),rank,target_type.underlying(),n_elt,values.data());
     }
 };
 class protocol_win_get_indexed_var_len {
@@ -98,7 +113,7 @@ class protocol_win_get_indexed_var_len {
     }
 
     template<class T, class Range> auto
-    request(const window<T>& win, int rank, Range& out) const -> void {
+    gather(const window<T>& win, int rank, Range& out) const -> void {
       STD_E_ASSERT(sizeof(T)==type_sz);
       STD_E_ASSERT((int)out.size()==n_elt);
       _get_indexed(win.underlying(),rank,target_type.underlying(),n_elt,out.data());
@@ -117,7 +132,7 @@ class protocol_win_get_indexed_var_len {
 //    {}
 //
 //    template<class Range> auto
-//    request(const window<T>& win, int rank, Range& out) -> void {
+//    gather(const window<T>& win, int rank, Range& out) -> void {
 //      _get_indexed(win.underlying(),rank,target_type.underlying(),out.size(),out.data());
 //    }
 //};

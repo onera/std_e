@@ -52,13 +52,13 @@ class protocol_get_indexed {
     }
 
     template<class T, class Range> auto
-    request(const dist_array<T>& a, int rank, Range& out) const -> void {
-      p.request(a.win(),rank,out);
+    gather(const dist_array<T>& a, int rank, Range& out) const -> void {
+      p.gather(a.win(),rank,out);
     }
 };
 template<class T, class Int_range, class Range> auto
 get_indexed(const dist_array<T>& a, int rank, const Int_range& ins, Range& out) {
-  return protocol_get_indexed(ins,sizeof(T)).request(a,rank,out);
+  return protocol_get_indexed(ins,sizeof(T)).gather(a,rank,out);
 }
 
 
@@ -82,7 +82,7 @@ get_protocol_indexed(const dist_array<T>& a, const protocol_rank_get_indexed& pr
   for (int i=0; i<n_rank; ++i) {
     int n_i = protocols_by_rank[i].number_of_elements();
     auto out_i = make_span(first,n_i);
-    protocols_by_rank[i].request(a,i,out_i);
+    protocols_by_rank[i].gather(a,i,out_i);
     first += n_i;
   }
   return out;

@@ -28,5 +28,13 @@ constexpr auto extract_result_fn = [](const auto& x, auto&&...) {
   return std::move(x);
 };
 
+// TODO fix overconstrained execute_seq: does not want to return references
+//constexpr auto local_array_fn = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
+//  return a.local();
+//}
+constexpr auto local_array_fn = []<class T>(const dist_array<T>& a, auto&&...) {
+  return 0;
+};
+
 
 } // std_e
