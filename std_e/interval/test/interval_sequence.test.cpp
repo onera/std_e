@@ -41,6 +41,14 @@ TEST_CASE("interval_vector") {
 }
 // [Sphinx Doc] interval_vector }
 
+TEST_CASE("interval_vector deduction") {
+  std_e::interval_vector iv = {5,10,100,120};
+  CHECK( iv[0] == 5 );
+  CHECK( iv[1] == 10 );
+  CHECK( iv[2] == 100 );
+  CHECK( iv[3] == 120 );
+}
+
 TEST_CASE("interval_vector from vector") {
   std::vector v = {3,10,21};
   std_e::interval_vector iv = std_e::to_interval_vector(std::move(v));

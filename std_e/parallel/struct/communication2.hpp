@@ -163,7 +163,7 @@ struct exchange_protocol {
 
 template<class Distribution, class Int_range> auto
 create_exchange_protocol2(const Distribution& distri, Int_range ids) {
-  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
+  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,make_span(distri.data()+1,distri.size()-1)); // TODO UGLY
   apply_step(ids,partition_is,distri);
   jagged_vector<int,2> indices_by_rank(std::move(ids),std::move(partition_is));
 

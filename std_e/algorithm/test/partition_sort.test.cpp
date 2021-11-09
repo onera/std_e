@@ -1,9 +1,11 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
+#include "std_e/log.hpp"
 #include <vector>
 
 using namespace std;
+using namespace std_e;
 using std_e::id_string;
 
 // TODO rename file partition (since it does partition_sort + partition_indices)
@@ -39,23 +41,23 @@ TEST_CASE("partition_sort") {
   SUBCASE("indices vector-returning algorithm") {
     auto partition_indices = std_e::partition_sort_indices(v,partition_values);
     //                                    0        10   100    120            1000
-    CHECK(                 v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
-    CHECK( partition_indices == vector{    1      ,  5 ,   6  ,   7          ,     10   } );
+    CHECK(                 v ==          vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
+    CHECK( partition_indices == interval_vector{ 0, 1      ,  5 ,   6  ,   7          ,     10   } );
   }
 
   SUBCASE("indirect algorithm") {
     auto [partition_indices,new_to_old] = std_e::indirect_partition_sort(v,partition_values);
     //                                   0          10  100  120   1000
-    CHECK(        new_to_old == vector{4,  8,2,3,10,  9,  0,  7,5,1, 6 } );
-    CHECK( partition_indices == vector{    1       ,  5,  6,  7    , 10} );
+    CHECK(        new_to_old ==          vector{4,  8,2,3,10,  9,  0,  7,5,1, 6 } );
+    CHECK( partition_indices == interval_vector{0,  1       ,  5,  6,  7    , 10} );
   }
 
   SUBCASE("apply indirect algorithm") {
     auto [partition_indices,new_to_old] = std_e::apply_indirect_partition_sort(v,partition_values);
     //                                   0           10  100  120   1000
-    CHECK(                 v == vector{-3, 8,2,6, 0,  50,   110,   999,800,200,     10001} );
-    CHECK(        new_to_old == vector{ 4, 8,2,3,10,   9,     0,     7,  5,  1,         6} );
-    CHECK( partition_indices == vector{    1      ,  5 ,   6  ,   7          ,     10   } );
+    CHECK(                 v ==          vector{-3, 8,2,6, 0,  50,   110,   999,800,200,     10001} );
+    CHECK(        new_to_old ==          vector{ 4, 8,2,3,10,   9,     0,     7,  5,  1,         6} );
+    CHECK( partition_indices == interval_vector{0,  1      ,  5 ,   6  ,   7          ,     10   } );
   }
 }
 

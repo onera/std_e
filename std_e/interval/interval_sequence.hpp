@@ -41,12 +41,6 @@ class interval_sequence : private Random_access_range {
   // ctors
     interval_sequence() = default;
 
-    interval_sequence(int n)
-      : base(n+1)
-    {}
-    interval_sequence(int n, value_type x)
-      : base(n+1,x)
-    {}
 
     template<class Iterator>
     interval_sequence(Iterator first, value_type n)
@@ -55,10 +49,6 @@ class interval_sequence : private Random_access_range {
     template<class Iterator>
     interval_sequence(Iterator first, Iterator last)
       : base(first,last)
-    {}
-
-    interval_sequence(std::initializer_list<value_type> l)
-      : base(l)
     {}
 
   // Interval_sequence interface
@@ -119,15 +109,24 @@ class interval_sequence : private Random_access_range {
     auto as_base() const -> const base& {
       return *this;
     }
-  private:
+    auto as_base() -> base& {
+      return *this;
+    }
+  protected:
     // Compiler hack around too eager template class non-template member instantiation
     // SEE https://stackoverflow.com/q/63810583/1583122
-    template<class T0, std::enable_if_t<std::is_same_v<T0,std::vector<value_type>>,int> =0>
-    interval_sequence(T0 v)
-      : base(std::move(v))
+
+    struct protected_type_tag {};
+    template<class T0>
+    interval_sequence(T0&& v, protected_type_tag)
+      : base(FWD(v))
     {}
     constexpr auto friend to_interval_vector<>(std::vector<value_type> v);
 };
+
+//// deduction guideline
+//template<class T>
+//interval_sequence(std::initializer_list<T> l) -> interval_sequence<std::vector<T>>;
 
 template<class Rng0, class Rng1> constexpr auto
 operator==(const interval_sequence<Rng0>& x, const interval_sequence<Rng1>& y) {
@@ -159,8 +158,39 @@ to_string(const interval_sequence<Rng>& x) -> std::string {
 }
 
 
-template<class Number> using interval_vector = interval_sequence<std::vector<Number>>;
-template<class Number> using interval_span = interval_sequence<std_e::span<Number>>;
+template<class Number>
+class interval_span : public interval_sequence<std_e::span<Number>> {
+  public:
+    using base = interval_sequence<std_e::span<Number>>;
+    using base::base;
+};
+
+template<class Number>
+class interval_vector : public interval_sequence<std::vector<Number>> {
+  public:
+    using base = interval_sequence<std::vector<Number>>;
+    using vec_base = std::vector<Number>;
+    using value_type = typename base::value_type;
+
+    using tag = typename base::protected_type_tag;
+  // ctors
+    using base::base;
+
+    interval_vector(vec_base&& v)
+      : base(std::move(v),tag{})
+    {}
+    interval_vector(int n)
+      : interval_vector(vec_base(n+1))
+    {}
+    interval_vector(int n, value_type x)
+      : interval_vector(vec_base(n+1,x))
+    {}
+    interval_vector(std::initializer_list<value_type> l)
+      : interval_vector(vec_base(l))
+    {}
+};
+template<class T>
+interval_vector(std::initializer_list<T> l) -> interval_vector<T>;
 
 // TODO deprecate
 using int_interval_vector = interval_vector<int>;

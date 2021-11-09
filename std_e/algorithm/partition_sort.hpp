@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include "std_e/data_structure/jagged_range.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 #include "std_e/algorithm/mismatch_points.hpp"
 
 
@@ -85,12 +86,14 @@ partition_sort(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred c
 }
 
 template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
-partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) -> std::vector<int> {
+partition_sort_indices(Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) -> interval_vector<int> {
   int k = partition_values.size();
-  std::vector<int> partition_is(k);
-  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_is),comp);
+  interval_vector<int> partition_is(k);
+  partition_is[0] = 0;
+  partition_sort_indices(begin(rng),end(rng),begin(partition_values),end(partition_values),begin(partition_is)+1,comp);
   return partition_is;
 }
+
 template<class Rand_range0, class Rand_range1, class Bin_pred = std::less<>> auto
 partition_indices(const Rand_range0& rng, const Rand_range1& partition_values, Bin_pred comp = {}) -> std::vector<int> {
   int k = partition_values.size();
@@ -114,7 +117,6 @@ apply_indirect_partition_sort(Rand_range0& rng, const Rand_range1& partition_val
   const auto& new_to_old = res.second;
 
   permute(rng,new_to_old); // TODO rename permute->inv_permute ?
-
   return res;
 }
 

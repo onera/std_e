@@ -132,7 +132,7 @@ struct gather_protocol {
 
 template<class Distribution, class Int_range> auto
 create_gather_protocol(const Distribution& distri, Int_range ids, int type_sz) {
-  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,distri);
+  auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,make_span(distri.data()+1,distri.size()-1)); // TODO UGLY
   apply_step(ids,partition_is,distri);
   jagged_span<int,2> ins_by_rank(ids,partition_is);
 
