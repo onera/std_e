@@ -236,6 +236,19 @@ class span : public span_base<T,N> {
 template<class T>
 span(T*) -> span<T>; // TODO remove (makes no sense if N=dyn_size!, but used in multi_array...)
 
+// op== and op!= {
+// Needed. The span_base ones should be taken by the compiler,
+// however this is not the case and another (unknown) op== is used...
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator==(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
+  return span_base<const T0,N0>(x)==span_base<const T1,N1>(y);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
+  return !(x==y);
+}
+// op== and op!= }
+
 
 template<ptrdiff_t N, class T> FORCE_INLINE constexpr auto
 make_span(T* ptr) {
@@ -295,6 +308,18 @@ class span_ref : public span_base<T,N> {
     using base = span_base<T,N>;
     using base::base;
 };
+
+// op== and op!= {
+// Needed. Same reason for span: span_base should be picked but is not
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator==(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return span_base<const T0,N0>(x)==span_base<const T1,N1>(y);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator!=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return !(x==y);
+}
+// op== and op!= }
 
 template<class T> FORCE_INLINE constexpr auto
 make_span_ref(T* ptr, ptrdiff_t n) {

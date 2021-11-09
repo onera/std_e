@@ -11,10 +11,10 @@ TEST_CASE("span size") {
 }
 
 TEST_CASE("span constructor") {
-  std::vector<double>       a1  = {0 , 1, 2, 3, 4};
-  const std::vector<double> ca1 = {0 , 1, 2, 3, 4};
-  std::vector<double>       a2  = {-1, 6, 3,-1,-4};
-  const std::vector<double> ca2 = {-1, 6, 3,-1,-4};
+  std::vector<double>       a1  = { 0., 1., 2., 3., 4.};
+  const std::vector<double> ca1 = { 0., 1., 2., 3., 4.};
+  std::vector<double>       a2  = {-1., 6., 3.,-1.,-4.};
+  const std::vector<double> ca2 = {-1., 6., 3.,-1.,-4.};
 
   double* pta1        = a1.data();
   const double* ptca1 = ca1.data();
