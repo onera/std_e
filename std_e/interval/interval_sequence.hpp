@@ -11,10 +11,6 @@
 
 namespace std_e {
 
-// fwd decls
-template<class Number> auto
-to_interval_vector(std::vector<Number> v);
-
 /**
 concept Interval_sequence : Random_access_range, Interval
   value_type is Number
@@ -40,7 +36,6 @@ class interval_sequence : private Random_access_range {
 
   // ctors
     interval_sequence() = default;
-
 
     template<class Iterator>
     interval_sequence(Iterator first, value_type n)
@@ -109,24 +104,13 @@ class interval_sequence : private Random_access_range {
     auto as_base() const -> const base& {
       return *this;
     }
-    auto as_base() -> base& {
-      return *this;
-    }
   protected:
-    // Compiler hack around too eager template class non-template member instantiation
-    // SEE https://stackoverflow.com/q/63810583/1583122
-
     struct protected_type_tag {};
     template<class T0>
     interval_sequence(T0&& v, protected_type_tag)
       : base(FWD(v))
     {}
-    constexpr auto friend to_interval_vector<>(std::vector<value_type> v);
 };
-
-//// deduction guideline
-//template<class T>
-//interval_sequence(std::initializer_list<T> l) -> interval_sequence<std::vector<T>>;
 
 template<class Rng0, class Rng1> constexpr auto
 operator==(const interval_sequence<Rng0>& x, const interval_sequence<Rng1>& y) {
@@ -158,12 +142,13 @@ to_string(const interval_sequence<Rng>& x) -> std::string {
 }
 
 
-template<class Number>
-class interval_span : public interval_sequence<std_e::span<Number>> {
-  public:
-    using base = interval_sequence<std_e::span<Number>>;
-    using base::base;
-};
+template<class Number> using interval_span = interval_sequence<std_e::span<Number>>;
+//template<class Number>
+//class interval_span : public interval_sequence<std_e::span<Number>> {
+//  public:
+//    using base = interval_sequence<std_e::span<Number>>;
+//    using base::base;
+//};
 
 template<class Number>
 class interval_vector : public interval_sequence<std::vector<Number>> {
@@ -189,8 +174,11 @@ class interval_vector : public interval_sequence<std::vector<Number>> {
       : interval_vector(vec_base(l))
     {}
 };
+
+// deduction guideline
 template<class T>
 interval_vector(std::initializer_list<T> l) -> interval_vector<T>;
+
 
 // TODO deprecate
 using int_interval_vector = interval_vector<int>;
