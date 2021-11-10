@@ -69,12 +69,28 @@ all_gather(const std::vector<T>& x,MPI_Comm comm) -> std::vector<T> {
 }
 
 template<class T> auto
-all_reduce(const T& value, MPI_Op op, MPI_Comm comm) -> T {
-  T res;
-  int err = MPI_Allreduce(&value, &res, 1, to_mpi_type<T>, op, comm);
+all_reduce(const T& local, MPI_Op op, MPI_Comm comm) -> T {
+  T global;
+  int err = MPI_Allreduce(&local, &global, 1, to_mpi_type<T>, op, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
-  return res;
+  return global;
 }
+template<class T> auto
+scan(const T& local, MPI_Op op, MPI_Comm comm) -> T {
+  T global;
+  int err = MPI_Scan(&local, &global, 1, to_mpi_type<T>, op, comm);
+  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+  return global;
+}
+template<class T> auto
+ex_scan(const T& local, MPI_Op op, MPI_Comm comm) -> T {
+  T global;
+  int err = MPI_Exscan(&local, &global, 1, to_mpi_type<T>, op, comm);
+  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
+  return global;
+}
+
+
 
 
 } // std_e
