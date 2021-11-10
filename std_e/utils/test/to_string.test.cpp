@@ -24,5 +24,5 @@ TEST_CASE("range_to_string") {
   CHECK( range_to_string(v1)==std::string("{42}") );
 
   std::vector<int> v2 = {42,43,44};
-  CHECK( range_to_string(v2)==std::string("{42;43;44}") );
+  CHECK( range_to_string(v2)==std::string("{42,43,44}") );
 }

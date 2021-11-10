@@ -36,5 +36,5 @@ TEST_CASE("make_sub_array") {
 
 TEST_CASE("to_string(std::array)") {
   std::array<int,3> x = {10,11,12};
-  CHECK( std_e::to_string(x) == "{10;11;12}" );
+  CHECK( std_e::to_string(x) == "{10,11,12}" );
 }
