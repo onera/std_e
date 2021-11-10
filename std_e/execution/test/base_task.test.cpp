@@ -99,7 +99,7 @@ constexpr auto get_remote_info = [](std::vector<int> x){
   // here, suppose that we are getting info from elsewhere
   // through an "i/o" operation, that is, an operation that needs to wait
   // but that is not compute-intensive
-  std::this_thread::sleep_for(0.11s);
+  std::this_thread::sleep_for(0.011s);
   x.push_back(6);
   x.push_back(5);
   x.push_back(4);
@@ -107,7 +107,7 @@ constexpr auto get_remote_info = [](std::vector<int> x){
   return x;
 };
 constexpr auto reverse_vec_with_delay = [](std::vector<int> v){
-  std::this_thread::sleep_for(0.1s);
+  std::this_thread::sleep_for(0.01s);
   std::vector res = v;
   std::reverse(begin(res),end(res));
   return res;
