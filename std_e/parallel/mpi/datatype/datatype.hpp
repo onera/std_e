@@ -2,6 +2,8 @@
 
 
 #include <mpi.h>
+#include <cassert>
+#include "std_e/future/contract.hpp"
 
 
 namespace std_e {
