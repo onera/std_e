@@ -22,8 +22,14 @@ class dist_array {
       check_unified_memory_model(w.underlying());
     }
     template<class I>
+    dist_array(const std::vector<I>& distri, MPI_Comm comm) // TODO Distribution
+      : dist_array(distri[rank(comm)+1]-distri[rank(comm)],comm) // TODO
+    {}
+
+    template<class I>
     dist_array(const distribution_vector<I>& distri, MPI_Comm comm)
-      : dist_array(distri.length(rank(comm)),comm)
+      //: dist_array(distri.length(rank(comm)),comm)
+      : dist_array(distri[rank(comm)+1]-distri[rank(comm)],comm) // TODO
     {}
 
     dist_array(const dist_array&) = delete;

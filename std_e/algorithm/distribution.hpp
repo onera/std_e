@@ -47,8 +47,8 @@ uniform_distribution(Fwd_it first, Fwd_it last, T nb_elts) {
 }
 
 
-template<class Fwd_it0, class S0, class Fwd_it1, class S1, class Fwd_it2> constexpr auto
-distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, Fwd_it2 first_weights) -> void {
+template<class Fwd_it0, class S0, class Fwd_it1, class S1, class Fwd_it2, class Out_it> constexpr auto
+distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, Fwd_it2 first_weights, Out_it first_weighted) -> void {
   auto n_interval = std::distance(first,last)-1;
   using I = typename std::iterator_traits<Fwd_it1>::value_type;
   I total_weighted_size = std::inner_product(first_size,last_size,first_weights,I(0));
@@ -92,7 +92,61 @@ distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 l
     //      Ensures that the last bound is exactly the sum all all block sizes
     prev_weighted_size = *first - remaining_weighted_size;
     *first = *std::prev(first)+size;
+    *++first_weighted = prev_weighted_size;
   }
+}
+template<class I0, class Range0, class Range1> constexpr auto
+distribution_weighted_by_blocks(I0 dist_sz, const Range0& block_sizes, const Range1& block_weights) {
+  using I = typename Range0::value_type;
+  std::vector<I> dist(1+dist_sz);
+  std::vector<I> dist_weighted(1+dist_sz);
+
+  distribution_weighted_by_blocks(
+    begin(dist),end(dist),
+    begin(block_sizes),end(block_sizes),
+    begin(block_weights),
+    begin(dist_weighted)
+  );
+
+  return std::make_pair(dist,dist_weighted);
+}
+
+
+template<class I, class Range> auto
+//numbers_of_elt_in_interval(I inf, I sup, I w_inf, I w_sup, const Range& n_elts, const Range& w_elts);
+numbers_of_elt_in_interval(I inf, I sup, const Range& n_elts, const Range& w_elts) {
+  // TODO clean
+  STD_E_ASSERT(n_elts.size()==w_elts.size());
+  int n = n_elts.size();
+  std::vector<I> n_elts_in(n,0);
+  I acc = 0;
+  int i=0;
+  while (acc + n_elts[i]*w_elts[i] < inf) {
+    acc += n_elts[i]*w_elts[i];
+    ++i;
+  }
+  I rem = inf - acc;
+  I elt_before_inf = rem/w_elts[i];
+  I elt_after_inf = n_elts[i] - elt_before_inf;
+  if (acc + n_elts[i]*w_elts[i] >= sup) {
+    I rem2 = acc + n_elts[i]*w_elts[i] - sup;
+    I elt_after_sup = rem2/w_elts[i];
+    I elt_between = elt_after_inf - elt_after_sup;
+    n_elts_in[i] = elt_between;
+  } else {
+    n_elts_in[i] = elt_after_inf;
+    acc += n_elts[i]*w_elts[i];
+    ++i;
+    while (acc + n_elts[i]*w_elts[i] < sup) {
+      acc += n_elts[i]*w_elts[i];
+      n_elts_in[i] = n_elts[i];
+      ++i;
+    }
+    I rem3 = sup - acc;
+    I elt_before_sup = rem3/w_elts[i];
+    n_elts_in[i] = elt_before_sup;
+  }
+  return n_elts_in;
 }
 
 

@@ -67,33 +67,49 @@ TEST_CASE("uniform_distribution") {
     std::vector<double> v_expected = {-14., 18.};
     CHECK( v == v_expected );
   }
-
 }
 
 
 TEST_CASE("distribution_weighted_by_blocks") {
   SUBCASE("uniform") {
     int n_slot = 3;
-    std::vector<int> v(1+n_slot);
-
     std::vector<int> sizes = {100,100,100,100,100};
     std::vector<int> weights = {1,1,1,1,1};
 
-    //distribution_weighted_by_blocks(begin(v),end(v),begin(sizes),end(sizes),begin(weights));
-    distribution_weighted_by_blocks(v.data(),v.data()+4,begin(sizes),end(sizes),begin(weights));
+    auto [v,v_weighted] = distribution_weighted_by_blocks(n_slot,sizes,weights);
     std::vector<int> v_expected = {0,167,334,500};
+    std::vector<int> v_weighted_expected = {0,167,334,500};
     CHECK( v == v_expected );
+    CHECK( v_weighted == v_weighted_expected );
+
+    SUBCASE("numbers_of_elt_in_interval") {
+      std::vector<int> n_elts_0 = numbers_of_elt_in_interval(v_weighted[0],v_weighted[1],sizes,weights);
+      std::vector<int> n_elts_1 = numbers_of_elt_in_interval(v_weighted[1],v_weighted[2],sizes,weights);
+      std::vector<int> n_elts_2 = numbers_of_elt_in_interval(v_weighted[2],v_weighted[3],sizes,weights);
+      CHECK( n_elts_0 == std::vector{100, 67,  0,  0,  0} );
+      CHECK( n_elts_1 == std::vector{  0, 33,100, 34,  0} );
+      CHECK( n_elts_2 == std::vector{  0,  0,  0, 66,100} );
+    }
   }
 
   SUBCASE("non-uniform") {
     int n_slot = 3;
-    std::vector<int> v(1+n_slot);
-
     std::vector<int> sizes = {100,100,100,100,100};
     std::vector<int> weights = {3,5,1,0,2};
 
-    distribution_weighted_by_blocks(v.data(),v.data()+1+n_slot,begin(sizes),end(sizes),begin(weights));
+    auto [v,v_weighted] = distribution_weighted_by_blocks(n_slot,sizes,weights);
     std::vector<int> v_expected = {0,113,186,500};
+    std::vector<int> v_weighted_expected = {0,/* 3*100 + 5*13 = */ 365,/* 3*100 + 5*(100-13-1) = */730,/* (3+5+1+0+2)*100 = */1100};
     CHECK( v == v_expected );
+    CHECK( v_weighted == v_weighted_expected );
+
+    SUBCASE("numbers_of_elt_in_interval") {
+      std::vector<int> n_elts_0 = numbers_of_elt_in_interval(v_weighted[0],v_weighted[1],sizes,weights);
+      std::vector<int> n_elts_1 = numbers_of_elt_in_interval(v_weighted[1],v_weighted[2],sizes,weights);
+      std::vector<int> n_elts_2 = numbers_of_elt_in_interval(v_weighted[2],v_weighted[3],sizes,weights);
+      CHECK( n_elts_0 == std::vector{100, 13,  0,  0,  0} );
+      CHECK( n_elts_1 == std::vector{  0, 73,  0,  0,  0} );
+      CHECK( n_elts_2 == std::vector{  0, 14,100,100,100} );
+    }
   }
 }
