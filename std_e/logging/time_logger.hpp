@@ -15,20 +15,29 @@ class time_logger {
       : l_ptr(l_ptr)
       , msg(std::move(s))
       , start_time(std::chrono::system_clock::now())
+      , done(false)
     {
       log(*l_ptr,msg+"\n");
     }
 
-    ~time_logger() {
+    auto stop() -> void {
       auto finish_time = std::chrono::system_clock::now();
       std::chrono::duration<double> elapsed = finish_time-start_time;
       log(*l_ptr,msg + " - done. [" + std::to_string(elapsed.count()) + "s]\n");
+      done = true;
+    }
+
+    ~time_logger() {
+      if (!done) {
+        stop();
+      }
     }
 
   private:
     logger* l_ptr;
     std::string msg;
     time_type start_time;
+    bool done;
 };
 
 
