@@ -113,40 +113,47 @@ distribution_weighted_by_blocks(I0 dist_sz, const Range0& block_sizes, const Ran
 
 
 template<class I, class Range> auto
-//numbers_of_elt_in_interval(I inf, I sup, I w_inf, I w_sup, const Range& n_elts, const Range& w_elts);
-numbers_of_elt_in_interval(I inf, I sup, const Range& n_elts, const Range& w_elts) {
+elements_in_interval(I inf, I sup, const Range& n_elts, const Range& w_elts) {
   // TODO clean
   STD_E_ASSERT(n_elts.size()==w_elts.size());
   int n = n_elts.size();
-  std::vector<I> n_elts_in(n,0);
+  std::vector<I> elts_inf(n,0);
+  std::vector<I> elts_sup(n,0);
   I acc = 0;
   int i=0;
   while (acc + n_elts[i]*w_elts[i] < inf) {
     acc += n_elts[i]*w_elts[i];
+    elts_inf[i] = n_elts[i];
+    elts_sup[i] = n_elts[i];
     ++i;
   }
   I rem = inf - acc;
   I elt_before_inf = rem/w_elts[i];
   I elt_after_inf = n_elts[i] - elt_before_inf;
-  if (acc + n_elts[i]*w_elts[i] >= sup) {
+  if (acc + n_elts[i]*w_elts[i] > sup) { // enough to fill the interval
     I rem2 = acc + n_elts[i]*w_elts[i] - sup;
     I elt_after_sup = rem2/w_elts[i];
-    I elt_between = elt_after_inf - elt_after_sup;
-    n_elts_in[i] = elt_between;
+    elts_inf[i] = elt_before_inf;
+    elts_sup[i] = n_elts[i]- elt_after_sup;
   } else {
-    n_elts_in[i] = elt_after_inf;
     acc += n_elts[i]*w_elts[i];
+    elts_inf[i] = elt_before_inf;
+    elts_sup[i] = n_elts[i];
     ++i;
-    while (acc + n_elts[i]*w_elts[i] < sup) {
-      acc += n_elts[i]*w_elts[i];
-      n_elts_in[i] = n_elts[i];
-      ++i;
+    if (i<n) {
+      while (acc + n_elts[i]*w_elts[i] < sup) {
+        acc += n_elts[i]*w_elts[i];
+        elts_inf[i] = 0;
+        elts_sup[i] = n_elts[i];
+        ++i;
+      }
+      I rem3 = sup - acc;
+      I elt_before_sup = rem3/w_elts[i];
+      elts_inf[i] = 0;
+      elts_sup[i] = elt_before_sup;
     }
-    I rem3 = sup - acc;
-    I elt_before_sup = rem3/w_elts[i];
-    n_elts_in[i] = elt_before_sup;
   }
-  return n_elts_in;
+  return std::make_pair(elts_inf,elts_sup);
 }
 
 
