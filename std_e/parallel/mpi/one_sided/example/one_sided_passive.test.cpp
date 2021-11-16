@@ -4,8 +4,11 @@
 #include "std_e/logging/time_logger.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/log.hpp"
+#include <thread>
 
 using namespace std_e;
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 
 MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
@@ -38,7 +41,7 @@ MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
   //err = MPI_Win_unlock_all(win);
 
   if (rk == 4) {
-    sleep(4);
+    std::this_thread::sleep_for(4s);
     //std::this_thread::sleep_for(std::chrono::milliseconds(rk*5));
   }
   // init

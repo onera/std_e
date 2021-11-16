@@ -7,6 +7,7 @@
 namespace std_e {
 
 
+#if __cpp_lib_atomic_wait
 enum task_state {
   not_started,
   finished
@@ -110,5 +111,11 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
   }
 }
 
+#else // __cpp_lib_atomic_wait not available
+auto
+execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
+  throw not_implemented_exception("execute_async_comm not supported because your compiler does not implement std::atomic waiting (__cpp_lib_atomic_wait)");
+}
+#endif
 
 } // std_e

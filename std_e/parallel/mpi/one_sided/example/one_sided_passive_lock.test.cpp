@@ -3,9 +3,11 @@
 #include "std_e/parallel/mpi/base.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/log.hpp"
-
+#include <thread>
 
 using namespace std_e;
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 
 MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
@@ -61,10 +63,10 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   }
 
   if (i_rank == 4) {
-    sleep(1);
+    std::this_thread::sleep_for(1s);
   }
   if (i_rank == 7) {
-    sleep(2);
+    std::this_thread::sleep_for(2s);
   }
 
   int err = MPI_Win_lock(MPI_LOCK_EXCLUSIVE, i_rank, MPI_MODE_NOCHECK, win);
