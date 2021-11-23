@@ -24,10 +24,16 @@ resize_memory(Dynamic_container& x, Integer n) -> void {
   x.resize(n);
 }
 template<class T, ptrdiff_t N, class Integer> auto
-resize_memory(span<T,N>& /*x*/, Integer /*n*/) -> void {
-  // ASSERT same as or less than old size
+resize_memory(span<T,N>& x, Integer n) -> void {
+  STD_E_ASSERT((Integer)x.size()==n);
 }
 
+template<class R, class Shape> auto
+cons_reshape(multi_array<R,Shape>& x, const typename Shape::multi_index_type& dims) {
+  auto n = std_e::cartesian_product_size(dims);
+  STD_E_ASSERT(x.size()==n);
+  reshape(x.shape(),dims);
+}
 template<class R, class Shape> auto
 reshape(multi_array<R,Shape>& x, const typename Shape::multi_index_type& dims) {
   reshape(x.shape(),dims);

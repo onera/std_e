@@ -230,14 +230,18 @@ class multi_array : private Multi_array_shape {
 
 template<class M00, class M01, class M10, class M11> constexpr auto
 operator==(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool {
-  if (x.size()!=y.size()) return false;
-  if (x.size()==0) return true;
-  auto mismatch_its = std::mismatch(x.begin(),x.end(),y.begin());
-  return mismatch_its.first==x.end();
+  if (x.extent()!=y.extent()) return false;
+  return x.underlying_range() == y.underlying_range();
 }
 template<class M00, class M01, class M10, class M11> constexpr auto
 operator!=(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool {
   return !(x==y);
+}
+template<class M00, class M01, class M10, class M11> constexpr auto
+same_data(const multi_array<M00,M01>& x, const multi_array<M10,M11>& y) -> bool {
+  return
+      x.extent()==y.extent()
+   && x.data()==y.data();
 }
 template<class M0, class M1> FORCE_INLINE constexpr auto begin(const multi_array<M0,M1>& x) { return x.begin(); }
 template<class M0, class M1> FORCE_INLINE constexpr auto begin(      multi_array<M0,M1>& x) { return x.begin(); }

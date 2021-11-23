@@ -43,16 +43,23 @@ fortran_index(const T0& dims, const T1& indices) {
   else return fortran_order_from_dimensions(dims,indices);
 }
 
-template<class Multi_index_0, class Multi_index_1, class Multi_index_2> FORCE_INLINE constexpr auto
+template<
+  class Multi_index_0, class Multi_index_1, class Multi_index_2,
+  class I = typename Multi_index_0::value_type
+> FORCE_INLINE constexpr auto
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
 // requires std_e::size<Multi_index_0> == std_e::size<Multi_index_2>
-fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& offsets, const Multi_index_2& indices) -> int {
+fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& offsets, const Multi_index_2& indices) -> I {
   STD_E_ASSERT(dims.size()==indices.size());
   STD_E_ASSERT(dims.size()==offsets.size());
+  using I1 = typename Multi_index_1::value_type;
+  using I2 = typename Multi_index_2::value_type;
+  static_assert(std::is_same_v<I,I1>);
+  static_assert(std::is_same_v<I,I2>);
   int rank = dims.size();
   if (rank==0) return 0;
-  int res = offsets[0]+indices[0];
-  int stride = dims[0];
+  I res = offsets[0]+indices[0];
+  I stride = dims[0];
   for (int k=1; k<rank; ++k) {
     res += (offsets[k] + indices[k]) * stride;
     stride *= dims[k];
