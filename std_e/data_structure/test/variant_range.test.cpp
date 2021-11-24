@@ -25,6 +25,12 @@ TEST_CASE("variant_range") {
     CHECK( var_s.size() == 2 );
   }
 
+  SUBCASE("holds_alternative") {
+    CHECK( holds_alternative<int>(var_i) );
+    CHECK( holds_alternative<double>(var_b) );
+    CHECK( holds_alternative<string>(var_s) );
+  }
+
   SUBCASE("operator[]") {
     CHECK( holds_alternative<int>(var_i[0]) );
     CHECK( holds_alternative<double>(var_b[0]) );

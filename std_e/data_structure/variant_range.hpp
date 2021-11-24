@@ -109,10 +109,10 @@ get(const reference_variant<Ts...>&& x) -> const T& {
 template<class T, class... Ts0> auto
 holds_alternative(const reference_variant<Ts0...>& x) -> bool {
   if constexpr (exactly_once<T,Ts0...>) {
-    return holds_alternative<T*>(x.impl);
+    return std::holds_alternative<T*>(x.impl);
   } else {
     static_assert(exactly_once<const T,Ts0...>);
-    return holds_alternative<const T*>(x.impl);
+    return std::holds_alternative<const T*>(x.impl);
   }
 }
 // reference_variant }
@@ -206,6 +206,9 @@ class variant_range {
 
     constexpr auto
     operator<=>(const variant_range& x) const = default;
+
+    template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
+    holds_alternative(const variant_range<R,RV,Ts0...>& x) -> bool;
 };
 // variant_range }
 
@@ -225,6 +228,10 @@ data_as(variant_range<R,RV,Ts...>& x) -> T* {
 template<class T, template<class> class R, template<class...> class RV, class... Ts> auto
 data_as(const variant_range<R,RV,Ts...>& x) -> const T* {
   return get<T>(x).data();
+}
+template<class T, template<class> class R, template<class...> class RV, class... Ts> auto
+holds_alternative(const variant_range<R,RV,Ts...>& x) -> bool {
+  return std::holds_alternative<R<T>>(x.impl);
 }
 
 

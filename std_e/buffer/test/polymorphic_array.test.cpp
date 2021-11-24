@@ -83,4 +83,28 @@ TEST_CASE("polymorphic_buffer") {
     CHECK( v.data()[1] == 1 );
     CHECK( v.data()[2] == 2 );
   }
+
+  SUBCASE("equality") {
+    std_e::polymorphic_array<int> x0;
+    std_e::polymorphic_array<int> x1;
+
+    std_e::polymorphic_array<int> x2(std::vector<int>{0,1,2});
+    std_e::polymorphic_array<int> x3(std::vector<int>{0,1,2});
+
+    std_e::polymorphic_array<int> x4(std::vector<int>{0,1});
+
+    std::vector<int> v = {0,1,2};
+    std_e::polymorphic_array<int> x5(std_e::make_span(v));
+
+    SUBCASE("nullptr cases") {
+      CHECK( x0 == x1 );
+      CHECK( x0 != x2 );
+      CHECK( x2 != x0 );
+    }
+    SUBCASE("value equality") {
+      CHECK( x2 == x3 );
+      CHECK( x2 != x4 );
+      CHECK( x2 == x5 ); // even if underlying types are differents, the value is the same
+    }
+  }
 }

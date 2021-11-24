@@ -86,7 +86,7 @@ class polymorphic_array {
       : impl(std::make_unique<detail::internal_array_impl<std::vector<T>>>(std::move(x)))
     {}
 
-    auto is_null() -> bool {
+    auto is_null() const -> bool {
       return impl == nullptr;
     }
 
@@ -136,11 +136,14 @@ class polymorphic_array {
 };
 
 template<class T> auto
-operator==(const polymorphic_array<T>& x, const polymorphic_array<T>& y) {
+operator==(const polymorphic_array<T>& x, const polymorphic_array<T>& y) -> bool {
+  if (x.is_null() && y.is_null()) return true;
+  if (x.is_null()) return false;
+  if (y.is_null()) return false;
   return x.as_span() == y.as_span();
 }
 template<class T> auto
-operator!=(const polymorphic_array<T>& x, const polymorphic_array<T>& y) {
+operator!=(const polymorphic_array<T>& x, const polymorphic_array<T>& y) -> bool {
   return !(x==y);
 }
 
