@@ -120,32 +120,75 @@ class polymorphic_array {
       return impl.release();
     }
 
-    // TODO move out of here
+    static auto
+    cleanup_fn() -> cleanup_function {
+      return cleanup_fn_impl;
+    }
+  private:
+  // function
     static auto
     cleanup_fn_impl(void* ptr) -> void {
       auto* type_ptr = static_cast<detail::internal_array_base<T>*>(ptr);
       delete type_ptr;
     }
-    auto
-    cleanup_fn() const -> cleanup_function {
-      return cleanup_fn_impl;
-    }
-
-  private:
+  // data member
     std::unique_ptr<detail::internal_array_base<T>> impl;
 };
 
-template<class T> auto
-operator==(const polymorphic_array<T>& x, const polymorphic_array<T>& y) -> bool {
+
+// comparisons {
+/// with other polymorphic_array {
+template<class T0, class T1> auto
+operator==(const polymorphic_array<T0>& x, const polymorphic_array<T1>& y) -> bool {
   if (x.is_null() && y.is_null()) return true;
   if (x.is_null()) return false;
   if (y.is_null()) return false;
   return x.as_span() == y.as_span();
 }
-template<class T> auto
-operator!=(const polymorphic_array<T>& x, const polymorphic_array<T>& y) -> bool {
+template<class T0, class T1> auto
+operator!=(const polymorphic_array<T0>& x, const polymorphic_array<T1>& y) -> bool {
   return !(x==y);
 }
+/// with other polymorphic_array }
+
+/// with vector and span {
+template<class T0, class T1> auto
+operator==(const polymorphic_array<T0>& x, const span<T1>& y) -> bool {
+  if (x.is_null()) return false;
+  return x.as_span() == y;
+}
+template<class T0, class T1> auto
+operator==(const span<T1>& x, const polymorphic_array<T0>& y) -> bool {
+  return y==x;
+}
+template<class T0, class T1> auto
+operator==(const polymorphic_array<T0>& x, const std::vector<T1>& y) -> bool {
+  return x.as_span() == make_span(y);
+}
+template<class T0, class T1> auto
+operator==(const std::vector<T1>& x, const polymorphic_array<T0>& y) -> bool {
+  return y==x;
+}
+
+template<class T0, class T1> auto
+operator!=(const polymorphic_array<T0>& x, const span<T1>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1> auto
+operator!=(const span<T1>& x, const polymorphic_array<T0>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1> auto
+operator!=(const polymorphic_array<T0>& x, const std::vector<T1>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1> auto
+operator!=(const std::vector<T1>& x, const polymorphic_array<T0>& y) -> bool {
+  return !(x==y);
+}
+/// with vector and span }
+// comparisons }
+
 
 
 

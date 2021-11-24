@@ -106,5 +106,18 @@ TEST_CASE("polymorphic_buffer") {
       CHECK( x2 != x4 );
       CHECK( x2 == x5 ); // even if underlying types are differents, the value is the same
     }
+    SUBCASE("equality with vector or span") {
+      std::vector<int> v = {0,1,2};
+      CHECK( x2 == v );
+      CHECK( v == x2 );
+      CHECK( x2 == std_e::make_span(v) );
+      CHECK( std_e::make_span(v) == x2 );
+
+      std::vector<int> w = {1,1,1};
+      CHECK( x2 != w );
+      CHECK( w != x2 );
+      CHECK( x2 != std_e::make_span(w) );
+      CHECK( std_e::make_span(w) != x2 );
+    }
   }
 }
