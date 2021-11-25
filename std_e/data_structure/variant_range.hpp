@@ -213,11 +213,11 @@ class variant_range {
 // variant_range }
 
 template<template<class> class R, template<class...> class RV, class... Ts, class F> auto
-visit(variant_range<R,RV,Ts...>& x, F&& f) {
+visit(F&& f, variant_range<R,RV,Ts...>& x) -> decltype(auto) {
   return x.visit(FWD(f));
 }
 template<template<class> class R, template<class...> class RV, class... Ts, class F> auto
-visit(const variant_range<R,RV,Ts...>& x, F&& f) {
+visit(F&& f, const variant_range<R,RV,Ts...>& x) -> decltype(auto) {
   return x.visit(FWD(f));
 }
 
