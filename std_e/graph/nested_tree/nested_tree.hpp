@@ -267,6 +267,12 @@ class child_iterator {
       size_ptr += size();
       return *this;
     }
+    constexpr auto
+    operator++(int) -> child_iterator {
+      child_iterator res(*this);
+      ++*this;
+      return res;
+    }
 
   // comparison
     template<class T_ptr0, class I_ptr0, class T_ptr1, class I_ptr1> friend constexpr auto
