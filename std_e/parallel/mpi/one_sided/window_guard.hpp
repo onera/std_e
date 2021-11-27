@@ -24,7 +24,7 @@ class window_guard {
 
     ~window_guard() {
       int err = MPI_Win_unlock_all(win);
-      assert(!err);
+      STD_E_ASSERT_ABORT(!err);
       MPI_Barrier(comm); // TODO
     }
 };

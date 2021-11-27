@@ -49,7 +49,6 @@ uniform_distribution(Fwd_it first, Fwd_it last, T nb_elts) {
 
 template<class Fwd_it0, class S0, class Fwd_it1, class S1, class Fwd_it2, class Out_it> constexpr auto
 distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, Fwd_it2 first_weights, Out_it first_weighted) -> void {
-  auto n_interval = std::distance(first,last)-1;
   using I = typename std::iterator_traits<Fwd_it1>::value_type;
   I total_weighted_size = std::inner_product(first_size,last_size,first_weights,I(0));
   // 0. distribution if the size of every block size was multiplied by its weight
@@ -58,7 +57,6 @@ distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 l
   // 1. now we need to change this distribution by dividing by the weights
   //    for that, we iterate through each bound of the "multiplied by weight" interval to replace it with the real bound
   // TODO clean
-  I acc = 0;
   I prev_weighted_size = 0;
   I partial_size = 0;
   // For each bound:
@@ -129,7 +127,6 @@ elements_in_interval(I inf, I sup, const Range& n_elts, const Range& w_elts) {
   }
   I rem = inf - acc;
   I elt_before_inf = rem/w_elts[i];
-  I elt_after_inf = n_elts[i] - elt_before_inf;
   if (acc + n_elts[i]*w_elts[i] > sup) { // enough to fill the interval
     I rem2 = acc + n_elts[i]*w_elts[i] - sup;
     I elt_after_sup = rem2/w_elts[i];

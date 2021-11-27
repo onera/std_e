@@ -40,7 +40,7 @@ class mpi_data_type {
     ~mpi_data_type() {
       if (mpi_type!=MPI_DATATYPE_NULL) {
         int err = MPI_Type_free(&mpi_type);
-        assert(!err);
+        STD_E_ASSERT_ABORT(!err);
       }
     }
 
