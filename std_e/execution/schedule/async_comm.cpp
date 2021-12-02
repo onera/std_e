@@ -1,3 +1,6 @@
+#if __cplusplus > 201703L
+
+
 #include "std_e/execution/schedule/async_comm.hpp"
 
 
@@ -119,3 +122,6 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
 #endif
 
 } // std_e
+
+
+#endif // C++20

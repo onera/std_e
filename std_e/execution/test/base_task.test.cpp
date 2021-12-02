@@ -1,3 +1,6 @@
+#if __cplusplus > 201703L
+
+
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/log.hpp" // TODO
@@ -132,3 +135,6 @@ TEST_CASE("then_comm") {
     CHECK( execute_async_comm(s3,comm_tp) == std::vector{0,1,2,3, 6,5,4,7,    3,2,1,0} );
   }
 }
+
+
+#endif // C++20

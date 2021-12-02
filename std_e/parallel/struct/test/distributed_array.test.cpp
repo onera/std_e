@@ -1,3 +1,6 @@
+#if __cplusplus > 201703L
+
+
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/log.hpp"
@@ -305,3 +308,5 @@ MPI_TEST_CASE("distributed array - scatter",4) {
   }
 }
 
+
+#endif // C++20

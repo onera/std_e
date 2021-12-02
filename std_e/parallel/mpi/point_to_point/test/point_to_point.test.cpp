@@ -1,3 +1,6 @@
+#if __cplusplus > 201703L
+
+
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/mpi/point_to_point/point_to_point.hpp"
@@ -123,3 +126,6 @@ MPI_TEST_CASE("send recv async overlap",2) {
 }
 
 } // async_test
+
+
+#endif // C++20
