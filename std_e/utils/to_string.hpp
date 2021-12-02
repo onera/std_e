@@ -62,5 +62,15 @@ to_string_almost_exact(floating_point_type x) -> std::string {
   return x_as_str;
 }
 
+template <typename... Ts>
+auto to_string(const Ts&... xs) {
+  std::string s;
+  // oss << std::forward<T>(token);
+  using std::to_string;
+  using std_e::to_string;
+  ((s += to_string(xs)), ...);
+  return s;
+}
+
 
 } // std_e
