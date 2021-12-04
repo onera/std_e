@@ -100,18 +100,28 @@ class multi_array : private Multi_array_shape {
   /// ctors with dimensions }
 
   /// ctors from initializer lists {
-    //// ctor for rank==1
-    multi_array(std::initializer_list<value_type> l)
+    //// ctors for owning memory
+    // NOTE:
+    //   the ctor is templated by T with T required to by of type value_type
+    //   its seems that using a non-templated version using T=value_type would be simpler and do the same
+    //   however, with the template, multi_array[I4,2]{{0},{1}} will work and choose the 2D ctor
+    //   whereas without the template, the compiler will say that the 1D and 1D ctors are ambigous
+    template<class T>
+      // requires std::is_same_v<T,value_type>
+    multi_array(std::initializer_list<T>&& l)
       : multi_array(l,make_array_of_size<underlying_range_type>(l.size()))
     {}
-    multi_array(std::initializer_list<value_type> l, value_type* ptr)
-      : multi_array(l,span<value_type>(ptr,l.size()))
-    {}
-    //// ctor for rank==2
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll)
+    template<class T>
+      // requires std::is_same_v<T,value_type>
+    multi_array(std::initializer_list<std::initializer_list<T>>&& ll)
       : multi_array(ll,make_array_of_size<underlying_range_type>(ll.size() * std::begin(ll)->size()))
     {}
-    multi_array(std::initializer_list<std::initializer_list<value_type>> ll, value_type* ptr)
+
+    //// ctors for non-owning memory
+    multi_array(std::initializer_list<value_type>&& l, value_type* ptr)
+      : multi_array(l,span<value_type>(ptr,l.size()))
+    {}
+    multi_array(std::initializer_list<std::initializer_list<value_type>>&& ll, value_type* ptr)
       : multi_array(ll,span<value_type>(ptr,ll.size() * std::begin(ll)->size()))
     {}
   /// ctors from initializer lists }
@@ -256,22 +266,14 @@ make_view(multi_array<M0,M1>& x) {
   using value_type = typename multi_array<M0,M1>::value_type;
   constexpr int ct_size = multi_array<M0,M1>::ct_size;
   using mem_view_type = span<value_type,ct_size>;
-#if __GNUC__ > 7
-  return multi_array{ mem_view_type{x.data()} , x.shape() };
-#else
-  return multi_array<mem_view_type,M1>{ mem_view_type{x.data()} , x.shape() };
-#endif
+  return multi_array{ mem_view_type{x.data(),x.size()} , x.shape() };
 }
 template<class M0, class M1> auto
 make_view(const multi_array<M0,M1>& x) {
   using value_type = typename multi_array<M0,M1>::value_type;
   constexpr int ct_size = multi_array<M0,M1>::ct_size;
   using mem_view_type = span<const value_type,ct_size>;
-#if __GNUC__ > 7
-  return multi_array{ mem_view_type{x.data()} , x.shape() };
-#else
-  return multi_array<mem_view_type,M1>{ mem_view_type{x.data()} , x.shape() };
-#endif
+  return multi_array{ mem_view_type{x.data(),x.size()} , x.shape() };
 }
 
 // sub views of contiguous memory {
@@ -283,12 +285,8 @@ template<
 > auto
 make_sub_array(multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
-#if __GNUC__ > 7
-  return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
-#else
-  using T = typename M0::value_type;
-  return multi_array<span<T>,decltype(sub_shape)>{ span{x.data()+index_1d} , std::move(sub_shape) };
-#endif
+  auto sub_sz = sub_shape.size();
+  return multi_array{ make_span(x.data()+index_1d,sub_sz) , std::move(sub_shape) };
 }
 template<
   class M0, class M1, class Multi_index,
@@ -296,12 +294,8 @@ template<
 > auto
 make_sub_array(const multi_array<M0,M1>& x, const Multi_index& right_indices) {
   auto [index_1d,sub_shape] = shape_restriction_start_index_1d(x.shape(),right_indices);
-#if __GNUC__ > 7
-  return multi_array{ span{x.data()+index_1d} , std::move(sub_shape) };
-#else
-  using T = typename M0::value_type;
-  return multi_array<span<T>,decltype(sub_shape)>{ span{x.data()+index_1d} , std::move(sub_shape) };
-#endif
+  auto sub_sz = sub_shape.size();
+  return multi_array{ make_span(x.data()+index_1d,sub_sz) , std::move(sub_shape) };
 }
 // overloads matching initialization lists {
 template<
@@ -377,17 +371,17 @@ make_span(const multi_array<M0,M1>& x, I j) {
 
 /// special case of 2D arrays {
 template<
-  class M0, class M1, class I,
+  class M0, class M1,
   std::enable_if_t< M1::rank()==2 , int > =0
 > constexpr auto
-column(multi_array<M0,M1>& x, I j) {
+column(multi_array<M0,M1>& x, typename multi_array<M0,M1>::index_type j) {
   return make_span(x,j);
 }
 template<
-  class M0, class M1, class I,
+  class M0, class M1,
   std::enable_if_t< M1::rank()==2 , int > =0
 > constexpr auto
-column(const multi_array<M0,M1>& x, I j) {
+column(const multi_array<M0,M1>& x, typename multi_array<M0,M1>::index_type j) {
   return make_span(x,j);
 }
 /// special case of 2D arrays }

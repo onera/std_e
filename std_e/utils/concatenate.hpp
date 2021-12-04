@@ -53,11 +53,11 @@ inline auto concatenate_in_vector = [](auto&&... xs){ return concatenate_in_vect
 
 template<class Array0, class Array1> constexpr auto
 append(Array0& x, const Array1& y)  {
-  std::copy(begin(y),end(y),std::back_inserter(x));
+  std::copy(begin(y),end(y),back_inserter(x));
 }
 template<class Array0, class Array1> constexpr auto
 emplace_back(Array0& x, Array1&& y)  {
-  std::move(begin(y),end(y),std::back_inserter(x));
+  std::move(begin(y),end(y),back_inserter(x));
 }
 
 

@@ -87,6 +87,11 @@ class reference_variant {
 
     template<class T, class... Ts0> friend auto
     holds_alternative(const reference_variant<Ts0...>& x) -> bool;
+
+    template<class F, class... Ts0> friend auto
+    visit(F&& f, reference_variant<Ts0...>& x) -> decltype(auto);
+    template<class F, class... Ts0> friend auto
+    visit(F&& f, const reference_variant<Ts0...>& x) -> decltype(auto);
 };
 
 template<class T, class... Ts> auto
@@ -115,6 +120,15 @@ holds_alternative(const reference_variant<Ts0...>& x) -> bool {
     return std::holds_alternative<const T*>(x.impl);
   }
 }
+
+template<class F, class... Ts> auto
+visit(F&& f, reference_variant<Ts...>& x) -> decltype(auto) {
+  return visit([f](auto&& y){ return f(*y); },x.impl);
+}
+template<class F, class... Ts> auto
+visit(F&& f, const reference_variant<Ts...>& x) -> decltype(auto) {
+  return visit([f](auto&& y){ return f(*y); },x.impl);
+}
 // reference_variant }
 
 
@@ -134,7 +148,7 @@ class variant_range {
   // type traits
     using value_type = std::variant<Ts...>;
     using reference = ref_variant;
-    using const_reference = ref_variant;
+    using const_reference = const_ref_variant;
     using pointer = void*;
     using const_pointer = const void*;
   // ctors

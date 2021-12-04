@@ -115,6 +115,9 @@ class span_base : public span_size<N> {
     // static span ctor
     FORCE_INLINE constexpr explicit
     span_base(T* ptr)
+      #if __cplusplus > 201703L
+        requires (N!=dynamic_size)
+      #endif
       // Precondition: [ptr,ptr+N) is valid range
       : span_size_type()
       , ptr(ptr)
@@ -217,8 +220,8 @@ operator!=(const span_base<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
-operator==(const std::vector<T1,A>& y, const span_base<T0,N>& x) -> bool {
-  return x==y;
+operator==(const std::vector<T1,A>& x, const span_base<T0,N>& y) -> bool {
+  return y==x;
 }
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator!=(const std::vector<T1,A>& y, const span_base<T0,N>& x) -> bool {
@@ -233,9 +236,6 @@ class span : public span_base<T,N> {
     using base::base;
 };
 
-template<class T>
-span(T*) -> span<T>; // TODO remove (makes no sense if N=dyn_size!, but used in multi_array...)
-
 // op== and op!= {
 // Needed. The span_base ones should be taken by the compiler,
 // however this is not the case and another (unknown) op== is used...
@@ -247,6 +247,24 @@ template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
   return !(x==y);
 }
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator==(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
+  return span_base<const T0,N>(x)==y;
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator!=(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator==(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
+  return x==span_base<const T1,N>(y);
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator!=(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
+  return !(x==y);
+}
+
+
 // op== and op!= }
 
 

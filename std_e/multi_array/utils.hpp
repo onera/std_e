@@ -25,7 +25,7 @@ resize_memory(Dynamic_container& x, Integer n) -> void {
 }
 template<class T, ptrdiff_t N, class Integer> auto
 resize_memory(span<T,N>& x, Integer n) -> void {
-  STD_E_ASSERT((Integer)x.size()==n);
+  STD_E_ASSERT((Integer)x.size()>=n);
 }
 
 template<class R, class Shape> auto
@@ -50,6 +50,7 @@ is_empty(const multi_array<R,Shape>& x) -> bool {
 
 template<class R, class Shape> auto
 to_string(const multi_array<R,Shape>& x) -> std::string {
+  using I = typename multi_array<R,Shape>::index_type;
   if (cartesian_product_size(x.extent())==0) {
     return "[]";
   }
@@ -63,8 +64,8 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
   if constexpr (Shape::ct_rank==1 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==1) {
       std::string s = "["+to_string(x(0));
-      int n = x.extent(0);
-      for (int i=1; i<n; ++i) {
+      I n = x.extent(0);
+      for (I i=1; i<n; ++i) {
         s += "," + std::to_string(x(i));
       }
       return s + "]";
@@ -73,15 +74,15 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
   if constexpr (Shape::ct_rank==2 || Shape::ct_rank==dynamic_size) {
     if (x.rank()==2) {
       std::string s = "[["+to_string(x(0,0));
-      int n_i = x.extent(0);
-      int n_j = x.extent(1);
-      for (int j=1; j<n_j; ++j) {
+      I n_i = x.extent(0);
+      I n_j = x.extent(1);
+      for (I j=1; j<n_j; ++j) {
         s += "," + std::to_string(x(0,j));
       }
       s += "]";
-      for (int i=1; i<n_i; ++i) {
+      for (I i=1; i<n_i; ++i) {
         s += ",[" + std::to_string(x(i,0));
-        for (int j=1; j<n_j; ++j) {
+        for (I j=1; j<n_j; ++j) {
           s += "," + std::to_string(x(i,j));
         }
         s += "]";

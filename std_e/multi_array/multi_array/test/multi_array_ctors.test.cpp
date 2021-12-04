@@ -48,14 +48,22 @@ TEST_CASE("multi_array constructors - from initialization lists (only 1D and 2D)
   SUBCASE("for multi-array containers") {
 
     SUBCASE("1D") {
-      dyn_multi_array<double,1> ma = {0,1,2};
+      dyn_multi_array<double,1> ma = {0.,1.,2.};
       CHECK( ma.extent(0) == 3 );
     }
 
     SUBCASE("2D") {
-      dyn_multi_array<double,2> ma = {{0,1},{2,3},{4,5}};
-      CHECK( ma.extent(0) == 3 );
-      CHECK( ma.extent(1) == 2 );
+      dyn_multi_array<double,2> ma0 = {{0.,1.},{2.,3.},{4.,5.}};
+      CHECK( ma0.extent(0) == 3 );
+      CHECK( ma0.extent(1) == 2 );
+
+      dyn_multi_array<double,2> ma1 = {{0.,1.,3.}};
+      CHECK( ma1.extent(0) == 1 );
+      CHECK( ma1.extent(1) == 3 );
+
+      dyn_multi_array<double,2> ma2 = {{0.},{1.},{3.}};
+      CHECK( ma2.extent(0) == 3 );
+      CHECK( ma2.extent(1) == 1 );
     }
   }
 
