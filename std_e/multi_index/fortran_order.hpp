@@ -56,7 +56,7 @@ fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& of
   using I2 = typename Multi_index_2::value_type;
   static_assert(std::is_same_v<I,I1>);
   static_assert(std::is_same_v<I,I2>);
-  int rank = dims.size();
+  int rank = indices.size();
   if (rank==0) return 0;
   I res = offsets[0]+indices[0];
   I stride = dims[0];

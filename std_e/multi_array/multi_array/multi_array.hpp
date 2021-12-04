@@ -105,23 +105,35 @@ class multi_array : private Multi_array_shape {
     //   the ctor is templated by T with T required to by of type value_type
     //   its seems that using a non-templated version using T=value_type would be simpler and do the same
     //   however, with the template, multi_array[I4,2]{{0},{1}} will work and choose the 2D ctor
-    //   whereas without the template, the compiler will say that the 1D and 1D ctors are ambigous
+    //   whereas without the template, the compiler will say that the 1D and 2D ctors are ambigous
     template<class T>
-      // requires std::is_same_v<T,value_type>
+      #if __cplusplus > 201703L
+        requires std::is_same_v<T,value_type>
+      #endif
     multi_array(std::initializer_list<T>&& l)
       : multi_array(l,make_array_of_size<underlying_range_type>(l.size()))
     {}
     template<class T>
-      // requires std::is_same_v<T,value_type>
+      #if __cplusplus > 201703L
+        requires std::is_same_v<T,value_type>
+      #endif
     multi_array(std::initializer_list<std::initializer_list<T>>&& ll)
       : multi_array(ll,make_array_of_size<underlying_range_type>(ll.size() * std::begin(ll)->size()))
     {}
 
     //// ctors for non-owning memory
-    multi_array(std::initializer_list<value_type>&& l, value_type* ptr)
+    template<class T>
+      #if __cplusplus > 201703L
+        requires std::is_same_v<T,value_type>
+      #endif
+    multi_array(std::initializer_list<T>&& l, value_type* ptr)
       : multi_array(l,span<value_type>(ptr,l.size()))
     {}
-    multi_array(std::initializer_list<std::initializer_list<value_type>>&& ll, value_type* ptr)
+    template<class T>
+      #if __cplusplus > 201703L
+        requires std::is_same_v<T,value_type>
+      #endif
+    multi_array(std::initializer_list<std::initializer_list<T>>&& ll, value_type* ptr)
       : multi_array(ll,span<value_type>(ptr,ll.size() * std::begin(ll)->size()))
     {}
   /// ctors from initializer lists }
@@ -167,6 +179,7 @@ class multi_array : private Multi_array_shape {
     }
 
   private:
+  public: // TODO
   // member functions
     // linear_index {
     /// from Multi_index

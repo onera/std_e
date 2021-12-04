@@ -46,7 +46,6 @@ TEST_CASE("multi_array constructors - from extent") {
 TEST_CASE("multi_array constructors - from initialization lists (only 1D and 2D)") {
 
   SUBCASE("for multi-array containers") {
-
     SUBCASE("1D") {
       dyn_multi_array<double,1> ma = {0.,1.,2.};
       CHECK( ma.extent(0) == 3 );
@@ -57,10 +56,12 @@ TEST_CASE("multi_array constructors - from initialization lists (only 1D and 2D)
       CHECK( ma0.extent(0) == 3 );
       CHECK( ma0.extent(1) == 2 );
 
+      // only one raw
       dyn_multi_array<double,2> ma1 = {{0.,1.,3.}};
       CHECK( ma1.extent(0) == 1 );
       CHECK( ma1.extent(1) == 3 );
 
+      // only one column
       dyn_multi_array<double,2> ma2 = {{0.},{1.},{3.}};
       CHECK( ma2.extent(0) == 3 );
       CHECK( ma2.extent(1) == 1 );
@@ -69,10 +70,9 @@ TEST_CASE("multi_array constructors - from initialization lists (only 1D and 2D)
 
 
   SUBCASE("for multi-array views") {
-
     SUBCASE("1D") {
       std::vector<double> v(3);
-      dyn_multi_array_view<double,1> ma = {{0,1,2},v.data()};
+      dyn_multi_array_view<double,1> ma = {{0.,1.,2.},v.data()};
       CHECK( ma.extent(0) == 3 );
       CHECK( v[0] == 0. );
       CHECK( v[1] == 1. );
@@ -80,17 +80,29 @@ TEST_CASE("multi_array constructors - from initialization lists (only 1D and 2D)
     }
 
     SUBCASE("2D") {
-      std::vector<double> v(6);
-      dyn_multi_array_view<double,2> ma = {{{0,1},{2,3},{4,5}},v.data()};
-      CHECK( ma.extent(0) == 3 );
-      CHECK( ma.extent(1) == 2 );
+      std::vector<double> v0(6);
+      dyn_multi_array_view<double,2> ma0 = {{{0.,1.},{2.,3.},{4.,5.}},v0.data()};
+      CHECK( ma0.extent(0) == 3 );
+      CHECK( ma0.extent(1) == 2 );
       // remember that dyn_multi_array is Fortran-ordered
-      CHECK( v[0] == 0. );
-      CHECK( v[1] == 2. );
-      CHECK( v[2] == 4. );
-      CHECK( v[3] == 1. );
-      CHECK( v[4] == 3. );
-      CHECK( v[5] == 5. );
+      CHECK( v0[0] == 0. );
+      CHECK( v0[1] == 2. );
+      CHECK( v0[2] == 4. );
+      CHECK( v0[3] == 1. );
+      CHECK( v0[4] == 3. );
+      CHECK( v0[5] == 5. );
+
+      // only one raw
+      std::vector<double> v1(3);
+      dyn_multi_array_view<double,2> ma1 = {{{0.,1.,3.}},v1.data()};
+      CHECK( ma1.extent(0) == 1 );
+      CHECK( ma1.extent(1) == 3 );
+
+      // only one column
+      std::vector<double> v2(3);
+      dyn_multi_array_view<double,2> ma2 = {{{0.},{1.},{3.}},v1.data()};
+      CHECK( ma2.extent(0) == 3 );
+      CHECK( ma2.extent(1) == 1 );
     }
   }
 }

@@ -66,7 +66,7 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
       std::string s = "["+to_string(x(0));
       I n = x.extent(0);
       for (I i=1; i<n; ++i) {
-        s += "," + std::to_string(x(i));
+        s += "," + to_string(x(i));
       }
       return s + "]";
     }
@@ -77,13 +77,13 @@ to_string(const multi_array<R,Shape>& x) -> std::string {
       I n_i = x.extent(0);
       I n_j = x.extent(1);
       for (I j=1; j<n_j; ++j) {
-        s += "," + std::to_string(x(0,j));
+        s += "," + to_string(x(0,j));
       }
       s += "]";
       for (I i=1; i<n_i; ++i) {
-        s += ",[" + std::to_string(x(i,0));
+        s += ",[" + to_string(x(i,0));
         for (I j=1; j<n_j; ++j) {
-          s += "," + std::to_string(x(i,j));
+          s += "," + to_string(x(i,j));
         }
         s += "]";
       }
