@@ -16,3 +16,11 @@
 #define FWD(x) std::forward<decltype(x)>(x)
 
 #define STD_E_UNUSED(x) ((void)(x))
+
+#if __cplusplus > 201703L
+  #define STD_E_CONSTEXPR constexpr
+  #define STD_E_CONSTEXPR_CONST constexpr
+#else
+  #define STD_E_CONSTEXPR inline
+  #define STD_E_CONSTEXPR_CONST const
+#endif

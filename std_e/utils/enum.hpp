@@ -5,11 +5,12 @@
 #include <vector>
 #include "std_e/utils/string.hpp"
 #include "std_e/utils/frozen_flat_map.hpp"
+#include "std_e/base/macros.hpp"
 
 
 namespace std_e {
 
-template<class Enum_type> constexpr auto
+template<class Enum_type> STD_E_CONSTEXPR auto
 to_int(Enum_type e) -> int {
   return static_cast<int>(e);
 };
@@ -58,7 +59,7 @@ enum_identifiers(const std::string& enum_desc) -> std::vector<std::string> {
 #define STD_E_ENUM__IMPL(enum_category,enum_name, ... ) \
   enum_category enum_name { __VA_ARGS__ }; \
   \
-  constexpr auto enum_size__impl(enum_name) -> size_t { \
+  STD_E_CONSTEXPR auto enum_size__impl(enum_name) -> size_t { \
     return STD_E_NUMBER_OF_VA_ARGS(__VA_ARGS__); \
   } \
   \
@@ -96,12 +97,12 @@ namespace std_e {
 
 // enum_size {
 /// primary definition, should be replaced by specific overload
-template<class Str_enum_type> constexpr auto
+template<class Str_enum_type> STD_E_CONSTEXPR auto
 enum_size__impl(Str_enum_type) -> size_t {
   return 0;
 }
 template<class Str_enum_type>
-constexpr size_t enum_size = enum_size__impl(Str_enum_type{}); // use ADL
+STD_E_CONSTEXPR_CONST size_t enum_size = enum_size__impl(Str_enum_type{}); // use ADL
 // enum_size }
 
 // enum_to_strings {
