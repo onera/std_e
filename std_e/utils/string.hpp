@@ -52,9 +52,9 @@ remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::stri
   return split(copy_without_spaces(s),sep);
 }
 
-inline auto
+constexpr auto
 contains(std::string_view s, char c) -> bool {
-  auto it = std::find(begin(s),end(s),c);
+  auto it = std_e::find(begin(s),end(s),c);
   return it!=end(s);
 }
 inline auto
@@ -69,8 +69,13 @@ ends_with(const std::string& s, const std::string& suffix) -> bool {
 }
 
 constexpr auto
+contains(std::string_view s, std::string_view sub) -> bool {
+  return s.find(sub) != std::string::npos;
+}
+
+constexpr auto
 count_char(std::string_view s, char c) -> int {
-  return count(begin(s),end(s),c);
+  return std_e::count(begin(s),end(s),c);
 }
 
 
