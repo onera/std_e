@@ -82,7 +82,7 @@ class multi_array : private Multi_array_shape {
     >
     multi_array(Integers... dims)
       : shape_type({dims...})
-      , rng(std_e::cartesian_product_size(multi_index<int,sizeof...(Integers)>{dims...}))
+      , rng(std_e::cartesian_product_size(multi_index<index_type,sizeof...(Integers)>{dims...}))
     {
       static_assert(ct_rank==dynamic_size || sizeof...(Integers)==ct_rank);
     }
