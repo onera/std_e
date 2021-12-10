@@ -1,6 +1,7 @@
 include(${PROJECT_UTILS_CMAKE_DIR}/doctest_pytest.cmake)
 
 set(n_proc_max_test 4)
+set(doctest_args -tse=mpi_internode) #Exclude internode test from ctest
 
 if(${PROJECT_NAME}_ENABLE_MPI)
   set(unit_test_main ${PROJECT_UTILS_DIR}/src/mpi_unit_test_main.cpp)
@@ -21,4 +22,5 @@ create_doctest(
   #SOURCES       ${test_files}
   SERIAL_RUN    ${serial_run}
   N_PROC        ${n_proc_max_test}
+  DOCTEST_ARGS  ${doctest_args}
 )

@@ -22,6 +22,7 @@
 
 using namespace std_e;
 
+TEST_SUITE_BEGIN("mpi_internode");
 MPI_TEST_CASE("MPI_Win fence - multiple compute nodes",48) {
   int n_rank = test_nb_procs;
 
@@ -75,3 +76,4 @@ MPI_TEST_CASE("MPI_Win fence - multiple compute nodes",48) {
   std::iota(expected_complete_array.begin(),expected_complete_array.end(),0);
   CHECK(complete_array == expected_complete_array);
 }
+TEST_SUITE_END();

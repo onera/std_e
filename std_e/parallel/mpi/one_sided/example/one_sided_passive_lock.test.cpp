@@ -10,6 +10,7 @@ using namespace std::string_literals;
 using namespace std::chrono_literals;
 
 
+TEST_SUITE_BEGIN("mpi_internode");
 MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   int alloc_method = 0; // MPI_Win_allocate
   //int alloc_method = 1; // MPI_Win_create + MPI_Alloc_mem
@@ -135,3 +136,4 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   int err_free = MPI_Win_free(&win);
   assert(err_free == MPI_SUCCESS);
 }
+TEST_SUITE_END();

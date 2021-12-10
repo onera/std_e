@@ -11,6 +11,7 @@ using namespace std::string_literals;
 using namespace std::chrono_literals;
 
 
+TEST_SUITE_BEGIN("mpi_internode");
 MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
   //auto logger = &std_e::get_logger("terminal");
   auto logger = &std_e::get_logger("file");
@@ -87,4 +88,4 @@ MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
   std::iota(expected_complete_array.begin(),expected_complete_array.end(),0);
   CHECK(complete_array == expected_complete_array);
 }
-
+TEST_SUITE_END();
