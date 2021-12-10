@@ -2,13 +2,12 @@
 
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <sstream>
 #include <algorithm>
 #include "std_e/future/algorithm.hpp"
-#if __cplusplus > 201703L
-  #include <string_view>
-#endif
+
 
 namespace std_e {
 
@@ -54,6 +53,11 @@ remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::stri
 }
 
 inline auto
+contains(std::string_view s, char c) -> bool {
+  auto it = std::find(begin(s),end(s),c);
+  return it!=end(s);
+}
+inline auto
 begins_with(const std::string& s, const std::string& prefix) -> bool {
   if (prefix.size() > s.size()) return false;
   return std::equal(prefix.begin(), prefix.end(), s.begin());
@@ -64,27 +68,10 @@ ends_with(const std::string& s, const std::string& suffix) -> bool {
   return std::equal(suffix.rbegin(), suffix.rend(), s.rbegin());
 }
 
-#if __cplusplus > 201703L
-constexpr auto
-contains(std::string_view s, char c) -> bool {
-  auto it = std::find(begin(s),end(s),c);
-  return it!=end(s);
-}
 constexpr auto
 count_char(std::string_view s, char c) -> int {
-  return std_e::count(begin(s),end(s),c);
+  return count(begin(s),end(s),c);
 }
-#else
-inline auto
-contains(const std::string& s, char c) -> bool {
-  auto it = std::find(begin(s),end(s),c);
-  return it!=end(s);
-}
-inline auto
-count_char(const std::string& s, char c) -> int {
-  return std_e::count(begin(s),end(s),c);
-}
-#endif
 
 
 } // std_e

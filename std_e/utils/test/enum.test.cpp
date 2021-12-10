@@ -1,6 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 using std::vector;
 using std::string;
+#include <iostream> // TODO
 
 // [Sphinx Doc] STD_E_ENUM_CLASS {
 #include "std_e/utils/enum.hpp"
@@ -11,11 +12,9 @@ STD_E_ENUM_CLASS(my_enum_example_name,
   value_1
 )
 TEST_CASE("STD_E_ENUM_CLASS") {
-  #if __cplusplus > 201703L
-    SUBCASE("enum_size") {
-      static_assert(std_e::enum_size<my_enum_example_name> == 2 );
-    }
-  #endif
+  SUBCASE("enum_size") {
+    static_assert(std_e::enum_size<my_enum_example_name> == 2 );
+  }
 
   SUBCASE("to_int") {
     CHECK( std_e::to_int(my_enum_example_name::value_0) == 0 );
@@ -40,6 +39,7 @@ TEST_CASE("STD_E_ENUM_CLASS") {
 }
 // [Sphinx Doc] STD_E_ENUM_CLASS }
 
+#define xxx(...) #__VA_ARGS__
 
 // [Sphinx Doc] STD_E_ENUM_CLASS_WITH_VALUES {
 // Define enum class "my_enum_example_name" with more features
@@ -52,11 +52,9 @@ STD_E_ENUM_CLASS(my_e_val_ex_name,
   value_5=10
 )
 TEST_CASE("STD_E_ENUM_CLASS_WITH_VALUES") {
-  #if __cplusplus > 201703L
-    SUBCASE("enum_size") {
-      static_assert(std_e::enum_size<my_e_val_ex_name> == 6 );
-    }
-  #endif
+  SUBCASE("enum_size") {
+    static_assert(std_e::enum_size<my_e_val_ex_name> == 6 );
+  }
 
   SUBCASE("to_int") {
     CHECK( std_e::to_int(my_e_val_ex_name::value_0) == 200 );
@@ -115,11 +113,9 @@ TEST_CASE("STD_E_ENUM_CLASS within namespace enum_to_strings") {
   CHECK( strs[1] == "value_3" );
   CHECK( strs[2] == "value_4" );
 }
-#if __cplusplus > 201703L
-  TEST_CASE("STD_E_ENUM_CLASS within namespace enum_size") {
-    static_assert(std_e::enum_size<testing_nspace::my_enum_example_name> == 3 );
-  }
-#endif
+TEST_CASE("STD_E_ENUM_CLASS within namespace enum_size") {
+  static_assert(std_e::enum_size<testing_nspace::my_enum_example_name> == 3 );
+}
 TEST_CASE("to_string(STD_E_ENUM_CLASS within namespace)") {
   CHECK( testing_nspace::to_string(testing_nspace::my_enum_example_name::value_2) == "value_2" );
   CHECK( testing_nspace::to_string(testing_nspace::my_enum_example_name::value_3) == "value_3" );
