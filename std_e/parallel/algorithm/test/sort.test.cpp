@@ -1,29 +1,21 @@
 //#include "std_e/unit_test/doctest_mpi.hpp"
 //
-//#include <cmath>
 //#include "std_e/log.hpp"
+//#include "std_e/unit_test/math.hpp"
 //#include "std_e/parallel/algorithm/sort.hpp"
 //
 //
-//auto sinc(double x) -> double {
-//  if(x == 0.) return 1.;
-//  else return sin(x)/x;
-//}
+//using namespace std_e;
 //
 //
 //MPI_TEST_CASE("sort sinc",4) {
 //  int sz_tot = 200;
-//  std::vector<double> xg(sz_tot);
-//  std::vector<double> yg(sz_tot);
 //
 //  double inf = -25.;
 //  //double sup =  20.;
 //  double sup =  30.;
-//  for (int i=0; i<sz_tot; ++i) {
-//    xg[i] = inf + (sup-inf)/sz_tot * i;
-//    //yg[i] = sinc(xg[i]);
-//    yg[i] = xg[i];
-//  }
+//
+//  std::vector<double> yg(sinc,sz_tot,inf,sup);
 //
 //  int sz = sz_tot/test_nb_procs;
 //  std::vector<double> x(sz);

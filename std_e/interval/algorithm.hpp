@@ -42,4 +42,22 @@ rotated_position(I index, I first, I n_first, I last) -> I {
 }
 
 
+template<class Rng, class Interval_sequence> auto
+minmax_over_interval_sequence(const Rng& x, const Interval_sequence& indices) {
+  using T = typename Rng::value_type;
+  std::vector<T> mins;
+  std::vector<T> maxs;
+  for (int i=0; i<indices.n_interval(); ++i) {
+    auto start  = begin(x)+indices[i];
+    auto finish = begin(x)+indices[i+1];
+    if (start != finish) {
+      auto [min_it,max_it] = std::minmax_element(start,finish);
+      mins.push_back( *min_it );
+      maxs.push_back( *max_it );
+    }
+  }
+  return std::make_pair(std::move(mins),std::move(maxs));
+}
+
+
 } // std_e

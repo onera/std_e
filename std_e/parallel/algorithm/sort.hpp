@@ -5,6 +5,7 @@
 #include "std_e/algorithm/partition_sort.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/algorithm/search_intervals.hpp"
 #include "std_e/log.hpp"
 
 

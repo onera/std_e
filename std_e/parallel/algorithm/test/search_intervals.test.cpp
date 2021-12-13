@@ -22,7 +22,7 @@ TEST_CASE("search_intervals") {
   std::vector<int> indices = {0,    130, 201,          480, 530,550,580,  640,  701,         950,  1020,   1101 ,1200};
 
   SUBCASE("no tolerance") {
-    auto [first_index, n_indices, interval_start] = search_intervals(indices,0.);
+    auto [first_index, n_indices, interval_start] = search_intervals(indices,0);
 
     std::vector<int> expected_first_index    = {/*0 is bound*/1,2,3,5,6,7,8,10,11/*12 is bound*/};
     std::vector<int> expected_n_indices      = {              1,1,2,1,1,1,2, 1, 1               };
@@ -33,7 +33,9 @@ TEST_CASE("search_intervals") {
     CHECK( interval_start == expected_interval_start );
   }
   SUBCASE("tolerance") {
-    auto [first_index, n_indices, interval_start] = search_intervals(indices,0.1);
+    // 201 and 1101 are wrong by 1, so they fall within a tolerance of 1
+    // notice that 701 is at index 8, so it is not wrong by 701-700=1, but by 800-701=99, so not with the tolerance
+    auto [first_index, n_indices, interval_start] = search_intervals(indices,1);
 
     std::vector<int> expected_first_index    = {/*0 is bound*/1,/*2 is OK*/3,5,6,7,8,10/*11 is OK,12 is bound*/};
     std::vector<int> expected_n_indices      = {              1,           2,1,1,1,2, 1                        };

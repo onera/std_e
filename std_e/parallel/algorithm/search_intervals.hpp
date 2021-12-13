@@ -9,18 +9,16 @@
 namespace std_e {
 
 
-auto
+inline auto
 uniform_partition_point(int sz_tot, int n_interval, int i) -> int {
   return (sz_tot/n_interval) * i;
 }
 
 
 template<class Rng> auto
-search_intervals(const Rng& indices, double max_rel_bound_error) {
+search_intervals(const Rng& indices, int max_interval_tick_shift) {
   int sz_tot = indices.back();
   int n_interval = indices.size()-1;
-
-  int uniform_interval_len = sz_tot/n_interval;
 
   std::vector<int> first_index;
   std::vector<int> n_indices;
@@ -28,7 +26,7 @@ search_intervals(const Rng& indices, double max_rel_bound_error) {
 
   int k = 0;
   for (int i=1; i<n_interval; ++i) {
-    if (std::abs(indices[i] - uniform_partition_point(sz_tot,n_interval,i)) / double(uniform_interval_len) < max_rel_bound_error) continue;
+    if (std::abs(indices[i] - uniform_partition_point(sz_tot,n_interval,i)) <= max_interval_tick_shift) continue;
 
     while (not (indices[k] < uniform_partition_point(sz_tot,n_interval,i) && uniform_partition_point(sz_tot,n_interval,i) < indices[k+1]) ) {
       ++k;

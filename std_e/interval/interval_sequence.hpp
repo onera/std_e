@@ -204,7 +204,7 @@ to_interval_vector(std::vector<Number> v) {
 // algorithms {
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
-  std::vector<T> res(is.n_interval());
+  std::vector<T> res(is.size()-1);
   std_e::exclusive_adjacent_difference(is.begin(),is.end(),begin(res));
   return res;
 }

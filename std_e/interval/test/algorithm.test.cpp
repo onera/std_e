@@ -1,6 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/interval/algorithm.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 
 using namespace std;
 using namespace std_e;
@@ -49,5 +50,21 @@ TEST_CASE("rotated_position") {
     CHECK( rotated_position(20, first,n_first,last) == 20 );
     CHECK( rotated_position(21, first,n_first,last) == 21 );
     CHECK( rotated_position(50, first,n_first,last) == 50 );
+  }
+}
+
+
+TEST_CASE("minmax_over_interval_sequence") {
+  std::vector v0 = {5,3,0,  10,9,6,  11,12};
+
+  SUBCASE("with non-empty intervals") {
+    auto [mins,maxs] = minmax_over_interval_sequence(v0,interval_vector{0,3,6,8});
+    CHECK( mins == vector{0,6,11} );
+    CHECK( maxs == vector{5,10,12} );
+  }
+  SUBCASE("with empty intervals") {
+    auto [mins,maxs] = minmax_over_interval_sequence(v0,interval_vector{0,3,3,6,6,8});
+    CHECK( mins == vector{0,6,11} );
+    CHECK( maxs == vector{5,10,12} );
   }
 }

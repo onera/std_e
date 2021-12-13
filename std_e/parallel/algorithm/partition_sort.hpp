@@ -5,7 +5,9 @@
 #include "std_e/algorithm/partition_sort.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/algorithm/search_intervals.hpp"
 #include "std_e/log.hpp"
+#include <cmath>
 
 
 namespace std_e {
@@ -20,6 +22,7 @@ namespace std_e {
 // Here we want to use a similar idea, but we need k quantiles instead of only the median
 // The idea is then to take 3*k equally (or almost equally) separated samples, and take the quantiles out of them
 // For k=1, we get back the "median of 3" selection
+template<class T> auto
 median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
   auto sz = x.size();
   int rk = rank(comm);
@@ -56,23 +59,52 @@ median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
 }
 
 auto
-number_of_ticks_in_interval(int n_rank, int n_sample, int rank) {
-  double n = n_rank;
-  double k = n_sample;
-  double j = rank;
-  int n_ticks = floor( (k+1)*(j+1)/n ) - ceil( (k+1)*j/n ) + 1;
-  return n_ticks;
+number_of_ticks_in_interval(int n_buckets, int n_ticks, int i_bucket) -> int {
+  STD_E_ASSERT(0<=i_bucket && i_bucket<n_buckets);
+  int n = n_buckets;
+  int k = n_ticks;
+  int i = i_bucket;
+  // We can view the problem as the following:
+  //    - We take the interval [0,(k+1)n)
+  //    - for i in [0,n) sub-interval i is [(k+1)i , (k+1)(i+1))
+  //    - for j in [1,k+1), tick j is j*n
+  // Then, given n,k,i, we want to compute the number of ticks within sub-interval i
+  // That is, the number of integer j for which (k+1)i <= j*n < (k+1)(i+1)
+  int j_min = (k+1)*i / n; // ensures first_tick is the inf or just before the inf of interval i
+  ELOG(j_min);
+  int first_tick;
+  if ( ((k+1)*i == j_min*n) && j_min>0) { // if strictly before the inf, take next
+    first_tick = j_min;
+  } else {
+    STD_E_ASSERT( ((k+1)*i > j_min*n) || j_min==0);
+    first_tick = (j_min+1);
+  }
+  ELOG(first_tick);
+  int j_max = (k+1)*(i+1) / n; // ensures last_tick is the sup or just before the sup of interval i
+  ELOG(j_max);
+  int last_tick;
+  if ( (k+1)*(i+1) == j_max*n ) { // if exactly the sup, this is not okay since we are open, so take previous
+    last_tick= (j_max-1);
+  } else {
+    STD_E_ASSERT( j_max*n < (k+1)*(i+1) );
+    last_tick= j_max;
+  }
+  ELOG(last_tick);
+  if ((last_tick-first_tick) < 0) return 0;
+  else return last_tick-first_tick + 1;
 }
 
-auto
+template<class T> auto
 median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   int rk = rank(comm);
   int n_rk = n_rank(comm);
   int n_sample = 3*n; // *3 by analogy with median of 3
 
-  int n_ticks = number_of_ticks_in_interval(n_sample,n_rk,rk);
+  
+  int n_ticks = number_of_ticks_in_interval(n_rk,n_sample,rk);
+  ELOG(n_ticks);
 
-  int sz = s.size();
+  int sz = x.size();
   std::vector<T> local(n_ticks);
   for (int i=0; i<n_ticks; ++i) {
     local[i] = x[ i*sz/(n_ticks+1) ];
@@ -82,14 +114,16 @@ median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   std::sort(begin(sample),end(sample));
   if (int(sample.size())!=n_sample) { ELOG(n_sample); ELOG(sample.size()); }
 
+  //ELOG(sample);
   std::vector<T> pivots(n);
   for (int i=0; i<n; ++i) {
     pivots[i] = sample[3*i+1];
   }
+  //ELOG(pivots);
   return pivots;
 
 }
-auto
+template<class T> auto
 median_of_3_sample(std::vector<span<T>>& xs, std::vector<int> ns, MPI_Comm comm) {
   // TODO implement with only one gather
   STD_E_ASSERT(xs.size()==ns.size());
@@ -114,10 +148,8 @@ median_of_3_sample(std::vector<span<T>>& xs, std::vector<int> ns, MPI_Comm comm)
   //}
 }
 
-template<class T, class Comp> auto
-partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance) -> std::vector<T> {
-  const int n_rk = n_rank(comm);
-  const int max_partition_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
+template<class T> auto
+partition_sort_once(std::vector<T>& x, MPI_Comm comm) -> interval_vector<int> {
   std::vector<T> pivots = median_of_3_sample(x,comm);
 
   auto partition_indices = partition_sort_indices(x,pivots);
@@ -125,19 +157,42 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
   /// but we need to impose last the index
   partition_indices.push_back( x.size() );
 
+  return partition_indices;
+}
+
+template<class T> auto
+partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance) -> interval_vector<int> {
+  const int n_rk = n_rank(comm);
+  const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
+
+  interval_vector<int> partition_indices = partition_sort_once(x,comm);
+
+  int kk = 0;
   while (true) {
-    auto partition_indices_tot = all_reduce(partition_indices,MPI_SUM,comm);
-    auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot);
+    ELOG(kk);
+    if (kk++>0) break;
+
+    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
+    auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
+    //ELOG(first_indices);
+    //ELOG(n_indices);
+    //ELOG(interval_start);
     int n_sub_intervals = first_indices.size();
     if (n_sub_intervals==0) break;
 
     std::vector<std_e::span<T>> x_sub(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
+      //ELOG(partition_indices[interval_start[i]]);
+      //ELOG(partition_indices[interval_start[i+1]]);
       T* start  = x.data() + partition_indices[interval_start[i]];
-      T* finish = x.data() + partition_indices[interval_start[i+1]];
+      T* finish = x.data() + partition_indices[interval_start[i]+1];
       x_sub[i] = make_span(start,finish);
     }
+    std::vector<double> xx(x_sub[0].begin(),x_sub[0].end());
+    std::sort(begin(xx),end(xx));
+    //ELOG(xx);
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
+    //ELOG(pivots_by_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
@@ -154,3 +209,6 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 
   return partition_indices;
 }
+
+
+} // std_e
