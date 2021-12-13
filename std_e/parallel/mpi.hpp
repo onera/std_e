@@ -9,6 +9,8 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/interval/interval_sequence.hpp"
 #include "std_e/parallel/mpi/base.hpp"
+#include "std_e/parallel/mpi/collective/reduce.hpp"
+#include "std_e/parallel/mpi/collective/gather.hpp"
 
 
 namespace std_e {
@@ -37,44 +39,6 @@ minmax_global(T local_min, T local_max, MPI_Comm comm) -> std::pair<T,T> {
   return {min_global(local_min,comm),max_global(local_max,comm)};
 }
 
-
-template<class T> auto
-all_gather(T value, T* rbuf, MPI_Comm comm) -> void {
-  int err = MPI_Allgather(&value, 1, to_mpi_type<T>,
-                          rbuf  , 1, to_mpi_type<T>, comm);
-  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
-}
-
-template<class T> auto
-all_gather(T x, MPI_Comm comm) -> std::vector<T> {
-  std::vector<T> data_received(n_rank(comm));
-  std_e::all_gather(x,data_received.data(),comm);
-  return data_received;
-}
-
-template<class T> auto
-all_gather(const std::vector<T>& x,MPI_Comm comm) -> std::vector<T> {
-  int sz = x.size();
-  std::vector<int> szs = std_e::all_gather(sz,comm);
-  std_e::interval_vector<int> displs = std_e::indices_from_strides(szs);
-
-  int total_sz = std::accumulate(szs.begin(),szs.end(),0);
-  std::vector<T> res(total_sz);
-
-  int err = MPI_Allgatherv(x.data(), x.size(), to_mpi_type<T>,
-                           res.data(), szs.data(), displs.data(), to_mpi_type<T>, comm);
-  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
-
-  return res;
-}
-
-template<class T> auto
-all_reduce(const T& local, MPI_Op op, MPI_Comm comm) -> T {
-  T global;
-  int err = MPI_Allreduce(&local, &global, 1, to_mpi_type<T>, op, comm);
-  if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
-  return global;
-}
 template<class T> auto
 scan(const T& local, MPI_Op op, MPI_Comm comm) -> T {
   T global;
