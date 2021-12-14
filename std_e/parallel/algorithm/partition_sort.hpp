@@ -70,28 +70,16 @@ number_of_ticks_in_interval(int n_buckets, int n_ticks, int i_bucket) -> int {
   //    - for j in [1,k+1), tick j is j*n
   // Then, given n,k,i, we want to compute the number of ticks within sub-interval i
   // That is, the number of integer j for which (k+1)i <= j*n < (k+1)(i+1)
-  int j_min = (k+1)*i / n; // ensures first_tick is the inf or just before the inf of interval i
-  ELOG(j_min);
-  int first_tick;
-  if ( ((k+1)*i == j_min*n) && j_min>0) { // if strictly before the inf, take next
-    first_tick = j_min;
-  } else {
-    STD_E_ASSERT( ((k+1)*i > j_min*n) || j_min==0);
-    first_tick = (j_min+1);
+  int j_min = (k+1)*i / n; // ensures j_min is the inf or just before the inf of interval i
+  if ( ((k+1)*i > j_min*n) || j_min==0 ) { // if strictly before the inf, or j not in [1,k+1), take next
+    ++j_min;
   }
-  ELOG(first_tick);
-  int j_max = (k+1)*(i+1) / n; // ensures last_tick is the sup or just before the sup of interval i
-  ELOG(j_max);
-  int last_tick;
+  int j_max = (k+1)*(i+1) / n; // ensures j_max is the sup or just before the sup of interval i
   if ( (k+1)*(i+1) == j_max*n ) { // if exactly the sup, this is not okay since we are open, so take previous
-    last_tick= (j_max-1);
-  } else {
-    STD_E_ASSERT( j_max*n < (k+1)*(i+1) );
-    last_tick= j_max;
+    --j_max;
   }
-  ELOG(last_tick);
-  if ((last_tick-first_tick) < 0) return 0;
-  else return last_tick-first_tick + 1;
+  if ((j_max-j_min) < 0) return 0;
+  else return j_max-j_min + 1;
 }
 
 template<class T> auto
@@ -100,9 +88,7 @@ median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   int n_rk = n_rank(comm);
   int n_sample = 3*n; // *3 by analogy with median of 3
 
-  
   int n_ticks = number_of_ticks_in_interval(n_rk,n_sample,rk);
-  ELOG(n_ticks);
 
   int sz = x.size();
   std::vector<T> local(n_ticks);
@@ -112,14 +98,12 @@ median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
 
   std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at n_sample
   std::sort(begin(sample),end(sample));
-  if (int(sample.size())!=n_sample) { ELOG(n_sample); ELOG(sample.size()); }
+  STD_E_ASSERT(int(sample.size())==n_sample);
 
-  //ELOG(sample);
   std::vector<T> pivots(n);
   for (int i=0; i<n; ++i) {
     pivots[i] = sample[3*i+1];
   }
-  //ELOG(pivots);
   return pivots;
 
 }
@@ -169,10 +153,14 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 
   int kk = 0;
   while (true) {
-    ELOG(kk);
-    if (kk++>0) break;
+    if (rank(comm)==0) ELOG(kk);
+    if (kk++>10) break;
 
+    MPI_Barrier(comm);
+    ELOG(partition_indices);
+    MPI_Barrier(comm);
     auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
+    if (rank(comm)==0) ELOG(partition_indices_tot);
     auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
     //ELOG(first_indices);
     //ELOG(n_indices);
@@ -188,18 +176,19 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
       T* finish = x.data() + partition_indices[interval_start[i]+1];
       x_sub[i] = make_span(start,finish);
     }
-    std::vector<double> xx(x_sub[0].begin(),x_sub[0].end());
-    std::sort(begin(xx),end(xx));
+    //std::vector<double> xx(x_sub[0].begin(),x_sub[0].end());
+    //std::sort(begin(xx),end(xx));
     //ELOG(xx);
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
     //ELOG(pivots_by_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
+      //ELOG(partition_indices_sub);
 
       int first_index = first_indices[i];
       int n_index = n_indices[i];
-      STD_E_ASSERT(partition_indices.size()-2==n_index);
+      STD_E_ASSERT(partition_indices_sub.size()-1==n_index);
       for (int k=0; k<n_index; ++k) {
         int offset = partition_indices[interval_start[i]];
         partition_indices[first_index+k] = offset+partition_indices_sub[k+1];
