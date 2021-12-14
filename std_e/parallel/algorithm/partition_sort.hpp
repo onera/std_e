@@ -82,18 +82,71 @@ number_of_ticks_in_interval(int n_buckets, int n_ticks, int i_bucket) -> int {
   else return j_max-j_min + 1;
 }
 
+//template<class I> auto
+//integer_division(I m, I n) {j
+//  return std::make_pair( m/n , m%n );
+//}
+
+// TODO test
+// TODO move near algorithm/distribution.hpp
+// TODO clean
+auto
+ticks_in_interval(int start, int finish, int size, int n_ticks) -> std::vector<int> {
+  int spacing_round_down = size/(n_ticks+1);
+  int spacing_round_up = spacing_round_down+1;
+  int n_round_up = size%(n_ticks+1);
+
+  std::vector<int> ticks;
+  if (start < n_round_up*spacing_round_up) { // if only spacing_round_up steps to get to start
+    int i_tick = start/spacing_round_up;
+    int n_round_up_used = i_tick;
+    int first_tick = i_tick*spacing_round_up;
+    if (first_tick < start || first_tick==0) { // if first_tick not in interval, take next. exclude 0
+      first_tick += spacing_round_up;
+      ++n_round_up_used;
+    }
+
+    int n_round_up_remaining = n_round_up - n_round_up_used;
+    while (first_tick < finish && n_round_up_remaining>0) {
+      ticks.push_back(first_tick);
+      first_tick += spacing_round_up;
+      --n_round_up_remaining;
+    }
+    while (first_tick < finish) {
+      ticks.push_back(first_tick);
+      first_tick += spacing_round_down;
+    }
+  } else {
+    int start0 = start - n_round_up*spacing_round_up;
+    int i_tick0 = start0/spacing_round_down;
+    int first_tick = n_round_up*spacing_round_up + i_tick0*spacing_round_down;
+    if (first_tick < start || first_tick==0) first_tick += spacing_round_down;
+
+    while (first_tick < finish) {
+      ticks.push_back(first_tick);
+      first_tick += spacing_round_down;
+    }
+  }
+  return ticks;
+}
+
 template<class T> auto
 median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   int rk = rank(comm);
   int n_rk = n_rank(comm);
   int n_sample = 3*n; // *3 by analogy with median of 3
 
-  int n_ticks = number_of_ticks_in_interval(n_rk,n_sample,rk);
+  int x_start_glob = ex_scan(x.size(),MPI_SUM,0,comm);
+  int x_size_glob = all_reduce(x.size(),MPI_SUM,comm);
 
-  int sz = x.size();
-  std::vector<T> local(n_ticks);
-  for (int i=0; i<n_ticks; ++i) {
-    local[i] = x[ i*sz/(n_ticks+1) ];
+  //ELOG(x_start_glob);
+  std::vector<int> sample_indices = ticks_in_interval(x_start_glob,x_start_glob+x.size(),x_size_glob,n_sample);
+  //ELOG(sample_indices);
+  int n_sample_local = sample_indices.size();
+
+  std::vector<T> local(n_sample_local);
+  for (int i=0; i<n_sample_local; ++i) {
+    local[i] = x[ sample_indices[i]-x_start_glob ];
   }
 
   std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at n_sample
@@ -144,6 +197,19 @@ partition_sort_once(std::vector<T>& x, MPI_Comm comm) -> interval_vector<int> {
   return partition_indices;
 }
 
+
+
+struct interval_to_partition {
+  int inf;
+  int sup;
+  int n_ticks;
+  int position;
+};
+inline auto
+to_string(const interval_to_partition& x) {
+  return '['+std::to_string(x.inf)+','+std::to_string(x.sup)+"):"+std::to_string(x.n_ticks)+':'+std::to_string(x.position);
+}
+
 template<class T> auto
 partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance) -> interval_vector<int> {
   const int n_rk = n_rank(comm);
@@ -151,49 +217,82 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 
   interval_vector<int> partition_indices = partition_sort_once(x,comm);
 
+  auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
+  auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
+  int n_sub_intervals = first_indices.size();
+  if (n_sub_intervals==0) return partition_indices;
+
+  std::vector<interval_to_partition> sub_ins(n_sub_intervals);
+  for (int i=0; i<n_sub_intervals; ++i) {
+    int inf = partition_indices[interval_start[i]];
+    int sup = partition_indices[interval_start[i] + 1];
+    sub_ins[i] = {inf,sup,n_indices[i],interval_start[i]};
+  }
+
   int kk = 0;
-  while (true) {
+  while (sub_ins.size()>0) {
     if (rank(comm)==0) ELOG(kk);
     if (kk++>10) break;
 
-    MPI_Barrier(comm);
-    ELOG(partition_indices);
-    MPI_Barrier(comm);
-    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
-    if (rank(comm)==0) ELOG(partition_indices_tot);
-    auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
-    //ELOG(first_indices);
-    //ELOG(n_indices);
-    //ELOG(interval_start);
-    int n_sub_intervals = first_indices.size();
-    if (n_sub_intervals==0) break;
+    ELOG(sub_ins);
+    int n_sub_intervals = sub_ins.size();
 
+    // 0. prepare for sampling
     std::vector<std_e::span<T>> x_sub(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
       //ELOG(partition_indices[interval_start[i]]);
       //ELOG(partition_indices[interval_start[i+1]]);
-      T* start  = x.data() + partition_indices[interval_start[i]];
-      T* finish = x.data() + partition_indices[interval_start[i]+1];
+      T* start  = x.data() + sub_ins[i].inf;
+      T* finish = x.data() + sub_ins[i].sup;
       x_sub[i] = make_span(start,finish);
     }
+
     //std::vector<double> xx(x_sub[0].begin(),x_sub[0].end());
     //std::sort(begin(xx),end(xx));
     //ELOG(xx);
+    std::vector<int> n_indices(n_sub_intervals);
+    for (int i=0; i<n_sub_intervals; ++i) {
+      n_indices[i] = sub_ins[i].n_ticks;
+    }
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
     //ELOG(pivots_by_sub_intervals);
+
+    // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
+    std::vector<interval_to_partition> new_sub_ins;
     for (int i=0; i<n_sub_intervals; ++i) {
+      // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
-      //ELOG(partition_indices_sub);
+      ELOG(partition_indices_sub);
 
-      int first_index = first_indices[i];
-      int n_index = n_indices[i];
+      // 1.1. report results
+      int first_index = sub_ins[i].inf;
+      int n_index = sub_ins[i].n_ticks;
       STD_E_ASSERT(partition_indices_sub.size()-1==n_index);
       for (int k=0; k<n_index; ++k) {
-        int offset = partition_indices[interval_start[i]];
+        int offset = partition_indices[sub_ins[i].position];
         partition_indices[first_index+k] = offset+partition_indices_sub[k+1];
       }
+
+      // 1.2. compute new sub-intervals
+      auto partition_indices_tot_sub = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
+      ELOG(partition_indices_tot_sub);
+
+      auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
+      int n_sub_sub_intervals = first_indices.size();
+      ELOG(first_indices);
+      ELOG(n_indices);
+      ELOG(interval_start);
+
+      for (int j=0; j<n_sub_sub_intervals; ++j) {
+        int inf = partition_indices_sub[interval_start[j]];
+        int sup = partition_indices_sub[interval_start[j] + 1];
+        new_sub_ins.push_back(  {inf,sup,n_indices[j],sub_ins[i].position+interval_start[j]} );
+      }
     }
+
+    // 2. loop
+    sub_ins = std::move(new_sub_ins);
   }
 
   return partition_indices;

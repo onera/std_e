@@ -43,6 +43,14 @@ TEST_CASE("number_of_ticks_in_interval") {
   }
 }
 
+TEST_CASE("ticks_in_interval") {
+  // position 3 samples in [0,22,54,60,85)
+  CHECK( ticks_in_interval( 0,22,85,3) == std::vector<int>{} );
+  CHECK( ticks_in_interval(22,54,85,3) == std::vector{22,43} );
+  CHECK( ticks_in_interval(54,60,85,3) == std::vector<int>{} );
+  CHECK( ticks_in_interval(60,85,85,3) == std::vector{64} );
+}
+
 MPI_TEST_CASE("parallel partition_sort",4) {
   int sz_tot = 200;
   int rk = test_rank;
@@ -70,13 +78,13 @@ MPI_TEST_CASE("parallel partition_sort",4) {
     MPI_CHECK( 1, partition_indices == interval_vector{0, 0, 0,32,50} );
     MPI_CHECK( 2, partition_indices == interval_vector{0,26,44,50,50} );
     MPI_CHECK( 3, partition_indices == interval_vector{0, 0,25,50,50} );
-    //auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
-    //if (rk==0) {
-    //  //ELOG(interval_lengths(partition_indices));
-    //  ELOG(partition_indices_tot);
-    //  ELOG(interval_lengths(partition_indices_tot));
-    //  //ELOG(make_span(y.data()+partition_indices[1],y.data()+partition_indices[2]));
-    //}
+    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+    if (rk==0) {
+      //ELOG(interval_lengths(partition_indices));
+      ELOG(partition_indices_tot);
+      ELOG(interval_lengths(partition_indices_tot));
+      //ELOG(make_span(y.data()+partition_indices[1],y.data()+partition_indices[2]));
+    }
   }
 
   SUBCASE("partition_sort_minimize_imbalance") {
