@@ -60,36 +60,36 @@ MPI_TEST_CASE("parallel partition_sort",4) {
   interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
   std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
 
-  SUBCASE("partition_sort_once") {
-    interval_vector<int> partition_indices = std_e::partition_sort_once(y,test_comm);
-    CHECK( partition_indices.size() == n_rk+1 );
+  //SUBCASE("partition_sort_once") {
+  //  interval_vector<int> partition_indices = std_e::partition_sort_once(y,test_comm);
+  //  CHECK( partition_indices.size() == n_rk+1 );
 
-    // test that the array `y` is indeed partitioned ...
-    // 0. ... for that, compute the min and max of each partition ...
-    auto [min_by_partition,max_by_partition] = minmax_over_interval_sequence(y,partition_indices);
-    // 1. ... and check that the max of one partition is less than the min of the next one
-    for (int i=0; i<int(min_by_partition.size())-1; ++i) {
-      CHECK( max_by_partition[i] < min_by_partition[i+1] );
-    }
+  //  // test that the array `y` is indeed partitioned ...
+  //  // 0. ... for that, compute the min and max of each partition ...
+  //  auto [min_by_partition,max_by_partition] = minmax_over_interval_sequence(y,partition_indices);
+  //  // 1. ... and check that the max of one partition is less than the min of the next one
+  //  for (int i=0; i<int(min_by_partition.size())-1; ++i) {
+  //    CHECK( max_by_partition[i] < min_by_partition[i+1] );
+  //  }
 
-    // Note: the following numbers are hard to interpret for a "tutorial" unit test
-    //       but they are here for non-regression (we did not find a way to express the unit test better!)
-    MPI_CHECK( 0, partition_indices == interval_vector{0,20,28,50,50} );
-    MPI_CHECK( 1, partition_indices == interval_vector{0, 0, 0,32,50} );
-    MPI_CHECK( 2, partition_indices == interval_vector{0,26,44,50,50} );
-    MPI_CHECK( 3, partition_indices == interval_vector{0, 0,25,50,50} );
-    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
-    if (rk==0) {
-      //ELOG(interval_lengths(partition_indices));
-      ELOG(partition_indices_tot);
-      ELOG(interval_lengths(partition_indices_tot));
-      //ELOG(make_span(y.data()+partition_indices[1],y.data()+partition_indices[2]));
-    }
-  }
+  //  // Note: the following numbers are hard to interpret for a "tutorial" unit test
+  //  //       but they are here for non-regression (we did not find a way to express the unit test better!)
+  //  MPI_CHECK( 0, partition_indices == interval_vector{0,20,28,50,50} );
+  //  MPI_CHECK( 1, partition_indices == interval_vector{0, 0, 0,32,50} );
+  //  MPI_CHECK( 2, partition_indices == interval_vector{0,26,44,50,50} );
+  //  MPI_CHECK( 3, partition_indices == interval_vector{0, 0,25,50,50} );
+  //  auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+  //  if (rk==0) {
+  //    //ELOG(interval_lengths(partition_indices));
+  //    ELOG(partition_indices_tot);
+  //    ELOG(interval_lengths(partition_indices_tot));
+  //    //ELOG(make_span(y.data()+partition_indices[1],y.data()+partition_indices[2]));
+  //  }
+  //}
 
   SUBCASE("partition_sort_minimize_imbalance") {
     interval_vector<int> partition_indices = std_e::partition_sort_minimize_imbalance(y,sz_tot,test_comm,0.4);
-    ELOG(partition_indices);
+    //ELOG(partition_indices);
     auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
     if (rk==0) {
       ELOG(partition_indices_tot);

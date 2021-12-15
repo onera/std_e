@@ -132,8 +132,8 @@ ticks_in_interval(int start, int finish, int size, int n_ticks) -> std::vector<i
 
 template<class T> auto
 median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
-  int rk = rank(comm);
-  int n_rk = n_rank(comm);
+  //int rk = rank(comm);
+  //int n_rk = n_rank(comm);
   int n_sample = 3*n; // *3 by analogy with median of 3
 
   int x_start_glob = ex_scan(x.size(),MPI_SUM,0,comm);
@@ -165,8 +165,8 @@ median_of_3_sample(std::vector<span<T>>& xs, std::vector<int> ns, MPI_Comm comm)
   // TODO implement with only one gather
   STD_E_ASSERT(xs.size()==ns.size());
   int n_interval = xs.size();
-  int rk = rank(comm);
-  int n_rk = n_rank(comm);
+  //int rk = rank(comm);
+  //int n_rk = n_rank(comm);
 
   std::vector<std::vector<T>> pivots_by_sub_intervals(n_interval);
   for (int i=0; i<n_interval; ++i) {
@@ -219,14 +219,16 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 
   auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
   auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
-  int n_sub_intervals = first_indices.size();
+  ELOG(first_indices);
+  int n_sub_intervals = interval_start.size();
   if (n_sub_intervals==0) return partition_indices;
+  ELOG(interval_start);
 
   std::vector<interval_to_partition> sub_ins(n_sub_intervals);
   for (int i=0; i<n_sub_intervals; ++i) {
     int inf = partition_indices[interval_start[i]];
     int sup = partition_indices[interval_start[i] + 1];
-    sub_ins[i] = {inf,sup,n_indices[i],interval_start[i]};
+    sub_ins[i] = {inf,sup,n_indices[i],first_indices[i]};
   }
 
   int kk = 0;
@@ -259,35 +261,54 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_to_partition> new_sub_ins;
+    //ELOG(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
+      MPI_Barrier(comm);
       ELOG(partition_indices_sub);
+      MPI_Barrier(comm);
 
       // 1.1. report results
       int first_index = sub_ins[i].inf;
       int n_index = sub_ins[i].n_ticks;
-      STD_E_ASSERT(partition_indices_sub.size()-1==n_index);
+      STD_E_ASSERT(int(partition_indices_sub.size()-1)==n_index);
+      MPI_Barrier(comm);
+      ELOG(partition_indices);
+      MPI_Barrier(comm);
       for (int k=0; k<n_index; ++k) {
-        int offset = partition_indices[sub_ins[i].position];
-        partition_indices[first_index+k] = offset+partition_indices_sub[k+1];
+        int offset = sub_ins[i].position;
+        ELOG(partition_indices[offset]);
+        ELOG(partition_indices_sub[k+1]);
+        if (offset == 0) {
+          partition_indices[offset+k] = partition_indices_sub[k+1];
+        } else {
+          partition_indices[offset+k] = partition_indices[offset-1]+partition_indices_sub[k+1];
+        }
       }
+      MPI_Barrier(comm);
+      ELOG(partition_indices);
+      MPI_Barrier(comm);
 
       // 1.2. compute new sub-intervals
+      //LOG("before all_reduce");
       auto partition_indices_tot_sub = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
       ELOG(partition_indices_tot_sub);
 
-      auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot,max_interval_tick_shift);
-      int n_sub_sub_intervals = first_indices.size();
-      ELOG(first_indices);
-      ELOG(n_indices);
-      ELOG(interval_start);
+      auto [first_indices, n_indices, interval_start] = search_intervals(partition_indices_tot_sub,max_interval_tick_shift);
+      //ELOG(first_indices);
+      //ELOG(n_indices);
+      //ELOG(interval_start);
+      int n_sub_sub_intervals = interval_start.size();
+      //ELOG(first_indices);
+      //ELOG(n_indices);
+      //ELOG(interval_start);
 
       for (int j=0; j<n_sub_sub_intervals; ++j) {
         int inf = partition_indices_sub[interval_start[j]];
         int sup = partition_indices_sub[interval_start[j] + 1];
-        new_sub_ins.push_back(  {inf,sup,n_indices[j],sub_ins[i].position+interval_start[j]} );
+        new_sub_ins.push_back(  {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j]} );
       }
     }
 
