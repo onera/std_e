@@ -71,19 +71,19 @@ search_intervals2(const Rng& indices, int sz_tot, int n_interval, int offset, in
 }
 
 template<class Rng> auto
-search_intervals4(const Rng& indices, const std::vector<int>& objective_ticks,int max_interval_tick_shift) {
-  int n_interval = indices.size()-1;
-  STD_E_ASSERT(n_interval == (int)objective_ticks.size());
+search_intervals4(const Rng& indices, const std::vector<int>& objective_ticks, int max_interval_tick_shift) {
+  int n_ticks = objective_ticks.size();
 
   std::vector<int> first_index;
   std::vector<int> n_indices;
   std::vector<int> interval_start;
 
   int k = 0;
-  for (int i=0; i<n_interval; ++i) {
-    //if (std::abs(indices[i] - uniform_partition_point(sz_tot,n_interval,i)) <= max_interval_tick_shift) continue;
+  for (int i=0; i<n_ticks; ++i) {
+    STD_E_ASSERT(indices[0] <= objective_ticks[i] && objective_ticks[i] < indices.back());
+    //if (std::abs(indices[i] - uniform_partition_point(sz_tot,n_ticks,i)) <= max_interval_tick_shift) continue;
 
-    while (not (indices[k] < objective_ticks[i] && objective_ticks[i] < indices[k+1]) ) {
+    while (not (indices[k] <= objective_ticks[i] && objective_ticks[i] < indices[k+1]) ) {
       ++k;
     }
     if (interval_start.size()>0 && interval_start.back()==k) {

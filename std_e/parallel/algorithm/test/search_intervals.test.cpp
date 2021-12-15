@@ -46,3 +46,13 @@ TEST_CASE("search_intervals") {
     CHECK( interval_start == expected_interval_start );
   }
 }
+
+TEST_CASE("search_intervals4") {
+  std::vector<int> indices = {0,4,23};
+  std::vector<int> obj_ticks = {4};
+
+  auto [first_index, n_indices, interval_start] = search_intervals4(indices,obj_ticks,1);
+  CHECK( first_index    == std::vector{0} );
+  CHECK( n_indices      == std::vector{1} );
+  CHECK( interval_start == std::vector{1} );
+}

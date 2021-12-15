@@ -261,7 +261,7 @@ template<class T> auto
 partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance) -> interval_vector<int> {
   const int n_rk = n_rank(comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
-  const int n_tick_tot = n_rank(comm)-1;
+  //const int n_tick_tot = n_rank(comm)-1;
 
 // 0. initial partitioning
   interval_vector<int> partition_indices = partition_sort_once(x,comm);
@@ -277,7 +277,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
   while (sub_ins.size()>0) {
     SLOG(comm,kk);
     SLOG(comm,sub_ins);
-    if (kk++>10) break;
+    if (kk++>5) break;
 
     int n_sub_intervals = sub_ins.size();
 
@@ -304,6 +304,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
+      partition_indices_sub.push_back( x_sub[i].size() );
 
       //// 1.1. report results
       //int n_index = sub_ins[i].n_ticks;
@@ -320,13 +321,15 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
       // 1.2. compute new sub-intervals
       SLOG(comm,partition_indices_sub);
       auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
-      //SLOG(comm,partition_indices_sub_tot);
+      SLOG(comm,partition_indices_sub_tot);
 
-      //int offset = partition_indices_tot[sub_ins[i].position];
-      //SLOG(comm,offset);
-      int offset = 0; // TODO
-      //auto [first_indices, n_indices, interval_start] = search_intervals2(partition_indices_sub_tot,sz_tot,n_tick_tot,offset,-1); // -1: never skip
       std::vector<int> objective_ticks_sub(sub_ins[i].n_ticks);
+
+      //SLOG(comm,sub_ins[i].sz_tot);
+      //SLOG(comm,sub_ins[i].n_interval);
+      //SLOG(comm,sub_ins[i].position);
+      //SLOG(comm,sub_ins[i].inf_tot);
+      //SLOG(comm,sub_ins[i].objective_tick(0));
       for (int j=0; j<sub_ins[i].n_ticks; ++j) {
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
       }
@@ -342,7 +345,13 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
         int sup     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j] + 1];
         int inf_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j]];
         int sup_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j] + 1];
-        new_sub_ins.push_back(  {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j], inf_tot,sup_tot,sz_tot,n_indices[j]} );
+        //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
+        //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
+        if (rank(comm)==0) {
+          ELOG(inf_tot);
+          ELOG(sup_tot);
+        }
+        new_sub_ins.push_back( {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j], inf_tot,sup_tot,sz_tot,n_rk} );
       }
     }
 
