@@ -88,7 +88,7 @@ MPI_TEST_CASE("parallel partition_sort",4) {
   //}
 
   SUBCASE("partition_sort_minimize_imbalance") {
-    interval_vector<int> partition_indices = std_e::partition_sort_minimize_imbalance(y,sz_tot,test_comm,0.4);
+    interval_vector<int> partition_indices = std_e::partition_sort_minimize_imbalance(y,sz_tot,test_comm,0.1);
     //ELOG(partition_indices);
     auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
     if (rk==0) {
