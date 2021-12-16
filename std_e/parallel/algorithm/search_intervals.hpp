@@ -78,24 +78,29 @@ search_intervals4(const Rng& indices, const std::vector<int>& objective_ticks, i
   std::vector<int> n_indices;
   std::vector<int> interval_start;
 
+  std::vector<int> index_ticks_found;
+
   int k = 0;
   for (int i=0; i<n_ticks; ++i) {
     STD_E_ASSERT(indices[0] <= objective_ticks[i] && objective_ticks[i] < indices.back());
-    //if (std::abs(indices[i] - uniform_partition_point(sz_tot,n_ticks,i)) <= max_interval_tick_shift) continue;
 
     while (not (indices[k] <= objective_ticks[i] && objective_ticks[i] < indices[k+1]) ) {
       ++k;
     }
-    if (interval_start.size()>0 && interval_start.back()==k) {
-      ++n_indices.back();
+    if (std::abs(indices[k] - objective_ticks[i]) < max_interval_tick_shift) { // indices[k] is good enought
+      index_ticks_found.push_back(k);
     } else {
-      first_index.push_back(i);
-      n_indices.push_back(1);
-      interval_start.push_back(k);
+      if (interval_start.size()>0 && interval_start.back()==k) {
+        ++n_indices.back();
+      } else {
+        first_index.push_back(i);
+        n_indices.push_back(1);
+        interval_start.push_back(k);
+      }
     }
   }
 
-  return std::make_tuple(first_index, n_indices, interval_start);
+  return std::make_tuple(first_index, n_indices, interval_start, index_ticks_found);
 }
 
 

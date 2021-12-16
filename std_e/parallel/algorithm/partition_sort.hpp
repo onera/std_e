@@ -6,6 +6,7 @@
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
+#include "std_e/base/msg_exception.hpp"
 #include "std_e/plog.hpp"
 #include <cmath>
 
@@ -229,7 +230,7 @@ auto
 search_intervals3(const interval_vector<int>& partition_indices, int max_interval_tick_shift, MPI_Comm comm) {
   auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
 
-  SLOG(comm,partition_indices_tot);
+  //SLOG(comm,partition_indices_tot);
   int n_interval = n_rank(comm);
   int sz_tot = partition_indices_tot.back();
 
@@ -247,6 +248,11 @@ search_intervals3(const interval_vector<int>& partition_indices, int max_interva
   return sub_ins;
 }
 
+
+class par_algo_exception : msg_exception {
+  using base = msg_exception;
+  using base::base;
+};
 
 // Inputs: array `x` of total size `sz_tot`, distributed over a communicator comm
 // We want to partition `x` in n_rank buckets, with the all the total sizes of each bucket to be appox equal (up to +-max_imbalance)
@@ -275,9 +281,25 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
 // 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
   int kk = 0;
   while (sub_ins.size()>0) {
-    SLOG(comm,kk);
-    SLOG(comm,sub_ins);
-    if (kk++>5) break;
+    //if (rank(comm)==0) {
+    //  int n_tick_max = 0;
+    //  for (int i=0; i<sub_ins.size(); ++i) {
+    //    n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
+    //  }
+    //  ELOG(kk);
+    //  ELOG(sub_ins.size());
+    //  ELOG(n_tick_max);
+    //}
+    //SLOG(comm,kk);
+    if (kk++>128) {
+      // Note: there should be approximately log(sz_tot) loop iteration
+      // If this is not the case, it could be due to
+      //   - worst-case complexity scenario:
+      //        => for very specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
+      //   - implementation bugs
+      //        => in particular, special cases where the array is too small to get enough samples
+      throw par_algo_exception("partition_sort_minimize_imbalance: max number of iteration reached");
+    }
 
     int n_sub_intervals = sub_ins.size();
 
@@ -300,28 +322,16 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
     std::vector<interval_to_partition> new_sub_ins;
     //SLOG(comm,n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
-      SLOG(comm,i);
+      //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
       partition_indices_sub.push_back( x_sub[i].size() );
 
-      //// 1.1. report results
-      //int n_index = sub_ins[i].n_ticks;
-      //STD_E_ASSERT(int(partition_indices_sub.size()-1)==n_index);
-      //for (int k=0; k<n_index; ++k) {
-      //  int offset = sub_ins[i].position;
-      //  partition_indices[offset+k] = partition_indices[offset]+partition_indices_sub[k+1];
-      //}
-      //SLOG(comm,partition_indices);
-
-      //auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
-      //SLOG(comm,partition_indices_tot);
-
-      // 1.2. compute new sub-intervals
-      SLOG(comm,partition_indices_sub);
+      // 1.1. compute new sub-intervals
+      //SLOG(comm,partition_indices_sub);
       auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
-      SLOG(comm,partition_indices_sub_tot);
+      //SLOG(comm,partition_indices_sub_tot);
 
       std::vector<int> objective_ticks_sub(sub_ins[i].n_ticks);
 
@@ -334,12 +344,13 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
       }
       //SLOG(comm,objective_ticks_sub);
-      auto [first_indices, n_indices, interval_start] = search_intervals4(partition_indices_sub_tot,objective_ticks_sub,max_interval_tick_shift);
+      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals4(partition_indices_sub_tot,objective_ticks_sub,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);
       int n_sub_sub_intervals = interval_start.size();
 
+      // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
         int inf     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j]];
         int sup     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j] + 1];
@@ -347,17 +358,26 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
         int sup_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j] + 1];
         //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
         //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
-        if (rank(comm)==0) {
-          ELOG(inf_tot);
-          ELOG(sup_tot);
-        }
+        //if (rank(comm)==0) {
+        //  ELOG(inf_tot);
+        //  ELOG(sup_tot);
+        //}
         new_sub_ins.push_back( {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j], inf_tot,sup_tot,sz_tot,n_rk} );
+      }
+
+      // 1.3. report found ticks
+      for (int j=0; j<(int)index_ticks_found.size(); ++j) {
+        int k = index_ticks_found[j];
+        int abs_pos = sub_ins[i].position+k-1;
+        partition_indices[abs_pos] = sub_ins[i].inf + partition_indices_sub[k];
+        //kSLOG(comm,partition_indices[abs_pos]);
       }
     }
 
     // 2. loop
     sub_ins = std::move(new_sub_ins);
   }
+  if (rank(comm)==0) ELOG(kk);
 
   return partition_indices;
 }

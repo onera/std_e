@@ -51,9 +51,12 @@ TEST_CASE("ticks_in_interval") {
   CHECK( ticks_in_interval(60,85,85,3) == std::vector{64} );
 }
 
+//MPI_TEST_CASE("parallel partition_sort",16) {
+//  int sz_tot = 256'000'000;
 MPI_TEST_CASE("parallel partition_sort",4) {
   int sz_tot = 200;
   int rk = test_rank;
+  ELOG(rk);
   int n_rk = test_nb_procs;
 
   int sz = sz_tot/n_rk;
