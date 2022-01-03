@@ -4,7 +4,7 @@
 #include <cassert>
 
 namespace std_e {
-  inline auto
+  constexpr auto
   throw_assertion_failure(bool assertion, const char* file_name, int line_number, const char* assertion_str) {
     if (!(assertion)) throw ::std_e::assertion_failure(file_name,line_number,assertion_str);
   }

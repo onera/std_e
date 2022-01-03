@@ -31,7 +31,7 @@ partition_sort(Rand_it0 first, Rand_it0 last, Rand_it1 pv_first, Rand_it1 pv_las
   auto k = pv_last-pv_first;
   auto pv_mid = pv_first+k/2;
   auto pp_mid = pp_first+k/2;
-  *pp_mid = std::partition(first,last,[mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
+  *pp_mid = std::partition(first,last,[&mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
   if (k>1) {
     partition_sort(first  ,*pp_mid , pv_first,pv_mid  , pp_first , comp);
     partition_sort(*pp_mid,last    , pv_mid  ,pv_last , pp_mid   , comp);
@@ -45,7 +45,7 @@ partition_sort_indices__impl(Rand_it0 first, Rand_it0 last, Rand_it1 pv_first, R
   auto k = pv_last-pv_first;
   auto pv_mid = pv_first+k/2;
   auto pi_mid = pi_first+k/2;
-  auto pp_mid = std::partition(first,last,[mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
+  auto pp_mid = std::partition(first,last,[&mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
   *pi_mid = pp_mid - start;
   if (k>1) {
     partition_sort_indices__impl(first ,pp_mid , pv_first,pv_mid  , pi_first , comp, start);
@@ -59,7 +59,7 @@ partition_indices__impl(Rand_it0 first, Rand_it0 last, Rand_it1 pv_first, Rand_i
   auto k = pv_last-pv_first;
   auto pv_mid = pv_first+k/2;
   auto pi_mid = pi_first+k/2;
-  auto pp_mid = std::partition_point(first,last,[mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
+  auto pp_mid = std::partition_point(first,last,[&mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
   *pi_mid = pp_mid - start;
   if (k>1) {
     partition_indices__impl(first ,pp_mid , pv_first,pv_mid  , pi_first , comp, start);

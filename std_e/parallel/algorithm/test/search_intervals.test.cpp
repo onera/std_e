@@ -34,7 +34,7 @@ TEST_CASE("search_intervals") {
   }
   SUBCASE("tolerance") {
     // 201 and 1101 are wrong by 1, so they fall within a tolerance of 1
-    // notice that 701 is at index 8, so it is not wrong by 701-700=1, but by 800-701=99, so not with the tolerance
+    // notice that 701 is at index 8, so it is not wrong by 701-700=1, but by 800-701=99, so not within the tolerance
     auto [first_index, n_indices, interval_start] = search_intervals(indices,1);
 
     std::vector<int> expected_first_index    = {/*0 is bound*/1,/*2 is OK*/3,5,6,7,8,10/*11 is OK,12 is bound*/};
@@ -47,13 +47,13 @@ TEST_CASE("search_intervals") {
   }
 }
 
-TEST_CASE("search_intervals4") {
-  std::vector<int> indices = {0,4,23};
-  std::vector<int> obj_ticks = {4};
-
-  auto [first_index, n_indices, interval_start, index_ticks_found] = search_intervals4(indices,obj_ticks,1);
-  CHECK( first_index       == std::vector{0} );
-  CHECK( n_indices         == std::vector{1} );
-  CHECK( interval_start    == std::vector{1} );
-  CHECK( index_ticks_found == std::vector<int>{} );
-}
+//TEST_CASE("search_intervals4") {
+//  std::vector<int> indices = {0,4,23};
+//  std::vector<int> obj_ticks = {4};
+//
+//  auto [first_index, n_indices, interval_start, index_ticks_found] = search_intervals4(indices,obj_ticks,1);
+//  CHECK( first_index       == std::vector{0} );
+//  CHECK( n_indices         == std::vector{1} );
+//  CHECK( interval_start    == std::vector{1} );
+//  CHECK( index_ticks_found == std::vector<int>{} );
+//}

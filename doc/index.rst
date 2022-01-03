@@ -20,9 +20,9 @@ Table of contents
   :maxdepth: 6
   :caption: Reference:
 
-  highlights
-  user_manual/folders
+  highlights/highlights
   user_manual/user_manual
+  user_manual/folders
   installation
   design_documents/design_documents
 
