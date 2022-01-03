@@ -51,10 +51,10 @@ TEST_CASE("ticks_in_interval") {
   CHECK( ticks_in_interval(60,85,85,3) == std::vector{64} );
 }
 
-//MPI_TEST_CASE("parallel partition_sort",16) {
-//  int sz_tot = 256'000'000;
-MPI_TEST_CASE("parallel partition_sort",4) {
-  int sz_tot = 200;
+MPI_TEST_CASE("parallel partition_sort",16) {
+  int sz_tot = 256'000'000;
+//MPI_TEST_CASE("parallel partition_sort",4) {
+//  int sz_tot = 200;
   int rk = test_rank;
   ELOG(rk);
   int n_rk = test_nb_procs;
@@ -67,13 +67,8 @@ MPI_TEST_CASE("parallel partition_sort",4) {
   //  interval_vector<int> partition_indices = std_e::partition_sort_once(y,test_comm);
   //  CHECK( partition_indices.size() == n_rk+1 );
 
-  //  // test that the array `y` is indeed partitioned ...
-  //  // 0. ... for that, compute the min and max of each partition ...
-  //  auto [min_by_partition,max_by_partition] = minmax_over_interval_sequence(y,partition_indices);
-  //  // 1. ... and check that the max of one partition is less than the min of the next one
-  //  for (int i=0; i<int(min_by_partition.size())-1; ++i) {
-  //    CHECK( max_by_partition[i] < min_by_partition[i+1] );
-  //  }
+  //  // test that the array `y` is indeed partitioned
+  //  CHECK( is_partitioned_at_indices(y,partition_indices) );
 
   //  // Note: the following numbers are hard to interpret for a "tutorial" unit test
   //  //       but they are here for non-regression (we did not find a way to express the unit test better!)
@@ -91,12 +86,21 @@ MPI_TEST_CASE("parallel partition_sort",4) {
   //}
 
   SUBCASE("partition_sort_minimize_imbalance") {
-    interval_vector<int> partition_indices = std_e::partition_sort_minimize_imbalance(y,sz_tot,test_comm,0.1);
-    //ELOG(partition_indices);
+    double max_imbalance = 0.1;
+    interval_vector<int> partition_indices = std_e::partition_sort_minimize_imbalance(y,sz_tot,test_comm,max_imbalance);
+
+    CHECK( is_partitioned_at_indices(y,partition_indices) );
+
     auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+    auto lens = interval_lengths(partition_indices_tot);
+    int optimal_len = sz;
+    for (int i=0; i<int(lens.size())-1; ++i) {
+      CHECK( std::abs(lens[i]-optimal_len)/double(optimal_len) < max_imbalance );
+    }
+
     if (rk==0) {
       ELOG(partition_indices_tot);
-      ELOG(interval_lengths(partition_indices_tot));
+      ELOG(lens);
     }
   }
 

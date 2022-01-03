@@ -42,8 +42,8 @@ rotated_position(I index, I first, I n_first, I last) -> I {
 }
 
 
-template<class Rng, class Interval_sequence> auto
-minmax_over_interval_sequence(const Rng& x, const Interval_sequence& indices) {
+template<class Rng, class Interval_sequence, class Comp = std::less<>> auto
+minmax_over_interval_sequence(const Rng& x, const Interval_sequence& indices, Comp comp = {}) {
   using T = typename Rng::value_type;
   std::vector<T> mins;
   std::vector<T> maxs;
@@ -51,13 +51,25 @@ minmax_over_interval_sequence(const Rng& x, const Interval_sequence& indices) {
     auto start  = begin(x)+indices[i];
     auto finish = begin(x)+indices[i+1];
     if (start != finish) {
-      auto [min_it,max_it] = std::minmax_element(start,finish);
+      auto [min_it,max_it] = std::minmax_element(start,finish,comp);
       mins.push_back( *min_it );
       maxs.push_back( *max_it );
     }
   }
   return std::make_pair(std::move(mins),std::move(maxs));
 }
+
+template<class Rng, class Interval_sequence, class Comp = std::less<>> auto
+is_partitioned_at_indices(const Rng& x, const Interval_sequence& partition_indices, Comp comp = {}) -> bool {
+  auto [min_by_partition,max_by_partition] = minmax_over_interval_sequence(x,partition_indices,comp);
+  for (int i=0; i<int(min_by_partition.size())-1; ++i) {
+    if (!comp(max_by_partition[i],min_by_partition[i+1])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 
 
 } // std_e
