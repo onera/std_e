@@ -165,10 +165,10 @@ class interval_vector : public interval_sequence<std::vector<Number>> {
       : base(std::move(v),tag{})
     {}
     interval_vector(int n)
-      : interval_vector(vec_base(n+1))
+      : interval_vector(vec_base(n+1)) // TODO change n+1 -> n (here, this is confusing after all)
     {}
     interval_vector(int n, value_type x)
-      : interval_vector(vec_base(n+1,x))
+      : interval_vector(vec_base(n+1,x)) // TODO change n+1 -> n (here, this is confusing after all)
     {}
     interval_vector(std::initializer_list<value_type> l)
       : interval_vector(vec_base(l))

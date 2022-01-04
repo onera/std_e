@@ -1,5 +1,8 @@
 .. _highlights_introduction:
 
+Introduction
+------------
+
 Below is a succinct presentation of the main facilities of **std_e**. For a more detailed presentation, see the :ref:`user_manual`.
 
 In the examples below, when there is no ambiguity, we will assume that we are using the :cpp:`std` and :cpp:`std_e` namespaces:

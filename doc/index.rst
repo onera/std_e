@@ -23,6 +23,7 @@ Table of contents
   highlights/highlights
   user_manual/user_manual
   user_manual/folders
+  reference/reference
   installation
   design_documents/design_documents
 
