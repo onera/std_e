@@ -4,18 +4,40 @@
 #include "std_e/interval/algorithm.hpp"
 #include "std_e/unit_test/math.hpp"
 
+
 using namespace std_e;
 
+
 MPI_TEST_CASE("median_of_3_sample",3) {
-  int rk = test_rank;
-  std::vector<int> x;
-  if (rk == 0) x = { 0, 1, 2, 3, 4, 5};
-  if (rk == 1) x = { 6, 7, 8, 9,10,11};
-  if (rk == 2) x = {12,13,14,15,16,17};
+  SUBCASE("regular, already sorted") {
+    int rk = test_rank;
+    std::vector<int> x;
+    if (rk == 0) x = { 0, 1, 2, 3, 4, 5};
+    if (rk == 1) x = { 6, 7, 8, 9,10,11};
+    if (rk == 2) x = {12,13,14,15,16,17};
 
-  std::vector<int> sample = std_e::median_of_3_sample(x,test_comm);
+    std::vector<int> sample = std_e::median_of_3_sample(x,test_comm);
 
-  CHECK(sample == std::vector{5,13});
+    // Note: The exact numbers in the result are here for non-regression mainly.
+    //       They are difficult to interpret for a "tutorial" unit test:
+    //         We can just see that the numbers are coherent
+    //         But it could be other numbers
+    //            -> re-write the unit test better if you know how to do it
+    CHECK( sample == std::vector{5,15} );
+  }
+
+  SUBCASE("irregular") {
+    int rk = test_rank;
+    std::vector<int> x;
+    if (rk == 0) x = {13,11,10,14,0};
+    if (rk == 1) x = {12,3,4,8};
+    if (rk == 2) x = {7,9,6,5,1,2};
+
+    std::vector<int> sample = std_e::median_of_3_sample(x,test_comm);
+
+    // Note: same remark as above
+    CHECK( sample == std::vector{4,12} );
+  }
 }
 
 MPI_TEST_CASE("parallel pivot_partition_once",3) {

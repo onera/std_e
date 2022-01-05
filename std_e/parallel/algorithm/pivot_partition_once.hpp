@@ -1,29 +1,11 @@
 #pragma once
 
 
-#include "std_e/parallel/all_to_all.hpp"
-#include "std_e/algorithm/pivot_partition_range.hpp"
-#include "std_e/algorithm/distribution.hpp"
-#include "std_e/parallel/struct/distribution.hpp"
-#include "std_e/parallel/algorithm/search_intervals.hpp"
-#include "std_e/base/msg_exception.hpp"
-#include "std_e/plog.hpp"
-#include <cmath>
-
-// TODO move
-
+#include "std_e/parallel/mpi/collective/gather.hpp"
+#include "std_e/algorithm/distribution/uniform_sample.hpp"
 
 
 namespace std_e {
-
-//template<class I>
-//sample_position(I n, I n_sample, I i) -> I {
-//  // |--------------------------|
-//  //
-//  I step_position = (i*n_sample)/n_pivot; // position of begining of interval i
-//  I shift_to_mid = (n_sample/n_pivot) / 2; // shift to get middle positions
-//  return step_position + shift_to_mid;
-//}
 
 
 // The performance of the quicksort algorithm depends on the choice of a good pivot:
@@ -46,17 +28,10 @@ median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
   // 1. gather all samples and sort them
   std::vector<T> sample = all_gather(local,comm); // TODO could be optimized because can be pre-allocated at 3*n_rank
   std::sort(begin(sample),end(sample));
-  ELOG(sample);
-  int n_sample = sample.size();
 
-  // 2. re-sample to get n_pivot values
-  int n_pivot = n_rank(comm)-1; // n_rank-1 partition points give n_rank partitions
-  std::vector<T> pivots(n_pivot);
-  for (int i=0; i<n_pivot; ++i) {
-    int scaled_mid = (i*n_sample)/n_pivot + n_sample/(2*n_pivot); // spread over the sample, then shift to get middle positions
-    pivots[i] = sample[scaled_mid]; // TODO check no out-of-bounds
-  }
-  return pivots;
+  // 2. re-sample to get `n_pivot` values
+  int n_pivot = n_rank(comm)-1; // `n_rank-1` partition points give `n_rank` partitions
+  return uniform_sample(sample,n_pivot);
 }
 
 
