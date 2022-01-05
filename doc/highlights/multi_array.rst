@@ -1,7 +1,9 @@
 .. _multi_array_highlights:
 
-Introduction to multi-dimensional arrays
-----------------------------------------
+Multi-dimensional arrays highlights
+-----------------------------------
+
+For a more complete description, see :ref:`multi_dimensional_arrays`.
 
 1.1. Include file
 ^^^^^^^^^^^^^^^^^

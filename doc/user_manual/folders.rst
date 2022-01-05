@@ -25,9 +25,9 @@ future/
 **future/** contains functionality that is one the way of being integrated to C++, or is already integrated but not always supported by the toolchains.
 
 ============================ =========================================================================================================
-**span.hpp**                 Re-implementation :cpp:`std::span`
+**span.hpp**                 Re-implementation of :cpp:`std::span`
 **algorithm.hpp**            :cpp:`constexpr` standard algorithms
-**constexpr_quick_sort.hpp** :cpp:`constexpr std::sort`
+**constexpr_quick_sort.hpp** :cpp:`constexpr` :cpp:`std::sort`
 **constexpr_vector.hpp**     Wrapper around :cpp:`std::array` with :cpp:`std::vector` semantics (:cpp:`push_back`, :cpp:`resize`...)
 **contract.hpp**             Provides :cpp:`STD_E_ASSERT`, similar to :cpp:`assert`, but prints the stack trace
 **zip.hpp**                  Provides the :cpp:`zip(Rng0& r0, Rng1& r1)` template function
@@ -37,15 +37,14 @@ utils/
 ======
 =========================== ================================================================================================================
 **array.hpp**               Common interface to create :cpp:`std::array` and :cpp:`std::vector` (needed in some generic contexts)
-**concatenate.hpp**         Concatenate two ranges, append on range to another...
+**concatenate.hpp**         Concatenate two ranges, append one range to another...
 **enum.hpp**                See :ref:`enum`
 **frozen_flat_map.hpp**     Key-value :cpp:`const` container implemented with two vectors
 **functional.hpp**          :cpp:`identity` and :cpp:`identity_closure`
-**integer_range.hpp**
 **pretty_print.hpp**        :cpp:`pretty_print_bytes`: human readable number of bytes (B, KB, MB...)
 **string.hpp**              String utils: :cpp:`join`, :cpp:`split`, :cpp:`begins_with`, :cpp:`ends_with`
 **switch.hpp**              See :ref:`switch`. Given a run-time integer :cpp:`i`, :cpp:`switch_` dispatches to a function overload which first argument is :cpp:`std::integral_constant<int,i>`
-**to_string.hpp**           :cpp:`to_string` function for common types, :cpp:`range_to_string`
+**to_string.hpp**           :cpp:`to_string` function for common types. :cpp:`range_to_string`: convert a range to a string
 **tuple.hpp**               Tuple algorithms: :cpp:`for_each`, :cpp:`find_apply`, :cpp:`for_each_until`
 **vector.hpp**              Vector algorithms: :cpp:`sort`, :cpp:`unique`, :cpp:`sort_unique`, :cpp:`iota`, :cpp:`to_string`,
 =========================== ================================================================================================================

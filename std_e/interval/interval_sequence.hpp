@@ -101,9 +101,8 @@ class interval_sequence : private Random_access_range {
     };
 
   // utility
-    auto as_base() const -> const base& {
-      return *this;
-    }
+    auto as_base()       ->       base& { return *this; }
+    auto as_base() const -> const base& { return *this; }
   protected:
     struct protected_type_tag {};
     template<class T0>
@@ -173,6 +172,11 @@ class interval_vector : public interval_sequence<std::vector<Number>> {
     interval_vector(std::initializer_list<value_type> l)
       : interval_vector(vec_base(l))
     {}
+
+    auto
+    resize(size_t n) -> void {
+      this->as_base().resize(n);
+    }
 };
 
 // deduction guideline

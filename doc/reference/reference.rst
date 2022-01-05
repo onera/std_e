@@ -6,6 +6,7 @@ Reference
 =========
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
-  pivot_partitions
+  pivot_partition
+  pivot_partition_range
