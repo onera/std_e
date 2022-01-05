@@ -2,65 +2,18 @@
 
 
 #include "std_e/parallel/all_to_all.hpp"
-#include "std_e/algorithm/partition_sort.hpp"
+#include "std_e/algorithm/pivot_partition_range.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
+#include "std_e/parallel/algorithm/pivot_partition_once.hpp"
 #include "std_e/base/msg_exception.hpp"
 #include "std_e/plog.hpp"
 #include <cmath>
 
-// TODO move
-
-
 
 namespace std_e {
 
-
-// The performance of the quicksort algorithm depends on the choice of a good pivot:
-//   - the optimal pivot would be the median but it is too long to find
-//   - taking the first element, or last element of the range is the worst choice if the range is already sorted
-//   - one can sample the range and find the median from the sample
-//     - one simple sample is to take the "median of 3": the median of the first, last and middle elements
-//        it is effective in practice (used for std::sort before introsort was discovered)
-// Here we want to use a similar idea, but we need k quantiles instead of only the median
-// The idea is then to take 3*k equally (or almost equally) separated samples, and take the quantiles out of them
-// For k=1, we get back the "median of 3" selection
-template<class T> auto
-median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
-  auto sz = x.size();
-  int rk = rank(comm);
-  int n_rk = n_rank(comm);
-
-  std::vector<T> local;
-
-  // 0. if x is not empty, sample 3 values out of it
-  if (sz>0) {
-    local = std::vector<T>(3);
-  // Prop 0 with extrema
-    // we want to sample equally spaced values over the whole array,
-    // if all local sz where equal,
-    //   - it means at positions sz/6, sz/2 and 5*sz/6
-    //   - we also take the first and last values of the whole array
-    if (rk==0)      local = {x[0] , x[sz/6] , x[sz/2], x[(5*sz)/6]          };
-    if (rk==n_rk-1) local = {       x[sz/6] , x[sz/2], x[(5*sz)/6], x.back()};
-    else            local = {       x[sz/6] , x[sz/2], x[(5*sz)/6]          };
-  // Prop 1 with extrema
-    local = {x[sz/6] , x[sz/2], x[(5*sz)/6]};
-  }
-  std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at 3*n_rk+2
-  std::sort(begin(sample),end(sample));
-  int n_sample = sample.size();
-
-  int n_pivot = n_rk-1; // -1 because n_rk-1 partition points give n_rk partitions
-  std::vector<T> pivots(n_pivot);
-  for (int i=0; i<n_pivot; ++i) {
-    int scaled_mid = (i*n_sample)/n_pivot + n_sample/(2*n_pivot); // spread over the sample, then shift to get middle positions
-    pivots[i] = sample[scaled_mid]; // TODO check no out-of-bounds
-  }
-  return pivots;
-
-}
 
 auto
 number_of_ticks_in_interval(int n_buckets, int n_ticks, int i_bucket) -> int {
@@ -85,11 +38,6 @@ number_of_ticks_in_interval(int n_buckets, int n_ticks, int i_bucket) -> int {
   if ((j_max-j_min) < 0) return 0;
   else return j_max-j_min + 1;
 }
-
-//template<class I> auto
-//integer_division(I m, I n) {j
-//  return std::make_pair( m/n , m%n );
-//}
 
 // TODO test
 // TODO move near algorithm/distribution.hpp
@@ -144,6 +92,8 @@ median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   int x_size_glob = all_reduce(x.size(),MPI_SUM,comm);
 
   //SLOG(comm,x_start_glob);
+  //SLOG(comm,x_start_glob+x.size());
+  //SLOG(comm,x_size_glob);
   std::vector<int> sample_indices = ticks_in_interval(x_start_glob,x_start_glob+x.size(),x_size_glob,n_sample);
   //SLOG(comm,sample_indices);
   int n_sample_local = sample_indices.size();
@@ -152,9 +102,12 @@ median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
   for (int i=0; i<n_sample_local; ++i) {
     local[i] = x[ sample_indices[i]-x_start_glob ];
   }
+  //ELOG(local);
 
   std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at n_sample
   std::sort(begin(sample),end(sample));
+  //ELOG(sample.size());
+  //ELOG(n_sample);
   STD_E_ASSERT(int(sample.size())==n_sample);
 
   std::vector<T> pivots(n);
@@ -188,19 +141,6 @@ median_of_3_sample(std::vector<span<T>>& xs, std::vector<int> ns, MPI_Comm comm)
 
   //}
 }
-
-template<class T> auto
-partition_sort_once(std::vector<T>& x, MPI_Comm comm) -> interval_vector<int> {
-  std::vector<T> pivots = median_of_3_sample(x,comm);
-
-  auto partition_indices = partition_sort_indices(x,pivots);
-  /// partition_indices[0]=0 (post condition of partition_sort_indices)
-  /// but we need to impose last the index
-  partition_indices.push_back( x.size() );
-
-  return partition_indices;
-}
-
 
 
 struct interval_to_partition {
@@ -263,14 +203,19 @@ class par_algo_exception : msg_exception {
 //        Output: `partition_indices`=[0, ... sz)
 //        Deduced output: `partition_indices_tot`=[0, ... sz_tot), the global partition indices.
 //   1. We want to iteratively partition x such that `partition_indices_tot` converges to [0 ... i*sz_tot/n_rank ... sz_tot)
-template<class T> auto
-partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance) -> interval_vector<int> {
+template<
+  class T,
+  class Comp = std::less<>,
+  class Return_container = interval_vector<int>
+> auto
+pivot_partition_minimize_imbalance(
+  std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance = 0.05, Comp comp = {}, Return_container&& partition_is = {}) -> interval_vector<int> {
   const int n_rk = n_rank(comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
   //const int n_tick_tot = n_rank(comm)-1;
 
 // 0. initial partitioning
-  interval_vector<int> partition_indices = partition_sort_once(x,comm);
+  interval_vector<int> partition_indices = pivot_partition_once(x,comm,comp,std::move(partition_is));
   auto sub_ins = search_intervals3(partition_indices,max_interval_tick_shift,comm);
   //for (int i=0; i<(int)sub_ins.size(); ++i) {
   //  for (int k=0; k<sub_ins[i].n_ticks; ++k) {
@@ -298,7 +243,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
       //        => for very specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
       //   - implementation bugs
       //        => in particular, special cases where the array is too small to get enough samples
-      throw par_algo_exception("partition_sort_minimize_imbalance: max number of iteration reached");
+      throw par_algo_exception("pivot_partition_minimize_imbalance: max number of iteration reached");
     }
 
     int n_sub_intervals = sub_ins.size();
@@ -316,6 +261,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
     for (int i=0; i<n_sub_intervals; ++i) {
       n_indices[i] = sub_ins[i].n_ticks;
     }
+    //LOG("pivot_partition balance");
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
@@ -325,8 +271,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
       //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots);
-      partition_indices_sub.push_back( x_sub[i].size() );
+      auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
 
       // 1.1. compute new sub-intervals
       //SLOG(comm,partition_indices_sub);
@@ -377,7 +322,7 @@ partition_sort_minimize_imbalance(std::vector<T>& x, int sz_tot, MPI_Comm comm, 
     // 2. loop
     sub_ins = std::move(new_sub_ins);
   }
-  if (rank(comm)==0) ELOG(kk);
+  //if (rank(comm)==0) ELOG(kk);
 
   return partition_indices;
 }
