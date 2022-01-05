@@ -16,6 +16,15 @@
 
 namespace std_e {
 
+//template<class I>
+//sample_position(I n, I n_sample, I i) -> I {
+//  // |--------------------------|
+//  //
+//  I step_position = (i*n_sample)/n_pivot; // position of begining of interval i
+//  I shift_to_mid = (n_sample/n_pivot) / 2; // shift to get middle positions
+//  return step_position + shift_to_mid;
+//}
+
 
 // The performance of the quicksort algorithm depends on the choice of a good pivot:
 //   - the optimal pivot would be the median but it is too long to find
@@ -29,29 +38,19 @@ namespace std_e {
 template<class T> auto
 median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
   auto sz = x.size();
-  int rk = rank(comm);
-  int n_rk = n_rank(comm);
+  STD_E_ASSERT(sz > 0);
 
-  std::vector<T> local;
+  // 0. local samples
+  std::vector<T> local = {x[sz/6] , x[sz/2], x[(5*sz)/6]}; // if `sz` is the same over all ranks, this gives a uniform sampling
 
-  // 0. if x is not empty, sample 3 values out of it
-  if (sz>0) {
-  //// Prop 0 with extrema
-  //  // we want to sample equally spaced values over the whole array,
-  //  // if all local sz where equal,
-  //  //   - it means at positions sz/6, sz/2 and 5*sz/6
-  //  //   - we also take the first and last values of the whole array
-  //  if (rk==0)      local = {x[0] , x[sz/6] , x[sz/2], x[(5*sz)/6]          };
-  //  if (rk==n_rk-1) local = {       x[sz/6] , x[sz/2], x[(5*sz)/6], x.back()};
-  //  else            local = {       x[sz/6] , x[sz/2], x[(5*sz)/6]          };
-  // Prop 1 with extrema
-    local = {x[sz/6] , x[sz/2], x[(5*sz)/6]};
-  }
-  std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at 3*n_rk
+  // 1. gather all samples and sort them
+  std::vector<T> sample = all_gather(local,comm); // TODO could be optimized because can be pre-allocated at 3*n_rank
   std::sort(begin(sample),end(sample));
+  ELOG(sample);
   int n_sample = sample.size();
 
-  int n_pivot = n_rk-1; // -1 because n_rk-1 partition points give n_rk partitions
+  // 2. re-sample to get n_pivot values
+  int n_pivot = n_rank(comm)-1; // n_rank-1 partition points give n_rank partitions
   std::vector<T> pivots(n_pivot);
   for (int i=0; i<n_pivot; ++i) {
     int scaled_mid = (i*n_sample)/n_pivot + n_sample/(2*n_pivot); // spread over the sample, then shift to get middle positions
@@ -64,10 +63,12 @@ median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
 template<
   class T,
   class Comp = std::less<>,
+  class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
-  //LOG("pivot_partition_once");
+pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, Return_container&& partition_is = {}) -> Return_container {
+  STD_E_ASSERT(x.size() > 0);
+
   std::vector<T> pivots = median_of_3_sample(x,comm);
 
   return pivot_partition_indices(x,pivots,comp,std::move(partition_is));

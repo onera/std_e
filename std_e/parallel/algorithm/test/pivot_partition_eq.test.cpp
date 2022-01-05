@@ -1,14 +1,14 @@
 #include "std_e/unit_test/doctest_mpi.hpp"
 
-#include "std_e/parallel/algorithm/pivot_partition.hpp"
+#include "std_e/parallel/algorithm/pivot_partition_eq.hpp"
 #include "std_e/interval/algorithm.hpp"
 #include "std_e/unit_test/math.hpp"
 
 using namespace std_e;
 
-//MPI_TEST_CASE("parallel pivot_partition",16) {
+//MPI_TEST_CASE("parallel pivot_partition_eq",16) {
 //  int sz_tot = 256'000'000;
-MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",4) {
+MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
   int sz_tot = 200;
   int rk = test_rank;
   int n_rk = test_nb_procs;
@@ -37,7 +37,7 @@ MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",4) {
   }
 }
 
-MPI_TEST_CASE("parallel pivot_partition",3) {
+MPI_TEST_CASE("parallel pivot_partition_eq",3) {
   int sz_tot = 15;
   int rk = test_rank;
   int n_rk = test_nb_procs;
