@@ -3,6 +3,7 @@
 
 #include "std_e/interval/interval_sequence.hpp"
 #include "std_e/parallel/algorithm/uniform_sample.hpp"
+#include "std_e/plog.hpp"
 
 
 namespace std_e {
@@ -18,6 +19,9 @@ median_of_3_sample(span<T> x, I n_pivot, MPI_Comm comm) {
 
   // 2. gather all samples and sort them
   std::vector<T> sample = all_gather(sample_local,comm); // could be optimized because can be pre-allocated at n_sample
+  SLOG(comm,sample.size());
+  SLOG(comm,n_sample);
+  SLOG(comm,sample);
   STD_E_ASSERT(I(sample.size())==n_sample);
   std::sort(begin(sample),end(sample));
 
