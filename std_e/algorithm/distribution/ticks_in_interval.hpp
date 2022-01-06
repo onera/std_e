@@ -33,28 +33,26 @@ number_of_ticks_in_interval(I n_buckets, I n_tick, I i_bucket) -> I {
 
 // TODO clean
 template<class I> constexpr auto
-uniform_ticks_in_sub_interval_closed(I start, I finish, I end, I n_tick) -> std::vector<I> {
-  // closed interval [0,end]
-  // sub-interval [start,finish) or [start,finish] iff finish==end
-  // if we were to place `n_tick` uniformly spaced ticks on [0,end],
+uniform_ticks_in_sub_interval(I start, I finish, I end, I n_tick) -> std::vector<I> {
+  // closed interval [0,end)
+  // sub-interval [start,finish)
+  // if we were to place `n_tick` uniformly spaced ticks on [0,end),
   // compute the ticks that would be lying inside [start,finish)
   //    Note: given
   //            n_partition = n_tick-1
-  //            size = end+1
+  //            size = end
   //          if size%n_partition != 0, uniformity is impossible,
   //          so the first size%n_partition ticks are spaced by size/n_partition + 1
   //          and the others ticks are spaced by size/n_partition
-  I size = end+1; // because the interval [0,end] is closed
+  I size = end;
   STD_E_ASSERT(n_tick <= size);
   STD_E_ASSERT(start >= 0);
   STD_E_ASSERT(finish <= end);
 
   if (n_tick == 0) return {};
   if (n_tick == 1) {
-    I mid = end/2 + end%2;
+    I mid = (end-1)/2 + (end-1)%2;
     if (start <= mid && mid < finish) {
-      return {mid};
-    } else if (mid == finish) {
       return {mid};
     } else {
       return {};
@@ -63,9 +61,9 @@ uniform_ticks_in_sub_interval_closed(I start, I finish, I end, I n_tick) -> std:
 
   I n_partition = n_tick-1;
 
-  I spacing_round_down = end/n_partition;
+  I spacing_round_down = (end-1)/n_partition;
   I spacing_round_up = spacing_round_down+1;
-  I n_round_up = end%n_partition;
+  I n_round_up = (end-1)%n_partition;
 
   std::vector<I> ticks;
   if (start < n_round_up*spacing_round_up) { // if only spacing_round_up steps to get to start
@@ -99,23 +97,8 @@ uniform_ticks_in_sub_interval_closed(I start, I finish, I end, I n_tick) -> std:
     }
   }
 
-  if (finish == end) {
-    ticks.push_back(finish);
-  }
   return ticks;
 }
 
-
-// [close,open) interval version
-template<class I> constexpr auto
-uniform_ticks_in_sub_interval(I start, I finish, I end, I n_tick) -> std::vector<I> {
-  STD_E_ASSERT(end>=1);
-  // change to a fully closed interval
-  if (finish==end) {
-    --finish;
-  }
-  --end;
-  return uniform_ticks_in_sub_interval_closed(start,finish,end,n_tick);
-}
 
 } // std_e

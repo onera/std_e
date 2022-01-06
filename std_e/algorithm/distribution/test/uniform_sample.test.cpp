@@ -10,8 +10,8 @@ TEST_CASE("uniform_sample") {
 
   CHECK( uniform_sample(x,0) == std::vector<int>{} );
   CHECK( uniform_sample(x,1) == std::vector{7} );
-  CHECK( uniform_sample(x,2) == std::vector{3,11} );
-  CHECK( uniform_sample(x,3) == std::vector{2,7,12} );
+  CHECK( uniform_sample(x,2) == std::vector{0,14} );
+  CHECK( uniform_sample(x,3) == std::vector{0,7,14} );
 
   CHECK( uniform_sample(x,10) == std::vector{0,2,4,6,8,10,11,12,13,14} );
   // Note: This is not very good since its biased towards the end (more samples at the end).
@@ -19,4 +19,9 @@ TEST_CASE("uniform_sample") {
   //       A better alternative would be to spread up-rounding accross the sub-intervals.
 
   CHECK( uniform_sample(x,15) == x );
+
+  SUBCASE("smaller") {
+    std::vector<int> x = {0,1,2,3,4};
+    CHECK( uniform_sample(x,2) == std::vector{0,4} );
+  }
 }

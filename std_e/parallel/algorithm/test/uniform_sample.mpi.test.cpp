@@ -1,7 +1,6 @@
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/uniform_sample.hpp"
-#include "std_e/log.hpp" // TODO
 
 using namespace std;
 using namespace std_e;
