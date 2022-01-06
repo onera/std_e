@@ -4,7 +4,7 @@
 #include "std_e/parallel/struct/distributed_array.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/execution/execution.hpp"
-#include "std_e/logging/time_logger.hpp" // TODO
+#include "std_e/utils/timer.hpp"
 
 using namespace std_e;
 using std::vector;
@@ -242,13 +242,22 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
     future f_res = gather(gp,f2);
 
     SUBCASE("seq") {
-      auto _ = std_e::stdout_time_logger("gather with protocol seq");
-      CHECK( execute_seq(f_res) == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
+      timer t;
+      auto res = execute_seq(f_res);
+      double elaps = t.elapsed();
+      //ELOG(elaps);
+
+      CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
     }
     SUBCASE("async comm") {
       thread_pool comm_tp(2);
-      auto _ = std_e::stdout_time_logger("gather with protocol async comm");
-      CHECK( execute_async_comm(f_res,comm_tp) == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
+
+      timer t;
+      auto res = execute_async_comm(f_res,comm_tp);
+      double elaps = t.elapsed();
+      //ELOG(elaps);
+
+      CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
     }
   }
 }

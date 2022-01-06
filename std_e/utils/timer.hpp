@@ -14,9 +14,10 @@ class timer {
       : start_time(std::chrono::system_clock::now())
     {}
 
-    auto elapsed() -> void {
+    auto elapsed() -> double {
       auto finish_time = std::chrono::system_clock::now();
-      return (finish_time-start_time).count();
+      std::chrono::duration<double> elapsed = finish_time-start_time;
+      return elapsed.count();
     }
 
   private:

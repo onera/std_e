@@ -1,7 +1,8 @@
 #include "std_e/unit_test/doctest_mpi.hpp"
+#include "std_e/unit_test/thread.hpp"
 
 #include "std_e/parallel/mpi/point_to_point/point_to_point.hpp"
-#include "std_e/logging/time_logger.hpp" // TODO
+#include "std_e/utils/timer.hpp"
 #include "std_e/execution/execution.hpp"
 
 #include "std_e/graph/adjacency_graph/graph_to_dot_string.hpp"
@@ -9,7 +10,6 @@
 
 using namespace std_e;
 using namespace std::string_literals;
-using namespace std::chrono_literals;
 
 MPI_TEST_CASE("send and recv",2) {
   // 0. init
@@ -52,9 +52,11 @@ namespace {
 
 namespace async_test {
 
+constexpr double p_to_p_test_sleep_duration = 0.1;
+
 auto
 send_recv_msg_0(two_vec& x, MPI_Comm comm) -> std::vector<int> {
-  std::this_thread::sleep_for(10ms);
+  sleep_for_seconds(p_to_p_test_sleep_duration);
   int rk = rank(comm);
   int tag = 42;
   if (rk == 0) {
@@ -67,7 +69,7 @@ send_recv_msg_0(two_vec& x, MPI_Comm comm) -> std::vector<int> {
 }
 auto
 send_recv_msg_1(two_vec& x, MPI_Comm comm) -> std::vector<int> {
-  std::this_thread::sleep_for(10ms);
+  sleep_for_seconds(1.1*p_to_p_test_sleep_duration);
   int rk = rank(comm);
   int tag = 43;
   if (rk == 0) {
@@ -116,9 +118,19 @@ MPI_TEST_CASE("send recv async overlap",2) {
   //  CHECK( execute_seq(s3) == std::vector{2,1,0, 5,4,3} );
   //}
   SUBCASE("async comm") {
-    thread_pool comm_tp(2);
-    auto _ = std_e::stdout_time_logger("send recv async comm");
-    CHECK( execute_async_comm(s3,comm_tp) == std::vector{2,1,0, 5,4,3} );
+    // WARNING: This test seems to work consistently (in term of time taken) with 4 comm threads.
+    //          Two comm threads should be enought, however, it result in no parallelisation most of the time
+    //            (but it is inconsistent and sometimes, the timing is the one expected
+    // TODO: investigate (thread_pool bug? MPI funny behavior? ...)
+    thread_pool comm_tp(4);
+
+    timer t;
+    auto res = execute_async_comm(s3,comm_tp);
+    double elaps = t.elapsed();
+
+    CHECK( res == std::vector{2,1,0, 5,4,3} );
+    // the two "heavy" communication tasks `send_recv_msg_0` and `send_recv_msg_1` are done in parallel
+    CHECK( elaps - 1.1*p_to_p_test_sleep_duration < 1.1*p_to_p_test_sleep_duration / 10 );
   }
 }
 
