@@ -1,50 +1,35 @@
 #pragma once
 
 
-#include "std_e/parallel/mpi.hpp"
 #include "std_e/interval/interval_sequence.hpp"
-#include "std_e/algorithm/distribution/ticks_in_interval.hpp"
+#include "std_e/parallel/algorithm/uniform_sample.hpp"
 
 
 namespace std_e {
 
 
-template<class T> auto
-median_of_3_sample(span<T> x, int n, MPI_Comm comm) {
-  //int rk = rank(comm);
-  //int n_rk = n_rank(comm);
-  int n_sample = 3*n; // *3 by analogy with median of 3
+template<class T, class I> auto
+median_of_3_sample(span<T> x, I n_pivot, MPI_Comm comm) {
+  // 0. n_sample
+  I n_sample = 3*n_pivot; // 3 by analogy with median of 3
 
-  int x_start_glob = ex_scan(x.size(),MPI_SUM,0,comm);
-  int x_finish_glob = x_start_glob + x.size();
-  int x_size_glob = all_reduce(x.size(),MPI_SUM,comm);
+  // 1. local samples
+  std::vector<T> sample_local = uniform_sample_local(x,n_sample,comm);
 
-  //SLOG(comm,x_start_glob);
-  //SLOG(comm,x_start_glob+x.size());
-  //SLOG(comm,x_size_glob);
-  std::vector<int> sample_indices = uniform_ticks_in_sub_interval(x_start_glob,x_finish_glob,x_size_glob,n_sample);
-  //SLOG(comm,sample_indices);
-  int n_sample_local = sample_indices.size();
-
-  std::vector<T> local(n_sample_local);
-  for (int i=0; i<n_sample_local; ++i) {
-    local[i] = x[ sample_indices[i]-x_start_glob ];
-  }
-  //ELOG(local);
-
-  std::vector<T> sample = all_gather(local,comm); // could be optimized because can be pre-allocated at n_sample
+  // 2. gather all samples and sort them
+  std::vector<T> sample = all_gather(sample_local,comm); // could be optimized because can be pre-allocated at n_sample
+  STD_E_ASSERT(I(sample.size())==n_sample);
   std::sort(begin(sample),end(sample));
-  //ELOG(sample.size());
-  //ELOG(n_sample);
-  STD_E_ASSERT(int(sample.size())==n_sample);
 
-  std::vector<T> pivots(n);
-  for (int i=0; i<n; ++i) {
+  // 3. re-sample to get `n_pivot` values
+  std::vector<T> pivots(n_pivot);
+  for (I i=0; i<n_pivot; ++i) {
     pivots[i] = sample[3*i+1];
   }
   return pivots;
-
 }
+
+
 template<class T> auto
 median_of_3_sample(std::vector<span<T>>& xs, std::vector<int> ns, MPI_Comm comm) {
   // TODO implement with only one gather

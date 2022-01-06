@@ -15,11 +15,12 @@ namespace std_e {
 // span_size {
 template<ptrdiff_t N>
 struct span_size {
+  using size_type = size_t;
   constexpr span_size() {}
-  constexpr span_size(size_t) {}
+  constexpr span_size(size_type) {}
 
   static FORCE_INLINE constexpr auto
-  size() -> size_t {
+  size() -> size_type {
     return N;
   }
 
@@ -36,12 +37,14 @@ struct span_size {
 template<>
 class span_size<dynamic_size> {
   public:
+    using size_type = size_t;
+
     FORCE_INLINE constexpr
     span_size()
       : n(0)
     {}
     FORCE_INLINE constexpr
-    span_size(size_t n)
+    span_size(size_type n)
       : n(n)
     {}
     FORCE_INLINE constexpr
@@ -50,7 +53,7 @@ class span_size<dynamic_size> {
     {}
 
     FORCE_INLINE constexpr auto
-    size() const -> size_t {
+    size() const -> size_type {
       return n;
     }
 
@@ -64,7 +67,7 @@ class span_size<dynamic_size> {
       return !(x==y);
     }
   private:
-    size_t n;
+    size_type n;
 };
 // span_size }
 

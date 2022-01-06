@@ -86,5 +86,13 @@ TEST_CASE("uniform_ticks_in_sub_interval") {
   CHECK( uniform_ticks_in_sub_interval(0,85,85,3) == vector{22,43,64} );
 
   // with the complete interval being too small:
-  //   uniform_ticks_in_sub_interval(0,4,4,10) => precondition failure : n_ticks <= sz , but 10 > 4
+  //   uniform_ticks_in_sub_interval(0,4,4,10) => precondition failure : n_ticks <= sz-1 , but 10 > 4-1
+  // NOTE: we only give ticks inside the interval
+  //       the interval is (open,open), not [close,open) as usual
+  //   uniform_ticks_in_sub_interval(0,10,10,10) => precondition failure : n_ticks <= sz-1 , but 10 > 10-1
+
+  SUBCASE("with n_ticks == open interval length") {
+    // there are 9 ticks in open interval (0,10)
+    CHECK( uniform_ticks_in_sub_interval(0,10,10,9) == vector{1,2,3,4,5,6,7,8,9} );
+  }
 }

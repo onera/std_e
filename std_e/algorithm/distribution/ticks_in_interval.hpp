@@ -36,12 +36,13 @@ template<class I> constexpr auto
 uniform_ticks_in_sub_interval(I start, I finish, I size, I n_ticks) -> std::vector<I> {
   // interval [0,size)
   // sub-interval [start,finish)
-  // if we were to place n_ticks uniformly spaced ticks on [0,size),
+  // if we were to place `n_ticks` uniformly spaced ticks on [0,size),
   // compute the ticks that would be lying inside [start,finish)
   //    Note: if size%(n_ticks+1) != 0, uniformity is impossible,
   //          so the first size%(n_ticks+1) ticks are spaced by size/(n_ticks+1) + 1
   //          and the others ticks are spaced by size/(n_ticks+1)
-  STD_E_ASSERT(n_ticks <= size);
+  STD_E_ASSERT(n_ticks <= size-1); // size-1 because in only want ticks inside the interval,
+                                   // that is, the interval must be considered (open,open), not [close,open) as usual
   STD_E_ASSERT(start >= 0);
   STD_E_ASSERT(finish <= size);
 
