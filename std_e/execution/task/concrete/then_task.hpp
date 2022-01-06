@@ -87,12 +87,14 @@ class then_task {
     //then_task operator=(then_task&& x) = delete;
 
     then_task(then_task&& x)
-      : f(std::move(x.f))
+      : kd(x.kd)
+      , f(std::move(x.f))
       , args(std::move(x.args))
       , result(std::move(x.result))
       , result_p(&result)
     {}
     then_task& operator=(then_task&& x) {
+      kd = x.kd;
       f = std::move(x.f);
       args = std::move(x.args);
       result = std::move(x.result);
