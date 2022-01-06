@@ -19,18 +19,26 @@ namespace std_e {
 // For k=1, we get back the "median of 3" selection
 template<class T> auto
 median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
-  auto sz = x.size();
-  STD_E_ASSERT(sz > 0);
+  size_t sz = x.size();
+  size_t n_pivot = n_rank(comm)-1; // to get `n_rank` partitions, we need `n_rank-1` partition points
 
+  size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
+  STD_E_ASSERT(sz_tot > n_pivot); // can't get n_pivot samples if less than n_pivot values
+
+  // TODO replace by non-balanced sampling (here, works if x.size() is constant)
   // 0. local samples
-  std::vector<T> local = {x[sz/6] , x[sz/2], x[(5*sz)/6]}; // if `sz` is the same over all ranks, this gives a uniform sampling
+  std::vector<T> local;
+  if (sz <= 3) {
+    local = x;
+  } else {
+    local = {x[sz/6] , x[sz/2], x[(5*sz)/6]}; // if `sz` is the same over all ranks, this gives a uniform sampling
+  }
 
   // 1. gather all samples and sort them
   std::vector<T> sample = all_gather(local,comm); // TODO could be optimized because can be pre-allocated at 3*n_rank
   std::sort(begin(sample),end(sample));
 
   // 2. re-sample to get `n_pivot` values
-  int n_pivot = n_rank(comm)-1; // `n_rank-1` partition points give `n_rank` partitions
   return uniform_sample(sample,n_pivot);
 }
 
