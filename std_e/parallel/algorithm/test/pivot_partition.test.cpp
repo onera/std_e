@@ -6,7 +6,7 @@
 
 using namespace std_e;
 
-//MPI_TEST_CASE("parallel pivot_partition",16) {
+//MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",16) {
 //  int sz_tot = 256'000'000;
 MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",4) {
   int sz_tot = 200;
@@ -30,10 +30,10 @@ MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",4) {
       CHECK( std::abs(lens[i]-optimal_len)/double(optimal_len) < max_imbalance );
     }
 
-    if (rk==0) {
-      ELOG(partition_indices_tot);
-      ELOG(lens);
-    }
+    //if (rk==0) {
+    //  ELOG(partition_indices_tot);
+    //  ELOG(lens);
+    //}
   }
 }
 
@@ -54,8 +54,8 @@ MPI_TEST_CASE("parallel pivot_partition",3) {
   //interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,sz_tot,test_comm,max_imbalance);
   interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
 
-  ELOG(partition_indices);
-  ELOG(x);
+  //ELOG(partition_indices);
+  //ELOG(x);
 }
   //int sz_tot = 15;
   //if (rk == 0) x = {0,1,2,3,4};

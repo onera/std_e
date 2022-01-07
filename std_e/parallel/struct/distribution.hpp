@@ -18,6 +18,14 @@ uniform_distribution(int size, I nb_elts) -> distribution_vector<I> {
   return distrib;
 }
 
+template<class I> auto
+uniform_distribution_exclude_ends(int size, I nb_elts) -> distribution_vector<I> {
+  auto distrib = uniform_distribution(size,nb_elts);
+  distrib.as_base().erase(distrib.begin());
+  distrib.as_base().pop_back();
+  return distrib;
+}
+
 
 template<class Integer, class Distribution> auto
 rank_offset(Integer i, const Distribution& dist) -> std::pair<int,Integer> {

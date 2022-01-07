@@ -7,7 +7,7 @@
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
 #include "std_e/parallel/algorithm/pivot_partition_once.hpp"
-#include "std_e/base/msg_exception.hpp"
+#include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include "std_e/plog.hpp"
 #include <cmath>
