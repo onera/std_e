@@ -12,69 +12,116 @@ namespace std_e {
 
 
 template<class Rng> auto
-search_intervals6(const Rng& indices, const std::vector<int>& objective_ticks, int max_interval_tick_shift) {
-  int sz_tot = indices.back();
-  int n_tick = indices.size()-1;
+search_intervals6(const std::vector<int>& ticks, const Rng& inter, int max_interval_tick_shift) {
+  int n_tick = ticks.size();
 
-  std::vector<int> first_index;
+  std::vector<int> first_ticks;
   std::vector<int> n_indices;
-  std::vector<int> interval_start;
-
-  int k = 0;
-  for (int i=1; i<n_tick; ++i) {
-    if (std::abs(indices[i] - objective_ticks[i-1]) <= max_interval_tick_shift) continue;
-
-    while (not (indices[k] < objective_ticks[i-1] && objective_ticks[i-1] < indices[k+1]) ) {
-      ++k;
-    }
-    if (interval_start.size()>0 && interval_start.back()==k) {
-      ++n_indices.back();
-    } else {
-      first_index.push_back(i);
-      n_indices.push_back(1);
-      interval_start.push_back(k);
-    }
-  }
-
-  return std::make_tuple(first_index, n_indices, interval_start);
-}
-
-template<class Rng> auto
-search_intervals4(const Rng& indices, const std::vector<int>& objective_ticks, int max_interval_tick_shift) {
-  int n_tick = objective_ticks.size();
-
-  std::vector<int> first_index;
-  std::vector<int> n_indices;
-  std::vector<int> interval_start;
-
+  std::vector<int> inter_indices;
   std::vector<int> index_ticks_found;
 
   int k = 0;
   for (int i=0; i<n_tick; ++i) {
-    STD_E_ASSERT(indices[0] <= objective_ticks[i] && objective_ticks[i] < indices.back());
+    STD_E_ASSERT(inter[0] <= ticks[i] && ticks[i] < inter.back());
+    if (std::abs(inter[i+1] - ticks[i]) <= max_interval_tick_shift) continue;
 
-    while (not (indices[k] <= objective_ticks[i] && objective_ticks[i] < indices[k+1]) ) {
+    while (not (inter[k] < ticks[i] && ticks[i] < inter[k+1]) ) {
       ++k;
     }
-    // ticks[i] is in [indices[k],indices[k+1])
+    // now, ticks[i] is in [inter[k],inter[k+1])
 
-    // if indices[k] is close enought, put it in the ticks found
-    if (std::abs(indices[k] - objective_ticks[i]) < max_interval_tick_shift) {
+    // if inter[k] is close enought, put it in the ticks found
+    if (std::abs(inter[k] - ticks[i]) < max_interval_tick_shift) {
+      index_ticks_found.push_back(k);
+    }
+
+    // else, register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
+    if (inter_indices.size()>0 && inter_indices.back()==k) {
+      ++n_indices.back();
+    } else {
+      first_ticks.push_back(i+1);
+      n_indices.push_back(1);
+      inter_indices.push_back(k);
+    }
+  }
+
+  return std::make_tuple(first_ticks, n_indices, inter_indices);
+}
+
+// TODO invert args
+template<class Rng> auto
+search_intervals4(const std::vector<int>& ticks, const Rng& inter, int max_interval_tick_shift) {
+  int n_tick = ticks.size();
+
+  std::vector<int> first_ticks;
+  std::vector<int> n_indices;
+  std::vector<int> inter_indices;
+  std::vector<int> index_ticks_found;
+
+  int k = 0;
+  for (int i=0; i<n_tick; ++i) {
+    STD_E_ASSERT(inter[0] <= ticks[i] && ticks[i] < inter.back());
+
+    while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
+      ++k;
+    }
+    // now, ticks[i] is in [inter[k],inter[k+1])
+
+    // if inter[k] is close enought, put it in the ticks found
+    //ELOG(std::abs(inter[k] - ticks[i]));
+    if (std::abs(inter[k] - ticks[i]) < max_interval_tick_shift) {
       index_ticks_found.push_back(k);
 
-    // else, register the fact that ticks[i] is to be found in [indices[k],indices[k+1])
+    // else, register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
     } else {
-      if (interval_start.size()>0 && interval_start.back()==k) {
+      if (inter_indices.size()>0 && inter_indices.back()==k) {
         ++n_indices.back();
       } else {
-        first_index.push_back(i);
+        first_ticks.push_back(i);
         n_indices.push_back(1);
-        interval_start.push_back(k);
+        inter_indices.push_back(k);
       }
     }
   }
 
-  return std::make_tuple(first_index, n_indices, interval_start, index_ticks_found);
+  return std::make_tuple(first_ticks, n_indices, inter_indices, index_ticks_found);
+}
+
+
+template<class Interval_range0, class Interval_range1, class I = typename Interval_range0::value_type> auto
+search_intervals7(const Interval_range0& ticks, const Interval_range1& inter) {
+  STD_E_ASSERT(inter.size()>=2);
+  if (ticks.size()>0) {
+    STD_E_ASSERT(inter[0] <= ticks[0] && ticks.back() < inter.back());
+  }
+
+  I n_tick = ticks.size();
+
+  std::vector<I> inter_indices;
+  std::vector<I> first_ticks;
+
+  I k = 0;
+  for (I i=0; i<n_tick; ++i) {
+
+    while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
+      ++k;
+    }
+
+    // register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
+
+    // if ticks[i-1] was also in [inter[k],inter[k+1]),
+    // just increment the number of
+    if (inter_indices.size()>0 && inter_indices.back()==k) {
+
+    } else {
+      first_ticks.push_back(i);
+      inter_indices.push_back(k);
+    }
+  }
+  first_ticks.push_back(n_tick);
+  inter_indices.push_back(k+1);
+
+  return std::make_tuple(first_ticks, inter_indices);
 }
 
 

@@ -111,7 +111,8 @@ pivot_partition_minimize_imbalance(
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
       }
       //SLOG(comm,objective_ticks_sub);
-      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals4(partition_indices_sub_tot,objective_ticks_sub,max_interval_tick_shift);
+      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals4(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
+      //auto [first_ticks, inter_indices] = search_intervals7(objective_ticks_sub,partition_indices_sub_tot);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);

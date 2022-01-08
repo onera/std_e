@@ -36,22 +36,22 @@ inline auto
 search_intervals3(const interval_vector<int>& partition_indices, int max_interval_tick_shift, MPI_Comm comm) {
   auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
 
-  SLOG(comm,partition_indices_tot);
+  //SLOG(comm,partition_indices_tot);
   int n_interval = n_rank(comm);
   int sz_tot = partition_indices_tot.back();
 
   //auto distri = uniform_distribution_exclude_ends(n_interval,sz_tot);
   auto distri = uniform_distribution_exclude_ends(n_interval,sz_tot);
-  SLOG(comm,distri.as_base());
-  auto [first_indices2, n_indices2, interval_start2,_] = search_intervals4(partition_indices_tot,distri.as_base(),max_interval_tick_shift);
+  //SLOG(comm,distri.as_base());
+  auto [first_indices2, n_indices2, interval_start2,_] = search_intervals4(distri.as_base(),partition_indices_tot,max_interval_tick_shift);
 
-  auto [first_indices, n_indices, interval_start] = search_intervals6(partition_indices_tot,distri.as_base(),max_interval_tick_shift);
-  SLOG(comm,first_indices2);
-  SLOG(comm,first_indices);
-  SLOG(comm,n_indices2);
-  SLOG(comm,n_indices);
-  SLOG(comm,interval_start2);
-  SLOG(comm,interval_start);
+  auto [first_indices, n_indices, interval_start] = search_intervals6(distri.as_base(),partition_indices_tot,max_interval_tick_shift);
+  //SLOG(comm,first_indices2);
+  //SLOG(comm,first_indices);
+  //SLOG(comm,n_indices2);
+  //SLOG(comm,n_indices);
+  //SLOG(comm,interval_start2);
+  //SLOG(comm,interval_start);
 
   int n_sub_intervals = interval_start.size();
   std::vector<interval_to_partition> sub_ins(n_sub_intervals);

@@ -70,6 +70,10 @@ is_partitioned_at_indices(const Rng& x, const Interval_sequence& partition_indic
   return true;
 }
 
+template<class Rng0,class Rng1> auto
+contains(const Rng0& x, const Rng1& sub_x) -> bool {
+  return x[0] <= sub_x[0] && sub_x.back() <= x.back();
+}
 
 
 } // std_e
