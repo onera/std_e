@@ -1,7 +1,9 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/pivot_partition.hpp"
+#include "std_e/interval/algorithm.hpp"
 #include <vector>
+#include "std_e/log.hpp" // TODO
 
 using namespace std;
 using std_e::id_string;
@@ -18,11 +20,36 @@ TEST_CASE("pivot_partition - simple test") {
   std_e::pivot_partition(begin(v),end(v),
                          begin(pivots),end(pivots),
                          begin(partition_pts));
+
   CHECK( partition_pts[0]-begin(v) == 0 ); // no elt less than 0
   CHECK( partition_pts[1]-begin(v) == 3 ); // 3 elts less than 120:  0,8,50
   CHECK( partition_pts[2]-begin(v) == 4 ); // 4 elts less than 1000: 0,8,50,800
+
+  CHECK( std_e::is_partitioned_at(v,partition_pts) );
+
 }
 
+//TEST_CASE("pivot_partition - 2") {
+//  vector<int> v = {13,11,10,14,0,7,9,6};
+//  //vector<int> v = {12,3,4,8,5,1,2};
+//
+//  const vector<int> pivots = {8,11,15};
+//
+//  using it_type = typename vector<int>::iterator;
+//  vector<it_type> partition_pts(pivots.size());
+//  std_e::pivot_partition(begin(v),end(v),
+//                         begin(pivots),end(pivots),
+//                         begin(partition_pts));
+//  ELOG(v);
+//  ELOG(partition_pts[0]-begin(v));
+//  ELOG(partition_pts[1]-begin(v));
+//  ELOG(partition_pts[2]-begin(v));
+//  CHECK( partition_pts[0]-begin(v) == 3 );
+//  CHECK( partition_pts[1]-begin(v) == 5 );
+//  CHECK( partition_pts[2]-begin(v) == 8 );
+//
+//  CHECK( std_e::is_partitioned_at(v,partition_pts) );
+//}
 
 
 // [Sphinx Doc] pivot_partition {
