@@ -18,9 +18,9 @@ pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Proj proj
   STD_E_ASSERT(x.size() > 0);
 
   std::vector<T> pivots = median_of_3_sample(x,comm);
-  if (rank(comm)==0) {
-    ELOG(pivots);
-  }
+  //if (rank(comm)==0) {
+  //  ELOG(pivots);
+  //}
 
   //return partition_sort_indices(x,pivots,comp);
   return pivot_partition_indices(x,pivots,comp,std::move(partition_is));

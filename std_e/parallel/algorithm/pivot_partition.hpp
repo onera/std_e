@@ -31,7 +31,7 @@ template<
   class Return_container = interval_vector<int>
 > auto
 pivot_partition_minimize_imbalance(
-  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.05, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
+  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.2, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
   const int n_rk = n_rank(comm);
 
   size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
@@ -101,42 +101,39 @@ pivot_partition_minimize_imbalance(
       //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      if (rank(comm)==0) {
-        ELOG(pivots);
-      }
+      //if (rank(comm)==0) {
+      //  ELOG(pivots);
+      //}
       auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
       for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
         partition_indices_sub[ii] += sub_ins[i].inf;
       }
-      SLOG(comm,partition_indices_sub);
+      //SLOG(comm,partition_indices_sub);
 
       // 1.1. compute new sub-intervals
-      //SLOG(comm,partition_indices_sub);
       auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
-      //SLOG(comm,partition_indices_sub_tot);
 
       std::vector<int> objective_ticks_sub(sub_ins[i].n_ticks);
       for (int j=0; j<sub_ins[i].n_ticks; ++j) {
-        //objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j);
       }
-      if (rank(comm)==0) {
-        ELOG(objective_ticks_sub);
-        ELOG(partition_indices_sub_tot);
-      }
+      //if (rank(comm)==0) {
+      //  ELOG(objective_ticks_sub);
+      //  ELOG(partition_indices_sub_tot);
+      //}
       auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);
-      SLOG(comm,index_ticks_found);
+      //SLOG(comm,index_ticks_found);
       int n_sub_sub_intervals = interval_start.size();
 
       // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
-        int inf     = /*sub_ins[i].inf     + */partition_indices_sub    [interval_start[j]];
-        int sup     = /*sub_ins[i].inf     + */partition_indices_sub    [interval_start[j] + 1];
-        int inf_tot = /*sub_ins[i].inf_tot + */partition_indices_sub_tot[interval_start[j]];
-        int sup_tot = /*sub_ins[i].inf_tot + */partition_indices_sub_tot[interval_start[j] + 1];
+        int inf     = partition_indices_sub    [interval_start[j]];
+        int sup     = partition_indices_sub    [interval_start[j] + 1];
+        int inf_tot = partition_indices_sub_tot[interval_start[j]];
+        int sup_tot = partition_indices_sub_tot[interval_start[j] + 1];
         //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
         //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
         //if (rank(comm)==0) {
@@ -150,7 +147,7 @@ pivot_partition_minimize_imbalance(
       for (int j=0; j<(int)index_ticks_found.size(); ++j) {
         int k = index_ticks_found[j];
         int abs_pos = sub_ins[i].position+k-1;
-        partition_indices[abs_pos] = sub_ins[i].inf + partition_indices_sub[k];
+        partition_indices[abs_pos] = partition_indices_sub[k];
         //kSLOG(comm,partition_indices[abs_pos]);
       }
     }

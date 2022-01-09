@@ -18,7 +18,7 @@ MPI_TEST_CASE("parallel pivot_partition_once - 2 procs",2) {
 
   interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
 
-  // check that `pivot_partition_once` did partition x according to the returned indices
+  // check that `pivot_partition_once` did partition `x` according to the returned indices
   CHECK( is_partitioned_at_indices(x,partition_indices) );
 
   // With n_rank==2, `pivot_partition_once` needs only one pivot,

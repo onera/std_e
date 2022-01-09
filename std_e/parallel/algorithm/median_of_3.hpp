@@ -37,6 +37,7 @@ median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm) {
   std::vector<T> sample = all_gather(sample_local,comm); // could be optimized because can be pre-allocated at n_sample
   STD_E_ASSERT(I(sample.size())==n_sample);
   std::sort(begin(sample),end(sample));
+  // TODO std::unique + handle if not enought samples
 
   // 3. re-sample to get `n_pivot` values
   return uniform_sample_exclude_ends(sample,n_pivot);

@@ -5,50 +5,63 @@
 #include "std_e/unit_test/math.hpp"
 
 using namespace std_e;
+using std::vector;
 
-MPI_TEST_CASE("parallel pivot_partition",2) {
+MPI_TEST_CASE("parallel pivot_partition - 2 procs",2) {
   int rk = test_rank;
 
-  std::vector<int> x;
+  vector<int> x;
   if (rk == 0) x = {13,11,10,14,0,7,9,6};
   if (rk == 1) x = {12,3,4,8,5,1,2};
 
-  double max_imbalance = 0.2;
+  double max_imbalance = 0.;
   interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,test_comm,max_imbalance);
 
-  //ELOG(partition_indices);
-  //ELOG(x);
+  // check that `pivot_partition_once` did partition `x` according to the returned indices
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., it means the global partition index is exactly the middle
+  //   1. there are 3 partition_indices...
+  CHECK( partition_indices.size() == 3 );
+  //     ... but the first is 0, the last is the local size, so only partition_indices[1] is of interest
+  //   2. the global partition index is the sum over the ranks of partition_indices[1]
+  CHECK( all_reduce(partition_indices[1],MPI_SUM,test_comm) == 8 );
+
+  // regression testing values
+  MPI_CHECK( 0, partition_indices == interval_vector{0,       3,        8} );
+  MPI_CHECK( 0,                 x ==          vector{0,6,7,9,10,13,14,11} );
+  MPI_CHECK( 1, partition_indices == interval_vector{0,        5,  7} );
+  MPI_CHECK( 1,                 x ==          vector{2,3,4,1,5,8,12} );
 }
 
-//MPI_TEST_CASE("parallel pivot_partition - 3 procs",3) {
-//  int rk = test_rank;
-//  int n_rk = test_nb_procs;
-//
-//  std::vector<int> x;
-//  //if (rk == 0) x = {0,1,2,3,4};
-//  //if (rk == 1) x = {5,6,7,8,9};
-//  //if (rk == 2) x = {10,11,12,13,14};
-//  if (rk == 0) x = {13,11,10,14,0};
-//  if (rk == 1) x = {12,3,4,8};
-//  if (rk == 2) x = {7,9,6,5,1,2};
-//
-//  double max_imbalance = 0.2;
-//  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,test_comm,max_imbalance);
-//  //interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
-//
-//  //ELOG(partition_indices);
-//  //ELOG(x);
-//
-//  //int sz_tot = 15;
-//  //if (rk == 0) x = {0,1,2,3,4};
-//  //if (rk == 1) x = {5,6,7,8,9};
-//  //if (rk == 2) x = {10,11,12,13,14};
-//
-//  //int sz_tot = 18;
-//  //if (rk == 0) x = {13,11,10,14,17,0};
-//  //if (rk == 1) x = {12,16,3,4,8};
-//  //if (rk == 2) x = {7,9,6,15,5,1,2};
-//}
+MPI_TEST_CASE("parallel pivot_partition - 3 procs",3) {
+  int rk = test_rank;
+  int n_rk = test_nb_procs;
+
+  vector<int> x;
+  //if (rk == 0) x = {0,1,2,3,4};
+  //if (rk == 1) x = {5,6,7,8,9};
+  //if (rk == 2) x = {10,11,12,13,14};
+  if (rk == 0) x = {13,11,10,14,0};
+  if (rk == 1) x = {12,3,4,8};
+  if (rk == 2) x = {7,9,6,5,1,2};
+
+  double max_imbalance = 0.;
+  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,test_comm,max_imbalance);
+
+  ELOG(partition_indices);
+  ELOG(x);
+
+  //int sz_tot = 15;
+  //if (rk == 0) x = {0,1,2,3,4};
+  //if (rk == 1) x = {5,6,7,8,9};
+  //if (rk == 2) x = {10,11,12,13,14};
+
+  //int sz_tot = 18;
+  //if (rk == 0) x = {13,11,10,14,17,0};
+  //if (rk == 1) x = {12,16,3,4,8};
+  //if (rk == 2) x = {7,9,6,15,5,1,2};
+}
 
 
 ////MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",16) {
@@ -60,7 +73,7 @@ MPI_TEST_CASE("parallel pivot_partition",2) {
 //
 //  int sz = sz_tot/n_rk;
 //  interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
-//  std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
+//  vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
 //
 //  SUBCASE("pivot_partition_minimize_imbalance") {
 //    double max_imbalance = 0.1;
