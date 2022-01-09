@@ -89,7 +89,7 @@ TEST_CASE("search_intervals8") {
   //                    0      1     2             3    4   5   6     7    8            9     10      11    12
 
 
-  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_inter_indices] = search_intervals8(ticks,x,2);
+  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_inter_indices] = search_intervals8(ticks,x,1);
 
   // same principle as search_intervals7 for `far_first_ticks` and `far_inter_indices`
   // but since now all the ticks are not necessarily here (the near ones are missing)

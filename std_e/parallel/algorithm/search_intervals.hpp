@@ -48,44 +48,6 @@ search_intervals6(const std::vector<int>& ticks, const Rng& inter, int max_inter
   return std::make_tuple(first_ticks, n_indices, inter_indices);
 }
 
-//template<class Rng> auto
-//search_intervals4(const std::vector<int>& ticks, const Rng& inter, int max_interval_tick_shift) {
-//  int n_tick = ticks.size();
-//
-//  std::vector<int> first_ticks;
-//  std::vector<int> n_indices;
-//  std::vector<int> inter_indices;
-//  std::vector<int> index_ticks_found;
-//
-//  int k = 0;
-//  for (int i=0; i<n_tick; ++i) {
-//    STD_E_ASSERT(inter[0] <= ticks[i] && ticks[i] < inter.back());
-//
-//    while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
-//      ++k;
-//    }
-//    // now, ticks[i] is in [inter[k],inter[k+1])
-//
-//    // if inter[k] is close enought, put it in the ticks found
-//    //ELOG(std::abs(inter[k] - ticks[i]));
-//    if (std::abs(inter[k] - ticks[i]) < max_interval_tick_shift) {
-//      index_ticks_found.push_back(k);
-//
-//    // else, register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
-//    } else {
-//      if (inter_indices.size()>0 && inter_indices.back()==k) {
-//        ++n_indices.back();
-//      } else {
-//        first_ticks.push_back(i);
-//        n_indices.push_back(1);
-//        inter_indices.push_back(k);
-//      }
-//    }
-//  }
-//
-//  return std::make_tuple(first_ticks, n_indices, inter_indices, index_ticks_found);
-//}
-
 
 template<class Interval_range0, class Interval_range1, class I = typename Interval_range0::value_type> auto
 search_intervals7(const Interval_range0& ticks, const Interval_range1& inter) {
@@ -147,10 +109,10 @@ search_intervals8(const Interval_range0& ticks, const Interval_range1& inter, I 
     I n_far_tick = 0;
     for (I j=first_ticks[i]; j<first_ticks[i+1]; ++j) {
       // if close to inf, record it as near
-      if        ( std::abs(ticks[j]-inter[inter_indices[i]  ]) < max_distance) {
+      if        ( std::abs(ticks[j]-inter[inter_indices[i]  ]) <= max_distance) {
         near_inter_indices.push_back(inter_indices[i]);
       // if close to sup, record it as near
-      } else if ( std::abs(ticks[j]-inter[inter_indices[i]+1]) < max_distance) {
+      } else if ( std::abs(ticks[j]-inter[inter_indices[i]+1]) <= max_distance) {
         near_inter_indices.push_back(inter_indices[i]+1);
       // else record as far
       } else {

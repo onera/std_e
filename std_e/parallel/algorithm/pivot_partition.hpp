@@ -31,8 +31,10 @@ template<
   class Return_container = interval_vector<int>
 > auto
 pivot_partition_minimize_imbalance(
-  std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance = 0.05, Comp comp = {}, Return_container&& partition_is = {}) -> interval_vector<int> {
+  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.05, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
   const int n_rk = n_rank(comm);
+
+  size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
   if (rank(comm)==0) {
     ELOG(max_interval_tick_shift);
@@ -103,7 +105,10 @@ pivot_partition_minimize_imbalance(
         ELOG(pivots);
       }
       auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
-      //auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots,comp);
+      for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
+        partition_indices_sub[ii] += sub_ins[i].inf;
+      }
+      SLOG(comm,partition_indices_sub);
 
       // 1.1. compute new sub-intervals
       //SLOG(comm,partition_indices_sub);
@@ -111,14 +116,9 @@ pivot_partition_minimize_imbalance(
       //SLOG(comm,partition_indices_sub_tot);
 
       std::vector<int> objective_ticks_sub(sub_ins[i].n_ticks);
-
-      //SLOG(comm,sub_ins[i].sz_tot);
-      //SLOG(comm,sub_ins[i].n_interval);
-      //SLOG(comm,sub_ins[i].position);
-      //SLOG(comm,sub_ins[i].inf_tot);
-      //SLOG(comm,sub_ins[i].objective_tick(0));
       for (int j=0; j<sub_ins[i].n_ticks; ++j) {
-        objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
+        //objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
+        objective_ticks_sub[j] = sub_ins[i].objective_tick(j);
       }
       if (rank(comm)==0) {
         ELOG(objective_ticks_sub);
@@ -133,10 +133,10 @@ pivot_partition_minimize_imbalance(
 
       // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
-        int inf     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j]];
-        int sup     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j] + 1];
-        int inf_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j]];
-        int sup_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j] + 1];
+        int inf     = /*sub_ins[i].inf     + */partition_indices_sub    [interval_start[j]];
+        int sup     = /*sub_ins[i].inf     + */partition_indices_sub    [interval_start[j] + 1];
+        int inf_tot = /*sub_ins[i].inf_tot + */partition_indices_sub_tot[interval_start[j]];
+        int sup_tot = /*sub_ins[i].inf_tot + */partition_indices_sub_tot[interval_start[j] + 1];
         //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
         //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
         //if (rank(comm)==0) {
