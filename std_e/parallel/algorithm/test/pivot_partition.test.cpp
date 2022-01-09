@@ -37,32 +37,49 @@ MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",4) {
   }
 }
 
-MPI_TEST_CASE("parallel pivot_partition",3) {
+//MPI_TEST_CASE("parallel pivot_partition",3) {
+//  int sz_tot = 15;
+//  int rk = test_rank;
+//  int n_rk = test_nb_procs;
+//
+//  std::vector<int> x;
+//  //if (rk == 0) x = {0,1,2,3,4};
+//  //if (rk == 1) x = {5,6,7,8,9};
+//  //if (rk == 2) x = {10,11,12,13,14};
+//  if (rk == 0) x = {13,11,10,14,0};
+//  if (rk == 1) x = {12,3,4,8};
+//  if (rk == 2) x = {7,9,6,5,1,2};
+//
+//  double max_imbalance = 0.2;
+//  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,sz_tot,test_comm,max_imbalance);
+//  //interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
+//
+//  //ELOG(partition_indices);
+//  //ELOG(x);
+//
+//  //int sz_tot = 15;
+//  //if (rk == 0) x = {0,1,2,3,4};
+//  //if (rk == 1) x = {5,6,7,8,9};
+//  //if (rk == 2) x = {10,11,12,13,14};
+//
+//  //int sz_tot = 18;
+//  //if (rk == 0) x = {13,11,10,14,17,0};
+//  //if (rk == 1) x = {12,16,3,4,8};
+//  //if (rk == 2) x = {7,9,6,15,5,1,2};
+//}
+
+MPI_TEST_CASE("parallel pivot_partition",2) {
   int sz_tot = 15;
   int rk = test_rank;
   int n_rk = test_nb_procs;
 
   std::vector<int> x;
-  //if (rk == 0) x = {0,1,2,3,4};
-  //if (rk == 1) x = {5,6,7,8,9};
-  //if (rk == 2) x = {10,11,12,13,14};
-  if (rk == 0) x = {13,11,10,14,0};
-  if (rk == 1) x = {12,3,4,8};
-  if (rk == 2) x = {7,9,6,5,1,2};
+  if (rk == 0) x = {13,11,10,14,0,7,9,6};
+  if (rk == 1) x = {12,3,4,8,5,1,2};
 
-  double max_imbalance = 0.5;
-  //interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,sz_tot,test_comm,max_imbalance);
-  interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
+  double max_imbalance = 0.2;
+  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,sz_tot,test_comm,max_imbalance);
 
   //ELOG(partition_indices);
   //ELOG(x);
 }
-  //int sz_tot = 15;
-  //if (rk == 0) x = {0,1,2,3,4};
-  //if (rk == 1) x = {5,6,7,8,9};
-  //if (rk == 2) x = {10,11,12,13,14};
-
-  //int sz_tot = 18;
-  //if (rk == 0) x = {13,11,10,14,17,0};
-  //if (rk == 1) x = {12,16,3,4,8};
-  //if (rk == 2) x = {7,9,6,15,5,1,2};

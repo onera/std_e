@@ -48,17 +48,18 @@ pivot_partition_minimize_imbalance(
 // 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
   int kk = 0;
   while (sub_ins.size()>0) {
-    //if (rank(comm)==0) {
-    //  int n_tick_max = 0;
-    //  for (int i=0; i<sub_ins.size(); ++i) {
-    //    n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
-    //  }
-    //  ELOG(kk);
-    //  ELOG(sub_ins.size());
-    //  ELOG(n_tick_max);
-    //}
+    if (rank(comm)==0) {
+      int n_tick_max = 0;
+      for (int i=0; i<sub_ins.size(); ++i) {
+        n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
+      }
+      ELOG(kk);
+      ELOG(sub_ins.size());
+      ELOG(n_tick_max);
+      ELOG(sub_ins);
+    }
     //SLOG(comm,kk);
-    if (kk++>128) {
+    if (kk++>10) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
@@ -85,6 +86,7 @@ pivot_partition_minimize_imbalance(
     }
     //LOG("pivot_partition balance");
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
+    SLOG(comm,pivots_by_sub_intervals);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_to_partition> new_sub_ins;
@@ -111,11 +113,11 @@ pivot_partition_minimize_imbalance(
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
       }
       //SLOG(comm,objective_ticks_sub);
-      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals4(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
-      //auto [first_ticks, inter_indices] = search_intervals7(objective_ticks_sub,partition_indices_sub_tot);
+      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);
+      //SLOG(comm,index_ticks_found);
       int n_sub_sub_intervals = interval_start.size();
 
       // 1.2. create new sub-intervals

@@ -48,7 +48,6 @@ search_intervals6(const std::vector<int>& ticks, const Rng& inter, int max_inter
   return std::make_tuple(first_ticks, n_indices, inter_indices);
 }
 
-// TODO invert args
 template<class Rng> auto
 search_intervals4(const std::vector<int>& ticks, const Rng& inter, int max_interval_tick_shift) {
   int n_tick = ticks.size();
@@ -106,22 +105,69 @@ search_intervals7(const Interval_range0& ticks, const Interval_range1& inter) {
     while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
       ++k;
     }
+    // so now we know ticks[i] is to be found in [inter[k],inter[k+1])
 
-    // register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
-
-    // if ticks[i-1] was also in [inter[k],inter[k+1]),
-    // just increment the number of
-    if (inter_indices.size()>0 && inter_indices.back()==k) {
-
-    } else {
-      first_ticks.push_back(i);
-      inter_indices.push_back(k);
+    // if k was incremented from the last interval recorded in inter_indices
+    if (inter_indices.size()==0 || inter_indices.back()!=k) {
+      first_ticks.push_back(i); // then record the fact that ticks[i] is in a new interval...
+      inter_indices.push_back(k); // ... and that the number of this interval is k
     }
   }
+
+  // proper ending
   first_ticks.push_back(n_tick);
   inter_indices.push_back(k+1);
 
-  return std::make_tuple(first_ticks, inter_indices);
+  return std::make_tuple(std::move(first_ticks), std::move(inter_indices));
+}
+
+template<class I>
+struct interval_to_partition2 {
+  std::vector<I> far_first_ticks;
+  std::vector<I> n_far_ticks;
+  std::vector<I> far_inter_indices;
+
+  std::vector<I> near_inter_indices;
+};
+
+template<class Interval_range0, class Interval_range1, class I> auto
+search_intervals8(const Interval_range0& ticks, const Interval_range1& inter, I max_distance) -> interval_to_partition2<I> {
+  auto [first_ticks, inter_indices] = search_intervals7(ticks,inter);
+
+  I n_containing_intervals = first_ticks.size()-1;
+
+  std::vector<I> far_first_ticks;
+  std::vector<I> n_far_ticks;
+  std::vector<I> far_inter_indices;
+
+  std::vector<I> near_inter_indices;
+
+  for (I i=0; i<n_containing_intervals; ++i) {
+    I far_first_tick;
+    I n_far_tick = 0;
+    for (I j=first_ticks[i]; j<first_ticks[i+1]; ++j) {
+      // if close to inf, record it as near
+      if        ( std::abs(ticks[j]-inter[inter_indices[i]  ]) < max_distance) {
+        near_inter_indices.push_back(inter_indices[i]);
+      // if close to sup, record it as near
+      } else if ( std::abs(ticks[j]-inter[inter_indices[i]+1]) < max_distance) {
+        near_inter_indices.push_back(inter_indices[i]+1);
+      // else record as far
+      } else {
+        if (n_far_tick==0) {
+          far_first_tick = j;
+        }
+        ++n_far_tick;
+      }
+    }
+    // if there are far ticks, record them
+    if (n_far_tick>0) {
+      far_first_ticks.push_back(far_first_tick);
+      n_far_ticks.push_back(n_far_tick);
+      far_inter_indices.push_back(inter_indices[i]);
+    }
+  }
+  return {far_first_ticks,n_far_ticks,far_inter_indices,  near_inter_indices};
 }
 
 

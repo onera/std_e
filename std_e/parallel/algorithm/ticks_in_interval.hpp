@@ -27,9 +27,18 @@ struct interval_to_partition {
   }
 
 };
+//inline auto
+//to_string(const interval_to_partition& x) {
+//  return
+//      "Glob["+std::to_string(x.inf_tot)+','+std::to_string(x.sup_tot)+"):"
+//    + "Loc[" +std::to_string(x.inf    )+','+std::to_string(x.sup    )+"):"
+//    + std::to_string(x.n_ticks)+':'+std::to_string(x.position);
+//}
 inline auto
 to_string(const interval_to_partition& x) {
-  return '['+std::to_string(x.inf)+','+std::to_string(x.sup)+"):"+std::to_string(x.n_ticks)+':'+std::to_string(x.position);
+  return
+      "["+std::to_string(x.inf_tot)+','+std::to_string(x.sup_tot)+"):"
+    + std::to_string(x.n_ticks);
 }
 
 inline auto
