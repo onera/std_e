@@ -45,14 +45,27 @@ TEST_CASE("pivot_partition_eq_indices - range version") {
 
   const vector<int> pivots = {0,10,100,120,1000};
 
-  auto [partition_is_inf,partition_is_sup] = std_e::pivot_partition_eq_indices(v,pivots);
+  auto partition_indices = std_e::pivot_partition_eq_indices(v,pivots);
 
   //                     0       10   100    120             1000
   CHECK( v == vector{-3, 0,6,2,8,  50,   110,   800,200,999, 1000,1000, 10001} );
-  CHECK( partition_is_inf.size() == pivots.size() + 2 );
-  CHECK( partition_is_sup.size() == pivots.size() + 2 );
-  CHECK( partition_is_inf == std_e::interval_vector<int>{0,1,5,6,7,10,13} );
-  CHECK( partition_is_sup == std_e::interval_vector<int>{0,2,5,6,7,12,13} );
+
+  // interpretation of partition_indices:
+  //   1. partition_indices.size():
+  CHECK( partition_indices.size() == 2*pivots.size() + 2 );
+  //      indeed:
+  //        2*pivots.size(): for each pivot, indices before and after the pivot,
+  //        +2: for 0 and v.size()
+
+
+  //   2. partition_indices itself:
+  CHECK( partition_indices == std_e::interval_vector<int>{0, 1,2, 5,5, 6,6, 7,7, 10,12,  13} );
+  //      1,2 means that
+  //          the first element equal to the first pivot (0) is at index 1
+  //          the first element strictly greater than the first pivot is at index 2
+  //      5,5: first element equal/greater than the second pivot (10) are at indices 5 and 5
+  //          since this is the same index, it means that `v` does not contain the value 10
+  //      ... and so on
 }
 // [Sphinx Doc] pivot_partition_eq_indices range }
 
@@ -65,14 +78,12 @@ TEST_CASE("pivot_partition_eq_indices - custom projector - range version") {
 
   constexpr auto proj = [](const id_string& x){ return x.id; };
 
-  auto [partition_is_inf,partition_is_sup] = std_e::pivot_partition_eq_indices(v,pivots,{},proj);
+  auto partition_indices = std_e::pivot_partition_eq_indices(v,pivots,{},proj);
 
   CHECK( v == vector<id_string>{{-3,"E"}, {0,"K"},{6,"D"},{2,"C"},{8,"I"}, {50,"J"}, {110,"A"},
                                 {800,"F"},{200,"B"},{999,"H"}, {1000,"X"},{1000,"X"}, {10001,"G"}} );
-  CHECK( partition_is_inf.size() == pivots.size() + 2 );
-  CHECK( partition_is_sup.size() == pivots.size() + 2 );
-  CHECK( partition_is_inf == std_e::interval_vector<int>{0,1,5,6,7,10,13} );
-  CHECK( partition_is_sup == std_e::interval_vector<int>{0,2,5,6,7,12,13} );
+  CHECK( partition_indices.size() == 2*pivots.size() + 2 );
+  CHECK( partition_indices == std_e::interval_vector<int>{0, 1,2, 5,5, 6,6, 7,7, 10,12, 13} );
 }
 // [Sphinx Doc] pivot_partition_eq_indices proj range }
 
@@ -82,16 +93,13 @@ TEST_CASE("pivot_partition_eq_indices - custom return - range version") {
 
   const vector<int> pivots = {0,10,100,120,1000};
 
-  auto [partition_is_inf,partition_is_sup] = std_e::pivot_partition_eq_indices(v,pivots,{},{},std::vector<long>{});
+  auto partition_indices = std_e::pivot_partition_eq_indices(v,pivots,{},{},std::vector<long>{});
 
-  static_assert(is_same_v<decltype(partition_is_inf),std::vector<long>>);
-  static_assert(is_same_v<decltype(partition_is_sup),std::vector<long>>);
+  static_assert(is_same_v<decltype(partition_indices),std::vector<long>>);
   CHECK( v == vector{-3, 0,6,2,8,  50,   110,   800,200,999, 1000,1000, 10001} );
 
   // TODO does not work with vector because of ctor from size incompatible with interval_vector (TODO: correct in interval_vector)
-  //CHECK( partition_is_inf.size() == pivots.size() + 2 );
-  //CHECK( partition_is_sup.size() == pivots.size() + 2 );
-  //CHECK( partition_is_inf == vector<long>{0,1,5,6,7,10,13} );
-  //CHECK( partition_is_sup == vector<long>{0,2,5,6,7,12,13} );
+  //CHECK( partition_indices.size() == 2*pivots.size() + 2 );
+  //CHECK( partition_indices == vector<long>{0, 1,2 5,5 6,6 7,7 10,12 13} );
 }
 // [Sphinx Doc] pivot_partition_eq_indices ret range }

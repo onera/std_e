@@ -27,30 +27,30 @@ pivot_partition_eq(I f, I l, const T& piv, Comp comp = {}, Proj proj = {}) -> st
 
 
 template<class RA_it, class RA_it_piv, class RA_it_out, class Comp, class Proj> constexpr auto
-pivot_partition_eq_i_aux(RA_it first, RA_it last, RA_it_piv piv_first, RA_it_piv piv_last, RA_it_out out_first_inf, RA_it_out out_first_sup, Comp comp, Proj proj, RA_it start) -> void {
+pivot_partition_eq_i_aux(RA_it first, RA_it last, RA_it_piv piv_first, RA_it_piv piv_last, RA_it_out out_first, Comp comp, Proj proj, RA_it start) -> void {
   if (piv_first==piv_last) return;
   auto k = piv_last-piv_first;
-  auto pv_mid = piv_first+k/2;
-  auto pi_mid_inf = out_first_inf+k/2;
-  auto pi_mid_sup = out_first_sup+k/2;
-  auto [pp_mid_inf,pp_mid_sup] = pivot_partition_eq(first,last,*pv_mid,comp,proj);
+  auto piv_mid = piv_first+k/2;
+  auto pi_mid_inf = out_first+2*(k/2);
+  auto pi_mid_sup = out_first+2*(k/2)+1;
+  auto [pp_mid_inf,pp_mid_sup] = pivot_partition_eq(first,last,*piv_mid,comp,proj);
   *pi_mid_inf = pp_mid_inf - start;
   *pi_mid_sup = pp_mid_sup - start;
   if (k>1) {
-    pivot_partition_eq_i_aux(first     ,pp_mid_inf,    piv_first,pv_mid ,    out_first_inf, out_first_sup,    comp,proj, start);
-    pivot_partition_eq_i_aux(pp_mid_sup,last      ,    pv_mid+1,piv_last,    pi_mid_inf+1 , pi_mid_sup+1 ,    comp,proj, start);
+    pivot_partition_eq_i_aux(first     ,pp_mid_inf,    piv_first,piv_mid ,    out_first   ,    comp,proj, start);
+    pivot_partition_eq_i_aux(pp_mid_sup,last      ,    piv_mid+1,piv_last,    pi_mid_inf+2,    comp,proj, start);
   }
 }
 
 template<class RA_it, class RA_it_piv, class RA_it_out, class Comp = std::less<>, class Proj = identity_closure> constexpr auto
 pivot_partition_eq_indices(RA_it first, RA_it last,
                            RA_it_piv piv_first, RA_it_piv piv_last,
-                           RA_it_out out_first_inf, RA_it_out out_first_sup,
+                           RA_it_out out_first,
                            Comp comp = {},
                            Proj proj = {}) -> void {
   return pivot_partition_eq_i_aux(first,last,
                                   piv_first,piv_last,
-                                  out_first_inf,out_first_sup,
+                                  out_first,
                                   comp,proj,
                                   first);
 }
@@ -61,20 +61,17 @@ template<
   class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > constexpr auto
-pivot_partition_eq_indices(RA_rng& x, const RA_pivot_rng& pivots, Comp comp = {}, Proj proj = {}, Return_container = {}) {
+pivot_partition_eq_indices(RA_rng& x, const RA_pivot_rng& pivots, Comp comp = {}, Proj proj = {}, Return_container = {}) -> Return_container {
   int n = x.size();
   int k = pivots.size();
-  Return_container partition_is_inf(1+k); // add begin and end for convenience
-  Return_container partition_is_sup(1+k); // add begin and end for convenience
-  partition_is_inf[0] = 0;
-  partition_is_sup[0] = 0;
+  Return_container partition_is(1+2*k); // add begin and end for convenience
+  partition_is[0] = 0;
   pivot_partition_eq_indices(begin(x),end(x),
                              begin(pivots),end(pivots),
-                             begin(partition_is_inf)+1,begin(partition_is_sup)+1,
+                             begin(partition_is)+1,
                              comp,proj);
-  partition_is_inf.back() = n;
-  partition_is_sup.back() = n;
-  return std::make_pair(std::move(partition_is_inf),std::move(partition_is_sup));
+  partition_is.back() = n;
+  return partition_is;
 }
 
 
