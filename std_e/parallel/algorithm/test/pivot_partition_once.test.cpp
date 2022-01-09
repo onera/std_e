@@ -9,7 +9,35 @@ using namespace std;
 using namespace std_e;
 
 
-MPI_TEST_CASE("parallel pivot_partition_once",3) {
+MPI_TEST_CASE("parallel pivot_partition_once - 2 procs",2) {
+  int rk = test_rank;
+
+  std::vector<int> x;
+  if (rk == 0) x = {13,11,10,14,0,7,9,6};
+  if (rk == 1) x = {12,3,4,8,5,1,2};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
+
+  // check that `pivot_partition_once` did partition x according to the returned indices
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // With n_rank==2, `pivot_partition_once` needs only one pivot,
+  // and the pivot choice algorithm is then a regular median_of_3 pivot.
+  // So the 3 values used for the pivot are the first, middle and last,
+  // that is: 13, 6 and 2. So the pivot is 6
+
+  // If we partition at pivot==6 we have
+  //   For rank 0
+  MPI_CHECK( 0 , x == vector{0,  11,10,14,13,7,9,6} );
+  MPI_CHECK( 0 , partition_indices == interval_vector{0, 1, 8} );
+
+  //   For rank 1
+  MPI_CHECK( 1 , x == vector{2,3,4,1,5,  8,12} );
+  MPI_CHECK( 1 , partition_indices == interval_vector{0, 5, 7} );
+}
+
+
+MPI_TEST_CASE("parallel pivot_partition_once - 3 procs",3) {
   int rk = test_rank;
   vector<int> x;
   if (rk == 0) x = {13,11,10,14,0};

@@ -39,66 +39,6 @@ TEST_CASE("search_intervals") {
 }
 
 
-//TEST_CASE("search_intervals4") {
-//  vector<int> ticks  =  {   100  , 200 , 300, 400 ,  500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };
-//  vector<int> indices = {0,    130, 199,          480, 530,550,580,  640,  701,         950,  1020,   1101 ,1200};
-//
-//  //SUBCASE("no tolerance") {
-//  //  auto [first_index, n_indices, interval_start, found_ticks] = search_intervals4(ticks,indices,0);
-//  //  ELOG(first_index);
-//  //  ELOG(n_indices);
-//  //  ELOG(interval_start);
-//  //  ELOG(found_ticks);
-//
-//  //  vector<int> expected_first_index    = {0,1,2,4,5,6,7,9,10};
-//  //  vector<int> expected_n_indices      = {1,1,2,1,1,1,2,1, 1};
-//  //  vector<int> expected_interval_start = {0,1,2,3,6,7,8, 9,10};
-//  //  vector<int> expected_found_ticks    = {               };
-//
-//  //  //CHECK( first_index    == expected_first_index );
-//  //  //CHECK( n_indices      == expected_n_indices );
-//  //  //CHECK( interval_start == expected_interval_start );
-//  //  //CHECK( found_ticks    == expected_found_ticks);
-//  //}
-//  SUBCASE("tolerance") {
-//    // 199 and 1101 are wrong by 1, so they fall within a tolerance of 1
-//    // notice that 701 is at index 8, so it is not wrong by 701-700=1, but by 800-701=99, so not within the tolerance
-//    auto [first_tick_indices, n_indices, interval_start, found_ticks] = search_intervals4(ticks,indices,2);
-//    ELOG(first_tick_indices);
-//    ELOG(n_indices);
-//    ELOG(interval_start);
-//    ELOG(found_ticks);
-//
-//
-//   //first_index =    {0,1,2, 4,5,6,7, 9,10}
-//   //n_indices =      {1,1,2, 1,1,1,2, 1,1}
-//   //interval_start = {0,1,2,3,6,7,8,9,10}
-//   //found_ticks = {}
-//
-//    vector<int> expected_first_index    = {/*0 is bound*/1,/*2 is OK*/3,5,6,7,8,10/*11 is OK,12 is bound*/};
-//    vector<int> expected_n_indices      = {              1,           2,1,1,1,2, 1                        };
-//    vector<int> expected_interval_start = {              0,           2,3,6,7,8, 9                        };
-//    vector<int> expected_found_ticks    = {                             };
-//
-//    //CHECK( first_index    == expected_first_index );
-//    //CHECK( n_indices      == expected_n_indices );
-//    //CHECK( interval_start == expected_interval_start );
-//    //CHECK( found_ticks    == expected_found_ticks);
-//  }
-//}
-
-//TEST_CASE("search_intervals4") {
-//  vector<int> indices = {0,4,23};
-//  vector<int> obj_ticks = {4};
-//
-//  auto [first_index, n_indices, interval_start, index_ticks_found] = search_intervals4(obj_ticks,indices,1);
-//  CHECK( first_index       == vector{0} );
-//  CHECK( n_indices         == vector{1} );
-//  CHECK( interval_start    == vector{1} );
-//  CHECK( index_ticks_found == vector<int>{} );
-//}
-
-
 TEST_CASE("search_intervals7") {
   //                         0        1     2    3      4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };

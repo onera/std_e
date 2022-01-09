@@ -34,6 +34,9 @@ pivot_partition_minimize_imbalance(
   std::vector<T>& x, int sz_tot, MPI_Comm comm, double max_imbalance = 0.05, Comp comp = {}, Return_container&& partition_is = {}) -> interval_vector<int> {
   const int n_rk = n_rank(comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
+  if (rank(comm)==0) {
+    ELOG(max_interval_tick_shift);
+  }
   //const int n_tick_tot = n_rank(comm)-1;
 
 // 0. initial partitioning
@@ -50,16 +53,17 @@ pivot_partition_minimize_imbalance(
   while (sub_ins.size()>0) {
     if (rank(comm)==0) {
       int n_tick_max = 0;
-      for (int i=0; i<sub_ins.size(); ++i) {
+      for (size_t i=0; i<sub_ins.size(); ++i) {
         n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
       }
       ELOG(kk);
-      ELOG(sub_ins.size());
-      ELOG(n_tick_max);
+      //ELOG(sub_ins.size());
+      //ELOG(n_tick_max);
       ELOG(sub_ins);
     }
-    //SLOG(comm,kk);
-    if (kk++>10) {
+    //SLOG(comm,range_to_string(sub_ins,to_string_loc));
+    //SLOG(comm,x);
+    if (kk++>5) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
@@ -86,7 +90,7 @@ pivot_partition_minimize_imbalance(
     }
     //LOG("pivot_partition balance");
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
-    SLOG(comm,pivots_by_sub_intervals);
+    //SLOG(comm,pivots_by_sub_intervals);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_to_partition> new_sub_ins;
@@ -95,7 +99,11 @@ pivot_partition_minimize_imbalance(
       //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
+      if (rank(comm)==0) {
+        ELOG(pivots);
+      }
       auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
+      //auto partition_indices_sub = partition_sort_indices(x_sub[i],pivots,comp);
 
       // 1.1. compute new sub-intervals
       //SLOG(comm,partition_indices_sub);
@@ -112,12 +120,15 @@ pivot_partition_minimize_imbalance(
       for (int j=0; j<sub_ins[i].n_ticks; ++j) {
         objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
       }
-      //SLOG(comm,objective_ticks_sub);
+      if (rank(comm)==0) {
+        ELOG(objective_ticks_sub);
+        ELOG(partition_indices_sub_tot);
+      }
       auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);
-      //SLOG(comm,index_ticks_found);
+      SLOG(comm,index_ticks_found);
       int n_sub_sub_intervals = interval_start.size();
 
       // 1.2. create new sub-intervals
