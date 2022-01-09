@@ -18,7 +18,7 @@ pivot_partition(RA_it first, RA_it last, RA_it_piv piv_first, RA_it_piv piv_last
   *pp_mid = std::partition(first,last,[&mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
   if (k>1) {
     pivot_partition(first  ,*pp_mid , piv_first,pv_mid  , out_first , comp);
-    pivot_partition(*pp_mid,last    , pv_mid  ,piv_last , pp_mid   , comp);
+    pivot_partition(*pp_mid,last    , pv_mid+1,piv_last , pp_mid+1 , comp);
   }
 }
 
@@ -37,7 +37,7 @@ pivot_partition_point(RA_it first, RA_it last, RA_it_piv piv_first, RA_it_piv pi
   *pp_mid = std::partition_point(first,last,[&mid=*pv_mid,comp](const auto& x){ return comp(x,mid); });
   if (k>1) {
     pivot_partition_point(first  ,*pp_mid , piv_first,pv_mid  , out_first , comp);
-    pivot_partition_point(*pp_mid,last    , pv_mid  ,piv_last , pp_mid   , comp);
+    pivot_partition_point(*pp_mid,last    , pv_mid+1,piv_last , pp_mid+1 , comp);
   }
 }
 
