@@ -16,6 +16,7 @@ struct interval_to_partition {
   int n_ticks;
   int position;
 
+  // From here, we should be able to DEL everything
   int inf_tot;
   int sup_tot;
 
@@ -37,7 +38,7 @@ struct interval_to_partition {
 constexpr auto
 to_string_loc = [](const interval_to_partition& x) {
   return
-      std::to_string(x.inf)+','+std::to_string(x.sup)+"):"
+      "["+std::to_string(x.inf)+','+std::to_string(x.sup)+"):"
     + std::to_string(x.n_ticks)+':'+std::to_string(x.position);
 };
 inline auto

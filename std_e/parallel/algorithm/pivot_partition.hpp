@@ -63,8 +63,8 @@ pivot_partition_minimize_imbalance(
       //ELOG(n_tick_max);
       ELOG(sub_ins);
     }
-    //SLOG(comm,range_to_string(sub_ins,to_string_loc));
-    //SLOG(comm,x);
+    SLOG(comm,range_to_string(sub_ins,to_string_loc));
+    SLOG(comm,x);
     if (kk++>5) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
@@ -101,9 +101,9 @@ pivot_partition_minimize_imbalance(
       //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      //if (rank(comm)==0) {
-      //  ELOG(pivots);
-      //}
+      if (rank(comm)==0) {
+        ELOG(pivots);
+      }
       auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
       for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
         partition_indices_sub[ii] += sub_ins[i].inf;
@@ -148,10 +148,16 @@ pivot_partition_minimize_imbalance(
         int k = index_ticks_found[j];
         int abs_pos = sub_ins[i].position+k-1;
         partition_indices[abs_pos] = partition_indices_sub[k];
-        //kSLOG(comm,partition_indices[abs_pos]);
+        //SLOG(comm,partition_indices[abs_pos]);
+
       }
     }
 
+    // LOG
+    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
+    if (rank(comm)==0) {
+      ELOG(partition_indices_tot);
+    }
     // 2. loop
     sub_ins = std::move(new_sub_ins);
   }
