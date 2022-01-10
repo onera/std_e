@@ -36,8 +36,21 @@ TEST_CASE("pivot_partition_eq") {
     CHECK( inf-begin(v) == 6 );
     CHECK( sup-begin(v) == 6+3 );
   }
+
+
+  SUBCASE("already sorted") {
+    vector<int> v = {10,11,12,13,14};
+    auto [f,l] = std_e::pivot_partition_eq(begin(v),end(v),12);
+
+    // the partition is not stable, even when sorted:
+    // notice the inversion:     v  v
+    CHECK( v == vector{10,11,12,14,13} );
+    CHECK( f == begin(v)+2 );
+    CHECK( l == begin(v)+3 );
+  }
 }
 // [Sphinx Doc] pivot_partition_eq }
+
 
 // [Sphinx Doc] pivot_partition_eq_indices range {
 TEST_CASE("pivot_partition_eq_indices - range version") {

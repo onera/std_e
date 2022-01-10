@@ -36,9 +36,6 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs",3) {
   int rk = test_rank;
 
   vector<int> x;
-  //if (rk == 0) x = {0,1,2,3,4};
-  //if (rk == 1) x = {5,6,7,8,9};
-  //if (rk == 2) x = {10,11,12,13,14};
   if (rk == 0) x = {13,11,10,14,0};
   if (rk == 1) x = {12,3,4,8};
   if (rk == 2) x = {7,9,6,5,1,2};
@@ -61,33 +58,98 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs",3) {
   MPI_CHECK( 2,                 x ==          vector{2,1,5,6,7,9} );
 }
 
-//////MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
-//////  int sz_tot = 256'000'000;
-////MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
-////  int sz_tot = 200;
-////  int rk = test_rank;
-////  int n_rk = test_nb_procs;
-////
-////  int sz = sz_tot/n_rk;
-////  interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
-////  std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
-////
-////  SUBCASE("pivot_partition_minimize_imbalance") {
-////    double max_imbalance = 0.1;
-////    interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
-////
-////    CHECK( is_partitioned_at_indices(y,partition_indices) );
-////
-////    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
-////    auto lens = interval_lengths(partition_indices_tot);
-////    int optimal_len = sz;
-////    for (int i=0; i<int(lens.size())-1; ++i) {
-////      CHECK( std::abs(lens[i]-optimal_len)/double(optimal_len) < max_imbalance );
-////    }
-////
-////    if (rk==0) {
-////      ELOG(partition_indices_tot);
-////      ELOG(lens);
-////    }
-////  }
-////}
+MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted and balanced",3) {
+  int rk = test_rank;
+
+  vector<int> x;
+  if (rk == 0) x = {0,1,2,3,4};
+  if (rk == 1) x = {5,6,7,8,9};
+  if (rk == 2) x = {10,11,12,13,14};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., and the total size is 15,
+  // It means the global partition indices are exactly 0,5,10,15
+  // The global partition index is the sum over the ranks of partition_indices
+  CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,5,10,15} ); // TODO as_base is ugly!
+
+  // Note that `x` was already sorted, however it does not stay so because the partition is unstable
+  MPI_CHECK( 0, partition_indices == interval_vector{0,       5,5,5} );
+  MPI_CHECK( 0,                 x ==          vector{0,1,2,3,4} );
+  MPI_CHECK( 1, partition_indices == interval_vector{0,0  ,     5,5} );
+  MPI_CHECK( 1,                 x ==          vector{  5,6,8,7,9} );
+  MPI_CHECK( 2, partition_indices == interval_vector{0,0, 0,           5} );
+  MPI_CHECK( 2,                 x ==          vector{    10,11,12,14,13} );
+}
+
+MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted, but imbalance",3) {
+//MPI_TEST_CASE("TOTO",3) {
+  int rk = test_rank;
+
+  vector<int> x;
+  if (rk == 0) x = {0,1,2,3,4,5};
+  if (rk == 1) x = {6,7,8,9};
+  if (rk == 2) x = {10,11,12,13,14};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., and the total size is 15,
+  // It means the global partition indices are exactly 0,5,10,15
+  // The global partition index is the sum over the ranks of partition_indices
+  CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,5,10,15} ); // TODO as_base is ugly!
+
+  // Note that `x` was already sorted, however it does not stay so because the partition is unstable
+  // Since it was not perfectly balanced, the partition indices reflect the fact that value `5` should move from rank 0 to rank 1
+  MPI_CHECK( 0, partition_indices == interval_vector{0,        5,6,6} );
+  MPI_CHECK( 0,                 x ==          vector{0,1,2,3,4,5} );
+  MPI_CHECK( 1, partition_indices == interval_vector{0,0,     4,4} );
+  MPI_CHECK( 1,                 x ==          vector{  6,8,7,9} );
+  MPI_CHECK( 2, partition_indices == interval_vector{0,0, 0,           5} );
+  MPI_CHECK( 2,                 x ==          vector{    10,11,12,14,13} );
+}
+
+
+//// KO
+MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+  int sz_tot = 256'000'000;
+//// KO
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+//  int sz_tot = 1'000'000;
+//// O
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+//  int sz_tot = 64000;
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+//  int sz_tot = 500'000;
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+//  int sz_tot = 200;
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
+//  int sz_tot = 200;
+  int rk = test_rank;
+  int n_rk = test_nb_procs;
+
+  int sz = sz_tot/n_rk;
+  interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
+  std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
+
+  double max_imbalance = 0.1;
+  //double max_imbalance = 0.;
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
+
+  CHECK( is_partitioned_at_indices(y,partition_indices) );
+
+  auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+  auto lens = interval_lengths(partition_indices_tot);
+  int optimal_len = sz;
+  //for (int i=0; i<int(lens.size())-1; ++i) {
+  //  CHECK( std::abs(lens[i]-optimal_len)/double(optimal_len) < max_imbalance );
+  //}
+
+  if (rk==0) {
+    ELOG(partition_indices_tot);
+    ELOG(lens);
+  }
+}

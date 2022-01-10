@@ -39,14 +39,14 @@ TEST_CASE("search_intervals") {
 }
 
 
-TEST_CASE("search_intervals7") {
+TEST_CASE("search_intervals") {
   //                         0        1     2    3    4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };
   vector<int> x      = {0,    130,  199,          480, 530,550,580,  640, 701,         950,  1020,   1101 ,1200};
   //                    0      1     2             3    4   5   6     7    8            9     10      11    12
 
 
-  auto [first_ticks, inter_indices] = search_intervals7(ticks,x);
+  auto [first_ticks, inter_indices] = search_intervals(ticks,x);
 
   CHECK( first_ticks   == vector{0, 1, 4, 5, 6, 7, 9, 10, 11} );
   CHECK( inter_indices == vector{0, 2, 3, 6, 7, 8, 9, 10, 11} );
@@ -82,16 +82,16 @@ TEST_CASE("search_intervals7") {
 }
 
 
-TEST_CASE("search_intervals8") {
+TEST_CASE("search_near_or_containing_interval") {
   //                         0        1     2    3    4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100        };
   vector<int> x      = {0,    130,  199,          480, 530,550,580,  640, 701,         950,  1020,   1101 ,1200};
   //                    0      1     2             3    4   5   6     7    8            9     10      11    12
 
 
-  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices] = search_intervals8(ticks,x,1);
+  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices] = search_near_or_containing_interval(ticks,x,1);
 
-  // same principle as search_intervals7 for `far_first_ticks` and `far_inter_indices`
+  // same principle as search_intervals for `far_first_ticks` and `far_inter_indices`
   // but since now all the ticks are not necessarily here (the near ones are missing)
   // we need to know how many ticks there are in each interval, hence this `n_far_ticks` variable
   CHECK( far_first_ticks    == vector{0,2,4,5,7,9} );

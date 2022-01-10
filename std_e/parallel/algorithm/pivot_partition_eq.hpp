@@ -36,6 +36,8 @@ pivot_partition_eq(
 
   size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
+  //SLOG(comm,max_interval_tick_shift);
+
 
 // 0. initial partitioning
   interval_vector<int> partition_indices = pivot_partition_once(x,comm,comp,std::move(partition_is));
@@ -54,14 +56,19 @@ pivot_partition_eq(
       for (size_t i=0; i<sub_ins.size(); ++i) {
         n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
       }
+      LOG("=====================");
       ELOG(kk);
       //ELOG(sub_ins.size());
       //ELOG(n_tick_max);
-      ELOG(sub_ins);
+      //ELOG(sub_ins);
+      for (size_t ii=0; ii<sub_ins.size(); ++ii) {
+        auto len = sub_ins[ii].sup_tot-sub_ins[ii].inf_tot;
+        ELOG(len);
+      }
     }
     //SLOG(comm,range_to_string(sub_ins,to_string_loc));
     //SLOG(comm,x);
-    if (kk++>5) {
+    if (kk++>1280) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
@@ -82,25 +89,28 @@ pivot_partition_eq(
     }
 
     // 1. compute pivots
-    std::vector<int> n_indices(n_sub_intervals);
+    std::vector<int> n_far_ticks(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
-      n_indices[i] = sub_ins[i].n_ticks;
+      n_far_ticks[i] = sub_ins[i].n_ticks;
     }
     //LOG("pivot_partition balance");
-    std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
+    std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_far_ticks,comm);
     //SLOG(comm,pivots_by_sub_intervals);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_to_partition> new_sub_ins;
-    //SLOG(comm,n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
-      //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      if (rank(comm)==0) {
-        ELOG(pivots);
-      }
+      //if (rank(comm)==0) {
+      //  ELOG(pivots);
+      //}
+      //SLOG(comm,x_sub[i]);
+      //SLOG(comm,pivots);
       auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,{},Return_container{});
+      //if (kk==128 && i==0) {
+      //  SLOG(comm,x_sub[i]);
+      //}
       for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
         partition_indices_sub[ii] += sub_ins[i].inf;
       }
@@ -117,45 +127,44 @@ pivot_partition_eq(
       //  ELOG(objective_ticks_sub);
       //  ELOG(partition_indices_sub_tot);
       //}
-      auto [first_indices, n_indices, interval_start, near_tick_indices,index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
-      //SLOG(comm,first_indices);
-      //SLOG(comm,n_indices);
-      //SLOG(comm,interval_start);
-      //SLOG(comm,index_ticks_found);
-      int n_sub_sub_intervals = interval_start.size();
+      auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices] = search_near_or_containing_interval2(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
+      //SLOG(comm,far_first_ticks);
+      //SLOG(comm,n_far_ticks);
+      //SLOG(comm,far_inter_indices);
+      //SLOG(comm,near_inter_indices);
+      int n_sub_sub_intervals = far_inter_indices.size();
 
-      // TODO: treat interval_start indices that are odd (meaning the associated interval is a pivot equal range)
+      // TODO: treat far_inter_indices indices that are odd (meaning the associated interval is a pivot equal range)
       //         if we want equal elements to end on the same partition, it means we should force
       //           the partition index (inf or sup) to be registered
       //         else we should fill to the tick (mpi scan)
 
       // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
-        int inf     = partition_indices_sub    [interval_start[j]];
-        int sup     = partition_indices_sub    [interval_start[j] + 1];
-        int inf_tot = partition_indices_sub_tot[interval_start[j]];
-        int sup_tot = partition_indices_sub_tot[interval_start[j] + 1];
-        //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
-        //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
+        int inf     = partition_indices_sub    [far_inter_indices[j]];
+        int sup     = partition_indices_sub    [far_inter_indices[j] + 1];
+        int inf_tot = partition_indices_sub_tot[far_inter_indices[j]];
+        int sup_tot = partition_indices_sub_tot[far_inter_indices[j] + 1];
+        //SLOG(comm,partition_indices_sub_tot[far_inter_indices[j]]   );
+        //SLOG(comm,partition_indices_sub_tot[far_inter_indices[j] +1]);
         if (rank(comm)==0) {
           //ELOG(inf_tot);
           //ELOG(sup_tot);
-          ELOG(sub_ins[i].position);
-          ELOG(first_indices[j]);
+          //ELOG(sub_ins[i].position);
+          //ELOG(far_first_ticks[j]);
         }
-        new_sub_ins.push_back( {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j], inf_tot,sup_tot,sz_tot,n_rk} );
+        new_sub_ins.push_back( {inf,sup,n_far_ticks[j],sub_ins[i].position+far_first_ticks[j], inf_tot,sup_tot,sz_tot,n_rk} );
       }
 
       // 1.3. report found ticks
-      for (int j=0; j<(int)index_ticks_found.size(); ++j) {
-        int k = index_ticks_found[j];
-        //int abs_pos = sub_ins[i].position+k-1; // WRONG with _eq version
+      for (int j=0; j<(int)near_inter_indices.size(); ++j) {
+        int k = near_inter_indices[j];
         int abs_pos = sub_ins[i].position+near_tick_indices[j];
-        if (rank(comm)==0) {
-          ELOG(abs_pos);
-          ELOG(partition_indices_sub[k]);
-          ELOG(k);
-        }
+        //if (rank(comm)==0) {
+        //  ELOG(abs_pos);
+        //  ELOG(k);
+        //}
+        //SLOG(comm,partition_indices_sub[k]);
         partition_indices[abs_pos] = partition_indices_sub[k];
         //SLOG(comm,partition_indices[abs_pos]);
 

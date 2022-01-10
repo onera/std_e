@@ -120,7 +120,7 @@ pivot_partition_minimize_imbalance(
       //  ELOG(objective_ticks_sub);
       //  ELOG(partition_indices_sub_tot);
       //}
-      auto [first_indices, n_indices, interval_start, _,index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
+      auto [first_indices, n_indices, interval_start, _,index_ticks_found] = search_near_or_containing_interval(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);
