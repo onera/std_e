@@ -2,7 +2,6 @@
 
 
 #include "std_e/parallel/all_to_all.hpp"
-#include "std_e/algorithm/pivot_partition_range.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
@@ -121,7 +120,7 @@ pivot_partition_minimize_imbalance(
       //  ELOG(objective_ticks_sub);
       //  ELOG(partition_indices_sub_tot);
       //}
-      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
+      auto [first_indices, n_indices, interval_start, _,index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
       //SLOG(comm,first_indices);
       //SLOG(comm,n_indices);
       //SLOG(comm,interval_start);

@@ -5,6 +5,61 @@
 #include "std_e/unit_test/math.hpp"
 
 using namespace std_e;
+using std::vector;
+
+
+MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs",2) {
+  int rk = test_rank;
+
+  vector<int> x;
+  if (rk == 0) x = {13,11,10,14,0,7,9,6};
+  if (rk == 1) x = {12,3,4,8,5,1,2};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+
+  // check that `pivot_partition_once` did partition `x` according to the returned indices
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., and the total size is 15,
+  // It means the global partition indices are exactly 0,8,15
+  // The global partition index is the sum over the ranks of partition_indices
+  CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,8,15} ); // TODO as_base is ugly!
+
+  // regression testing values
+  MPI_CHECK( 0 , partition_indices == interval_vector{0,       3,        8} );
+  MPI_CHECK( 0 ,                 x ==          vector{0,6,7,9,10,11,13,14} );
+  MPI_CHECK( 1 , partition_indices == interval_vector{0,        5,  7} );
+  MPI_CHECK( 1 ,                 x ==          vector{2,3,4,1,5,8,12} );
+}
+
+MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs",3) {
+  int rk = test_rank;
+
+  vector<int> x;
+  //if (rk == 0) x = {0,1,2,3,4};
+  //if (rk == 1) x = {5,6,7,8,9};
+  //if (rk == 2) x = {10,11,12,13,14};
+  if (rk == 0) x = {13,11,10,14,0};
+  if (rk == 1) x = {12,3,4,8};
+  if (rk == 2) x = {7,9,6,5,1,2};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., and the total size is 15,
+  // It means the global partition indices are exactly 0,5,10,15
+  // The global partition index is the sum over the ranks of partition_indices
+  CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,5,10,15} ); // TODO as_base is ugly!
+
+  // regression testing values
+  MPI_CHECK( 0, partition_indices == interval_vector{0,1,1,         5} );
+  MPI_CHECK( 0,                 x ==          vector{0,  10,11,13,14} );
+  MPI_CHECK( 1, partition_indices == interval_vector{0,  2, 3,4} );
+  MPI_CHECK( 1,                 x ==          vector{4,3,8,12} );
+  MPI_CHECK( 2, partition_indices == interval_vector{0,  2,     6,6} );
+  MPI_CHECK( 2,                 x ==          vector{2,1,5,6,7,9} );
+}
 
 //////MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //////  int sz_tot = 256'000'000;
@@ -36,30 +91,3 @@ using namespace std_e;
 ////    }
 ////  }
 ////}
-
-//MPI_TEST_CASE("parallel pivot_partition_eq",3) {
-//  int rk = test_rank;
-//
-//  std::vector<int> x;
-//  //if (rk == 0) x = {0,1,2,3,4};
-//  //if (rk == 1) x = {5,6,7,8,9};
-//  //if (rk == 2) x = {10,11,12,13,14};
-//  if (rk == 0) x = {13,11,10,14,0};
-//  if (rk == 1) x = {12,3,4,8};
-//  if (rk == 2) x = {7,9,6,5,1,2};
-//
-//  double max_imbalance = 0.5;
-//  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
-//
-//  ELOG(partition_indices);
-//  ELOG(x);
-//}
-//  //int sz_tot = 15;
-//  //if (rk == 0) x = {0,1,2,3,4};
-//  //if (rk == 1) x = {5,6,7,8,9};
-//  //if (rk == 2) x = {10,11,12,13,14};
-//
-//  //int sz_tot = 18;
-//  //if (rk == 0) x = {13,11,10,14,17,0};
-//  //if (rk == 1) x = {12,16,3,4,8};
-//  //if (rk == 2) x = {7,9,6,15,5,1,2};

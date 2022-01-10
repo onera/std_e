@@ -2,14 +2,13 @@
 
 
 #include "std_e/parallel/all_to_all.hpp"
-#include "std_e/algorithm/pivot_partition_range.hpp"
+#include "std_e/algorithm/pivot_partition_eq_range.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
 #include "std_e/parallel/algorithm/pivot_partition_once.hpp"
-#include "std_e/base/msg_exception.hpp"
-#include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include "std_e/parallel/algorithm/exception.hpp"
+#include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include "std_e/plog.hpp"
 #include <cmath>
 
@@ -31,12 +30,12 @@ template<
   class Comp = std::less<>,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_eq(std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.5, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
+pivot_partition_eq(
+  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0., Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
   const int n_rk = n_rank(comm);
 
   size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
-  //const int n_tick_tot = n_rank(comm)-1;
 
 // 0. initial partitioning
   interval_vector<int> partition_indices = pivot_partition_once(x,comm,comp,std::move(partition_is));
@@ -52,22 +51,24 @@ pivot_partition_eq(std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.5,
   while (sub_ins.size()>0) {
     if (rank(comm)==0) {
       int n_tick_max = 0;
-      for (int i=0; i<sub_ins.size(); ++i) {
+      for (size_t i=0; i<sub_ins.size(); ++i) {
         n_tick_max = std::max(n_tick_max, sub_ins[i].n_ticks);
       }
       ELOG(kk);
-      ELOG(sub_ins.size());
-      ELOG(n_tick_max);
+      //ELOG(sub_ins.size());
+      //ELOG(n_tick_max);
+      ELOG(sub_ins);
     }
-    SLOG(comm,kk);
-    if (kk++>2) {
+    //SLOG(comm,range_to_string(sub_ins,to_string_loc));
+    //SLOG(comm,x);
+    if (kk++>5) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
       //        => for very specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
       //   - implementation bugs
       //        => in particular, special cases where the array is too small to get enough samples
-      throw par_algo_exception("pivot_partition_eq: max number of iteration reached");
+      throw par_algo_exception("pivot_partition_minimize_imbalance: max number of iteration reached");
     }
 
     int n_sub_intervals = sub_ins.size();
@@ -87,6 +88,7 @@ pivot_partition_eq(std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.5,
     }
     //LOG("pivot_partition balance");
     std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_indices,comm);
+    //SLOG(comm,pivots_by_sub_intervals);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_to_partition> new_sub_ins;
@@ -95,41 +97,51 @@ pivot_partition_eq(std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.5,
       //SLOG(comm,i);
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      auto partition_indices_sub = pivot_partition_indices(x_sub[i],pivots,comp,Return_container{});
+      if (rank(comm)==0) {
+        ELOG(pivots);
+      }
+      auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,{},Return_container{});
+      for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
+        partition_indices_sub[ii] += sub_ins[i].inf;
+      }
+      //SLOG(comm,partition_indices_sub);
 
       // 1.1. compute new sub-intervals
-      SLOG(comm,partition_indices_sub);
       auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm); // TODO outside of loop
-      SLOG(comm,partition_indices_sub_tot);
 
       std::vector<int> objective_ticks_sub(sub_ins[i].n_ticks);
-
-      SLOG(comm,sub_ins[i].sz_tot);
-      SLOG(comm,sub_ins[i].n_interval);
-      SLOG(comm,sub_ins[i].position);
-      SLOG(comm,sub_ins[i].inf_tot);
-      SLOG(comm,sub_ins[i].objective_tick(0));
       for (int j=0; j<sub_ins[i].n_ticks; ++j) {
-        objective_ticks_sub[j] = sub_ins[i].objective_tick(j) - sub_ins[i].inf_tot;
+        objective_ticks_sub[j] = sub_ins[i].objective_tick(j);
       }
-      SLOG(comm,objective_ticks_sub);
-      auto [first_indices, n_indices, interval_start, index_ticks_found] = search_intervals4(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
-      SLOG(comm,first_indices);
-      SLOG(comm,n_indices);
-      SLOG(comm,interval_start);
+      //if (rank(comm)==0) {
+      //  ELOG(objective_ticks_sub);
+      //  ELOG(partition_indices_sub_tot);
+      //}
+      auto [first_indices, n_indices, interval_start, near_tick_indices,index_ticks_found] = search_intervals8(objective_ticks_sub,partition_indices_sub_tot,max_interval_tick_shift);
+      //SLOG(comm,first_indices);
+      //SLOG(comm,n_indices);
+      //SLOG(comm,interval_start);
+      //SLOG(comm,index_ticks_found);
       int n_sub_sub_intervals = interval_start.size();
+
+      // TODO: treat interval_start indices that are odd (meaning the associated interval is a pivot equal range)
+      //         if we want equal elements to end on the same partition, it means we should force
+      //           the partition index (inf or sup) to be registered
+      //         else we should fill to the tick (mpi scan)
 
       // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
-        int inf     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j]];
-        int sup     = sub_ins[i].inf     + partition_indices_sub    [interval_start[j] + 1];
-        int inf_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j]];
-        int sup_tot = sub_ins[i].inf_tot + partition_indices_sub_tot[interval_start[j] + 1];
-        SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
-        SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
+        int inf     = partition_indices_sub    [interval_start[j]];
+        int sup     = partition_indices_sub    [interval_start[j] + 1];
+        int inf_tot = partition_indices_sub_tot[interval_start[j]];
+        int sup_tot = partition_indices_sub_tot[interval_start[j] + 1];
+        //SLOG(comm,partition_indices_sub_tot[interval_start[j]]   );
+        //SLOG(comm,partition_indices_sub_tot[interval_start[j] +1]);
         if (rank(comm)==0) {
-          ELOG(inf_tot);
-          ELOG(sup_tot);
+          //ELOG(inf_tot);
+          //ELOG(sup_tot);
+          ELOG(sub_ins[i].position);
+          ELOG(first_indices[j]);
         }
         new_sub_ins.push_back( {inf,sup,n_indices[j],sub_ins[i].position+first_indices[j], inf_tot,sup_tot,sz_tot,n_rk} );
       }
@@ -137,12 +149,24 @@ pivot_partition_eq(std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0.5,
       // 1.3. report found ticks
       for (int j=0; j<(int)index_ticks_found.size(); ++j) {
         int k = index_ticks_found[j];
-        int abs_pos = sub_ins[i].position+k-1;
-        partition_indices[abs_pos] = sub_ins[i].inf + partition_indices_sub[k];
-        SLOG(comm,partition_indices[abs_pos]);
+        //int abs_pos = sub_ins[i].position+k-1; // WRONG with _eq version
+        int abs_pos = sub_ins[i].position+near_tick_indices[j];
+        if (rank(comm)==0) {
+          ELOG(abs_pos);
+          ELOG(partition_indices_sub[k]);
+          ELOG(k);
+        }
+        partition_indices[abs_pos] = partition_indices_sub[k];
+        //SLOG(comm,partition_indices[abs_pos]);
+
       }
     }
 
+    //// LOG
+    //auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,comm);
+    //if (rank(comm)==0) {
+    //  ELOG(partition_indices_tot);
+    //}
     // 2. loop
     sub_ins = std::move(new_sub_ins);
   }

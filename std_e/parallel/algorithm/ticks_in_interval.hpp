@@ -59,9 +59,9 @@ search_intervals3(const interval_vector<int>& partition_indices, int max_interva
   //auto distri = uniform_distribution_exclude_ends(n_interval,sz_tot);
   auto distri = uniform_distribution_exclude_ends(n_interval,sz_tot);
   //SLOG(comm,distri.as_base());
-  auto [first_indices2, n_indices2, interval_start2,_] = search_intervals8(distri.as_base(),partition_indices_tot,max_interval_tick_shift);
 
   auto [first_indices, n_indices, interval_start] = search_intervals6(distri.as_base(),partition_indices_tot,max_interval_tick_shift);
+  //auto [first_indices2, n_indices2, interval_start2,_] = search_intervals8(distri.as_base(),partition_indices_tot,max_interval_tick_shift); // TODO use that one
   //SLOG(comm,first_indices2);
   //SLOG(comm,first_indices);
   //SLOG(comm,n_indices2);

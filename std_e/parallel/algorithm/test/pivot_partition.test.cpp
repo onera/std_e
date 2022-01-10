@@ -34,34 +34,35 @@ MPI_TEST_CASE("parallel pivot_partition - 2 procs",2) {
   MPI_CHECK( 1,                 x ==          vector{2,3,4,1,5,8,12} );
 }
 
-MPI_TEST_CASE("parallel pivot_partition - 3 procs",3) {
-  int rk = test_rank;
-  int n_rk = test_nb_procs;
-
-  vector<int> x;
-  //if (rk == 0) x = {0,1,2,3,4};
-  //if (rk == 1) x = {5,6,7,8,9};
-  //if (rk == 2) x = {10,11,12,13,14};
-  if (rk == 0) x = {13,11,10,14,0};
-  if (rk == 1) x = {12,3,4,8};
-  if (rk == 2) x = {7,9,6,5,1,2};
-
-  double max_imbalance = 0.;
-  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,test_comm,max_imbalance);
-
-  ELOG(partition_indices);
-  ELOG(x);
-
-  //int sz_tot = 15;
-  //if (rk == 0) x = {0,1,2,3,4};
-  //if (rk == 1) x = {5,6,7,8,9};
-  //if (rk == 2) x = {10,11,12,13,14};
-
-  //int sz_tot = 18;
-  //if (rk == 0) x = {13,11,10,14,17,0};
-  //if (rk == 1) x = {12,16,3,4,8};
-  //if (rk == 2) x = {7,9,6,15,5,1,2};
-}
+// WILL NOT WORK: no progress by repeatedly selecting the same pivot
+//MPI_TEST_CASE("parallel pivot_partition - 3 procs",3) {
+//  int rk = test_rank;
+//  int n_rk = test_nb_procs;
+//
+//  vector<int> x;
+//  //if (rk == 0) x = {0,1,2,3,4};
+//  //if (rk == 1) x = {5,6,7,8,9};
+//  //if (rk == 2) x = {10,11,12,13,14};
+//  if (rk == 0) x = {13,11,10,14,0};
+//  if (rk == 1) x = {12,3,4,8};
+//  if (rk == 2) x = {7,9,6,5,1,2};
+//
+//  double max_imbalance = 0.;
+//  interval_vector<int> partition_indices = std_e::pivot_partition_minimize_imbalance(x,test_comm,max_imbalance);
+//
+//  ELOG(partition_indices);
+//  ELOG(x);
+//
+//  //int sz_tot = 15;
+//  //if (rk == 0) x = {0,1,2,3,4};
+//  //if (rk == 1) x = {5,6,7,8,9};
+//  //if (rk == 2) x = {10,11,12,13,14};
+//
+//  //int sz_tot = 18;
+//  //if (rk == 0) x = {13,11,10,14,17,0};
+//  //if (rk == 1) x = {12,16,3,4,8};
+//  //if (rk == 2) x = {7,9,6,15,5,1,2};
+//}
 
 
 ////MPI_TEST_CASE("parallel pivot_partition - cardinal sine function",16) {

@@ -89,6 +89,7 @@ struct interval_to_partition2 {
   std::vector<I> n_far_ticks;
   std::vector<I> far_inter_indices;
 
+  std::vector<I> near_tick_indices;
   std::vector<I> near_inter_indices;
 };
 
@@ -102,6 +103,7 @@ search_intervals8(const Interval_range0& ticks, const Interval_range1& inter, I 
   std::vector<I> n_far_ticks;
   std::vector<I> far_inter_indices;
 
+  std::vector<I> near_tick_indices;
   std::vector<I> near_inter_indices;
 
   for (I i=0; i<n_containing_intervals; ++i) {
@@ -110,9 +112,11 @@ search_intervals8(const Interval_range0& ticks, const Interval_range1& inter, I 
     for (I j=first_ticks[i]; j<first_ticks[i+1]; ++j) {
       // if close to inf, record it as near
       if        ( std::abs(ticks[j]-inter[inter_indices[i]  ]) <= max_distance) {
+        near_tick_indices.push_back(j);
         near_inter_indices.push_back(inter_indices[i]);
       // if close to sup, record it as near
       } else if ( std::abs(ticks[j]-inter[inter_indices[i]+1]) <= max_distance) {
+        near_tick_indices.push_back(j);
         near_inter_indices.push_back(inter_indices[i]+1);
       // else record as far
       } else {
@@ -129,7 +133,7 @@ search_intervals8(const Interval_range0& ticks, const Interval_range1& inter, I 
       far_inter_indices.push_back(inter_indices[i]);
     }
   }
-  return {far_first_ticks,n_far_ticks,far_inter_indices,  near_inter_indices};
+  return {far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices};
 }
 
 

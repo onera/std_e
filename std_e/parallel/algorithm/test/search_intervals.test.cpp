@@ -40,7 +40,7 @@ TEST_CASE("search_intervals") {
 
 
 TEST_CASE("search_intervals7") {
-  //                         0        1     2    3      4           5       6      7    8      9      10
+  //                         0        1     2    3    4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };
   vector<int> x      = {0,    130,  199,          480, 530,550,580,  640, 701,         950,  1020,   1101 ,1200};
   //                    0      1     2             3    4   5   6     7    8            9     10      11    12
@@ -83,13 +83,13 @@ TEST_CASE("search_intervals7") {
 
 
 TEST_CASE("search_intervals8") {
-  //                         0        1     2    3      4           5       6      7    8      9      10
+  //                         0        1     2    3    4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100        };
   vector<int> x      = {0,    130,  199,          480, 530,550,580,  640, 701,         950,  1020,   1101 ,1200};
   //                    0      1     2             3    4   5   6     7    8            9     10      11    12
 
 
-  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_inter_indices] = search_intervals8(ticks,x,1);
+  auto [far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices] = search_intervals8(ticks,x,1);
 
   // same principle as search_intervals7 for `far_first_ticks` and `far_inter_indices`
   // but since now all the ticks are not necessarily here (the near ones are missing)
@@ -105,6 +105,8 @@ TEST_CASE("search_intervals8") {
   // Which we can verify: 701 <= 800 <= 900 < 950
   CHECK( x[8] <= ticks[7] ); CHECK( ticks[8] < x[9] );
 
+  // refers to ticks indices:         200,700,1100
+  CHECK( near_tick_indices  == vector{ 1 , 6,  10 } );
   // refers to x indices:             199,701,1101
   CHECK( near_inter_indices == vector{ 2 , 8 , 11} );
 }
