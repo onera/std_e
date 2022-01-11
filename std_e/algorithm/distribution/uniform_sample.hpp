@@ -50,7 +50,7 @@ uniform_sample(const RA_rng& x, I n_sample) -> std::vector<T> {
   return sample;
 }
 
-// TODO test
+
 template<
   class RA_rng, class I,
   class T = typename RA_rng::value_type
@@ -65,16 +65,17 @@ uniform_sample_exclude_ends(const RA_rng& x, I n_sample) -> std::vector<T> {
 
   if (sz == n_sample+1) {
     std::vector<T> sample(n_sample);
-    std::copy_n(begin(x),n_sample,begin(sample));
+    std::copy_n(begin(x)+1,n_sample,begin(sample));
     return sample;
   }
 
   else { // ask for two more samples, but then drop both ends
+    // TODO factor with uniform_sample
     std::vector<I> sample_indices = uniform_ticks_in_sub_interval(I(0),sz,sz,n_sample+2);
 
     std::vector<T> sample(n_sample);
     for (I i=0; i<n_sample; ++i) {
-      sample[i] = x[ sample_indices[i]+1 ];
+      sample[i] = x[ sample_indices[i+1] ];
     }
     return sample;
   }

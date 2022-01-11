@@ -113,12 +113,18 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted, but imbal
 }
 
 
-//// KO
+//// Linear
 MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
   int sz_tot = 256'000'000;
-//// KO
+//// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 1'000'000;
+//// Linear
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
+//  int sz_tot = 64'000;
+//// Linear
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
+//  int sz_tot = 32'000;
 //// O
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 64000;
@@ -135,8 +141,8 @@ MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
   interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
   std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
 
-  double max_imbalance = 0.1;
-  //double max_imbalance = 0.;
+  //double max_imbalance = 0.1;
+  double max_imbalance = 0.;
   interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
 
   CHECK( is_partitioned_at_indices(y,partition_indices) );

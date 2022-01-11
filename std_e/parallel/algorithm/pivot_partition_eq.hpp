@@ -9,6 +9,7 @@
 #include "std_e/parallel/algorithm/pivot_partition_once.hpp"
 #include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
+#include "std_e/parallel/algorithm/plot.hpp"
 #include "std_e/plog.hpp"
 #include <cmath>
 
@@ -68,7 +69,7 @@ pivot_partition_eq(
     }
     //SLOG(comm,range_to_string(sub_ins,to_string_loc));
     //SLOG(comm,x);
-    if (kk++>1280) {
+    if (++kk>1280) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
@@ -79,6 +80,7 @@ pivot_partition_eq(
     }
 
     int n_sub_intervals = sub_ins.size();
+    //if (kk >= 5) STD_E_ASSERT(n_sub_intervals==1);
 
     // 0. prepare for sampling
     std::vector<std_e::span<T>> x_sub(n_sub_intervals);
@@ -94,7 +96,12 @@ pivot_partition_eq(
       n_far_ticks[i] = sub_ins[i].n_ticks;
     }
     //LOG("pivot_partition balance");
-    std::vector<std::vector<T>> pivots_by_sub_intervals = median_of_3_sample(x_sub,n_far_ticks,comm);
+    if (kk==52) {
+      to_matplotlib_file(x_sub[0],"sinc_"+std::to_string(rank(comm)));
+      //SLOG(comm,x_sub[0]);
+    }
+    SLOG(comm,x_sub[0].size());
+    std::vector<std::vector<T>> pivots_by_sub_intervals = find_pivots(x_sub,n_far_ticks,comm);
     //SLOG(comm,pivots_by_sub_intervals);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
@@ -102,9 +109,9 @@ pivot_partition_eq(
     for (int i=0; i<n_sub_intervals; ++i) {
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      //if (rank(comm)==0) {
-      //  ELOG(pivots);
-      //}
+      if (rank(comm)==0) {
+        ELOG(pivots);
+      }
       //SLOG(comm,x_sub[i]);
       //SLOG(comm,pivots);
       auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,{},Return_container{});

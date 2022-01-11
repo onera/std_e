@@ -23,7 +23,7 @@ MPI_TEST_CASE("median_of_3_sample",3) {
     //         We can just see that the numbers are coherent
     //         But it could be other numbers
     //            -> re-write the unit test better if you know how to do it
-    CHECK( sample == std::vector{4,11} );
+    CHECK( sample == std::vector{8,14} );
   }
 
   SUBCASE("irregular") {
@@ -35,7 +35,7 @@ MPI_TEST_CASE("median_of_3_sample",3) {
     std::vector<int> sample = std_e::median_of_3_sample(x,test_comm);
 
     // Note: same remark as above
-    CHECK( sample == std::vector{3,7} );
+    CHECK( sample == std::vector{5,13} );
   }
 
   SUBCASE("smallest number of values") {
@@ -56,6 +56,6 @@ MPI_TEST_CASE("median_of_3_sample",3) {
 
     std::vector<int> sample = std_e::median_of_3_sample(x,test_comm);
 
-    CHECK( sample == std::vector{2,5} );
+    CHECK( sample == std::vector{3,5} );
   }
 }
