@@ -46,6 +46,10 @@ median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm) {
 
 // Sample all ranks equally regardless of their size
 // Avoid the start and end (because the end of one rank is the element just after the start of the next rank)
+// TODO the problem with the algorithm is that it takes 3*n_rank values
+//    - it can't be used in a context where n_pivot>3*n_rank
+//    - more importantly, it may be too much samples (worst case: pivot_partition_eq may have an iteration with n_rank/2 interval -> 3/2*n_rank^2 samples!
+//  -> Solution: n_pivot gives which ranks to hit, and how many times, but then we take values in the rank similar to this (excluding begin/end)
 template<class RA_rng, class I = typename RA_rng::size_type, class T = typename RA_rng::value_type> auto
 median_of_3_sample_mod(const RA_rng& x, I n_pivot, MPI_Comm comm) {
   // 0. n_sample
@@ -92,7 +96,8 @@ median_of_3_sample_mod(const RA_rng& x, I n_pivot, MPI_Comm comm) {
 
 template<class T, class I> auto
 find_pivots(std::vector<span<T>>& xs, std::vector<I> ns, MPI_Comm comm) {
-  // TODO implement with only one gather
+  // TODO implement with only one gather:
+  // worst case here: pivot_partition_eq may have an iteration with n_rank/2 interval, then we have n_rank MPI calls -> merge them into one!
   STD_E_ASSERT(xs.size()==ns.size());
   int n_interval = xs.size();
 

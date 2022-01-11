@@ -114,19 +114,14 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted, but imbal
 }
 
 
-//// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 256'000'000;
-//// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 1'000'000;
-//// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
 //  int sz_tot = 64'000;
-//// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
 //  int sz_tot = 32'000;
-//// O
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 64000;
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
@@ -149,5 +144,6 @@ MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
   CHECK( is_partitioned_at_indices(y,partition_indices) );
 
   auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+  // Note: perfect balance is obtained because for this input, there is no repeated value that falls on a boundary between ranks
   MPI_CHECK( 0, partition_indices_tot == vector{0,50,100,150,200} );
 }

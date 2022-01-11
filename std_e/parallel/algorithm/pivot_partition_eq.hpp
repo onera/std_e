@@ -42,13 +42,13 @@ pivot_partition_eq(
   auto sub_ins = search_intervals3(partition_indices,max_interval_tick_shift,comm);
 
 // 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
-  int kk = 0;
+  int n_iter = 0;
   while (sub_ins.size()>0) {
-    if (kk++>64) {
+    if (n_iter++>64) {
       // Note: there should be approximately log(sz_tot) loop iteration
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
-      //        => for very specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
+      //        => for specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
       //   - implementation bugs
       //        => in particular, special cases where the array is too small to get enough samples
       throw par_algo_exception("pivot_partition_minimize_imbalance: max number of iterations reached");
