@@ -27,7 +27,7 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs",2) {
 
   // regression testing values
   MPI_CHECK( 0 , partition_indices == interval_vector{0,       3,        8} );
-  MPI_CHECK( 0 ,                 x ==          vector{0,6,7,9,10,11,13,14} );
+  MPI_CHECK( 0 ,                 x ==          vector{0,6,7,9,10,13,14,11} );
   MPI_CHECK( 1 , partition_indices == interval_vector{0,        5,  7} );
   MPI_CHECK( 1 ,                 x ==          vector{2,3,4,1,5,8,12} );
 }
@@ -49,13 +49,14 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs",3) {
   // The global partition index is the sum over the ranks of partition_indices
   CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,5,10,15} ); // TODO as_base is ugly!
 
+
   // regression testing values
   MPI_CHECK( 0, partition_indices == interval_vector{0,1,1,         5} );
-  MPI_CHECK( 0,                 x ==          vector{0,  10,11,13,14} );
+  MPI_CHECK( 0,                 x ==          vector{0,  10,11,14,13} );
   MPI_CHECK( 1, partition_indices == interval_vector{0,  2, 3,4} );
   MPI_CHECK( 1,                 x ==          vector{4,3,8,12} );
   MPI_CHECK( 2, partition_indices == interval_vector{0,  2,     6,6} );
-  MPI_CHECK( 2,                 x ==          vector{2,1,5,6,7,9} );
+  MPI_CHECK( 2,                 x ==          vector{2,1,6,5,7,9} );
 }
 
 MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted and balanced",3) {
@@ -79,9 +80,9 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted and balanc
   MPI_CHECK( 0, partition_indices == interval_vector{0,       5,5,5} );
   MPI_CHECK( 0,                 x ==          vector{0,1,2,3,4} );
   MPI_CHECK( 1, partition_indices == interval_vector{0,0  ,     5,5} );
-  MPI_CHECK( 1,                 x ==          vector{  5,6,8,7,9} );
+  MPI_CHECK( 1,                 x ==          vector{  5,6,7,8,9} );
   MPI_CHECK( 2, partition_indices == interval_vector{0,0, 0,           5} );
-  MPI_CHECK( 2,                 x ==          vector{    10,11,12,14,13} );
+  MPI_CHECK( 2,                 x ==          vector{    11,10,12,13,14} );
 }
 
 MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted, but imbalance",3) {
@@ -107,15 +108,15 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs - already sorted, but imbal
   MPI_CHECK( 0, partition_indices == interval_vector{0,        5,6,6} );
   MPI_CHECK( 0,                 x ==          vector{0,1,2,3,4,5} );
   MPI_CHECK( 1, partition_indices == interval_vector{0,0,     4,4} );
-  MPI_CHECK( 1,                 x ==          vector{  6,8,7,9} );
+  MPI_CHECK( 1,                 x ==          vector{  6,7,8,9} );
   MPI_CHECK( 2, partition_indices == interval_vector{0,0, 0,           5} );
-  MPI_CHECK( 2,                 x ==          vector{    10,11,12,14,13} );
+  MPI_CHECK( 2,                 x ==          vector{    11,10,12,13,14} );
 }
 
 
 //// Linear
-MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
-  int sz_tot = 256'000'000;
+//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
+//  int sz_tot = 256'000'000;
 //// Linear
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 1'000'000;
@@ -132,8 +133,8 @@ MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 500'000;
 //MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
 //  int sz_tot = 200;
-//MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
-//  int sz_tot = 200;
+MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
+  int sz_tot = 200;
   int rk = test_rank;
   int n_rk = test_nb_procs;
 
@@ -148,14 +149,5 @@ MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",16) {
   CHECK( is_partitioned_at_indices(y,partition_indices) );
 
   auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
-  auto lens = interval_lengths(partition_indices_tot);
-  int optimal_len = sz;
-  //for (int i=0; i<int(lens.size())-1; ++i) {
-  //  CHECK( std::abs(lens[i]-optimal_len)/double(optimal_len) < max_imbalance );
-  //}
-
-  if (rk==0) {
-    ELOG(partition_indices_tot);
-    ELOG(lens);
-  }
+  MPI_CHECK( 0, partition_indices_tot == vector{0,50,100,150,200} );
 }

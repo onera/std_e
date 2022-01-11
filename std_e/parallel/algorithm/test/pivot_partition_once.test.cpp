@@ -45,21 +45,18 @@ MPI_TEST_CASE("parallel pivot_partition_once - 3 procs",3) {
   if (rk == 2) x = {7,9,6,5,1,2};
 
   interval_vector<int> partition_indices = std_e::pivot_partition_once(x,test_comm);
+  MPI_CHECK( 0 , partition_indices == interval_vector{0, 1, 3, 5} );
+  MPI_CHECK( 1 , partition_indices == interval_vector{0, 2, 4, 4} );
+  MPI_CHECK( 2 , partition_indices == interval_vector{0, 2, 6, 6} );
+  // Total                                            0, 5,13,15
 
-  MPI_CHECK( 0 , partition_indices == interval_vector{0, 1, 1, 5} );
-  MPI_CHECK( 1 , partition_indices == interval_vector{0, 0, 2, 4} );
-  MPI_CHECK( 2 , partition_indices == interval_vector{0, 2, 4, 6} );
-  // Total                                            0, 3, 7,15
-
-  // So the global partition of [0,15) is now [0,1,2 | 3,4,5,6, | 7,8,9,10,11,12,13,14]
+  // So the global partition of [0,15) is now [0,1,2,3,4 | 5,6,,7,8,9,10,11,12 | 13,14]
   CHECK( is_partitioned_at_indices(x,partition_indices) );
   MPI_CHECK( 0 , x == vector{0,  11,10,14,13} );
   MPI_CHECK( 1 , x == vector{4,3,  12,8} );
   MPI_CHECK( 2 , x == vector{2,1,  6,5,9,7} );
 }
 
-//MPI_TEST_CASE("parallel pivot_partition_eq",16) {
-//  int sz_tot = 256'000'000;
 MPI_TEST_CASE("parallel pivot_partition_once - cardinal sine function",4) {
   int sz_tot = 200;
   int rk = test_rank;
@@ -75,10 +72,9 @@ MPI_TEST_CASE("parallel pivot_partition_once - cardinal sine function",4) {
   // test that the array `y` is indeed partitioned
   CHECK( is_partitioned_at_indices(y,partition_indices) );
 
-  // Note: the following numbers are hard to interpret for a "tutorial" unit test
-  //       but they are here for non-regression (we did not find a way to express the unit test better!)
-  MPI_CHECK( 0, partition_indices == interval_vector{0,13,25,30,50} );
+  // regression testing values
+  MPI_CHECK( 0, partition_indices == interval_vector{0,23,25,34,50} );
   MPI_CHECK( 1, partition_indices == interval_vector{0, 0, 0, 0,50} );
-  MPI_CHECK( 2, partition_indices == interval_vector{0,13,41,45,50} );
-  MPI_CHECK( 3, partition_indices == interval_vector{0, 0, 6,39,50} );
+  MPI_CHECK( 2, partition_indices == interval_vector{0,36,41,49,50} );
+  MPI_CHECK( 3, partition_indices == interval_vector{0, 0, 9,50,50} );
 }

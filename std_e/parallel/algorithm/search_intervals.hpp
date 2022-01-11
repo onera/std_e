@@ -136,6 +136,12 @@ search_near_or_containing_interval(const Interval_range0& ticks, const Interval_
   return {far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices};
 }
 
+// TODO clean
+// TODO: far_inter_indices indices that are odd (meaning the associated interval is a pivot equal range)
+//         here, we want equal elements to end on the same partition, it means we force
+//           the partition index (inf or sup) to be registered
+//         we should allow the strategy where equal elts can end up in different ranges
+//           -> then we should fill to the tick (mpi scan)
 template<class Interval_range0, class Interval_range1, class I> auto
 search_near_or_containing_interval2(const Interval_range0& ticks, const Interval_range1& inter, I max_distance) -> interval_to_partition2<I> {
   auto [first_ticks, inter_indices] = search_intervals(ticks,inter);
