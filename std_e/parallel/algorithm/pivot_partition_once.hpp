@@ -14,16 +14,15 @@ template<
   class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, Return_container&& partition_is = {}) -> Return_container {
-  STD_E_ASSERT(x.size() > 0);
+pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, Return_container&& = {}) -> Return_container {
+  auto size_tot = all_reduce(x.size(),MPI_SUM,comm);
+  if (size_tot==0) {
+    return Return_container(n_rank(comm)+1,0);
+  }
 
   std::vector<T> pivots = median_of_3_sample(x,comm);
-  //if (rank(comm)==0) {
-  //  ELOG(pivots);
-  //}
 
-  //return partition_sort_indices(x,pivots,comp);
-  return pivot_partition_indices(x,pivots,comp,std::move(partition_is));
+  return pivot_partition_indices(x,pivots,comp,Return_container{});
 }
 
 

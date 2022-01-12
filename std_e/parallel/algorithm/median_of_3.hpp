@@ -23,24 +23,10 @@ namespace std_e {
 
 
 template<class RA_rng, class I = typename RA_rng::size_type, class T = typename RA_rng::value_type> auto
-median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm) {
-  // 0. n_sample
+median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm) -> std::vector<T> {
   I size_tot = all_reduce(x.size(),MPI_SUM,comm);
-  STD_E_ASSERT(size_tot >= n_pivot);
-
   I n_sample = std::min(size_tot,3*n_pivot); // 3*n_pivot by analogy with median of 3 (if n_pivot==1, we have a median of 3)
-
-  // 1. local samples
-  std::vector<T> sample_local = uniform_sample_local(x,n_sample,comm);
-
-  // 2. gather all samples and sort them
-  std::vector<T> sample = all_gather(sample_local,comm); // could be optimized because can be pre-allocated at n_sample
-  STD_E_ASSERT(I(sample.size())==n_sample);
-  std::sort(begin(sample),end(sample));
-  // TODO std::unique + handle if not enought samples
-
-  // 3. re-sample to get `n_pivot` values
-  return uniform_sample_exclude_ends(sample,n_pivot);
+  return uniform_sample_local(x,n_sample,comm);
 }
 
 
@@ -51,59 +37,74 @@ median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm) {
 //    - more importantly, it may be too much samples (worst case: pivot_partition_eq may have an iteration with n_rank/2 interval -> 3/2*n_rank^2 samples!
 //  -> Solution: n_pivot gives which ranks to hit, and how many times, but then we take values in the rank similar to this (excluding begin/end)
 template<class RA_rng, class I = typename RA_rng::size_type, class T = typename RA_rng::value_type> auto
-median_of_3_sample_mod(const RA_rng& x, I n_pivot, MPI_Comm comm) {
-  // 0. n_sample
-  I size_tot = all_reduce(x.size(),MPI_SUM,comm);
-  STD_E_ASSERT(size_tot >= n_pivot);
-
-  // 1. local samples
+median_of_3_sample_mod(const RA_rng& x, I n_pivot) -> std::vector<T> {
   auto sz = x.size();
-  std::vector<T> sample_local;
-  if (sz==1) {
-    sample_local = std::vector{x[0]};
-  }
-  if (sz==2) {
-    sample_local = std::vector{x[0],x[1]};
-  }
-  if (sz>=3) {
+  if (sz==0) {
+    return {};
+  } else if (sz==1) {
+    return {x[0]};
+  } else if (sz==2) {
+    return {x[0],x[1]};
+  } else { // sz>=3
     // if we view the global array as the concatenation of `x` accross the ranks
     // and if we suppose that `x.size()` is the same accross the ranks,
     // then this sampling is uniform and avoids the ends
-    sample_local = {x[sz/6],x[sz/2],x[5*sz/6]};
+    return {x[sz/6],x[sz/2],x[5*sz/6]};
 
     // worse choices :D
     // these two trigger a linear sub-interval reduction (instead of exponential)
-    //sample_local = {x[0]};
-    //sample_local = {x[1]};
-    //sample_local = {x[sz/2]};
-    //sample_local = {x[sz/4],x[3*sz/4]};
-    //sample_local = {x[0],x[sz/6],x[sz/3],x[sz/2],x[2*sz/3],x[5*sz/6]};
+    // return {x[0]};
+    // return {x[1]};
+    //
+    // return {x[sz/2]};
+    // return {x[sz/4],x[3*sz/4]};
+    // return {x[0],x[sz/6],x[sz/3],x[sz/2],x[2*sz/3],x[5*sz/6]};
   }
+}
+
+
+constexpr auto median_of_3_sample_fn     = [](const auto& x, auto n_pivot, MPI_Comm comm){ return median_of_3_sample    (x,n_pivot,comm); };
+constexpr auto median_of_3_sample_mod_fn = [](const auto& x, auto n_pivot, MPI_Comm     ){ return median_of_3_sample_mod(x,n_pivot     ); };
+using median_of_3_sample_mod_closure = decltype(median_of_3_sample_mod_fn);
+
+
+template<class RA_rng, class I, class sampling_algo_type, class T = typename RA_rng::value_type> auto
+find_pivots_by_sampling(const RA_rng& x, I n_pivot, MPI_Comm comm, sampling_algo_type sampling_algo) -> std::vector<T> {
+  // 1. local samples
+  std::vector<T> sample_local = sampling_algo(x,n_pivot,comm);
 
   // 2. gather all samples and sort them
   std::vector<T> sample = all_gather(sample_local,comm); // could be optimized because can be pre-allocated at n_sample
   std::sort(begin(sample),end(sample));
-  // TODO std::unique + handle if not enought samples
 
-  // 3. re-sample to get `n_pivot` values
-  return uniform_sample_exclude_ends(sample,n_pivot);
+  // 3. get exactly `n_pivot` values
+  I n_sample = sample.size();
+  if (n_sample >= n_pivot) {
+    // re-sample
+    return uniform_sample_exclude_ends(sample,n_pivot);
+  } else {
+    // expand with empty toward the end
+    T last_sample = sample.back();
+    sample.resize(n_pivot);
+    std::fill(begin(sample)+n_sample,end(sample),last_sample);
+    return sample;
+  }
 }
 
 
-//constexpr auto median_of_3_sample_fn     = [](const auto& x, auto n_pivot, MPI_Comm comm){ return median_of_3_sample    (x,n_pivot,comm); };
-//constexpr auto median_of_3_sample_mod_fn = [](const auto& x, auto n_pivot, MPI_Comm comm){ return median_of_3_sample_mod(x,n_pivot,comm); };
 
-
-template<class T, class I> auto
-find_pivots(std::vector<span<T>>& xs, std::vector<I> ns, MPI_Comm comm) {
+template<class T, class I, class sampling_algo_type = median_of_3_sample_mod_closure> auto
+find_pivots(std::vector<span<T>>& xs, const std::vector<I>& ns, MPI_Comm comm, sampling_algo_type sampling_algo = {}) {
   // TODO implement with only one gather:
-  // worst case here: pivot_partition_eq may have an iteration with n_rank/2 interval, then we have n_rank MPI calls -> merge them into one!
+  // because worst case complexity:
+  //   pivot_partition_eq may have an iteration with n_rank/2 interval, then we have n_rank MPI calls
+  //    -> merge them into one!
   STD_E_ASSERT(xs.size()==ns.size());
   int n_interval = xs.size();
 
   std::vector<std::vector<T>> pivots_by_sub_intervals(n_interval);
   for (int i=0; i<n_interval; ++i) {
-    pivots_by_sub_intervals[i] = median_of_3_sample_mod(xs[i],ns[i],comm);
+    pivots_by_sub_intervals[i] = find_pivots_by_sampling(xs[i],ns[i],comm,sampling_algo);
   }
   return pivots_by_sub_intervals;
 }
@@ -112,7 +113,7 @@ find_pivots(std::vector<span<T>>& xs, std::vector<I> ns, MPI_Comm comm) {
 template<class T> auto
 median_of_3_sample(std::vector<T>& x, MPI_Comm comm) {
   size_t n_pivot = n_rank(comm)-1; // to get `n_rank` partitions, we need `n_rank-1` partition points
-  return median_of_3_sample(x,n_pivot,comm);
+  return find_pivots_by_sampling(x,n_pivot,comm,median_of_3_sample_fn);
 }
 
 

@@ -11,19 +11,23 @@
 namespace std_e {
 
 
-template<class Rng> auto
-search_intervals6(const std::vector<int>& ticks, const Rng& inter, int max_interval_tick_shift) {
-  int n_tick = ticks.size();
+// TODO DEL (replace by search_near_or_containing_interval)
+template<class Interval_range0, class Interval_range1, class I> auto
+search_intervals6(const Interval_range0& ticks, const Interval_range1& inter, I max_distance) {
+  I n_tick = ticks.size();
 
-  std::vector<int> first_ticks;
-  std::vector<int> n_indices;
-  std::vector<int> inter_indices;
-  std::vector<int> index_ticks_found;
+  std::vector<I> first_ticks;
+  std::vector<I> n_indices;
+  std::vector<I> inter_indices;
+  std::vector<I> index_ticks_found;
 
-  int k = 0;
-  for (int i=0; i<n_tick; ++i) {
+  I k = 0;
+  for (I i=0; i<n_tick; ++i) {
+    //ELOG(inter[0]);
+    //ELOG(ticks[i]);
+    //ELOG(inter.back());
     STD_E_ASSERT(inter[0] <= ticks[i] && ticks[i] < inter.back());
-    if (std::abs(inter[i+1] - ticks[i]) <= max_interval_tick_shift) continue;
+    if (std::abs(inter[i+1] - ticks[i]) <= max_distance) continue;
 
     while (not (inter[k] < ticks[i] && ticks[i] < inter[k+1]) ) {
       ++k;
@@ -31,7 +35,7 @@ search_intervals6(const std::vector<int>& ticks, const Rng& inter, int max_inter
     // now, ticks[i] is in [inter[k],inter[k+1])
 
     // if inter[k] is close enought, put it in the ticks found
-    if (std::abs(inter[k] - ticks[i]) < max_interval_tick_shift) {
+    if (std::abs(inter[k] - ticks[i]) < max_distance) {
       index_ticks_found.push_back(k);
     }
 

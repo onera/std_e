@@ -30,15 +30,16 @@ template<
   class Return_container = interval_vector<int>
 > auto
 pivot_partition_eq(
-  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0., Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
+  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0., Comp comp = {}, Return_container&& = {}) -> Return_container {
   const int n_rk = n_rank(comm);
 
-  size_t sz_tot = all_reduce(x.size(),MPI_SUM,comm);
-  const int max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
+  using I = typename Return_container::value_type;
+  I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
+  const I max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
 
 
 // 0. initial partitioning
-  interval_vector<int> partition_indices = pivot_partition_once(x,comm,comp,std::move(partition_is));
+  Return_container partition_indices = pivot_partition_once(x,comm,comp,Return_container{});
   auto sub_ins = search_intervals3(partition_indices,max_interval_tick_shift,comm);
 
 // 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
@@ -72,12 +73,12 @@ pivot_partition_eq(
     std::vector<std::vector<T>> pivots_by_sub_intervals = find_pivots(x_sub,n_far_ticks,comm);
 
     // 1. partition sub-intervals, report results in partition_indices, and compute new sub-intervals
-    std::vector<interval_to_partition> new_sub_ins;
+    std::vector<interval_to_partition<I>> new_sub_ins;
     for (int i=0; i<n_sub_intervals; ++i) {
       // 1.0. partition sub-intervals,
       const std::vector<T>& pivots = pivots_by_sub_intervals[i];
       auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,{},Return_container{});
-      for (size_t ii=0; ii<partition_indices_sub.size(); ++ii) {
+      for (int ii=0; ii<(int)partition_indices_sub.size(); ++ii) {
         partition_indices_sub[ii] += sub_ins[i].inf;
       }
 
@@ -93,10 +94,10 @@ pivot_partition_eq(
 
       // 1.2. create new sub-intervals
       for (int j=0; j<n_sub_sub_intervals; ++j) {
-        int inf     = partition_indices_sub    [far_inter_indices[j]];
-        int sup     = partition_indices_sub    [far_inter_indices[j] + 1];
-        int inf_tot = partition_indices_sub_tot[far_inter_indices[j]];
-        int sup_tot = partition_indices_sub_tot[far_inter_indices[j] + 1];
+        I inf     = partition_indices_sub    [far_inter_indices[j]];
+        I sup     = partition_indices_sub    [far_inter_indices[j] + 1];
+        I inf_tot = partition_indices_sub_tot[far_inter_indices[j]];
+        I sup_tot = partition_indices_sub_tot[far_inter_indices[j] + 1];
         new_sub_ins.push_back( {inf,sup,n_far_ticks[j],sub_ins[i].position+far_first_ticks[j], inf_tot,sup_tot,sz_tot,n_rk} );
       }
 
