@@ -8,6 +8,20 @@ using namespace std_e;
 using std::vector;
 
 
+MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs - small case",2) {
+  int rk = test_rank;
+
+  vector<int> x;
+  if (rk == 0) x = {12,10};
+  if (rk == 1) x = {10};
+
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+  MPI_CHECK( 0 , partition_indices == interval_vector{0,1,2} );
+  MPI_CHECK( 0 ,                 x ==          vector{10,12} );
+  MPI_CHECK( 1 , partition_indices == interval_vector{0,1,1} );
+  MPI_CHECK( 1 ,                 x ==          vector{10} );
+}
+
 MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs",2) {
   int rk = test_rank;
 
@@ -30,20 +44,6 @@ MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs",2) {
   MPI_CHECK( 0 ,                 x ==          vector{0,6,7,9,10,13,14,11} );
   MPI_CHECK( 1 , partition_indices == interval_vector{0,        5,  7} );
   MPI_CHECK( 1 ,                 x ==          vector{2,3,4,1,5,8,12} );
-}
-
-MPI_TEST_CASE("parallel pivot_partition_eq - 2 procs - small case",2) {
-  int rk = test_rank;
-
-  vector<int> x;
-  if (rk == 0) x = {12,10};
-  if (rk == 1) x = {10};
-
-  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
-  MPI_CHECK( 0 , partition_indices == interval_vector{0,1,2} );
-  MPI_CHECK( 0 ,                 x ==          vector{10,12} );
-  MPI_CHECK( 1 , partition_indices == interval_vector{0,1,1} );
-  MPI_CHECK( 1 ,                 x ==          vector{10} );
 }
 
 MPI_TEST_CASE("parallel pivot_partition_eq - 3 procs",3) {
@@ -150,35 +150,97 @@ MPI_TEST_CASE("parallel pivot_partition_eq - cardinal sine function",4) {
   interval<double> in = interval_portion({-5.,10.},n_rk,rk); // distribute [-5.,10.) over the procs
   std::vector<double> y = function_result_vector(sinc,sz,in); // take `sz` sample points of the sinc function over domain `in`
 
-  //double max_imbalance = 0.1;
-  double max_imbalance = 0.;
-  interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
+  SUBCASE("no imbalance") {
+    double max_imbalance = 0.;
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
 
-  CHECK( is_partitioned_at_indices(y,partition_indices) );
+    CHECK( is_partitioned_at_indices(y,partition_indices) );
 
-  auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
-  // Note: perfect balance is obtained because for this input, there is no repeated value that falls on a boundary between ranks
-  MPI_CHECK( 0, partition_indices_tot == vector{0,50,100,150,200} );
+    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+    // Note: perfect balance is obtained because for this input, there is no repeated value that falls on a boundary between ranks
+    CHECK( partition_indices_tot == vector{0,50,100,150,200} );
+  }
+  SUBCASE("40 percent imbalance") {
+    double max_imbalance = 0.4;
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(y,test_comm,max_imbalance);
+
+    CHECK( is_partitioned_at_indices(y,partition_indices) );
+
+    auto partition_indices_tot = all_reduce(partition_indices.as_base(),MPI_SUM,test_comm);
+
+    CHECK( partition_indices_tot == vector{0,59,109,151,200} );
+    // NOTE: The imbalance is actually, in this case, two times better than what asked for: (59-0)/50=18% vs 40%
+    //       This is because everything is shifted in the same direction.
+    //       If we were unlucky, we could have had e.g. vector{0,41,109,151,200}:
+    //         in this case, while the max distance to the perfect position stays the same (==9)
+    //         we have a worse imbalance on rank 1: (151-41)/50=36%
+  }
 }
 
 
 // =======================================================
 // Degenerate cases
-//// TODO
-//MPI_TEST_CASE("parallel pivot_partition_eq - empty range",2) {
-//  vector<int> x;
-//  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
-//  CHECK( partition_indices == interval_vector{0} );
-//}
-//MPI_TEST_CASE("parallel pivot_partition_eq - less values than proc",2) {
-//  int rk = test_rank;
-//  vector<int> x;
-//  if (rk == 0) x = {};
-//  if (rk == 1) x = {10};
-//  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
-//  ELOG( partition_indices );
-//  ELOG( x);
-//}
+MPI_TEST_CASE("parallel pivot_partition_eq - empty range",2) {
+  vector<int> x;
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+  CHECK( partition_indices == interval_vector{0,0,0} );
+}
+
+MPI_TEST_CASE("parallel pivot_partition_eq - less values than procs",2) {
+  SUBCASE("value on proc 0") {
+    int rk = test_rank;
+    vector<int> x;
+    if (rk == 0) x = {10};
+    if (rk == 1) x = {};
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+    MPI_CHECK( 0, partition_indices == interval_vector{0,0,1} ); // the value will stay on proc 0
+    MPI_CHECK( 0,                 x ==          vector{10} );
+    MPI_CHECK( 1, partition_indices == interval_vector{0,0,0} );
+    MPI_CHECK( 1,                 x ==          vector<int>{} );
+  }
+  SUBCASE("value on proc 1") {
+    int rk = test_rank;
+    vector<int> x;
+    if (rk == 0) x = {};
+    if (rk == 1) x = {10};
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+    MPI_CHECK( 0, partition_indices == interval_vector{0,0,0} );
+    MPI_CHECK( 0,                 x ==          vector<int>{} );
+    MPI_CHECK( 1, partition_indices == interval_vector{0,0,1} ); // the value will stay on proc 1
+    MPI_CHECK( 1,                 x ==          vector{10} );
+  }
+}
+MPI_TEST_CASE("parallel pivot_partition_eq - less values than procs, but still need to sort",3) {
+  SUBCASE("all on proc 0") {
+    int rk = test_rank;
+    vector<int> x;
+    if (rk == 0) x = {11,10};
+    if (rk == 1) x = {};
+    if (rk == 2) x = {};
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+    MPI_CHECK( 0, partition_indices == interval_vector{0,0,1,2} ); // 10 goes to proc 1, 11 goes to proc 2
+    MPI_CHECK( 0,                 x ==          vector{10,11} );
+    MPI_CHECK( 1, partition_indices == interval_vector{0,0,0,0} );
+    MPI_CHECK( 1,                 x ==          vector<int>{} );
+    MPI_CHECK( 2, partition_indices == interval_vector{0,0,0,0} );
+    MPI_CHECK( 2,                 x ==          vector<int>{} );
+  }
+
+  SUBCASE("on two procs") {
+    int rk = test_rank;
+    vector<int> x;
+    if (rk == 0) x = {11};
+    if (rk == 1) x = {};
+    if (rk == 2) x = {10};
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(x,test_comm);
+    MPI_CHECK( 0, partition_indices == interval_vector{0,0,0,1} ); // 11 goes to proc 2
+    MPI_CHECK( 0,                 x ==          vector{11} );
+    MPI_CHECK( 1, partition_indices == interval_vector{0,0,0,0} );
+    MPI_CHECK( 1,                 x ==          vector<int>{} );
+    MPI_CHECK( 2, partition_indices == interval_vector{0,0,1,1} ); // 10 goes to proc 1
+    MPI_CHECK( 2,                 x ==          vector{10} );
+  }
+}
 
 MPI_TEST_CASE("parallel pivot_partition_eq - repeated values",3) {
   int rk = test_rank;

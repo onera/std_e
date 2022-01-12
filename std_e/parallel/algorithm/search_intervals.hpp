@@ -15,7 +15,7 @@ template<class Interval_range0, class Interval_range1, class I = typename Interv
 search_intervals(const Interval_range0& ticks, const Interval_range1& inter) {
   STD_E_ASSERT(inter.size()>=2);
   if (ticks.size()>0) {
-    STD_E_ASSERT(inter[0] <= ticks[0] && ticks.back() < inter.back());
+    STD_E_ASSERT(inter[0] <= ticks[0] && ticks.back() <= inter.back()); // (1)
   }
 
   I n_tick = ticks.size();
@@ -25,12 +25,20 @@ search_intervals(const Interval_range0& ticks, const Interval_range1& inter) {
 
   I k = 0;
   for (I i=0; i<n_tick; ++i) {
+    // loop invariant: inter[k] <= ticks[i] (2)
+    // (2) is preserved by ++i because ticks is an Interval_range: ticks[i] <= ticks[i+1]
 
-    while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
-    //while (inter[k] > ticks[i]  ||  ticks[i] >= inter[k+1]) {
-      ++k;
+    if (ticks[i] == inter.back()) { // special handling for the end case because here we are on a [close,close] interval
+      k = inter.size()-2;
+      // now ticks[i] is in [inter[k],inter[k+1]]
+      // (2) is preserved
+    } else {
+      while (ticks[i] >= inter[k+1]) { // this will terminate because of (1)
+        ++k;
+      }
+      // now ticks[i] is in [inter[k],inter[k+1])
+      // (2) is preserved
     }
-    // so now we know ticks[i] is to be found in [inter[k],inter[k+1])
 
     // if k was incremented from the last interval recorded in inter_indices
     if (inter_indices.size()==0 || inter_indices.back()!=k) {
@@ -128,7 +136,6 @@ search_near_or_containing_interval2(const Interval_range0& ticks, const Interval
       // TODO refactor these tests out (function object maybe?)
       if (inter_indices[i]%2==1) {
         near_tick_indices.push_back(j);
-        //LOG("equal_elts");
         I distance_inf = ticks[j] - inter[inter_indices[i]];
         I distance_sup = inter[inter_indices[i]+1] - ticks[j];
         if (distance_inf <= distance_sup) {

@@ -30,7 +30,7 @@ template<class I>
 auto objective_ticks(I sz_tot, I n_interval, I position, I n_tick) -> std::vector<I> {
   std::vector<I> ticks(n_tick);
   for (I i=0; i<n_tick; ++i) {
-    ticks[i] = uniform_distribution_point(sz_tot,n_interval,position+i+1); // +1, because we want to explude tick 0
+    ticks[i] = uniform_distribution_point(sz_tot,n_interval,position+i+1); // +1, because we want to exclude tick 0
   }
   return ticks;
 }
@@ -40,8 +40,6 @@ template<class I> auto
 compute_intervals_containing_ticks(const auto& ticks, const auto& partition_indices_sub, I max_interval_tick_shift, MPI_Comm comm) {
   auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm);
 
-  ELOG(ticks);
-  ELOG(partition_indices_sub_tot);
   auto [far_first_ticks,n_far_ticks,far_inter_indices, near_tick_indices,near_inter_indices] = search_near_or_containing_interval(ticks,partition_indices_sub_tot,max_interval_tick_shift);
 
   int position_offset = 0;

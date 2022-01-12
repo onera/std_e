@@ -35,10 +35,9 @@ pivot_partition_eq(
 )
   -> Return_container
 {
-  const int n_rk = n_rank(comm);
-
   using I = typename Return_container::value_type;
   I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
+  const int n_rk = n_rank(comm);
   const I max_interval_tick_shift = (max_imbalance/2.) * double(sz_tot)/double(n_rk);
 
 
@@ -52,12 +51,11 @@ pivot_partition_eq(
   int n_iter = 0;
   while (sub_ins.size()>0) {
     if (n_iter++>64) {
-      // Note: there should be approximately log(sz_tot) loop iteration
+      // Note: there should be approximately log(sz_tot) loop iterations
       // If this is not the case, it could be due to
       //   - worst-case complexity scenario:
       //        => for specific inputs, the pivot selection is defective (should be as rare as median-of-3 quicksort pathological cases)
       //   - implementation bugs
-      //        => in particular, special cases where the array is too small to get enough samples
       throw par_algo_exception("pivot_partition_minimize_imbalance: max number of iterations reached");
     }
 
