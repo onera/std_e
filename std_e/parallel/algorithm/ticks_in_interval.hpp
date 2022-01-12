@@ -30,21 +30,21 @@ template<class I>
 auto objective_ticks(I sz_tot, I n_interval, I position, I n_tick) -> std::vector<I> {
   std::vector<I> ticks(n_tick);
   for (I i=0; i<n_tick; ++i) {
-    ticks[i] = uniform_distribution_point(sz_tot,n_interval,position+i);
+    ticks[i] = uniform_distribution_point(sz_tot,n_interval,position+i+1); // +1, because we want to explude tick 0
   }
   return ticks;
 }
 
 
 template<class I> auto
-compute_intervals_containing_ticks(const auto& ticks, const auto& partition_indices_sub, I max_interval_tick_shift, auto position_offset, MPI_Comm comm) {
+compute_intervals_containing_ticks(const auto& ticks, const auto& partition_indices_sub, I max_interval_tick_shift, MPI_Comm comm) {
   auto partition_indices_sub_tot = all_reduce(partition_indices_sub.as_base(),MPI_SUM,comm);
 
   ELOG(ticks);
   ELOG(partition_indices_sub_tot);
   auto [far_first_ticks,n_far_ticks,far_inter_indices, near_tick_indices,near_inter_indices] = search_near_or_containing_interval(ticks,partition_indices_sub_tot,max_interval_tick_shift);
 
-
+  int position_offset = 0;
   int n_far_interval = far_inter_indices.size();
   std::vector<interval_containing_ticks<I>> sub_ins(n_far_interval);
   for (int i=0; i<n_far_interval; ++i) {
@@ -78,7 +78,7 @@ compute_interval_containing_ticks2(const auto& ticks, const auto& partition_indi
   int n_near_interval = near_inter_indices.size();
   for (int i=0; i<n_near_interval; ++i) {
     int k = near_inter_indices[i];
-    int position_i = position_offset+near_tick_indices[i];
+    int position_i = 1+position_offset+near_tick_indices[i]; // 1+ because we are not using position 0 where partition_indices[0]==0
     partition_indices[position_i] = partition_indices_sub[k];
   }
 

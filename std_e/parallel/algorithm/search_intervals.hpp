@@ -27,6 +27,7 @@ search_intervals(const Interval_range0& ticks, const Interval_range1& inter) {
   for (I i=0; i<n_tick; ++i) {
 
     while (not (inter[k] <= ticks[i] && ticks[i] < inter[k+1]) ) {
+    //while (inter[k] > ticks[i]  ||  ticks[i] >= inter[k+1]) {
       ++k;
     }
     // so now we know ticks[i] is to be found in [inter[k],inter[k+1])

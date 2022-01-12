@@ -45,9 +45,8 @@ pivot_partition_eq(
 // 0. initial partitioning
   Return_container partition_indices = pivot_partition_once(x,comm,comp,Return_container{});
 
-  auto obj_ticks = objective_ticks(sz_tot,n_rk,1,n_rk-1);
-  auto position_offset = 1; // because we don't want the first tick
-  auto sub_ins = compute_intervals_containing_ticks(obj_ticks,partition_indices,max_interval_tick_shift,position_offset,comm);
+  auto obj_ticks = objective_ticks(sz_tot,n_rk,0,n_rk-1);
+  auto sub_ins = compute_intervals_containing_ticks(obj_ticks,partition_indices,max_interval_tick_shift,comm);
 
 // 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
   int n_iter = 0;
