@@ -11,48 +11,6 @@
 namespace std_e {
 
 
-// TODO DEL (replace by search_near_or_containing_interval)
-template<class Interval_range0, class Interval_range1, class I> auto
-search_intervals6(const Interval_range0& ticks, const Interval_range1& inter, I max_distance) {
-  I n_tick = ticks.size();
-
-  std::vector<I> first_ticks;
-  std::vector<I> n_indices;
-  std::vector<I> inter_indices;
-  std::vector<I> index_ticks_found;
-
-  I k = 0;
-  for (I i=0; i<n_tick; ++i) {
-    //ELOG(inter[0]);
-    //ELOG(ticks[i]);
-    //ELOG(inter.back());
-    STD_E_ASSERT(inter[0] <= ticks[i] && ticks[i] < inter.back());
-    if (std::abs(inter[i+1] - ticks[i]) <= max_distance) continue;
-
-    while (not (inter[k] < ticks[i] && ticks[i] < inter[k+1]) ) {
-      ++k;
-    }
-    // now, ticks[i] is in [inter[k],inter[k+1])
-
-    // if inter[k] is close enought, put it in the ticks found
-    if (std::abs(inter[k] - ticks[i]) < max_distance) {
-      index_ticks_found.push_back(k);
-    }
-
-    // else, register the fact that ticks[i] is to be found in [inter[k],inter[k+1])
-    if (inter_indices.size()>0 && inter_indices.back()==k) {
-      ++n_indices.back();
-    } else {
-      first_ticks.push_back(i+1);
-      n_indices.push_back(1);
-      inter_indices.push_back(k);
-    }
-  }
-
-  return std::make_tuple(first_ticks, n_indices, inter_indices);
-}
-
-
 template<class Interval_range0, class Interval_range1, class I = typename Interval_range0::value_type> auto
 search_intervals(const Interval_range0& ticks, const Interval_range1& inter) {
   STD_E_ASSERT(inter.size()>=2);
@@ -140,7 +98,7 @@ search_near_or_containing_interval(const Interval_range0& ticks, const Interval_
   return {far_first_ticks,n_far_ticks,far_inter_indices,  near_tick_indices,near_inter_indices};
 }
 
-// TODO clean
+// TODO clean, factor with search_near_or_containing_interval
 // TODO: far_inter_indices indices that are odd (meaning the associated interval is a pivot equal range)
 //         here, we want equal elements to end on the same partition, it means we force
 //           the partition index (inf or sup) to be registered

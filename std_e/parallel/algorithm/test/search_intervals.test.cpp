@@ -9,37 +9,6 @@ using std::vector;
 
 
 TEST_CASE("search_intervals") {
-  vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };
-  vector<int> indices = {0,    130, 199,          480, 530,550,580,  640,  701,         950,  1020,   1101 ,1200};
-
-  SUBCASE("no tolerance") {
-    auto [first_index, n_indices, interval_start] = search_intervals6(ticks,indices,0);
-
-    vector<int> expected_first_index    = {/*0 is bound*/1,2,5,6,7,8,10,11/*12 is bound*/};
-    vector<int> expected_n_indices      = {              1,3,1,1,1,2, 1, 1               };
-    vector<int> expected_interval_start = {              0,2,3,6,7,8, 9,10               };
-
-    CHECK( first_index    == expected_first_index );
-    CHECK( n_indices      == expected_n_indices );
-    CHECK( interval_start == expected_interval_start );
-  }
-  SUBCASE("tolerance") {
-    // 199 and 1101 are wrong by 1, so they fall within a tolerance of 1
-    // notice that 701 is at index 8, so it is not wrong by 701-700=1, but by 800-701=99, so not within the tolerance
-    auto [first_index, n_indices, interval_start] = search_intervals6(ticks,indices,1);
-
-    vector<int> expected_first_index    = {/*0 is bound*/1,/*2 is OK*/3,5,6,7,8,10/*11 is OK,12 is bound*/};
-    vector<int> expected_n_indices      = {              1,           2,1,1,1,2, 1                        };
-    vector<int> expected_interval_start = {              0,           2,3,6,7,8, 9                        };
-
-    CHECK( first_index    == expected_first_index );
-    CHECK( n_indices      == expected_n_indices );
-    CHECK( interval_start == expected_interval_start );
-  }
-}
-
-
-TEST_CASE("search_intervals") {
   //                         0        1     2    3    4           5       6      7    8      9      10
   vector<int> ticks  =  {   100  ,   200 , 300, 400, 500  ,      600  ,  700  , 800, 900 , 1000  , 1100         };
   vector<int> x      = {0,    130,  199,          480, 530,550,580,  640, 701,         950,  1020,   1101 ,1200};

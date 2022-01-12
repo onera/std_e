@@ -87,6 +87,7 @@ find_pivots_by_sampling(const RA_rng& x, I n_pivot, MPI_Comm comm, sampling_algo
     T last_sample = sample.back();
     sample.resize(n_pivot);
     std::fill(begin(sample)+n_sample,end(sample),last_sample);
+    ELOG(sample);
     return sample;
   }
 }
