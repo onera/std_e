@@ -92,9 +92,9 @@ TEST_CASE("pivot_partition_indices - custom comparator - range version") {
 
   const vector<int> pivots = {0,10,100,120,1000};
 
-  constexpr auto comp = [](const id_string& x, int y){ return x.id < y; };
+  constexpr auto proj = [](const id_string& x){ return x.id; };
 
-  std_e::interval_vector<int> partition_is = std_e::pivot_partition_indices(v,pivots,comp);
+  std_e::interval_vector<int> partition_is = std_e::pivot_partition_indices(v,pivots,{},proj);
 
   //                                    0                                10       100         120                           1000
   CHECK( v == vector<id_string>{{-3,"E"}, {8,"I"},{2,"C"},{6,"D"},{0,"K"}, {50,"J"}, {110,"A"}, {999,"H"},{800,"F"},{200,"B"}, {10001,"G"}} );
@@ -115,7 +115,7 @@ TEST_CASE("pivot_partition_indices - custom return - range version") {
 
   const vector<int> pivots = {0,10,100,120,1000};
 
-  std::vector<long> partition_is = std_e::pivot_partition_indices(v,pivots,std::less<>{},std::vector<long>{});
+  std::vector<long> partition_is = std_e::pivot_partition_indices(v,pivots,{},{},std::vector<long>{});
 
   //                    0        10   100    120            1000
   CHECK( v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );

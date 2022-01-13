@@ -9,20 +9,23 @@ namespace std_e {
 
 
 template<
-  class T,
+  class Rng,
   class Comp = std::less<>,
   class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_once(std::vector<T>& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, Return_container&& = {}) -> Return_container {
+pivot_partition_once(Rng& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, Return_container&& = {}) -> Return_container {
+  using T = typename Rng::value_type;
+  using T_piv = std::decay_t<decltype(proj(T{}))>;
+
   auto size_tot = all_reduce(x.size(),MPI_SUM,comm);
   if (size_tot==0) {
     return Return_container(n_rank(comm),0); // TODO interval_vector size ctor
   }
 
-  std::vector<T> pivots = median_of_3_sample(x,comm);
+  std::vector<T_piv> pivots = median_of_3_sample(x,comm,proj);
 
-  return pivot_partition_indices(x,pivots,comp,Return_container{});
+  return pivot_partition_indices(x,pivots,comp,proj,Return_container{});
 }
 
 

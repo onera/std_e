@@ -43,14 +43,15 @@ pivot_partition_point(const RA_rng& x, const RA_pivot_rng& pivots, Comp comp = {
 template<
   class RA_rng, class RA_pivot_rng,
   class Comp = std::less<>,
+  class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > constexpr auto
-pivot_partition_indices(RA_rng& x, const RA_pivot_rng& pivots, Comp comp = {}, Return_container&& partition_is = {}) -> Return_container {
+pivot_partition_indices(RA_rng& x, const RA_pivot_rng& pivots, Comp comp = {}, Proj proj = {}, Return_container&& partition_is = {}) -> Return_container {
   int n = x.size();
   int k = pivots.size();
   partition_is.resize(1+k+1); // also add begin and end for convenience
   partition_is[0] = 0;
-  pivot_partition_indices(begin(x),end(x), begin(pivots),end(pivots), begin(partition_is)+1, comp);
+  pivot_partition_indices(begin(x),end(x), begin(pivots),end(pivots), begin(partition_is)+1, comp,proj);
   partition_is.back() = n;
   return partition_is;
 }

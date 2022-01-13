@@ -26,15 +26,19 @@ namespace std_e {
 //        Deduced output: `partition_indices_tot`=[0, ... sz_tot), the global partition indices.
 //   1. We want to iteratively partition x such that `partition_indices_tot` converges to [0 ... i*sz_tot/n_rank ... sz_tot)
 template<
-  class T,
+  class Rng,
   class Comp = std::less<>,
+  class Proj = identity_closure,
   class Return_container = interval_vector<int>
 > auto
+//partition_indices(
 pivot_partition_eq(
-  std::vector<T>& x, MPI_Comm comm, double max_imbalance = 0., Comp comp = {}, Return_container&& = {}
+  Rng& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, double max_imbalance = 0., Return_container&& = {}
 )
   -> Return_container
 {
+  using T = typename Rng::value_type;
+  using T_piv = std::decay_t<decltype(proj(T{}))>;
   using I = typename Return_container::value_type;
   I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int n_rk = n_rank(comm);
@@ -42,7 +46,7 @@ pivot_partition_eq(
 
 
 // 0. initial partitioning
-  Return_container partition_indices = pivot_partition_once(x,comm,comp,Return_container{});
+  Return_container partition_indices = pivot_partition_once(x,comm,comp,proj,Return_container{});
 
   auto obj_ticks = objective_ticks(sz_tot,n_rk,0,n_rk-1);
   auto sub_ins = compute_intervals_containing_ticks(obj_ticks,partition_indices,max_interval_tick_shift,comm);
@@ -74,14 +78,14 @@ pivot_partition_eq(
     for (int i=0; i<n_sub_intervals; ++i) {
       n_far_ticks[i] = sub_ins[i].n_tick;
     }
-    std::vector<std::vector<T>> pivots_by_sub_intervals = find_pivots(x_sub,n_far_ticks,comm);
+    std::vector<std::vector<T_piv>> pivots_by_sub_intervals = find_pivots(x_sub,n_far_ticks,comm,proj);
 
     // 2. partition sub-ranges, report results in partition_indices, and compute new sub-intervals
     std::vector<interval_containing_ticks<I>> new_sub_ins;
     for (int i=0; i<n_sub_intervals; ++i) {
       // 2.0. partition sub-ranges
-      const std::vector<T>& pivots = pivots_by_sub_intervals[i];
-      auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,{},Return_container{});
+      const std::vector<T_piv>& pivots = pivots_by_sub_intervals[i];
+      auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,proj,Return_container{});
       std_e::offset(partition_indices_sub,sub_ins[i].inf); // absolute indices
 
       // 2.1. compute new sub-intervals

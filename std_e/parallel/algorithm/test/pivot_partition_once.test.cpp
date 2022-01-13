@@ -78,3 +78,36 @@ MPI_TEST_CASE("parallel pivot_partition_once - cardinal sine function",4) {
   MPI_CHECK( 2, partition_indices == interval_vector{0,36,41,49,50} );
   MPI_CHECK( 3, partition_indices == interval_vector{0, 0, 9,50,50} );
 }
+
+
+MPI_TEST_CASE("parallel pivot_partition_once - indirect projector",2) {
+  int rk = test_rank;
+
+  vector<double> x;
+  vector<int> is;
+  if (rk == 0) x  = {12.5, 10.1, 1.0, 0.6};
+  if (rk == 0) is = {   0,    1,   2,   3};
+  if (rk == 1) x  = { 3.7, 12.1, 5.2};
+  if (rk == 1) is = {   4,    5,   6};
+
+  int offset;
+  if (rk == 0) offset = 0;
+  if (rk == 1) offset = 4;
+  auto proj = [&x,offset](int i){ return x[i-offset]; };
+  interval_vector<int> partition_indices = std_e::pivot_partition_once(is,test_comm,{},proj);
+
+  MPI_CHECK( 0, partition_indices == interval_vector{0,2,4} );
+  MPI_CHECK( 1, partition_indices == interval_vector{0,1,3} );
+
+  // apply permutation
+  vector<double> x_perm(x.size());
+  for (size_t i=0; i<x.size(); ++i) {
+    x_perm[i] = x[is[i]-offset];
+  }
+  // test the partitioning was done through the indirection
+  CHECK( is_partitioned_at_indices(x_perm,partition_indices) );
+
+  // regression testing values
+  MPI_CHECK( 0, x_perm == vector{0.6,1.0,  10.1,12.5} );
+  MPI_CHECK( 1, x_perm == vector{3.7,  12.1,5.2} );
+}
