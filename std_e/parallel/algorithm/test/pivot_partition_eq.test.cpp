@@ -293,7 +293,7 @@ MPI_TEST_CASE("parallel pivot_partition_eq - with and without indirect projector
     if (rk == 0) offset = 0;
     if (rk == 1) offset = 4;
     auto proj = [&x,offset](int i){ return x[i-offset]; }; // We need the offset because of the global numbering
-    interval_vector<int> partition_indices = std_e::pivot_partition_eq(is,test_comm,{},proj);
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(is,test_comm,proj);
 
     // same as previous SUBCASE
     MPI_CHECK( 0, partition_indices == interval_vector{0,2,4} );
@@ -349,7 +349,7 @@ MPI_TEST_CASE("parallel pivot_partition_eq - with and without indirect projector
 
     auto proj = [&x,offset](int i){ return x[i-offset]; };
 
-    interval_vector<int> partition_indices = std_e::pivot_partition_eq(is,test_comm,{},proj);
+    interval_vector<int> partition_indices = std_e::pivot_partition_eq(is,test_comm,proj);
 
     // Same as previous SUBCASE
     CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,5,10,15} ); // TODO as_base is ugly!

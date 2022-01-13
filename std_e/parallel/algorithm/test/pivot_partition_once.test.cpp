@@ -94,7 +94,7 @@ MPI_TEST_CASE("parallel pivot_partition_once - indirect projector",2) {
   if (rk == 0) offset = 0;
   if (rk == 1) offset = 4;
   auto proj = [&x,offset](int i){ return x[i-offset]; };
-  interval_vector<int> partition_indices = std_e::pivot_partition_once(is,test_comm,{},proj);
+  interval_vector<int> partition_indices = std_e::pivot_partition_once(is,test_comm,proj);
 
   MPI_CHECK( 0, partition_indices == interval_vector{0,2,4} );
   MPI_CHECK( 1, partition_indices == interval_vector{0,1,3} );

@@ -91,7 +91,7 @@ TEST_CASE("pivot_partition_eq_indices - custom projector - range version") {
 
   constexpr auto proj = [](const id_string& x){ return x.id; };
 
-  auto partition_indices = std_e::pivot_partition_eq_indices(v,pivots,{},proj);
+  auto partition_indices = std_e::pivot_partition_eq_indices(v,pivots,proj);
 
   CHECK( v == vector<id_string>{{-3,"E"}, {0,"K"},{6,"D"},{2,"C"},{8,"I"}, {50,"J"}, {110,"A"},
                                 {800,"F"},{200,"B"},{999,"H"}, {1000,"X"},{1000,"X"}, {10001,"G"}} );

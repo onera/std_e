@@ -94,7 +94,7 @@ TEST_CASE("pivot_partition_indices - custom comparator - range version") {
 
   constexpr auto proj = [](const id_string& x){ return x.id; };
 
-  std_e::interval_vector<int> partition_is = std_e::pivot_partition_indices(v,pivots,{},proj);
+  std_e::interval_vector<int> partition_is = std_e::pivot_partition_indices(v,pivots,proj);
 
   //                                    0                                10       100         120                           1000
   CHECK( v == vector<id_string>{{-3,"E"}, {8,"I"},{2,"C"},{6,"D"},{0,"K"}, {50,"J"}, {110,"A"}, {999,"H"},{800,"F"},{200,"B"}, {10001,"G"}} );

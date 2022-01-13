@@ -27,13 +27,13 @@ namespace std_e {
 //   1. We want to iteratively partition x such that `partition_indices_tot` converges to [0 ... i*sz_tot/n_rank ... sz_tot)
 template<
   class Rng,
-  class Comp = std::less<>,
   class Proj = identity_closure,
+  class Comp = std::less<>,
   class Return_container = interval_vector<int>
 > auto
 //partition_indices(
 pivot_partition_eq(
-  Rng& x, MPI_Comm comm, Comp comp = {}, Proj proj = {}, double max_imbalance = 0., Return_container&& = {}
+  Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}
 )
   -> Return_container
 {
@@ -46,7 +46,7 @@ pivot_partition_eq(
 
 
 // 0. initial partitioning
-  Return_container partition_indices = pivot_partition_once(x,comm,comp,proj,Return_container{});
+  Return_container partition_indices = pivot_partition_once(x,comm,proj,comp,Return_container{});
 
   auto obj_ticks = objective_ticks(sz_tot,n_rk,0,n_rk-1);
   auto sub_ins = compute_intervals_containing_ticks(obj_ticks,partition_indices,max_interval_tick_shift,comm);
@@ -85,7 +85,7 @@ pivot_partition_eq(
     for (int i=0; i<n_sub_intervals; ++i) {
       // 2.0. partition sub-ranges
       const std::vector<T_piv>& pivots = pivots_by_sub_intervals[i];
-      auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,comp,proj,Return_container{});
+      auto partition_indices_sub = pivot_partition_eq_indices(x_sub[i],pivots,proj,comp,Return_container{});
       std_e::offset(partition_indices_sub,sub_ins[i].inf); // absolute indices
 
       // 2.1. compute new sub-intervals
