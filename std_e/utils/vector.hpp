@@ -72,8 +72,8 @@ hash_vector(const std::vector<T,A>& v) -> std::vector<size_t> {
   return res;
 }
 
-template<class T, class A, class Comp_pred = std::less<>> constexpr auto
-sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
+template<class Rng, class Comp_pred = std::less<>> constexpr auto
+sort(Rng& v, Comp_pred cmp = {}) -> void {
   std::sort(begin(v),end(v),cmp);
 }
 template<class T, class A, class Comp_pred = std::less<>> constexpr auto

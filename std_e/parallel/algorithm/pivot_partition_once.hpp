@@ -16,7 +16,7 @@ template<
 > auto
 pivot_partition_once(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, Return_container&& = {}) -> Return_container {
   using T = typename Rng::value_type;
-  using T_piv = std::decay_t<decltype(proj(T{}))>;
+  using T_piv = proj_return_type<Proj,T>;
 
   auto size_tot = all_reduce(x.size(),MPI_SUM,comm);
   if (size_tot==0) {

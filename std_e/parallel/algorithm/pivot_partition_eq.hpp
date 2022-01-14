@@ -31,14 +31,13 @@ template<
   class Comp = std::less<>,
   class Return_container = interval_vector<int>
 > auto
-//partition_indices(
 pivot_partition_eq(
   Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}
 )
   -> Return_container
 {
   using T = typename Rng::value_type;
-  using T_piv = std::decay_t<decltype(proj(T{}))>;
+  using T_piv = proj_return_type<Proj,T>;
   using I = typename Return_container::value_type;
   I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int n_rk = n_rank(comm);
