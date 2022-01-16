@@ -3,7 +3,6 @@
 #include <memory>
 #include "std_e/future/span.hpp"
 #include "std_e/buffer/base.hpp"
-#include "std_e/log.hpp"
 
 
 namespace std_e {
@@ -93,13 +92,22 @@ class polymorphic_array {
     }
 
     auto data()       ->       T* {
+      if (is_null()) {
+        return nullptr;
+      }
       return impl->data();
     }
     auto data() const -> const T* {
+      if (is_null()) {
+        return nullptr;
+      }
       return impl->data();
     }
 
     auto size() const -> size_t {
+      if (is_null()) {
+        return 0;
+      }
       return impl->size();
     }
 
@@ -119,6 +127,7 @@ class polymorphic_array {
 
     using polymorphic_base = typename detail::internal_array_base<T>;
     auto release() -> polymorphic_base* {
+      STD_E_ASSERT(!is_null());
       return impl.release();
     }
 
