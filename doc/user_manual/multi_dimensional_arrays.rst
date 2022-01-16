@@ -3,6 +3,8 @@
 Multi-dimensional arrays
 ========================
 
+For a more succinct description, see :ref:`multi_array_highlights`.
+
 .. _multi_array_intro:
 
 Introduction

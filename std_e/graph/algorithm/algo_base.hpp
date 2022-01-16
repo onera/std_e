@@ -114,8 +114,12 @@ class graph_traversal_stack {
       return current_node()==last_node();
     }
     constexpr auto
+    is_at_root_level() const -> bool {
+      return S.is_at_root_level();
+    }
+    constexpr auto
     is_done() const -> bool {
-      return S.is_at_root_level() && level_is_done();
+      return is_at_root_level() && level_is_done();
     }
   private:
     graph_stack<iterator_range<iterator>> S;
@@ -247,7 +251,7 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
       auto&& v = *S.current_node();
       f.post(v);
       auto&& w = *++S.current_node();
-      if (!S.is_done()) {
+      if (!S.is_at_root_level()) {
         auto&& parent = *S.parent_node();
         f.up(v,parent);
         if (!S.level_is_done()) f.down(parent,w);

@@ -51,6 +51,31 @@ class rooted_view {
       return {this,-1,1};
     }
 
+    constexpr auto
+    out_adjacencies() -> adjacency_range<graph_type,adj_orientation::out> {
+      return {g,root_idx};
+    }
+    constexpr auto
+    out_adjacencies() const -> const adjacency_range<graph_type,adj_orientation::out> {
+      return {g,root_idx};
+    }
+    constexpr auto
+    first_child() {
+      return out_adjacencies().begin();
+    }
+    constexpr auto
+    first_child() const {
+      return out_adjacencies().begin();
+    }
+    constexpr auto
+    last_child() {
+      return out_adjacencies().end();
+    }
+    constexpr auto
+    last_child() const {
+      return out_adjacencies().end();
+    }
+
     auto
     out_index(index_type i_node, index_type i_edge) const -> index_type {
       if (i_node==-1) {
@@ -103,6 +128,31 @@ last_root(rooted_view<GT>& x) {
 template<class GT> constexpr auto
 last_root(const rooted_view<GT>& x) {
   return x.last_root();
+}
+
+template<class GT> constexpr auto
+first_child(rooted_view<GT>& x) {
+  return x.first_child();
+}
+//template<class GT> constexpr auto
+//first_child(rooted_view<GT>&& x) {
+//  return std::move(x).first_child();
+//}
+template<class GT> constexpr auto
+first_child(const rooted_view<GT>& x) {
+  return x.first_child();
+}
+template<class GT> constexpr auto
+last_child(rooted_view<GT>& x) {
+  return x.last_child();
+}
+//template<class GT> constexpr auto
+//last_child(rooted_view<GT>&& x) {
+//  return std::move(x).last_child();
+//}
+template<class GT> constexpr auto
+last_child(const rooted_view<GT>& x) {
+  return x.last_child();
 }
 // rooted graph view }
 

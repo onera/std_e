@@ -44,7 +44,7 @@ TEST_CASE("multi_array is_empty") {
 TEST_CASE("reshape") {
   SUBCASE("dyn_multi_array_view") {
     std::vector<int> v = {1,2,3,4,5,6};
-    std_e::span<int> external_memory(v.data());
+    std_e::span<int> external_memory(v.data(),v.size());
 
     dyn_multi_array_view<int,2> mav = {external_memory,dyn_shape<int32_t,2>({3,2})};
 
@@ -78,9 +78,8 @@ TEST_CASE("multi_array to_string") {
   fixed_multi_array<int,1,3> f3 = {{1,2,3}};
   CHECK( to_string(f3) == "[[1,2,3]]" );
 
-  // DOES NOT WORK: ambiguous
-  //fixed_multi_array<int,3,1> f4 = {{1},{2},{3}};
-  //CHECK( to_string(f4) == "[[1],[2],[3]]" );
+  fixed_multi_array<int,3,1> f4 = {{1},{2},{3}};
+  CHECK( to_string(f4) == "[[1],[2],[3]]" );
 
   fixed_multi_array<int,1> f5 = {42};
   CHECK( to_string(f5) == "[42]" );

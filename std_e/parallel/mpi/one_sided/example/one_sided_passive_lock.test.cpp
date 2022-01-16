@@ -2,7 +2,7 @@
 
 #include "std_e/parallel/mpi/base.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
-#include "std_e/log.hpp"
+#include "std_e/future/contract.hpp"
 #include <thread>
 
 using namespace std_e;
@@ -32,7 +32,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
                                       comm,
                                       &test_status,
                                       &win);
-    assert(err_create == MPI_SUCCESS);
+    STD_E_ASSERT(err_create == MPI_SUCCESS);
   } else if(alloc_method == 1) {
     test_status = (int*) malloc( dn_value * sizeof(int));
     int err_create = MPI_Win_create(test_status,              /* base ptr */
@@ -41,24 +41,24 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
                                     MPI_INFO_NULL,
                                     comm,
                                     &win);
-    assert(err_create == MPI_SUCCESS);
+    STD_E_ASSERT(err_create == MPI_SUCCESS);
   } else if(alloc_method == 2) {
     int err_alloc = MPI_Alloc_mem(dn_value*sizeof(int), MPI_INFO_NULL, &test_status);
-    assert(err_alloc == 0);
+    STD_E_ASSERT(err_alloc == 0);
     int err_create = MPI_Win_create(test_status,              /* base ptr */
                                     dn_value*sizeof(int),              /* size     */
                                     sizeof(int),                      /* disp_unit*/
                                     MPI_INFO_NULL,
                                     comm,
                                     &win);
-    assert(err_create == MPI_SUCCESS);
+    STD_E_ASSERT(err_create == MPI_SUCCESS);
   } else if(alloc_method == 3) {
     int err_alloc = MPI_Alloc_mem(20*dn_value*sizeof(int), MPI_INFO_NULL, &test_status);
-    assert(err_alloc == 0);
+    STD_E_ASSERT(err_alloc == 0);
     int err_create = MPI_Win_create_dynamic(MPI_INFO_NULL, comm, &win);
-    assert(err_create == MPI_SUCCESS);
+    STD_E_ASSERT(err_create == MPI_SUCCESS);
     int err_attach = MPI_Win_attach(win, test_status, dn_value*sizeof(int));
-    assert(err_attach == MPI_SUCCESS);
+    STD_E_ASSERT(err_attach == MPI_SUCCESS);
   } else {
     abort();
   }
@@ -71,7 +71,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   }
 
   int err = MPI_Win_lock(MPI_LOCK_EXCLUSIVE, i_rank, MPI_MODE_NOCHECK, win);
-  assert(err == 0);
+  STD_E_ASSERT(err == 0);
   //printf(" test_status : %p \n", test_status);
   int sgn = 1;
   for(int i = 0; i < dn_value; ++i){
@@ -79,7 +79,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
     sgn *= -1;
   }
   err = MPI_Win_unlock(i_rank, win);
-  assert(err == 0);
+  STD_E_ASSERT(err == 0);
   MPI_Barrier(comm); // This one is mandatoray
 
   std::vector<int> check_val(dn_value * n_rank, -10000);
@@ -89,7 +89,7 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
    *  All rank put
    */
   err = MPI_Win_lock_all(MPI_MODE_NOCHECK, win);
-  assert(err == 0);
+  STD_E_ASSERT(err == 0);
 
   for(int i = 0; i < n_rank; ++i) {
     int err_get = MPI_Get(check_val.data()+dn_value*i,     /* origin_addr     */
@@ -100,13 +100,13 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
                           dn_value,                   /* target_count    */
                           MPI_INT,                    /* target_datatype */
                           win);                       /* win             */
-    assert(err_get == 0);
+    STD_E_ASSERT(err_get == 0);
   }
 
   // MPI_Win_flush_all(win);
   err = MPI_Win_unlock_all(win);
   //MPI_Barrier(comm);
-  assert(err == 0);
+  STD_E_ASSERT(err == 0);
 
   //ELOG(check_val);
 
@@ -129,11 +129,11 @@ MPI_TEST_CASE("MPI_Win passive win_lock - multiple compute nodes",48) {
   }
   if(alloc_method == 3) {
     int err_detach = MPI_Win_detach(win, test_status);
-    assert(err_detach == 0);
+    STD_E_ASSERT(err_detach == 0);
   }
 
 
   int err_free = MPI_Win_free(&win);
-  assert(err_free == MPI_SUCCESS);
+  STD_E_ASSERT(err_free == MPI_SUCCESS);
 }
 TEST_SUITE_END();

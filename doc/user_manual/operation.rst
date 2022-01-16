@@ -21,7 +21,7 @@ The binding is the following: the enumeration value named :cpp:`my_op` in :cpp:`
 
 Calling operations
 ------------------
-The :cpp:`operation_functor` types allow uniform that operation calls:
+The :cpp:`operation_functor` types allow uniform operation calls:
 
 .. literalinclude:: /../std_e/operation/test/operation_functor.test.cpp
   :language: C++

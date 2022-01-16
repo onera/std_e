@@ -34,4 +34,18 @@ using dyn_multi_array_view = multi_array< std_e::span<T,dynamic_size> , dyn_shap
 // dyn_multi_array }
 
 
+// traits {
+template<class T>
+struct is_multi_array_impl {
+  static constexpr bool value = false;
+};
+template<class M0, class M1>
+struct is_multi_array_impl<std_e::multi_array<M0,M1>> {
+  static constexpr bool value = true;
+};
+template<class T> constexpr bool is_multi_array = is_multi_array_impl<T>::value;
+template<class T> constexpr bool is_1d_array = is_array<T> && !is_multi_array<T>;
+// traits }
+
+
 } // std_e

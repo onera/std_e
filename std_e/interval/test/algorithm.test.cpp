@@ -1,6 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/interval/algorithm.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 
 using namespace std;
 using namespace std_e;
@@ -50,4 +51,39 @@ TEST_CASE("rotated_position") {
     CHECK( rotated_position(21, first,n_first,last) == 21 );
     CHECK( rotated_position(50, first,n_first,last) == 50 );
   }
+}
+
+
+TEST_CASE("minmax_over_sub_ranges and minmax_over_interval_sequence") {
+  std::vector v = {5,3,0,  10,9,6,  11,12};
+
+  SUBCASE("with non-empty intervals") {
+    SUBCASE("indices") {
+      auto [mins,maxs] = minmax_over_interval_sequence(v,vector{0,3,6,8});
+      CHECK( mins == vector{0,6,11} );
+      CHECK( maxs == vector{5,10,12} );
+    }
+    SUBCASE("iterators") {
+      auto [mins,maxs] = minmax_over_sub_ranges(v,vector{begin(v),begin(v)+3,begin(v)+6,end(v)});
+      CHECK( mins == vector{0,6,11} );
+      CHECK( maxs == vector{5,10,12} );
+    }
+  }
+  SUBCASE("with empty intervals") {
+    auto [mins,maxs] = minmax_over_interval_sequence(v,vector{0,3,3,6,6,8});
+    CHECK( mins == vector{0,6,11} );
+    CHECK( maxs == vector{5,10,12} );
+  }
+}
+
+TEST_CASE("is_partitioned_at and is_partitioned_at_indices") {
+  std::vector v = {5,3,0,  10,9,6,  11,12};
+
+  // we have {5,3,0} < {10,9,6} < {11,12}
+  CHECK( is_partitioned_at_indices(v,vector{3,6}) );
+  //CHECK( is_partitioned_at(v,vector{begin(v)+3,begin(v)+6}) );
+
+  //// we don't have {5,3,0,10,9} < {6,11,12}
+  //CHECK( !is_partitioned_at_indices(v,vector{5}) );
+  //CHECK( !is_partitioned_at(v,vector{begin(v)+5}) );
 }

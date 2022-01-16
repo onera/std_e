@@ -101,9 +101,8 @@ class interval_sequence : private Random_access_range {
     };
 
   // utility
-    auto as_base() const -> const base& {
-      return *this;
-    }
+    auto as_base()       ->       base& { return *this; }
+    auto as_base() const -> const base& { return *this; }
   protected:
     struct protected_type_tag {};
     template<class T0>
@@ -165,14 +164,19 @@ class interval_vector : public interval_sequence<std::vector<Number>> {
       : base(std::move(v),tag{})
     {}
     interval_vector(int n)
-      : interval_vector(vec_base(n+1))
+      : interval_vector(vec_base(n+1)) // TODO change n+1 -> n (here, this is confusing after all)
     {}
     interval_vector(int n, value_type x)
-      : interval_vector(vec_base(n+1,x))
+      : interval_vector(vec_base(n+1,x)) // TODO change n+1 -> n (here, this is confusing after all)
     {}
     interval_vector(std::initializer_list<value_type> l)
       : interval_vector(vec_base(l))
     {}
+
+    auto
+    resize(size_t n) -> void {
+      this->as_base().resize(n);
+    }
 };
 
 // deduction guideline
@@ -204,7 +208,7 @@ to_interval_vector(std::vector<Number> v) {
 // algorithms {
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
-  std::vector<T> res(is.n_interval());
+  std::vector<T> res(is.size()-1);
   std_e::exclusive_adjacent_difference(is.begin(),is.end(),begin(res));
   return res;
 }

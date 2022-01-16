@@ -14,7 +14,7 @@ _send(const T* buf, I size, int target_rank, int tag, MPI_Comm comm) -> void {
 
 template<class T, class I> auto
 _recv(T* buf, I size, int source_rank, int tag, MPI_Comm comm) -> void {
-  int err = MPI_Recv(buf, 20, to_mpi_type<T>, source_rank, tag, comm, MPI_STATUS_IGNORE);
+  int err = MPI_Recv(buf, size, to_mpi_type<T>, source_rank, tag, comm, MPI_STATUS_IGNORE);
   STD_E_ASSERT(!err);
 }
 

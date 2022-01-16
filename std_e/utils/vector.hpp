@@ -37,8 +37,8 @@ partition_copy(const std::vector<T,A>& v, Unary_predicate p) -> std::pair<std::v
   std::vector<T,A> v_false;
   std::partition_copy(
     begin(v),end(v),
-    std::back_inserter(v_true),
-    std::back_inserter(v_false),
+    back_inserter(v_true),
+    back_inserter(v_false),
     p
   );
   return make_pair(std::move(v_true),std::move(v_false));
@@ -72,8 +72,8 @@ hash_vector(const std::vector<T,A>& v) -> std::vector<size_t> {
   return res;
 }
 
-template<class T, class A, class Comp_pred = std::less<>> constexpr auto
-sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
+template<class Rng, class Comp_pred = std::less<>> constexpr auto
+sort(Rng& v, Comp_pred cmp = {}) -> void {
   std::sort(begin(v),end(v),cmp);
 }
 template<class T, class A, class Comp_pred = std::less<>> constexpr auto
@@ -107,7 +107,7 @@ unique_compress(std::vector<T,A>& v, F compress_while_eq) -> void {
 template<class T, class A, class F> constexpr auto
 unique_compress_copy(std::vector<T,A>& v, F compress_while_eq) -> std::vector<T> {
   std::vector<T> res;
-  unique_compress_copy(begin(v),end(v),std::back_inserter(res),compress_while_eq);
+  unique_compress_copy(begin(v),end(v),back_inserter(res),compress_while_eq);
   return res;
 }
 template<class I, class T, class A, class F> constexpr auto
@@ -117,8 +117,8 @@ unique_compress_copy_with_index_position(std::vector<T,A>& v, F compress_while_e
   I position_init = 0;
   unique_compress_copy_with_index_position(
     begin(v),end(v),
-    std::back_inserter(compress_res),
-    position_init,std::back_inserter(position_res),
+    back_inserter(compress_res),
+    position_init,back_inserter(position_res),
     compress_while_eq
   );
   return std::make_pair(compress_res,position_res);
