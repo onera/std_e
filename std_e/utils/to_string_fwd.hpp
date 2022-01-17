@@ -40,7 +40,7 @@ range_to_string(const R& x, F f) -> std::string;
 template<class R, class F = default_to_string_closure> auto
 range_to_lite_string(const R& x, const std::string& inter=",", F to_string_fn = default_to_string_fn) -> std::string;
 
-template<typename... Ts> auto
+template<typename... Ts, std::enable_if<(sizeof...(Ts)>1),int> =0> auto
 to_string(const Ts&... xs) -> std::string;
 
 } // std_e
