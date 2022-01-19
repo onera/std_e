@@ -4,6 +4,7 @@
 #include "std_e/parallel/algorithm/pivot_partition_eq.hpp"
 #include "std_e/parallel/mpi/collective/all_to_all.hpp"
 #include "std_e/algorithm/permutation.hpp"
+#include "std_e/meta/pack/range.hpp"
 
 
 namespace std_e {
@@ -29,14 +30,6 @@ sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance
   // 3. return
   auto new_distri = all_reduce(partition_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
   return std::make_pair(x_part,new_distri);
-}
-
-
-template<class Rng, class... Rngs> auto
-common_size(const Rng& x, const Rngs&... xs) {
-  auto sz = x.size();
-  ( STD_E_ASSERT(xs.size() == sz) , ...);
-  return sz;
 }
 
 template<class Proj, class Comp, class Return_container, class Sort_algo>
