@@ -5,7 +5,7 @@
 #include "std_e/execution/task/concrete/then_task.hpp"
 #include "std_e/execution/task/any_task.hpp"
 #include "std_e/execution/future/future.hpp"
-#include "std_e/execution/future/pipeable.hpp"
+#include "std_e/functional/pipeable.hpp"
 
 
 namespace std_e {
