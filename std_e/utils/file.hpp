@@ -7,8 +7,9 @@
 namespace std_e {
 
 
-auto
-file_to_string(const std::string& file_name) -> std::string;
+auto file_to_string(const std::string& file_name) -> std::string;
+
+auto virtual_file_to_string(const std::string& file_name) -> std::string;
 
 
 } // std_e

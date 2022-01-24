@@ -2,7 +2,7 @@
 
 
 #include "std_e/logging/log.hpp"
-#include "std_e/utils/timer.hpp"
+#include "std_e/base/system/timer.hpp"
 
 
 namespace std_e {
@@ -14,6 +14,7 @@ class time_logger {
       : l_ptr(l_ptr)
       , msg(std::move(s))
       , done(false)
+      // note: the timer t is started here by default construction
     {
       log(*l_ptr,msg+"\n");
     }
