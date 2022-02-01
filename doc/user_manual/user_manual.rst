@@ -16,6 +16,6 @@ User Manual
   graph
   log
   operation
-  lift
+  overload_set
   switch
   execution

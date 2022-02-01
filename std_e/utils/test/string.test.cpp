@@ -40,7 +40,7 @@ TEST_CASE("string utils") {
     CHECK( std_e::remove_spaces_and_split("ab | c| d| e  ",'|') == vector<string>{"ab","c","d","e"} );
   }
 
-  SUBCASE("contains") {
+  SUBCASE("contains char") {
     CHECK(  std_e::contains("abcde",'a') );
     CHECK(  std_e::contains("abcde",'d') );
     CHECK(  std_e::contains("abcde",'e') );
@@ -48,6 +48,16 @@ TEST_CASE("string utils") {
 
     CHECK(  std_e::contains("a",'a') );
     CHECK( !std_e::contains("",'x') );
+  }
+  SUBCASE("contains string") {
+    CHECK(  std_e::contains("abcde","ab") );
+    CHECK(  std_e::contains("abcde","cd") );
+    CHECK(  std_e::contains("abcde","de") );
+    CHECK( !std_e::contains("abcde","ax") );
+
+    CHECK(  std_e::contains("abcde","abcde") );
+    CHECK(  std_e::contains("abcde","") );
+    CHECK( !std_e::contains("abcde","abcdef") );
   }
 
   SUBCASE("begins_with") {
