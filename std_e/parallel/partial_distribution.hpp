@@ -15,7 +15,19 @@ struct partial_distri {
   I finish;
   I size_tot;
 
-  constexpr auto operator<=>(const partial_distri&) const = default;
+  #if __cplusplus > 201703L
+    constexpr auto operator<=>(const partial_distri&) const = default;
+  #else
+    friend constexpr auto operator==(const partial_distri& x, const partial_distri& y) {
+      return std::tie(x.start,x.finish,x.size_tot) == std::tie(y.start,y.finish,y.size_tot);
+    }
+    friend constexpr auto operator!=(const partial_distri& x, const partial_distri& y) {
+      return !(x==y);
+    }
+    friend constexpr auto operator<(const partial_distri& x, const partial_distri& y) {
+      return std::tie(x.start,x.finish,x.size_tot) < std::tie(y.start,y.finish,y.size_tot);
+    }
+  #endif
 };
 
 template<class I> auto
@@ -33,7 +45,11 @@ partial_distribution(I size, MPI_Comm comm) {
   I finish = start + size;
   I size_tot = all_reduce(size,MPI_SUM,comm);
 
-  return partial_distri{start,finish,size_tot};
+  #if __cplusplus > 201703L
+    return partial_distri{start,finish,size_tot};
+  #else
+    return partial_distri<I>{start,finish,size_tot};
+  #endif
 }
 
 

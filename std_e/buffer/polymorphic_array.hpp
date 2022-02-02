@@ -21,7 +21,7 @@ struct internal_array_base {
   virtual ~internal_array_base() {}
 };
 
-template<class Array, class T = Array::value_type>
+template<class Array, class T = typename Array::value_type>
 struct internal_array_impl: internal_array_base<T> {
   public:
     constexpr
@@ -45,7 +45,7 @@ struct internal_array_impl: internal_array_base<T> {
 
 } // detail
 
-using cleanup_function = void(*)(void* );
+using cleanup_function = void(*)(void*);
 
 template<class T>
 class polymorphic_array {
@@ -68,10 +68,12 @@ class polymorphic_array {
 
     // ctor from any contiguous range
     template<class Array>
+      #if __cplusplus > 201703L
       requires
         (   !std::is_same_v< polymorphic_array , std::decay_t<Array> >
          &&  std::is_same_v< typename std::decay_t<Array>::value_type , T >
          &&  std::is_rvalue_reference_v< Array&& > )
+      #endif
     polymorphic_array(Array&& x)
       : impl(std::make_unique<detail::internal_array_impl<Array>>(std::move(x)))
     {}

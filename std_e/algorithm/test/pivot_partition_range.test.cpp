@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/pivot_partition_range.hpp"
@@ -155,3 +156,4 @@ TEST_CASE("pivot_partition_indices - custom return - range version") {
 //  CHECK( jv.flat_view() == expected_values );
 //  CHECK( jv.indices() == expected_partition_indices );
 //}
+#endif // __cplusplus > 201703L

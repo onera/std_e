@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 
@@ -79,3 +80,4 @@ TEST_CASE("search_near_or_containing_interval") {
   // refers to x indices:             199,701,1101
   CHECK( near_inter_indices == vector{ 2 , 8 , 11} );
 }
+#endif // __cplusplus > 201703L

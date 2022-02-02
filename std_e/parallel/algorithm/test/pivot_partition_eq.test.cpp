@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/pivot_partition_eq.hpp"
@@ -371,3 +372,4 @@ MPI_TEST_CASE("parallel pivot_partition_eq - with and without indirect projector
     MPI_CHECK( 2,            x_perm ==          vector{2,1,6,5,7,9} );
   }
 }
+#endif // __cplusplus > 201703L

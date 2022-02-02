@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/sort.hpp"
@@ -58,3 +59,4 @@ MPI_TEST_CASE("parallel sort - with and without indirect projector - 3 procs",3)
     MPI_CHECK( 2 , x_d_sorted == vector{1.5, 1.0, 3.0, 0.5, 2.0} );
   }
 }
+#endif // __cplusplus > 201703L

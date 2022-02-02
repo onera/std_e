@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 
@@ -59,3 +60,4 @@ MPI_TEST_CASE("median_of_3_sample",3) {
     CHECK( sample == std::vector{3,5} );
   }
 }
+#endif // __cplusplus > 201703L

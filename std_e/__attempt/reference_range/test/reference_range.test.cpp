@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/__attempt/reference_range/reference_range.hpp"
 
@@ -57,3 +58,4 @@ concept partial_indirectly_writable = requires(_Out&& __o, _Tp&& __t)
 //}
 
 //}
+#endif // __cplusplus > 201703L

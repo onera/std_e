@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/algorithm/distribution/uniform.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
@@ -95,3 +96,4 @@ TEST_CASE("uniform_distribution") {
     CHECK( v == v_expected );
   }
 }
+#endif // __cplusplus > 201703L

@@ -50,7 +50,9 @@ class uniform_distribution_generator {
       return i;
     }
 
+    #if __cplusplus > 201703L
     constexpr auto operator<=>(const uniform_distribution_generator& x) const = default;
+    #endif
 };
 
 

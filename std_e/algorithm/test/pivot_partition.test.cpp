@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/pivot_partition.hpp"
@@ -131,3 +132,4 @@ TEST_CASE("pivot_partition_point_indices") {
   CHECK( partition_pts[4] == 10);
 }
 // [Sphinx Doc] pivot_partition_point_indices }
+#endif // __cplusplus > 201703L

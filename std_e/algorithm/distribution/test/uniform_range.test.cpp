@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/algorithm/distribution/uniform_range.hpp"
 #include <vector>
@@ -33,3 +34,4 @@ TEST_CASE("uniform_distribution_range") {
     CHECK( v == std::vector{100,106,112,117} );
   }
 }
+#endif // __cplusplus > 201703L

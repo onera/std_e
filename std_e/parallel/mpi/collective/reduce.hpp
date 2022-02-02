@@ -2,7 +2,9 @@
 
 
 #include "std_e/parallel/mpi/base.hpp"
-#include <ranges>
+#if __cplusplus > 201703L
+  #include <ranges>
+#endif
 
 
 namespace std_e {
@@ -29,7 +31,11 @@ all_reduce(const std_e::span<T>& v, MPI_Op op, MPI_Comm comm) -> std::vector<T> 
   return res;
 }
 // any contiguous range (other than span)
-template<std::ranges::contiguous_range Rng> auto
+#if __cplusplus > 201703L
+  template<std::ranges::contiguous_range Rng> auto
+#else
+  template<class Rng, std::enable_if_t<!std::is_same_v<typename Rng::iterator,bool>,int> =0> auto
+#endif
 all_reduce(const Rng& v, MPI_Op op, MPI_Comm comm) -> Rng {
   Rng res(v.size());
   _all_reduce_rng_impl(v,res,op,comm);

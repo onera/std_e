@@ -218,8 +218,23 @@ class variant_range {
       return std::visit(FWD(f),impl);
     }
 
-    constexpr auto
-    operator<=>(const variant_range& x) const = default;
+    #if __cplusplus > 201703L
+      constexpr auto
+      operator<=>(const variant_range& x) const = default;
+    #else
+      friend constexpr auto
+      operator==(const variant_range& x, const variant_range& y) {
+        return x.underlying_variant() == y.underlying_variant();
+      }
+      friend constexpr auto
+      operator!=(const variant_range& x, const variant_range& y) {
+        return !(x==y);
+      }
+      friend constexpr auto
+      operator<(const variant_range& x, const variant_range& y) {
+        return x.underlying_variant() < y.underlying_variant();
+      }
+    #endif
 
     template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
     holds_alternative(const variant_range<R,RV,Ts0...>& x) -> bool;

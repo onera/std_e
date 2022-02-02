@@ -1,7 +1,7 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/pivot_partition_eq_range.hpp"
-#include "std_e/log.hpp" // TODO
 
 using namespace std;
 using std_e::id_string;
@@ -116,3 +116,4 @@ TEST_CASE("pivot_partition_eq_indices - custom return - range version") {
   //CHECK( partition_indices == vector<long>{0, 1,2 5,5 6,6 7,7 10,12 13} );
 }
 // [Sphinx Doc] pivot_partition_eq_indices ret range }
+#endif // __cplusplus > 201703L
