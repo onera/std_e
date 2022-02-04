@@ -247,7 +247,7 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
     SUBCASE("seq") {
       timer t;
       auto res = execute_seq(f_res);
-      double elaps = t.elapsed();
+      //double elaps = t.elapsed();
       //ELOG(elaps);
 
       CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
@@ -257,7 +257,7 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
 
       timer t;
       auto res = execute_async_comm(f_res,comm_tp);
-      double elaps = t.elapsed();
+      //double elaps = t.elapsed();
       //ELOG(elaps);
 
       CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );

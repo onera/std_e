@@ -1,26 +1,21 @@
 #pragma once
 
 
-#include <exception>
-#include <string>
+#include "std_e/base/msg_exception.hpp"
 
 
 namespace std_e {
 
 
-class mpi_exception : public std::exception {
+class mpi_exception : public msg_exception {
   public:
-    mpi_exception() = default;
+    using base = msg_exception;
+
+    mpi_exception() noexcept = default;
 
     mpi_exception(int mpi_error_code, std::string desc)
-      : desc("MPI error ["+std::to_string(mpi_error_code)+"] "+std::move(desc))
+      : base("MPI error ["+std::to_string(mpi_error_code)+"] "+std::move(desc))
     {}
-
-    const char* what() const noexcept override {
-      return desc.c_str();
-    }
-  private:
-    std::string desc;
 };
 
 

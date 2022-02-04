@@ -12,15 +12,15 @@ class msg_exception : public std::exception {
   public:
     msg_exception() = default;
 
-    msg_exception(std::string desc)
-      : desc(std::move(desc))
+    msg_exception(std::string msg)
+      : msg(std::move(msg))
     {}
 
     const char* what() const noexcept override {
-      return desc.c_str();
+      return msg.c_str();
     }
   private:
-    std::string desc;
+    std::string msg;
 };
 
 

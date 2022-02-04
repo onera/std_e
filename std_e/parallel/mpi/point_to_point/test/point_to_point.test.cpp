@@ -115,11 +115,14 @@ MPI_TEST_CASE("send recv async overlap",2) {
 
   CHECK( tg.size() == 6 );
 
-  // TODO doctest deadlocks with two SUBCASE (even if empty)
-  //SUBCASE("seq") {
-  //  auto _ = std_e::stdout_time_logger("execute seq");
-  //  CHECK( execute_seq(s3) == std::vector{2,1,0, 5,4,3} );
-  //}
+  SUBCASE("seq") {
+    timer t;
+    auto res = execute_seq(s3);
+    double elaps = t.elapsed();
+
+    CHECK( res == std::vector{2,1,0, 5,4,3} );
+    CHECK( elaps - 2.*p_to_p_test_sleep_duration < 2.*p_to_p_test_sleep_duration / 10 );
+  }
   SUBCASE("async comm") {
     // WARNING: This test seems to work consistently (in term of time taken) with 4 comm threads.
     //          Two comm threads should be enought, however, it result in no parallelisation most of the time

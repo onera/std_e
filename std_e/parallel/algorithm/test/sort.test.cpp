@@ -43,9 +43,9 @@ MPI_TEST_CASE("parallel sort - with and without indirect projector - 3 procs",3)
     if (rk == 1) x_d = {3.0, 3.5, 4.0, 4.5};
     if (rk == 2) x_d = {5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
 
-    auto proj = [](int i, double){ return i; }; // only sort by looking at the first argument
-                                                // in our case, it means that we are sorting range `x`
-                                                // range `x_d` is not used for determining the sort permutation, but will be permuted
+    auto proj = [](int i, double){ return i; }; // Only sort by looking at the first argument
+                                                // In our case, it means that we are sorting range `x`
+                                                // Range `x_d` is not used for determining the sort permutation, but will be permuted
 
     auto [x_sorted,x_d_sorted,distri] = std_e::indirect_sort(std::tie(x,x_d),test_comm,proj);
 

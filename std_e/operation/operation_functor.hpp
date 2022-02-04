@@ -36,19 +36,19 @@ operation_std_overload_set = operation_overload_set<op_k>;
 
 
 /// Boilerplate macros {
-// The SFINAE friendliness is done through RETURNS
+// The SFINAE friendliness is done through STD_E_RETURNS
 #define GENERATE_UNARY_OPERATOR_OVERLOAD_SET(op_name,symbol) \
-  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&& x) RETURNS( symbol FWD(x) );
+  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&& x) STD_E_RETURNS( symbol FWD(x) );
 
 #define GENERATE_BINARY_OPERATOR_OVERLOAD_SET(op_name,symbol) \
-  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( (FWD(xs) symbol ...) );
+  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) STD_E_RETURNS( (FWD(xs) symbol ...) );
 
 #define GENERATE_FUNCTION_OVERLOAD_SET(op_name) \
-  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( op_name(FWD(xs)...) );
+  template<> constexpr auto operation_overload_set<operation_kind::op_name> = [](auto&&... xs) STD_E_RETURNS( op_name(FWD(xs)...) );
 
 #define GENERATE_FUNCTION_STD_OVERLOAD_SET(op_name) \
   GENERATE_FUNCTION_OVERLOAD_SET(op_name) \
-  template<> constexpr auto operation_std_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( ::std::op_name(FWD(xs)...) );
+  template<> constexpr auto operation_std_overload_set<operation_kind::op_name> = [](auto&&... xs) STD_E_RETURNS( ::std::op_name(FWD(xs)...) );
 
 // We need to reimplement std::min and std::max with SFINAE-friendlyness
 // (they are special because they are templated, unlike e.g. std::sqrt, ...
@@ -62,7 +62,7 @@ max(const T& a, const T& b) -> std::enable_if_t<std::is_same_v<decltype(a<b),boo
 }
 #define GENERATE_FUNCTION_STD_E_OVERLOAD_SET(op_name) \
   GENERATE_FUNCTION_OVERLOAD_SET(op_name) \
-  template<> constexpr auto operation_std_overload_set<operation_kind::op_name> = [](auto&&... xs) RETURNS( ::std_e::op_name(FWD(xs)...) );
+  template<> constexpr auto operation_std_overload_set<operation_kind::op_name> = [](auto&&... xs) STD_E_RETURNS( ::std_e::op_name(FWD(xs)...) );
 /// Boilerplate macros }
 
 

@@ -18,7 +18,7 @@ namespace flatten_tuple {
     return std::tuple_cat( flatten(flat_t{}, std::get<Is>(as))... );
   }
 #pragma GCC diagnostic pop
-  template<class...As, class...Ts>
+  template<class... As>
   constexpr auto flatten( flat_t, std::tuple<As...> as ) {
     return flatten( std::make_index_sequence<sizeof...(As)>{}, flat_t{}, as );
   }

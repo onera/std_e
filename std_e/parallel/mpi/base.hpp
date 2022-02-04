@@ -25,20 +25,35 @@ n_rank(MPI_Comm comm) -> int {
 }
 
 
-/// Can be safely called before MPI_Init (useful for initializing globals because MPI_Init cannot be called before main())
+// Can be safely called before MPI_Init()
+// useful for initializing globals because MPI_Init() cannot be called before main()
 inline auto
 mpi_comm_world_rank() -> int {
   #if defined(OPEN_MPI)
     const char* rank_str = std::getenv("OMPI_COMM_WORLD_RANK");
   #elif defined(I_MPI_VERSION) || defined(MPI_VERSION)
-    const char* rank_str = std::getenv("MPI_LOCALRANKID"); // env name used at least by Intel MPI
+    // REF https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/Environment-variables-defined-by-intel-mpirun/td-p/1096703
+    const char* rank_str = std::getenv("PMI_RANK"); // env name used at least by Intel MPI
   #else
     #error "Unknown MPI implementation"
   #endif
-  if (rank_str==nullptr) return 0; // not launched with mpirun/mpiexec...
+  if (rank_str==nullptr) return 0; // not launched with mpirun/mpiexec, so assume only one process
   return std::stoi(rank_str);
 }
 
+inline auto
+mpi_comm_world_size() -> int {
+  #if defined(OPEN_MPI)
+    const char* size_str = std::getenv("OMPI_COMM_WORLD_SIZE");
+  #elif defined(I_MPI_VERSION) || defined(MPI_VERSION)
+    // REF https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/Environment-variables-defined-by-intel-mpirun/td-p/1096703
+    const char* size_str = std::getenv("PMI_SIZE"); // env name used at least by Intel MPI
+  #else
+    #error "Unknown MPI implementation"
+  #endif
+  if (size_str==nullptr) return 1; // not launched with mpirun/mpiexec, so assume only one process
+  return std::stoi(size_str);
+}
 
 
 

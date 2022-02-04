@@ -1,27 +1,23 @@
 
 
-#include "std_e/base/macros.hpp"
-#include <exception>
-#include <string>
+#include "std_e/base/msg_exception.hpp"
 #include "std_e/base/stacktrace_to_string.hpp"
 
 
 namespace std_e {
 
 
-class assertion_failure : public std::exception {
+class assertion_failure : public msg_exception {
   public:
-    assertion_failure(const std::string& file, int line, const std::string& assertion_test) noexcept
-    {
-      msg = "assertion failure at file " + file + ", line " + std::to_string(line) + "\nfailed assertion: " + assertion_test + "\n";
-      msg += stacktrace_to_string() + "\n";
-    }
+    using base = msg_exception;
 
-    const char* what() const noexcept override {
-      return msg.c_str();
-    }
-  private:
-    std::string msg;
+    assertion_failure() noexcept = default;
+
+    assertion_failure(const std::string& file, int line, const std::string& assertion_test) noexcept
+      : base("assertion failure at file " + file + ", line " + std::to_string(line) + '\n'
+           + "failed assertion: " + assertion_test + '\n'
+           + stacktrace_to_string() + '\n')
+      {}
 };
 
 
