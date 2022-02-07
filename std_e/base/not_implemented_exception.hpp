@@ -7,10 +7,9 @@
 namespace std_e {
 
 
-class not_implemented_exception
-  : public msg_exception
-{
-  using msg_exception::msg_exception;
+class not_implemented_exception : public msg_exception {
+  using base = msg_exception;
+  using base::base;
 };
 
 
