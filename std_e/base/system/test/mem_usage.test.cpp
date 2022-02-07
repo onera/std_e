@@ -16,7 +16,7 @@ using namespace std_e;
 //  std::vector<char> v(n_bytes);
 //
 //  long free_mem_after_alloc = remaining_system_memory_in_bytes();
-//  escape(&v); // do not optimize v away before this line
+//  do_not_optimize(&v); // do not optimize v away before this line
 //
 //  // 1. Checks
 //  // WARNING:
@@ -43,14 +43,14 @@ TEST_CASE("resident_memory_in_bytes") {
   std::vector<char> v(n_bytes);
 
   long rss_mem1 = resident_memory_in_bytes();
-  escape(&v); // do not optimize v
+  do_not_optimize(&v);
 
 
   v.resize(0);
   v.shrink_to_fit();
   long rss_mem2 = resident_memory_in_bytes();
 
-  escape(&v); // do not optimize v
+  do_not_optimize(&v);
 
   // 1. Checks
   long delta01 = rss_mem1-rss_mem0;

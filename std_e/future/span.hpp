@@ -16,6 +16,8 @@ namespace std_e {
 template<ptrdiff_t N>
 struct span_size {
   using size_type = size_t;
+  static const size_t extent = N;
+
   constexpr span_size() {}
   constexpr span_size(size_type) {}
 
@@ -38,6 +40,7 @@ template<>
 class span_size<dynamic_size> {
   public:
     using size_type = size_t;
+    static const size_t extent = size_t(dynamic_size);
 
     FORCE_INLINE constexpr
     span_size()
