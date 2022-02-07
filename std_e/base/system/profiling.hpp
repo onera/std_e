@@ -11,13 +11,13 @@ namespace std_e {
 
 // don't let the compiler optimize uses of p
 inline auto
-escape(void* p) -> void {
+do_not_optimize(void* p) -> void {
   asm volatile("" : : "g"(p) : "memory");
 }
 
 // do as if all memory was read by this call
 inline auto
-clobber() -> void {
+clobber_memory() -> void {
   asm volatile("" : : : "memory");
 }
 
