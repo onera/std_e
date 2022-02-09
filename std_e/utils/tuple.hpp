@@ -5,6 +5,7 @@
 #include <type_traits>
 #include "std_e/utils/to_string_fwd.hpp"
 #include "std_e/base/macros.hpp"
+#include "std_e/meta/pack.hpp"
 
 
 namespace std_e {
@@ -153,6 +154,63 @@ template<class... Ts> auto
 to_string(const std::tuple<Ts...>& x) -> std::string {
   return to_string__impl(x,std::make_index_sequence<sizeof...(Ts)>{});
 }
+
+
+
+
+// transform {
+template<int I, class tuple_type, class F, class return_type> constexpr auto
+transform_impl([[maybe_unused]] tuple_type& x, [[maybe_unused]] F f, [[maybe_unused]] return_type& ret) -> void {
+  constexpr int sz = std::tuple_size_v<std::decay_t<tuple_type>>;
+  if constexpr (I<sz) {
+    std::get<I>(ret) = f(std::get<I>(x));
+    transform_impl<I+1>(x,f,ret);
+  }
+}
+
+template<class T, class... Ts, class F> constexpr auto
+transform(std::tuple<T,Ts...>& x, F f) {
+  constexpr auto N = 1+sizeof...(Ts);
+  using first_return_type = decltype(f(std::declval<T&>()));
+  constexpr bool same_return_type = are_all_of<first_return_type, decltype(f(std::declval<Ts&>()))...>;
+  if constexpr (same_return_type) {
+    if constexpr (std::is_void_v<first_return_type>) {
+      return for_each(x,f);
+    } else {
+      using return_type = std::array<first_return_type,N>;
+      return_type ret;
+      transform_impl<0>(x,f,ret);
+      return ret;
+    }
+  } else {
+    using return_type = std::tuple<first_return_type,decltype(f(std::declval<Ts&>()))...>;
+    return_type ret;
+    transform_impl<0>(x,f,ret);
+    return ret;
+  }
+}
+template<class T, class... Ts, class F> constexpr auto
+transform(const std::tuple<T,Ts...>& x, F f) {
+  constexpr auto N = 1+sizeof...(Ts);
+  using first_return_type = decltype(f(std::declval<const T&>()));
+  constexpr bool same_return_type = are_all_of<first_return_type, decltype(f(std::declval<const Ts&>()))...>;
+  if constexpr (same_return_type) {
+    if constexpr (std::is_void_v<first_return_type>) {
+      return for_each(x,f);
+    } else {
+      using return_type = std::array<first_return_type,N>;
+      return_type ret;
+      transform_impl<0>(x,f,ret);
+      return ret;
+    }
+  } else {
+    using return_type = std::tuple<first_return_type,decltype(f(std::declval<const Ts&>()))...>;
+    return_type ret;
+    transform_impl<0>(x,f,ret);
+    return ret;
+  }
+}
+// transform }
 
 
 } // std_e
