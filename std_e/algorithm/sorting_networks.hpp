@@ -2,6 +2,7 @@
 
 
 #include <utility>
+#include <algorithm>
 
 
 namespace std_e {
@@ -34,7 +35,12 @@ sort_network(T& x0, T& x1, T& x2, T& x3) -> void {
 
 
 template<int N>
-struct sorting_network;
+struct sorting_network {
+  template<class Random_it> static auto
+  sort(Random_it first) -> void {
+    std::sort(first,first+N);
+  }
+};
 
 template<>
 struct sorting_network<0> {
