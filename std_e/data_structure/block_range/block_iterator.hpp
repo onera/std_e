@@ -18,7 +18,7 @@ class block_iterator {
   public:
   // type traits
     using scalar_type = T;
-    using index_type = int;
+    using index_type = int; // TODO param I or ptrdiff or size
 
     static constexpr auto
     block_size() -> int {

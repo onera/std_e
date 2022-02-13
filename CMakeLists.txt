@@ -67,10 +67,8 @@ include(FetchContent)
 ### doctest ###
 FetchContent_Declare(
   doctest
-  #GIT_REPOSITORY https://github.com/onqtam/doctest.git
-  #GIT_TAG        2.4.6
-  GIT_REPOSITORY https://github.com/BerengerBerthoul/doctest.git
-  GIT_TAG        32107b342c2f37859d16736a70a332d246852f2b
+  GIT_REPOSITORY https://github.com/doctest/doctest.git
+  GIT_TAG        110d305 # corrected MPI SUBCASE
 )
 FetchContent_MakeAvailable(doctest)
 

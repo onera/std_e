@@ -34,6 +34,10 @@ struct span_size {
   operator!=(span_size x, span_size y) -> bool {
     return !(x==y);
   }
+  friend constexpr auto
+  operator<(span_size, span_size) -> bool {
+    return false;
+  }
 };
 
 template<>
@@ -68,6 +72,10 @@ class span_size<dynamic_size> {
     friend constexpr auto
     operator!=(span_size x, span_size y) -> bool {
       return !(x==y);
+    }
+    friend constexpr auto
+    operator<(span_size x, span_size y) -> bool {
+      return x.n<y.n;
     }
   private:
     size_type n;
@@ -207,6 +215,10 @@ template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
   return !(x==y);
 }
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
+  return std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end());
+}
 
 
 
@@ -253,6 +265,10 @@ template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
   return !(x==y);
 }
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
+  return span_base<const T0,N0>(x)<span_base<const T1,N1>(y);
+}
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator==(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return span_base<const T0,N>(x)==y;
@@ -262,12 +278,20 @@ operator!=(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator<(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
+  return span_base<const T0,N>(x)<y;
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator==(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
   return x==span_base<const T1,N>(y);
 }
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator!=(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
   return !(x==y);
+}
+template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
+operator<(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
+  return x<span_base<const T1,N>(y);
 }
 
 
@@ -349,6 +373,10 @@ operator==(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
 template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
   return !(x==y);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return span_base<const T0,N0>(x)<span_base<const T1,N1>(y);
 }
 // op== and op!= }
 
