@@ -10,10 +10,10 @@ namespace std_e {
   }
 }
 
-//#ifdef NDEBUG
-//#define STD_E_ASSERT(b) (void(b))
-//#define STD_E_ASSERT_ABORT(b) (void(b))
-//#else
-#define STD_E_ASSERT(b) ::std_e::throw_assertion_failure(b,__FILE__,__LINE__,#b)
-#define STD_E_ASSERT_ABORT assert
-//#endif
+#ifdef NDEBUG
+  #define STD_E_ASSERT(b) (void(b))
+  #define STD_E_ASSERT_ABORT(b) (void(b))
+#else
+  #define STD_E_ASSERT(b) ::std_e::throw_assertion_failure(b,__FILE__,__LINE__,#b)
+  #define STD_E_ASSERT_ABORT assert
+#endif
