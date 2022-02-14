@@ -1,5 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
-#include "std_e/data_structure/multi_range2.hpp"
+#include "std_e/data_structure/multi_range/multi_range2.hpp"
 
 #include <string>
 
@@ -37,12 +37,12 @@ TEST_CASE("multi_vector2") {
   }
 
   SUBCASE("indexing") {
-    std::tuple<int&,std::string&,double&> row0 = t[0];
-    std::tuple<int&,std::string&,double&> row1 = t[1];
-    std::tuple<int&,std::string&,double&> row2 = t[2];
-    CHECK( std::get<0>(row0) == 42 ); CHECK( std::get<1>(row0) == "X"  ); CHECK( std::get<2>(row0) == 3.14 );
-    CHECK( std::get<0>(row1) == 43 ); CHECK( std::get<1>(row1) == "Y"  ); CHECK( std::get<2>(row1) == 2.7  );
-    CHECK( std::get<0>(row2) ==  0 ); CHECK( std::get<1>(row2) == "ABC"); CHECK( std::get<2>(row2) == 100. );
+    std_e::tuple<int&,std::string&,double&> row0 = t[0];
+    std_e::tuple<int&,std::string&,double&> row1 = t[1];
+    std_e::tuple<int&,std::string&,double&> row2 = t[2];
+    CHECK( get<0>(row0) == 42 ); CHECK( get<1>(row0) == "X"  ); CHECK( get<2>(row0) == 3.14 );
+    CHECK( get<0>(row1) == 43 ); CHECK( get<1>(row1) == "Y"  ); CHECK( get<2>(row1) == 2.7  );
+    CHECK( get<0>(row2) ==  0 ); CHECK( get<1>(row2) == "ABC"); CHECK( get<2>(row2) == 100. );
   }
 }
 
@@ -63,49 +63,66 @@ TEST_CASE("multi_vector2 ctor with size") {
   CHECK( col1 == expected_col1 );
   CHECK( col2 == expected_col2 );
 
-  SUBCASE("algorithms") {
+}
+
+TEST_CASE("algorithms") {
+  std_e::multi_vector2<int,std::string,double> t;
+  t.push_back(42,"X"  ,3.14);
+  t.push_back(43,"Y"  ,2.7);
+  t.push_back(0 ,"ABC",100.);
+
+  SUBCASE("find algos") {
     SUBCASE("find") {
-      auto it = std::find(t.begin(),t.end(),std::tuple{43,std::string("Y"),2.7});
+      auto it = std::find(t.begin(),t.end(),std_e::tuple<int,std::string,double>{43,std::string("Y"),2.7});
       CHECK( it == t.begin()+1 );
     }
     SUBCASE("find_if") {
-      auto first_eq_to_43 = [](const std::tuple<int&,std::string&,double>& x){ return std::get<0>(x)==43; };
+      auto first_eq_to_43 = [](const std_e::tuple<int&,std::string&,double&>& x){ return get<0>(x)==43; };
       auto it = std::find_if(t.begin(),t.end(),first_eq_to_43);
       CHECK( it == t.begin()+1 );
 
-      auto first_eq_to_100 = [](const std::tuple<int&,std::string&,double>& x){ return std::get<0>(x)==100; };
+      auto first_eq_to_100 = [](const std_e::tuple<int&,std::string&,double&>& x){ return get<0>(x)==999; };
       auto it_not_found = std::find_if(t.begin(),t.end(),first_eq_to_100);
       CHECK( it_not_found == t.end() );
     }
-    SUBCASE("sort") {
-      //using _Tp = std::tuple<int&>;
-      //int i;
-      //_Tp __t (i);
-      //const std::tuple<int&> rc(i);
-      //rc = std::forward<_Tp>(__t);
+  }
+  SUBCASE("sort") {
+    SUBCASE("sanity: one range") {
+      std_e::multi_vector2<int> t(2);
+      range<0>(t) = std::vector{4,3,9,8,0,1,2,7,6,5};
 
-      //const_cast<const std::iter_reference_t<_Out>&&>(*__o) = std::forward<_Tp>(__t);
-      //const_cast<const std::tuple<int&>&&>(r) = std::forward<_Tp>(__t);
+      std::ranges::sort(t);
 
-      //static_assert(std::indirectly_writable<_Out,_Tp>);
-      ////std::sort(t.begin(),t.end());
-      ////
-      //std_e::multi_vector2<int> t;
-      //t.push_back(42);
-      //t.push_back(43);
-      //t.push_back(0);
+      CHECK( range<0>(t) == std::vector{0,1,2,3,4,5,6,7,8,9} );
+    }
 
-      //std::ranges::sort(t.begin(),t.end());
-      //// check
-      //const std::vector<int>         expected_col0 = {42,43,0};
-      //const std::vector<std::string> expected_col1 = {"X","Y","ABC"};
-      //const std::vector<double>      expected_col2 = {3.14,2.7,100.};
-      //std::vector<int>&         col0 = std_e::range<0>(t);
-      //std::vector<std::string>& col1 = std_e::range<1>(t);
-      //std::vector<double>&      col2 = std_e::range<2>(t);
-      //CHECK( col0 == expected_col0 );
-      //CHECK( col1 == expected_col1 );
-      //CHECK( col2 == expected_col2 );
+    SUBCASE("more ranges") {
+      std::ranges::sort(t);
+      // check
+      const std::vector<int>         expected_col0 = {0    ,42  ,43 };
+      const std::vector<std::string> expected_col1 = {"ABC","X" ,"Y"};
+      const std::vector<double>      expected_col2 = {100. ,3.14,2.7};
+      std::vector<int>&         col0 = std_e::range<0>(t);
+      std::vector<std::string>& col1 = std_e::range<1>(t);
+      std::vector<double>&      col2 = std_e::range<2>(t);
+      CHECK( col0 == expected_col0 );
+      CHECK( col1 == expected_col1 );
+      CHECK( col2 == expected_col2 );
+    }
+
+    SUBCASE("more ranges - other comp") {
+      auto proj = [](const auto& x){ return get<2>(x); };
+      std::ranges::sort(t,{},proj);
+      // check
+      const std::vector<int>         expected_col0 = {43 ,42  ,0    };
+      const std::vector<std::string> expected_col1 = {"Y","X" ,"ABC"};
+      const std::vector<double>      expected_col2 = {2.7,3.14,100. };
+      std::vector<int>&         col0 = std_e::range<0>(t);
+      std::vector<std::string>& col1 = std_e::range<1>(t);
+      std::vector<double>&      col2 = std_e::range<2>(t);
+      CHECK( col0 == expected_col0 );
+      CHECK( col1 == expected_col1 );
+      CHECK( col2 == expected_col2 );
     }
   }
 }
@@ -115,7 +132,6 @@ TEST_CASE("multi_vector2 ctor from vectors") {
   std::vector<int>         x = {42,43,0};
   std::vector<std::string> y = {"X","Y","ABC"};
   std_e::multi_vector2<int,std::string> t(x,y);
-  //std_e::multi_vector2<int,std::string> t(std::vector<int>{42,43,0},std::vector<std::string>{"X","Y","ABC"});
 
   std::vector<int>         expected_col0 = {42,43,0};
   std::vector<std::string> expected_col1 = {"X","Y","ABC"};
@@ -125,6 +141,24 @@ TEST_CASE("multi_vector2 ctor from vectors") {
 
   CHECK( col0 == expected_col0 );
   CHECK( col1 == expected_col1 );
+}
+TEST_CASE("view_as_multi_range") {
+  std::vector<int>         x = {42,43,0};
+  std::vector<std::string> y = {"X","Y","ABC"};
+  auto t = std_e::view_as_multi_range(x,y);
+
+  std::vector<int>        & x_ref = std_e::range<0>(t);
+  std::vector<std::string>& y_ref = std_e::range<1>(t);
+
+  CHECK( x_ref == std::vector<int>{42,43,0} );
+  CHECK( y_ref == std::vector<std::string>{"X","Y","ABC"} );
+
+  x_ref = std::vector{97,98,99};
+  y_ref[2] = "Z";
+  CHECK( x     == std::vector<int>{97,98,99} );
+  CHECK( x_ref == std::vector<int>{97,98,99} );
+  CHECK( y     == std::vector<std::string>{"X","Y","Z"} );
+  CHECK( y_ref == std::vector<std::string>{"X","Y","Z"} );
 }
 
 

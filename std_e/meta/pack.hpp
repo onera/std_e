@@ -40,4 +40,17 @@ template<class T, class... Ts> constexpr bool are_all_of = are_all_of_impl<T,Ts.
 // are_all_of }
 
 
+// are_all_of {
+template<class... Ts>
+struct first_of_pack_impl;
+
+template<class T, class... Ts>
+struct first_of_pack_impl<T,Ts...> {
+  using type = T;
+};
+
+template<class... Ts> using first_of_pack = typename first_of_pack_impl<Ts...>::type;
+// are_all_of }
+
+
 } // std_e
