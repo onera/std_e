@@ -6,6 +6,7 @@
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/span.hpp"
+#include "std_e/future/tuple.hpp"
 
 
 namespace std_e {
@@ -155,9 +156,9 @@ class multi_range2 {
     using index_type = std::ptrdiff_t;
     using impl_type = std::tuple<Ranges...>;
 
-    using value_type      =       std::tuple<typename Ranges::value_type...>;
-    using reference       =       std::tuple<typename Ranges::value_type&...>;
-    using const_reference = const std::tuple<typename Ranges::value_type&...>;
+    using value_type      =       std_e::tuple<typename std::remove_cvref_t<Ranges>::value_type...>;
+    using reference       =       std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
+    using const_reference = const std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
     using iterator = multi_range2_iterator<this_type>;
     using const_iterator = multi_range2_iterator<const this_type>;
 
@@ -181,24 +182,24 @@ class multi_range2 {
   // size
     auto
     size() const -> std::ptrdiff_t {
-      return std::get<0>(_impl).size();
+      return get<0>(_impl).size();
     }
 
     template<int index> auto
     range() -> auto& {
-      return std::get<index>(_impl); // TODO return span to enforce invariant (1)
+      return get<index>(_impl); // TODO return span to enforce invariant (1)
     }
     template<int index> auto
     range() const -> const auto& {
-      return std::get<index>(_impl);
+      return get<index>(_impl);
     }
     //template<class T> auto
     //range() -> auto& {
-    //  return std::get<T>(_impl);
+    //  return get<T>(_impl);
     //}
     //template<class T> auto
     //range() const -> const auto& {
-    //  return std::get<T>(_impl);
+    //  return get<T>(_impl);
     //}
 
     auto
@@ -256,17 +257,17 @@ class multi_range2 {
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
     subscript_op__impl(index_type i, std::index_sequence<Is...>) const -> const_reference {
-      return {get<Is>(_impl)[i]...};
+      return reference(get<Is>(_impl)[i]...);
     }
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
     subscript_op__impl(index_type i, std::index_sequence<Is...>) -> reference {
-      return {get<Is>(_impl)[i]...};
+      return reference(get<Is>(_impl)[i]...);
     }
     template<class args_tuple_type, size_t... Is> auto
     // requires args_tuple_type is tuple<Ts...>
     push_back__impl(const args_tuple_type& elts, std::index_sequence<Is...>) -> reference {
-      ( get<Is>(_impl).push_back(std::get<Is>(elts)) , ... );
+      ( get<Is>(_impl).push_back(get<Is>(elts)) , ... );
       return back();
     }
   // data members
@@ -310,6 +311,11 @@ element(multi_range2<Rngs...>& x, I i) -> auto& {
 
 
 template<class... Ts> using multi_vector2 = multi_range2<std::vector<Ts>...>;
+
+template<class... Rngs> auto
+view_as_multi_range(Rngs&... rngs) {
+  return multi_range2<Rngs&...>(rngs...);
+}
 
 //// multi_span {
 //template<class... Ts> using multi_span2 = multi_range2<dyn_span,Ts...>;
