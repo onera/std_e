@@ -192,6 +192,7 @@ TEST_CASE("span assignment") {
     auto s0 = std_e::make_span_ref(v0);
     auto s1 = std_e::make_span_ref(v1);
 
+    using std::swap; // should not be used, but bring it here to be sure it is not selected
     swap(s0,s1);
 
     // swapped values of references...

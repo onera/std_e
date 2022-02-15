@@ -31,12 +31,24 @@ struct span_size {
     return true;
   }
   friend constexpr auto
+  operator<(span_size, span_size) -> bool {
+    return false;
+  }
+  friend constexpr auto
   operator!=(span_size x, span_size y) -> bool {
     return !(x==y);
   }
   friend constexpr auto
-  operator<(span_size, span_size) -> bool {
-    return false;
+  operator>(span_size x, span_size y) -> bool {
+    return y<x;
+  }
+  friend constexpr auto
+  operator<=(span_size x, span_size y) -> bool {
+    return !(y<x);
+  }
+  friend constexpr auto
+  operator>=(span_size x, span_size y) -> bool {
+    return !(x<y);
   }
 };
 
@@ -70,12 +82,24 @@ class span_size<dynamic_size> {
       return x.n==y.n;
     }
     friend constexpr auto
+    operator<(span_size x, span_size y) -> bool {
+      return x.n<y.n;
+    }
+    friend constexpr auto
     operator!=(span_size x, span_size y) -> bool {
       return !(x==y);
     }
     friend constexpr auto
-    operator<(span_size x, span_size y) -> bool {
-      return x.n<y.n;
+    operator>(span_size x, span_size y) -> bool {
+      return y<x;
+    }
+    friend constexpr auto
+    operator<=(span_size x, span_size y) -> bool {
+      return !(y<x);
+    }
+    friend constexpr auto
+    operator>=(span_size x, span_size y) -> bool {
+      return !(x<y);
     }
   private:
     size_type n;
@@ -108,6 +132,14 @@ class span_base : public span_size<N> {
       , ptr(ptr)
     {}
     FORCE_INLINE constexpr explicit
+    span_base(T* ptr)
+      // Precondition: [ptr,ptr+N) is valid range
+      : span_size_type()
+      , ptr(ptr)
+    {
+      static_assert(N!=dynamic_size);
+    }
+    FORCE_INLINE constexpr explicit
     span_base(T* first, T* last)
       // Precondition: [first,last) is valid range
       : span_size_type(last-first)
@@ -119,7 +151,7 @@ class span_base : public span_size<N> {
       : span_size_type(last-first)
       , ptr(&*first) // TODO
     {}
-    template<class Range, std::enable_if_t< !std::is_pointer_v<Range> , int > =0> FORCE_INLINE constexpr
+    template<class Range, std::enable_if_t< !std::is_pointer_v<std::remove_cvref_t<Range>> , int > =0> FORCE_INLINE constexpr
     // requires Range::data() -> T*
     span_base(Range&& r)
       : span_size_type(r.size())
@@ -212,12 +244,24 @@ operator==(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
   return std::equal(x.begin(),x.end(),y.begin());
 }
 template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
+  return std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end());
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
-operator<(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
-  return std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end());
+operator>(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
+  return y<x;
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<=(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
+  return !(y<x);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator>=(const span_base<T0,N0>& x, const span_base<T1,N1>& y) -> bool {
+  return !(x<y);
 }
 
 
@@ -269,6 +313,7 @@ template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator<(const span<T0,N0>& x, const span<T1,N1>& y) -> bool {
   return span_base<const T0,N0>(x)<span_base<const T1,N1>(y);
 }
+
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator==(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return span_base<const T0,N>(x)==y;
@@ -281,6 +326,7 @@ template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator<(const span<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return span_base<const T0,N>(x)<y;
 }
+
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator==(const std::vector<T1,A>& x, const span<T0,N>& y) -> bool {
   return x==span_base<const T1,N>(y);
@@ -360,6 +406,14 @@ class span_ref : public span_base<T,N> {
       return *this;
     }
 
+    // operator= const version to satisfy proxy reference in std::indirectly_writable
+    template<class Range> FORCE_INLINE constexpr
+    const span_ref& operator=(Range&& r) const {
+      STD_E_ASSERT(r.size() == this->size());
+      std::copy(r.begin(),r.end(),this->begin());
+      return *this;
+    }
+
     using base = span_base<T,N>;
     using base::base;
 };
@@ -371,17 +425,47 @@ operator==(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
   return span_base<const T0,N0>(x)==span_base<const T1,N1>(y);
 }
 template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return span_base<const T0,N0>(x)<span_base<const T1,N1>(y);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
 operator!=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
-operator<(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
-  return span_base<const T0,N0>(x)<span_base<const T1,N1>(y);
+operator>(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return y<x;
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator<=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return !(y<x);
+}
+template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+operator>=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
+  return !(x<y);
 }
 // op== and op!= }
 
-template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
-swap(span_ref<T0,N0> x, span_ref<T1,N1> y) -> void {
+//template<class T0, class T1, ptrdiff_t N0, ptrdiff_t N1> constexpr auto
+//swap(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> void { // TODO const args as span_ref has shallow const
+////swap(span_ref<T0,N0>& x, span_ref<T1,N1>& y) -> void { // TODO const args as span_ref has shallow const
+//  //STD_E_ASSERT(x.size()==y.size());
+//  //for (ptrdiff_t i=0; i<ptrdiff_t(x.size()); ++i) {
+//  //  using std::swap;
+//  //  swap(x[i],y[i]);
+//  //}
+//  throw;
+//}
+//template<class T, ptrdiff_t N> constexpr auto
+//swap(span_ref<T,N>& x, span_ref<T,N>& y) -> void {
+//  throw;
+//}
+//template<class T, ptrdiff_t N> constexpr auto
+//swap(const span_ref<T,N>& x, const span_ref<T,N>& y) -> void {
+//  throw;
+//}
+template<class T, ptrdiff_t N> constexpr auto
+swap(span_ref<T,N> x, span_ref<T,N> y) -> void {
   STD_E_ASSERT(x.size()==y.size());
   for (ptrdiff_t i=0; i<ptrdiff_t(x.size()); ++i) {
     using std::swap;
