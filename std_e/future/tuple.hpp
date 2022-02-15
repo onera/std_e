@@ -157,12 +157,30 @@ template<class T0, class T1> constexpr bool same_rm_cvref_tuple = same_rm_cvref_
 template<class... Ts>
 class tuple {
   private:
-  public: // TODO
+  // data member
     tuple_impl<Ts...> impl;
-  public:
+   
+  // private functions
+    template<size_t I, class Self, class Other> static auto
+    assign_through_refs_impl_at(Self&& x, Other&& y) -> void {
+      get<I>(FWD(x)) = get<I>(FWD(y));
+    }
+    template<class Self, class Other, size_t... Is> static auto
+    assign_through_refs_impl(Self&& x, Other&& y, std::index_sequence<Is...>) -> void {
+      ( assign_through_refs_impl_at<Is>(FWD(x),FWD(y)) , ... );
+    }
 
-    constexpr
-    tuple() = default;
+    template<class Self, class Other> static auto
+    assign_through_refs(Self&& x, Other&& y) -> void {
+      assign_through_refs_impl(FWD(x),FWD(y),std::make_index_sequence<sizeof...(Ts)>{});
+    }
+  public:
+  // friends
+    template<class... Ts0> friend class tuple;
+  // ctors
+    constexpr tuple() = default;
+    constexpr tuple(const tuple& x) = default;
+    constexpr tuple(tuple&& x) = default;
 
     template<class T0, class... Ts0>
       requires ( !std::is_same_v< std::remove_cvref_t<T0> , tuple<Ts...> >
@@ -179,65 +197,7 @@ class tuple {
       : impl(x.impl)
     {}
 
-    template<class... Ts0, class... Ts1> friend constexpr auto
-    operator==(const tuple<Ts0...>& x, const tuple<Ts1...>& y) -> bool;
-    template<class... Ts0, class... Ts1> friend constexpr auto
-    operator<(const tuple<Ts0...>& x, const tuple<Ts1...>& y) -> bool;
-
-    template<size_t I, class... Ts0> friend constexpr auto
-    get(tuple<Ts0...>& t) -> tuple_element<I,tuple<Ts0...>>&;
-    template<size_t I, class... Ts0> friend constexpr auto
-    get(const tuple<Ts0...>& t) -> const tuple_element<I,tuple<Ts0...>>&;
-};
-
-
-template<class... Ts>
-class tuple<Ts&...> {
-  private:
-  public: // TODO
-
-    tuple_impl<Ts&...> impl;
-
-    template<size_t I, class Self, class Other> static auto
-    assign_through_refs_impl_at(Self&& x, Other&& y) -> void {
-      get<I>(FWD(x)) = get<I>(FWD(y));
-    }
-    template<class Self, class Other, size_t... Is> static auto
-    assign_through_refs_impl(Self&& x, Other&& y, std::index_sequence<Is...>) -> void {
-      ( assign_through_refs_impl_at<Is>(FWD(x),FWD(y)) , ... );
-    }
-
-    template<class Self, class Other> static auto
-    assign_through_refs(Self&& x, Other&& y) -> void {
-      assign_through_refs_impl(FWD(x),FWD(y),std::make_index_sequence<sizeof...(Ts)>{});
-    }
-  public:
-    constexpr tuple() = delete;
-
-    constexpr tuple(const tuple& x) = default;
-    constexpr tuple(tuple&& x) = default;
-
-    template<class T0, class... Ts0>
-      requires ( !std::is_same_v< std::remove_cvref_t<T0> , tuple<Ts&...> >
-              && !same_rm_cvref_tuple<T0,tuple<Ts&...>> )
-        constexpr
-    tuple(T0& x, Ts0&... xs)
-      : impl(x,xs...)
-    {}
-
-    template<class... Ts0>
-      requires (!std::is_same_v<tuple<Ts0...>,tuple<Ts&...>>)
-        constexpr
-    tuple(const tuple<Ts0...>& x)
-      : impl(x.impl)
-    {}
-
-    // We overload operator= even for const object
-    // Indeed, we assign to the value refered to,
-    //   but the reference themselves don't change
-    //   so the tuple of reference stays the same (shallow constness)
-    // This is needed to have std_e::tuple<Ts&...> be a proxy reference type
-    //   that works with the std::indirectly writable concept
+  // assignement
     constexpr tuple& operator=(const tuple& x) {
       assign_through_refs(*this,x);
       return *this;
@@ -246,6 +206,12 @@ class tuple<Ts&...> {
       assign_through_refs(*this,std::move(x));
       return *this;
     }
+    // We overload operator= even for a const object
+    // Indeed, we assign to the value refered to,
+    //   but the reference themselves don't change
+    //   so the tuple of reference stays the same (shallow constness)
+    // This is needed to have std_e::tuple<Ts&...> be a proxy reference type
+    //   that works with the std::indirectly writable concept
     template<class... Ts0> constexpr auto
     operator=(const tuple<Ts0...>& x) -> tuple& {
       assign_through_refs(*this,x);
@@ -277,6 +243,7 @@ class tuple<Ts&...> {
     template<size_t I, class... Ts0> friend constexpr auto
     get(const tuple<Ts0...>& t) -> const tuple_element<I,tuple<Ts0...>>&;
 };
+
 
 /// get {
 template<size_t I, class... Ts> constexpr auto
