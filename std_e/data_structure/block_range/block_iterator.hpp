@@ -2,8 +2,19 @@
 
 
 #include <type_traits>
-#include <array>
-#include "std_e/future/span.hpp"
+#include "std_e/future/array.hpp"
+
+
+// Customization point std::common_reference
+// SEE for https://en.cppreference.com/w/cpp/types/common_reference
+template<class T, ptrdiff_t N,  template<class> class TQual0, template<class> class TQual1>
+struct std::basic_common_reference< std_e::array<T,N> , std_e::span_ref<T,N> , TQual0,TQual1 > {
+  using type = std_e::span_ref<T,N>;
+};
+template<class T, ptrdiff_t N,  template<class> class TQual1, template<class> class TQual0>
+struct std::basic_common_reference< std_e::span_ref<T,N> , std_e::array<T,N> , TQual1,TQual0 > {
+  using type = std_e::span_ref<T,N>;
+};
 
 
 namespace std_e {
@@ -11,8 +22,8 @@ namespace std_e {
 
 template<
   class T, int N,
-  class val_type = std::array<T,N>,
-  class ref_type = std_e::span_ref<T,N>
+  template<class,auto> class val_type = std_e::array,
+  template<class,auto> class ref_type = std_e::span_ref
 >
 class block_iterator {
   public:
@@ -20,17 +31,19 @@ class block_iterator {
     using scalar_type = T;
     using index_type = int; // TODO param I or ptrdiff or size
 
+    /// std::iterator type traits
+    using value_type = val_type<T,N>;
+    using reference = ref_type<T,N>;
+    using difference_type = index_type;
+    using iterator_category = std::random_access_iterator_tag;
+
+  // static methods
     static constexpr auto
     block_size() -> int {
       return N;
     }
 
-    /// std::iterator type traits
-    using value_type = val_type;
-    using reference = ref_type;
-    using difference_type = index_type;
-    using iterator_category = std::random_access_iterator_tag;
-
+  // ctors
     block_iterator() = default;
     block_iterator(T* ptr)
       : ptr(ptr)
@@ -40,11 +53,19 @@ class block_iterator {
       ptr += N;
       return *this;
     }
+    auto operator--() -> block_iterator& {
+      ptr -= N;
+      return *this;
+    }
     auto operator++(int) -> block_iterator {
       block_iterator tmp(*this);
       ++*this;
       return tmp;
-
+    }
+    auto operator--(int) -> block_iterator {
+      block_iterator tmp(*this);
+      --*this;
+      return tmp;
     }
 
     auto operator+=(index_type i) -> block_iterator& {
@@ -56,34 +77,40 @@ class block_iterator {
       return *this;
     }
     friend
-    auto operator+(block_iterator it, index_type i) -> block_iterator {
-      block_iterator res = it;
+    auto operator+(block_iterator x, index_type i) -> block_iterator {
+      block_iterator res = x;
       res += i;
       return res;
     }
     friend
-    auto operator-(block_iterator it, index_type i) -> block_iterator {
-      block_iterator res = it;
+    auto operator+(index_type i, block_iterator x) -> block_iterator {
+      return x+i;
+    }
+    friend
+    auto operator-(block_iterator x, index_type i) -> block_iterator {
+      block_iterator res = x;
       res -= i;
       return res;
+    }
+    friend
+    auto operator-(block_iterator x, block_iterator y) -> difference_type {
+      return (x.ptr-y.ptr)/N;
     }
 
     auto operator*() const {
       return reference(ptr);
+    }
+    auto
+    operator[](index_type i) const -> reference {
+      return reference(ptr+i);
     }
 
     auto data() const -> T* {
       return ptr;
     }
 
-    friend constexpr auto
-    operator==(const block_iterator& it0, const block_iterator& it1) {
-      return it0.ptr == it1.ptr;
-    }
-    friend constexpr auto
-    operator!=(const block_iterator& it0, const block_iterator& it1) {
-      return !(it0 == it1);
-    }
+    constexpr auto
+    operator<=>(const block_iterator& x) const = default;
   private:
     T* ptr;
 };
@@ -92,7 +119,7 @@ class block_iterator {
 } // std_e
 
 
-template<class T, int N, class VT, class RT>
+template<class T, int N, template<class,auto> class VT, template<class,auto> class RT>
 struct std::iterator_traits<std_e::block_iterator<T,N,VT,RT>> {
   using type = std_e::block_iterator<T,N,VT,RT>;
   using value_type = typename type::value_type;

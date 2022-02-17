@@ -1,5 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
-#include "std_e/data_structure/multi_range/multi_range2.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
+#include "std_e/data_structure/block_range/block_range.hpp"
+#include "std_e/future/sort/sort_ranges.hpp"
 
 #include <string>
 
@@ -125,6 +127,42 @@ TEST_CASE("algorithms") {
       CHECK( col2 == expected_col2 );
     }
   }
+}
+TEST_CASE("multi_range2 of block_range") { // case with proxy reference of proxy reference
+  std::vector<int> x = {10,4,5,  6,3,12};
+  using block_range_type = std_e::block_range<std::vector<int>,3>;
+  block_range_type xb = std_e::view_as_block_range<3>(x);
+
+  std_e::multi_range2<block_range_type> t;
+  range<0>(t) = xb;
+
+  // Note: As of GCC 11, std::ranges::sort is broken for proxy references
+  //     see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104561
+  //std::ranges::sort(t.begin(),t.end());
+  std_e::quicksort(t.begin(),t.end());
+  CHECK( x == std::vector{6,3,12,  10,4,5} );
+}
+TEST_CASE("multi_range2 of block_range,vector") { // case with proxy reference of mixed proxy reference/real references
+  std::vector<int> x = {10,4,5,  6,3,12};
+  std::vector<int> y = {100   ,  200};
+
+  using block_range_type = std_e::block_range<std::vector<int>,3>;
+  block_range_type xb = std_e::view_as_block_range<3>(x);
+
+  using span_type = std_e::span<int>;
+  span_type ys (y.data(),y.size());
+
+  std_e::multi_range2<block_range_type,span_type> t;
+  range<0>(t) = xb;
+  range<1>(t) = ys;
+
+  // Note: As of GCC 11, std::ranges::sort is broken for proxy references
+  //     see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104561
+  //std::ranges::sort(t.begin(),t.end());
+  constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
+  std_e::ranges::sort(t,{},proj);
+  CHECK( x == std::vector{6,3,12,  10,4,5} );
+  CHECK( y == std::vector{200   ,  100} );
 }
 
 
