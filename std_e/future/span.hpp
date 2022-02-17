@@ -389,11 +389,44 @@ make_span_n(Contiguous_range& x, I start, I n) {
 template<class T, ptrdiff_t N=dynamic_size>
 class span_ref : public span_base<T,N> {
   public:
+  // ctors
     FORCE_INLINE constexpr
-    span_ref() = delete;
+    span_ref() = delete; // a reference type is not default constructible
 
+    FORCE_INLINE constexpr
+    span_ref(span_ref&& r) = default;
+
+    FORCE_INLINE constexpr
+    span_ref(const span_ref& r) = default;
+
+    using base = span_base<T,N>;
+    using base::base; // inherit other ctors
+
+  // assignment with reference semantics (assign through)
+    /// move/copy assign
+    FORCE_INLINE constexpr
+    span_ref& operator=(span_ref&& r) {
+      STD_E_ASSERT(r.size() == this->size());
+      std::copy(r.begin(),r.end(),this->begin());
+      return *this;
+    }
+    FORCE_INLINE constexpr
+    span_ref& operator=(const span_ref& r) {
+      STD_E_ASSERT(r.size() == this->size());
+      std::copy(r.begin(),r.end(),this->begin());
+      return *this;
+    }
+
+    /// others
     template<class Range> FORCE_INLINE constexpr
     span_ref& operator=(Range&& r) {
+      STD_E_ASSERT(r.size() == this->size());
+      std::copy(r.begin(),r.end(),this->begin());
+      return *this;
+    }
+    // operator= const version to satisfy proxy reference in std::indirectly_writable
+    template<class Range> FORCE_INLINE constexpr
+    const span_ref& operator=(Range&& r) const {
       STD_E_ASSERT(r.size() == this->size());
       std::copy(r.begin(),r.end(),this->begin());
       return *this;
@@ -405,17 +438,6 @@ class span_ref : public span_base<T,N> {
       std::copy(arr, arr+N, this->begin());
       return *this;
     }
-
-    // operator= const version to satisfy proxy reference in std::indirectly_writable
-    template<class Range> FORCE_INLINE constexpr
-    const span_ref& operator=(Range&& r) const {
-      STD_E_ASSERT(r.size() == this->size());
-      std::copy(r.begin(),r.end(),this->begin());
-      return *this;
-    }
-
-    using base = span_base<T,N>;
-    using base::base;
 };
 
 // op== and op!= {
