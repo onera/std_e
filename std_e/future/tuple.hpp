@@ -140,6 +140,9 @@ operator>=(const tuple_impl<Ts0...>& x, const tuple_impl<Ts1...>& y) -> bool {
 
 
 // tuple {
+
+
+/// same_rm_cvref_tuple {
 template<class T0, class T1>
 struct same_rm_cvref_tuple_impl {
   static constexpr bool value = false;
@@ -153,13 +156,35 @@ struct same_rm_cvref_tuple_impl<tuple<Ts0...>,tuple<Ts1...>> {
 };
 
 template<class T0, class T1> constexpr bool same_rm_cvref_tuple = same_rm_cvref_tuple_impl<std::remove_cvref_t<T0>,std::remove_cvref_t<T1>>::value;
+/// same_rm_cvref_tuple }
 
+
+/// is is_std_e_tuple {
+template<class T>
+struct is_std_e_tuple_impl {
+  static constexpr bool value = false;
+};
+
+template<class... Ts>
+struct is_std_e_tuple_impl<tuple<Ts...>> {
+  static constexpr bool value = true;
+};
+
+template<class T> constexpr bool is_std_e_tuple = is_std_e_tuple_impl<T>::value;
+
+template<class T> constexpr bool is_std_e_tuple_ref = (    std::is_lvalue_reference_v<T>
+                                                       ||  std::is_rvalue_reference_v<T> )
+                                                   && is_std_e_tuple<std::remove_cvref_t<T>>;
+/// is is_std_e_tuple }
+
+
+// class tuple {
 template<class... Ts>
 class tuple {
   private:
   // data member
     tuple_impl<Ts...> impl;
-   
+
   // private functions
     template<size_t I, class Self, class Other> static auto
     assign_through_refs_impl_at(Self&& x, Other&& y) -> void {
@@ -183,15 +208,15 @@ class tuple {
     constexpr tuple(tuple&& x) = default;
 
     template<class T0, class... Ts0>
-      requires ( !std::is_same_v< std::remove_cvref_t<T0> , tuple<Ts...> >
-              && !same_rm_cvref_tuple<T0,tuple<Ts...>> )
+      requires ( !std::is_same_v< std::remove_cvref_t<T0> , tuple<Ts...> > // do not match instead of copy/move ctors
+              && !same_rm_cvref_tuple<T0,tuple<Ts...>> ) // do not match ctor just below
         constexpr
     tuple(T0&& x, Ts0&&... xs)
       : impl(FWD(x),FWD(xs)...)
     {}
 
     template<class... Ts0>
-      requires (!std::is_same_v<tuple<Ts0...>,tuple<Ts...>>)
+      requires (!std::is_same_v<tuple<Ts0...>,tuple<Ts...>>) // do not match instead of copy/move ctors
         constexpr
     tuple(const tuple<Ts0...>& x)
       : impl(x.impl)
@@ -243,6 +268,7 @@ class tuple {
     template<size_t I, class... Ts0> friend constexpr auto
     get(const tuple<Ts0...>& t) -> const tuple_element<I,tuple<Ts0...>>&;
 };
+// class tuple }
 
 
 /// get {
@@ -285,14 +311,35 @@ operator>=(const tuple<Ts0...>& x, const tuple<Ts1...>& y) -> bool {
 /// comparisons }
 
 /// swap {
-template<class... Ts, size_t... Is> static auto
-swap_impl(const tuple<Ts&...>& x, const tuple<Ts&...>& y, std::index_sequence<Is...>) -> void {
+//template<class... Ts, size_t... Is> static auto
+//swap_impl(const tuple<Ts&...>& x, const tuple<Ts&...>& y, std::index_sequence<Is...>) -> void {
+//  using std::swap;
+//  ( swap(get<Is>(x),get<Is>(y)) , ... );
+//}
+//
+//template<class... Ts> constexpr auto
+//swap(const tuple<Ts&...>& x, const tuple<Ts&...>& y) -> void {
+//  swap_impl(x,y,std::make_index_sequence<sizeof...(Ts)>{});
+//}
+template<class Tuple, size_t... Is> static auto
+swap_impl(Tuple&& x, Tuple&& y, std::index_sequence<Is...>) -> void {
   using std::swap;
   ( swap(get<Is>(x),get<Is>(y)) , ... );
 }
 
 template<class... Ts> constexpr auto
-swap(const tuple<Ts&...>& x, const tuple<Ts&...>& y) -> void {
+swap(tuple<Ts...>& x, tuple<Ts...>& y) -> void {
+  swap_impl(x,y,std::make_index_sequence<sizeof...(Ts)>{});
+}
+// Swapping const tuple<Ts...>& is legit if Ts are reference (or proxy reference) types
+// And in this case, we really want to swap member by member (i.e. not use the generic std::swap)
+template<class... Ts> constexpr auto
+swap(const tuple<Ts...>& x, const tuple<Ts...>& y) -> void {
+  swap_impl(x,y,std::make_index_sequence<sizeof...(Ts)>{});
+}
+template<class... Ts> constexpr auto
+swap(tuple<Ts...>&& x, tuple<Ts...>&& y) -> void {
+  //swap_impl(std::move(x),std::move(y),std::make_index_sequence<sizeof...(Ts)>{});
   swap_impl(x,y,std::make_index_sequence<sizeof...(Ts)>{});
 }
 /// swap }
@@ -309,69 +356,10 @@ struct std::tuple_size<std_e::tuple<Ts...>> {
 };
 
 
-// See https://ericniebler.com/2015/02/13/iterators-plus-plus-part-2/
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts...>&, std_e::tuple<Ts&...>&& > {
-  using type = std_e::tuple<Ts&...>;
-};
-
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&&...> &&, std_e::tuple<Ts&...> && > {
-  using type = std_e::tuple<const Ts&...>;
-};
-
-template<class... Ts>
-struct std::common_reference< const std_e::tuple<Ts...>&, std_e::tuple<Ts&&...>&& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-
-// symmetric
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&...>&&, std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<Ts&...>;
-};
-
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&...> &&, std_e::tuple<Ts&&...> && > {
-  using type = std_e::tuple<const Ts&...>;
-};
-
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&&...>&&, const std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-
-// Not in Neibler's explanation
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&...>&&, const std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&...>&, const std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< const std_e::tuple<Ts&...>&, const std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts...>&, std_e::tuple<Ts&...> > {
-  using type = std_e::tuple<Ts&...>;
-};
-// symm
-template<class... Ts>
-struct std::common_reference< const std_e::tuple<Ts...>&, std_e::tuple<Ts&...>&& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< const std_e::tuple<Ts...>&, std_e::tuple<Ts&...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< const std_e::tuple<Ts...>&, const std_e::tuple<Ts&...>& > {
-  using type = std_e::tuple<const Ts&...>;
-};
-template<class... Ts>
-struct std::common_reference< std_e::tuple<Ts&...>, std_e::tuple<Ts...>& > {
-  using type = std_e::tuple<Ts&...>;
+// Customization point std::common_reference
+// SEE https://en.cppreference.com/w/cpp/utility/tuple/basic_common_reference
+template<class... Ts, class... Us, template<class> class TQual, template<class> class UQual >
+  requires requires { typename std_e::tuple<std::common_reference_t<TQual<Ts>, UQual<Us>>...>; }
+struct std::basic_common_reference<std_e::tuple<Ts...>, std_e::tuple<Us...>, TQual, UQual> {
+  using type = std_e::tuple<std::common_reference_t<TQual<Ts>, UQual<Us>>...>;
 };

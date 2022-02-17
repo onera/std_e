@@ -18,6 +18,16 @@ remove_back_n(std::string& s, int n) -> std::string& {
   return s;
 }
 
+template<class Range> auto
+join(const Range& ss, const std::string& sep) -> std::string {
+  if (ss.size()==0) return "";
+  std::string res;
+  for (const std::string& s : ss) {
+    res += s + sep;
+  }
+  remove_back_n(res,sep.size());
+  return res;
+}
 inline auto
 join(const std::vector<std::string>& ss, const std::string& sep) -> std::string {
   if (ss.size()==0) return "";
