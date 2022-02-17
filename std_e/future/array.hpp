@@ -8,11 +8,19 @@
 namespace std_e {
 
 
+// std_e::array is just like std::array
+// except that it can be constructed from a std_e::span_ref
+// (necessary to make ranges with reference==span_ref and value_type==array-like type
 template<class T, ptrdiff_t N>
 class array : public std::array<T,N> {
   public:
     using base = std::array<T,N>;
-    using base::base;
+
+    template<class T0, class... Ts0>
+      requires (sizeof...(Ts0)>0 || !std::is_same_v< span_base<T,N> , std::remove_cvref_t<T0> >)
+    array(T0&& x, Ts0&&... xs)
+      : base{FWD(x),FWD(xs)...}
+    {}
 
     constexpr
     array(const span_base<T,N>& x) {
