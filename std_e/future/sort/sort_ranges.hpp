@@ -4,94 +4,134 @@
 #include <cstddef>
 #include <algorithm>
 #include <ranges>
+#include "std_e/log.hpp"
 
 
 namespace std_e {
 
-//inline
-//void unguarded_linear_insert(int64_t* last, int64_t value) {
-//  int64_t* previous = last;
-//  while (value,*--previous) *last-- = *previous;
-//  *last = value;
-//}
-//
-//inline
-//void unguarded_insertion_sort(int64_t* first, int64_t* last) {
-//  for (int64_t* i = first; i != last; ++i)
-//    unguarded_linear_insert(i, *i);
-//}
-//
-//inline
-//void linear_insert(int64_t* first, int64_t* last, int64_t value) {
-//  if (value,*first) {
-//    while (first != last--) *(last + 1) = *last;
-//    *first = value;
-//  }
-//  else unguarded_linear_insert(last, value);
-//}
-//
-//inline
-//void insertion_sort(int64_t* first, int64_t* last) {
-//  if (first == last) return;
-//  for (int64_t* i = first + 1; i != last; ++i)
-//    linear_insert(first, i, *i);
-//}
-//
-//inline
-//int64_t median_of_3(int64_t a, int64_t b, int64_t c) {
-//  if (a < b)
-//    if (b < c) return b;
-//    else if (a < c) return c;
+template<class I, class Comp> auto
+swap_median_of_3_pivot_first(I a, I b, I c, Comp comp) -> void {
+  if (comp(*a,*b))
+    if (comp(*b,*c)) return std::ranges::iter_swap(a,b);
+    else if (comp(*a,*c)) return std::ranges::iter_swap(a,c);
+    else return;
+  else if (comp(*a,*c)) return;
+  else if (comp(*b,*c)) return std::ranges::iter_swap(a,c);
+  else return std::ranges::iter_swap(a,b);
+}
+
+template<class I, class Comp> auto
+swap_median_of_5_pivot_first(I a, I b, I c, I d, I e, Comp comp) -> void {
+  auto comp_deref = [comp](I x, I y){ return comp(*x,*y); };
+  I f = max( min(b,c,comp_deref) , min(d,e,comp_deref) , comp_deref ); // discards lowest from last 4
+  I g = min( max(b,c,comp_deref) , max(d,e,comp_deref) , comp_deref ); // discards biggest from last 4
+  return swap_median_of_3_pivot_first(a,f,g,comp);
+}
+
+
+// ========== From Stepanov ==========
+template<class I, class Comp> auto
+unguarded_linear_insert(I last, std::iter_value_t<I> value, Comp comp) -> void {
+  I previous = last-1;
+  while (comp(value,*previous)) {
+    *last = std::ranges::iter_move(previous);
+    last = previous;
+    --previous;
+  }
+  *last = std::move(value);
+}
+
+template<class I, class Comp> auto
+unguarded_insertion_sort(I first, I last, Comp comp) -> void {
+  for (I i = first; i != last; ++i) {
+    unguarded_linear_insert(i, std::ranges::iter_move(i), comp);
+  }
+}
+
+template<class I, class Comp> auto
+linear_insert(I first, I last, std::iter_value_t<I> value, Comp comp) -> void {
+  if (comp(value,*first)) {
+    while (first != last--) {
+      *(last+1) = std::ranges::iter_move(last);
+    }
+    *first = std::move(value);
+  }
+  else unguarded_linear_insert(last, value, comp);
+}
+
+template<class I, class Comp> auto
+insertion_sort(I first, I last, Comp comp) -> void {
+  if (first == last) return;
+  for (I i = first+1; i != last; ++i) {
+    linear_insert(first, i, std::ranges::iter_move(i), comp);
+  }
+}
+
+//template<class T, class Comp> auto
+//median_of_3(const T& a, const T& b, const T& c, Comp comp) -> const T& {
+//  if (comp(a,b))
+//    if (comp(b,c)) return b;
+//    else if (comp(a,c)) return c;
 //    else return a;
-//  else if (a < c) return a;
-//  else if (b < c) return c;
+//  else if (comp(a,c)) return a;
+//  else if (comp(b,c)) return c;
 //  else return b;
 //}
-//
-//int64_t* unguarded_partition(int64_t* first, int64_t* last, int64_t pivot) {
-//  --last;
-//  while (*first < pivot) ++first;
-//  while (pivot,*last) --last;
-//  while (first < last) {
-//    int64_t tmp = *first;
-//    *first = *last;
-//    *last = tmp;
-//    ++first; --last;
-//    while (*first < pivot) ++first;
-//    while (pivot,*last) --last;
-//  }
-//  return first;
-//}
-//
-//void quicksort_loop(int64_t* first, int64_t* last, ptrdiff_t threshold) {
-//  ptrdiff_t len = last - first;
-//  while (len > threshold) {
-//    int64_t* middle = first + (last - first) / 2;
-//    int64_t pivot = median_of_3(*first, *middle, *(last - 1));
-//    int64_t* cut = unguarded_partition(first, last, pivot);
-//    if (last - cut < cut - first) {
-//      quicksort_loop(cut, last, threshold);
-//      last = cut;
-//    } else {
-//      quicksort_loop(first, cut, threshold);
-//      first = cut;
-//    }
-//    len = last - first;
-//  }
-//}
-//
-//void quicksort(int64_t* first, int64_t* last) {
-//  ptrdiff_t len = last - first;
-//  ptrdiff_t threshold = 16;
-//  if (len <= threshold) {
-//    insertion_sort(first, last);
-//  } else {
-//    quicksort_loop(first, last, threshold);
-//    int64_t* middle = first + threshold;
-//    insertion_sort(first, middle);
-//    unguarded_insertion_sort(middle, last);
-//  }
-//}
+
+template<class I, class Comp> auto
+unguarded_partition(I first, I last, std::iter_value_t<I> pivot, Comp comp) -> I {
+  --last;
+  while (comp(*first,pivot)) ++first;
+  while (comp(pivot,*last)) --last;
+  while (first < last) {
+    std::ranges::iter_swap(first,last);
+    ++first; --last;
+    while (comp(*first,pivot)) ++first;
+    while (comp(pivot,*last)) --last;
+  }
+  return first;
+}
+
+template<class I, class Comp> auto
+quicksort_loop(I first, I last, Comp comp, ptrdiff_t threshold) -> int {
+  ptrdiff_t len = last - first;
+  int k=0;
+  while (len > threshold && k<300) {
+    I middle = first + (last-first)/2;
+    swap_median_of_3_pivot_first(first, middle, last-1, comp);
+    //swap_median_of_3_pivot_first(first + (last-first)/6, middle, first + 5*(last-first)/6, comp);
+    //swap_median_of_5_pivot_first(first,first + (last-first)/4,first + (last-first)/2,first + 3*(last-first)/4,last-1,comp);
+    std::iter_value_t<I> pivot = *first;
+    I cut = unguarded_partition(first, last, pivot, comp);
+    if (last - cut < cut - first) {
+      quicksort_loop(cut+1, last, comp, threshold);
+      last = cut;
+    } else {
+      quicksort_loop(first, cut, comp, threshold);
+      first = cut+1;
+    }
+    len = last - first;
+    ++k;
+  }
+  return k;
+}
+
+template<class I, class Comp = std::less<>> auto
+quicksort(I first, I last, Comp comp = {}) -> void {
+  constexpr ptrdiff_t threshold = 16;
+  ptrdiff_t len = last - first;
+  if (len <= threshold) {
+    insertion_sort(first, last, comp);
+  } else {
+    int k = quicksort_loop(first, last, comp, threshold);
+    ELOG(k);
+    I middle = first + threshold;
+    insertion_sort(first, middle, comp);
+    unguarded_insertion_sort(middle, last, comp);
+  }
+}
+// ========== From Stepanov - end ==========
+
 //
 //
 //
@@ -116,36 +156,34 @@ namespace std_e {
 ////  else return b;
 ////}
 
-template<class I, class Comp = std::less<>> auto
-swap_median_of_3_pivot_first(I a, I b, I c, Comp comp = {}) -> void {
-  if (comp(*a,*b))
-    if (comp(*b,*c)) return std::ranges::iter_swap(a,b);
-    else if (comp(*a,*c)) return std::ranges::iter_swap(a,c);
-    else return;
-  else if (comp(*a,*c)) return;
-  else if (comp(*b,*c)) return std::ranges::iter_swap(a,c);
-  else return std::ranges::iter_swap(a,b);
-}
-
-
-template<class I, class Comp = std::less<>> auto
-quicksort(I first, I last, Comp comp = {}) -> void {
-  I next = std::next(first);
-
-  if (first == last) return;
-  if (next  == last) return;
-
-  swap_median_of_3_pivot_first(first,first + (last-first)/2,last,comp);
-  decltype(auto) pivot = *first;
-  auto less_than_pivot = [&pivot,comp](const auto& value){ return comp(value,pivot); };
-
-  I partition_pt = std::ranges::partition(next,last,less_than_pivot).begin();
-  I one_before_partition_pt = std::prev(partition_pt);
-
-  std::ranges::iter_swap(first,one_before_partition_pt);
-  quicksort(first,one_before_partition_pt);
-  quicksort(partition_pt,last);
-}
+//
+//
+//template<class I, class Comp = std::less<>> auto
+//quicksort_impl(I first, I last, Comp comp = {}) -> int {
+//  I next = std::next(first);
+//
+//  if (first == last) return 0;
+//  if (next  == last) return 0;
+//
+//  swap_median_of_3_pivot_first(first,first + (last-first)/2,last-1,comp);
+//  //swap_median_of_5_pivot_first(first,first + (last-first)/4,first + (last-first)/2,first + 3*(last-first)/4,last-1,comp);
+//  decltype(auto) pivot = *first;
+//  auto less_than_pivot = [&pivot,comp](const auto& value){ return comp(value,pivot); };
+//
+//  I partition_pt = std::ranges::partition(next,last,less_than_pivot).begin();
+//  I one_before_partition_pt = std::prev(partition_pt);
+//
+//  std::ranges::iter_swap(first,one_before_partition_pt);
+//  auto l = quicksort_impl(first,one_before_partition_pt);
+//  auto r = quicksort_impl(partition_pt,last);
+//  return std::max(l,r)+1;
+//}
+//
+//template<class I, class Comp = std::less<>> auto
+//quicksort(I first, I last, Comp comp = {}) -> void {
+//  int n_iter = quicksort_impl(first,last,comp);
+//  ELOG(n_iter);
+//}
 
 template<typename Comp, typename Proj> constexpr auto
 make_comp_proj(Comp& comp, Proj& proj) {

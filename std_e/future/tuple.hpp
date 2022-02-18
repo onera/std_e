@@ -159,7 +159,7 @@ template<class T0, class T1> constexpr bool same_rm_cvref_tuple = same_rm_cvref_
 /// same_rm_cvref_tuple }
 
 
-/// is is_std_e_tuple {
+/// is_std_e_tuple {
 template<class T>
 struct is_std_e_tuple_impl {
   static constexpr bool value = false;
@@ -175,7 +175,7 @@ template<class T> constexpr bool is_std_e_tuple = is_std_e_tuple_impl<T>::value;
 template<class T> constexpr bool is_std_e_tuple_ref = (    std::is_lvalue_reference_v<T>
                                                        ||  std::is_rvalue_reference_v<T> )
                                                    && is_std_e_tuple<std::remove_cvref_t<T>>;
-/// is is_std_e_tuple }
+/// is_std_e_tuple }
 
 
 // class tuple {
@@ -209,7 +209,7 @@ class tuple {
 
     template<class T0, class... Ts0>
       requires ( !std::is_same_v< std::remove_cvref_t<T0> , tuple<Ts...> > // do not match instead of copy/move ctors
-              && !same_rm_cvref_tuple<T0,tuple<Ts...>> ) // do not match ctor just below
+              && !is_std_e_tuple<T0> ) // do not match ctor just below
         constexpr
     tuple(T0&& x, Ts0&&... xs)
       : impl(FWD(x),FWD(xs)...)
@@ -339,7 +339,6 @@ swap(const tuple<Ts...>& x, const tuple<Ts...>& y) -> void {
 }
 template<class... Ts> constexpr auto
 swap(tuple<Ts...>&& x, tuple<Ts...>&& y) -> void {
-  //swap_impl(std::move(x),std::move(y),std::make_index_sequence<sizeof...(Ts)>{});
   swap_impl(x,y,std::make_index_sequence<sizeof...(Ts)>{});
 }
 /// swap }
