@@ -17,13 +17,13 @@ class array : public std::array<T,N> {
     using base = std::array<T,N>;
 
     template<class T0, class... Ts0>
-      requires (sizeof...(Ts0)>0 || !std::is_same_v< span_base<T,N> , std::remove_cvref_t<T0> >)
+      requires (sizeof...(Ts0)>0 || !std::is_same_v< span_ref<T,N> , std::remove_cvref_t<T0> >)
     array(T0&& x, Ts0&&... xs)
       : base{FWD(x),FWD(xs)...}
     {}
 
     constexpr
-    array(const span_base<T,N>& x) {
+    array(const span_ref<T,N>& x) {
       std::copy(x.begin(),x.end(),this->begin());
     }
 };
