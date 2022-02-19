@@ -345,6 +345,13 @@ swap(tuple<Ts...>&& x, tuple<Ts...>&& y) -> void {
 
 // tuple }
 
+//
+// customization point for reference_value_t {
+template<class... Ts>
+struct reference_value<std_e::tuple<Ts...>> {
+  using type = std_e::tuple< reference_value_t<Ts> ... >;
+};
+// customization point for reference_value_t }
 
 } // std_e
 

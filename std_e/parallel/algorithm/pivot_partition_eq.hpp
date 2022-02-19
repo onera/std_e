@@ -39,7 +39,7 @@ pivot_partition_eq(
 {
   using T = typename Rng::value_type;
   using iter_type = typename Rng::iterator;
-  using T_piv = proj_return_type<Proj,T>;
+  using T_piv = value_return_t<Proj,T>;
   using I = typename Return_container::value_type;
   I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
   const int n_rk = n_rank(comm);

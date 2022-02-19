@@ -22,9 +22,9 @@ class multi_range2 {
     using index_type = std::ptrdiff_t;
     using impl_type = std::tuple<Ranges...>;
 
-    using value_type      =       std_e::tuple<typename std::remove_cvref_t<Ranges>::value_type...>;
-    using reference       =       std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
-    using const_reference = const std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
+    using value_type      = std_e::tuple<typename std::remove_cvref_t<Ranges>::value_type...>;
+    using reference       = std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
+    using const_reference = std_e::tuple<typename std::remove_cvref_t<Ranges>::const_reference ...>;
     using iterator = multi_range_iterator<this_type>;
     using const_iterator = multi_range_iterator<const this_type>;
 
@@ -86,11 +86,11 @@ class multi_range2 {
     }
     auto
     operator[](index_type i) -> reference { // TODO how to enforce invariant (2) ?
-      return this->subscript_op__impl(i,std::make_index_sequence<n_range()>());
+      return this->subscript_op_impl(i,std::make_index_sequence<n_range()>());
     }
     auto
     operator[](index_type i) const -> const_reference {
-      return this->subscript_op__impl(i,std::make_index_sequence<n_range()>());
+      return this->subscript_op_impl(i,std::make_index_sequence<n_range()>());
     }
     auto
     back() -> reference {
@@ -122,12 +122,12 @@ class multi_range2 {
   // methods
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
-    subscript_op__impl(index_type i, std::index_sequence<Is...>) const -> const_reference {
-      return reference(get<Is>(_impl)[i]...);
+    subscript_op_impl(index_type i, std::index_sequence<Is...>) const -> const_reference {
+      return const_reference(get<Is>(_impl)[i]...);
     }
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
-    subscript_op__impl(index_type i, std::index_sequence<Is...>) -> reference {
+    subscript_op_impl(index_type i, std::index_sequence<Is...>) -> reference {
       return reference(get<Is>(_impl)[i]...);
     }
     template<class args_tuple_type, size_t... Is> auto

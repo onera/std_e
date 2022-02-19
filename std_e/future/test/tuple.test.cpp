@@ -1,5 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/future/tuple.hpp"
+#include "std_e/future/span_ref.hpp"
 
 
 TEST_CASE("tuple") {
@@ -121,4 +122,13 @@ TEST_CASE("tuple of references works as proxy reference (unlike C++20 std::tuple
     CHECK( d0 == 3.14 );
     CHECK( d1 == 1.5  );
   }
+}
+
+TEST_CASE("reference_value_t<tuple>") {
+  CHECK(std::is_same_v<
+    std_e::reference_value_t<
+      std_e::tuple<std_e::span_ref<int,3>,int&>
+    >,
+    std_e::tuple<std_e::array<int,3>,int>
+  >);
 }
