@@ -66,7 +66,7 @@ pivot_partition_eq_indices(RA_rng& x, const RA_pivot_rng& pivots, Proj proj = {}
   int k = pivots.size();
   Return_container partition_is(1+2*k); // add begin and end for convenience
   partition_is[0] = 0;
-  pivot_partition_eq_indices(begin(x),end(x),
+  pivot_partition_eq_indices(std::ranges::begin(x),std::ranges::end(x),
                              begin(pivots),end(pivots),
                              begin(partition_is)+1,
                              proj,comp);

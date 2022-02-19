@@ -355,7 +355,7 @@ struct std::tuple_size<std_e::tuple<Ts...>> {
 };
 
 
-// Customization point std::common_reference
+// Customization point for std::common_reference
 // SEE https://en.cppreference.com/w/cpp/utility/tuple/basic_common_reference
 template<class... Ts, class... Us, template<class> class TQual, template<class> class UQual >
   requires requires { typename std_e::tuple<std::common_reference_t<TQual<Ts>, UQual<Us>>...>; }

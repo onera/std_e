@@ -9,7 +9,7 @@
 
 namespace std_e {
 
-  
+
 template<class T>
 struct compile_time_size_impl {
   static constexpr size_t value = std_e::dynamic_size;

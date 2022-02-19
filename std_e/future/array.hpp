@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/future/span.hpp"
+#include "std_e/future/span_ref.hpp"
 #include <array>
 
 
@@ -16,14 +16,26 @@ class array : public std::array<T,N> {
   public:
     using base = std::array<T,N>;
 
+    constexpr
+    array() = default;
+
     template<class T0, class... Ts0>
-      requires (sizeof...(Ts0)>0 || !std::is_same_v< span_ref<T,N> , std::remove_cvref_t<T0> >)
+      requires (
+          sizeof...(Ts0)>0 // when there is more than 1 arg, there is no ctor ambiguity
+       || (    !std::is_same_v< span_ref<      T,N> , std::remove_cvref_t<T0> >  // disable because handled by ctor below
+            && !std::is_same_v< span_ref<const T,N> , std::remove_cvref_t<T0> > )// disable because handled by ctor below
+      )
+        constexpr
     array(T0&& x, Ts0&&... xs)
       : base{FWD(x),FWD(xs)...}
     {}
 
     constexpr
     array(const span_ref<T,N>& x) {
+      std::copy(x.begin(),x.end(),this->begin());
+    }
+    constexpr
+    array(const span_ref<const T,N>& x) {
       std::copy(x.begin(),x.end(),this->begin());
     }
 };

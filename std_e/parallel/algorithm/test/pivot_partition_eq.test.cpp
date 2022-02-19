@@ -4,6 +4,8 @@
 #include "std_e/parallel/algorithm/pivot_partition_eq.hpp"
 #include "std_e/interval/algorithm.hpp"
 #include "std_e/unit_test/math.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
+#include "std_e/data_structure/block_range/block_range.hpp"
 
 using namespace std_e;
 using std::vector;
@@ -371,5 +373,77 @@ MPI_TEST_CASE("parallel pivot_partition_eq - with and without indirect projector
     MPI_CHECK( 2, partition_indices == interval_vector{0,  2,     6,6} );
     MPI_CHECK( 2,            x_perm ==          vector{2,1,6,5,7,9} );
   }
+}
+
+
+MPI_TEST_CASE("parallel pivot_partition_eq - multi_range - 2 procs",2) {
+  int rk = test_rank;
+
+  vector<int> x;
+  vector<int> y;
+  if (rk == 0) x = {13,11,10,14, 0, 7 ,9, 6};
+  if (rk == 0) y = { 0, 1, 2, 3, 4, 5 ,6, 7};
+  if (rk == 1) x = {12, 3, 4, 8, 5, 1, 2};
+  if (rk == 1) y = { 8, 9,10,11,12,13,14};
+
+  auto mr = view_as_multi_range(x,y);
+  auto proj = [](const auto& x){ return get<0>(x); };
+  interval_vector<int> partition_indices = std_e::pivot_partition_eq(mr,test_comm,proj);
+
+  ELOG(x);
+  ELOG(y);
+
+  // check that `pivot_partition_once` did partition `x` according to the returned indices
+  CHECK( is_partitioned_at_indices(x,partition_indices) );
+
+  // Since max_imbalance==0., and the total size is 15,
+  // It means the global partition indices are exactly 0,8,15
+  // The global partition index is the sum over the ranks of partition_indices
+  CHECK( all_reduce(partition_indices.as_base(),MPI_SUM,test_comm) == vector{0,8,15} ); // TODO as_base is ugly!
+
+  // regression testing values
+  MPI_CHECK( 0 , partition_indices == interval_vector{0,       3,        8} );
+  MPI_CHECK( 0 ,                 x ==          vector{ 0, 6, 7, 9,10,13,14,11} );
+  MPI_CHECK( 0 ,                 y ==          vector{ 4, 7, 5, 6, 2, 0, 3, 1} );
+  MPI_CHECK( 1 , partition_indices == interval_vector{0,        5,  7} );
+  MPI_CHECK( 1 ,                 x ==          vector{ 2, 3, 4, 1, 5, 8,12} );
+  MPI_CHECK( 1 ,                 y ==          vector{14, 9,10,13,12,11, 8} );
+}
+
+MPI_TEST_CASE("parallel pivot_partition_eq - block_range - 2 procs",2) {
+  // The two procs have the same data (two blocks of 3 elements)
+  // The first  block of rank 0 and the first  block of rank 1 will go to rank 0
+  // The second block of rank 0 and the second block of rank 1 will go to rank 1
+  // TODO use different data to make it clear what is going on
+  std::vector<int> x = {10,4,5,  6,3,12};
+  block_range<std::vector<int>,3> xb = view_as_block_range<3>(x);
+
+  std_e::pivot_partition_eq(xb,test_comm);
+  // TODO check idx
+  CHECK( x == std::vector{6,3,12,  10,4,5} );
+}
+
+MPI_TEST_CASE("parallel pivot_partition_eq - block_range - 2 procs",2) {
+  // case with proxy reference of mixed proxy reference/real references
+  // same as above, both rank have the same data
+  // TODO use different data to make it clear what is going on
+  std::vector<int> x = {10,4,5,  6,3,12};
+  std::vector<int> y = {100   ,  200};
+
+  using block_range_type = std_e::block_range<std::vector<int>,3>;
+  block_range_type xb = std_e::view_as_block_range<3>(x);
+
+  using span_type = std_e::span<int>;
+  span_type ys (y.data(),y.size());
+
+  std_e::multi_range2<block_range_type,span_type> t;
+  range<0>(t) = xb;
+  range<1>(t) = ys;
+
+  constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
+  //std_e::pivot_partition_eq(t,test_comm,proj);
+  //// TODO check idx
+  //CHECK( x == std::vector{6,3,12,  10,4,5} );
+  //CHECK( y == std::vector{200   ,  100} );
 }
 #endif // __cplusplus > 201703L
