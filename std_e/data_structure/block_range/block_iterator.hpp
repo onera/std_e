@@ -5,7 +5,7 @@
 #include "std_e/future/array.hpp"
 
 
-// Customization point std::common_reference
+// Customization point for std::common_reference
 // SEE for https://en.cppreference.com/w/cpp/types/common_reference
 template<class T, ptrdiff_t N,  template<class> class TQual0, template<class> class TQual1>
 struct std::basic_common_reference< std_e::array<T,N> , std_e::span_ref<T,N> , TQual0,TQual1 > {

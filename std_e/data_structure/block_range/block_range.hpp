@@ -73,6 +73,23 @@ class block_range {
     C* cs_ptr;
 };
 
+template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
+begin(block_range<C,N,VT,RT>& x) {
+  return x.begin();
+}
+template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
+begin(const block_range<C,N,VT,RT>& x) {
+  return x.begin();
+}
+template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
+end(block_range<C,N,VT,RT>& x) {
+  return x.end();
+}
+template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
+end(const block_range<C,N,VT,RT>& x) {
+  return x.end();
+}
+
 
 template<int N, class C> constexpr auto
 view_as_block_range(C& c) {

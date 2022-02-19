@@ -1,5 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/meta/compile_time_size.hpp"
+#include "std_e/future/span_ref.hpp"
 
 #include <vector>
 #include <deque>

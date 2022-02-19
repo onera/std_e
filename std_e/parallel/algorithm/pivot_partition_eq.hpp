@@ -11,6 +11,7 @@
 #include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include <cmath>
+#include <ranges>
 
 
 namespace std_e {
@@ -37,6 +38,7 @@ pivot_partition_eq(
   -> Return_container
 {
   using T = typename Rng::value_type;
+  using iter_type = typename Rng::iterator;
   using T_piv = proj_return_type<Proj,T>;
   using I = typename Return_container::value_type;
   I sz_tot = all_reduce(x.size(),MPI_SUM,comm);
@@ -65,11 +67,12 @@ pivot_partition_eq(
     int n_sub_intervals = sub_ins.size();
 
     // 0. create sub-ranges of `x` that need partitioning
-    std::vector<std_e::span<T>> x_sub(n_sub_intervals);
+    using sub_range_type = std::ranges::subrange<iter_type>;
+    std::vector<sub_range_type> x_sub(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
-      T* start  = x.data() + sub_ins[i].inf;
-      T* finish = x.data() + sub_ins[i].sup;
-      x_sub[i] = make_span(start,finish);
+      auto start  = begin(x) + sub_ins[i].inf;
+      auto finish = begin(x) + sub_ins[i].sup;
+      x_sub[i] = sub_range_type(start,finish);
     }
 
     // 1. compute pivots

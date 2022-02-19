@@ -2,6 +2,7 @@
 
 
 #include "std_e/parallel/mpi/base.hpp"
+#include "std_e/future/span_ref.hpp"
 
 
 namespace std_e {
