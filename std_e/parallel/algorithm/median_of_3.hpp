@@ -24,7 +24,7 @@ namespace std_e {
 
 template<
   class RA_rng, class I = typename RA_rng::size_type, class Proj = identity_closure,
-  class T = std::ranges::range_value_t<RA_rng>, class T_piv = proj_return_type<Proj,T>
+  class T = std::ranges::range_value_t<RA_rng>, class T_piv = value_return_t<Proj,T>
 > auto
 median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm, Proj proj = {}) -> std::vector<T_piv> {
   I size_tot = all_reduce(x.size(),MPI_SUM,comm);
@@ -41,7 +41,7 @@ median_of_3_sample(const RA_rng& x, I n_pivot, MPI_Comm comm, Proj proj = {}) ->
 //  -> Solution: n_pivot gives which ranks to hit, and how many times, but then we take values in the rank similar to this (excluding begin/end)
 template<
   class RA_rng, class I = typename RA_rng::size_type, class Proj = identity_closure,
-  class T = std::ranges::range_value_t<RA_rng>, class T_piv = proj_return_type<Proj,T>
+  class T = std::ranges::range_value_t<RA_rng>, class T_piv = value_return_t<Proj,T>
 > auto
 median_of_3_sample_mod(const RA_rng& x, I n_pivot, Proj proj = {}) -> std::vector<T_piv> {
   auto sz = x.size();
@@ -76,7 +76,7 @@ using median_of_3_sample_mod_closure = decltype(median_of_3_sample_mod_fn);
 
 template<
   class RA_rng, class I, class sampling_algo_type, class Proj = identity_closure,
-  class T = std::ranges::range_value_t<RA_rng>, class T_piv = proj_return_type<Proj,T>
+  class T = std::ranges::range_value_t<RA_rng>, class T_piv = value_return_t<Proj,T>
 > auto
 find_pivots_by_sampling(const RA_rng& x, I n_pivot, MPI_Comm comm, sampling_algo_type sampling_algo, Proj proj = {}) -> std::vector<T_piv> {
   // 1. local samples
@@ -104,7 +104,7 @@ find_pivots_by_sampling(const RA_rng& x, I n_pivot, MPI_Comm comm, sampling_algo
 
 template<
   class RA_rng, class I, class Proj = identity_closure, class sampling_algo_type = median_of_3_sample_mod_closure,
-  class T = std::ranges::range_value_t<RA_rng>, class T_piv = proj_return_type<Proj,T>
+  class T = std::ranges::range_value_t<RA_rng>, class T_piv = value_return_t<Proj,T>
 > auto
 find_pivots(std::vector<RA_rng>& xs, const std::vector<I>& ns, MPI_Comm comm, Proj proj = {}, sampling_algo_type sampling_algo = {}) {
   // TODO implement with only one gather:

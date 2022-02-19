@@ -60,3 +60,7 @@ TEST_CASE("span assignment") {
     CHECK( v1 == vector{0,1,2} );
   }
 }
+
+TEST_CASE("reference_value_t<span_ref>") {
+  CHECK(std::is_same_v< std_e::reference_value_t<std_e::span_ref<int,3>> , std_e::array<int,3> >);
+}

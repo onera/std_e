@@ -2,6 +2,7 @@
 
 
 #include "std_e/future/span.hpp"
+#include "std_e/meta/reference_traits.hpp"
 
 
 namespace std_e {
@@ -106,6 +107,16 @@ template<class Contiguous_range> FORCE_INLINE constexpr auto
 make_span_ref(Contiguous_range& x) {
   return make_span_ref(x.data(),x.size());
 }
+
+
+// customization point for reference_value_t {
+template<class T, ptrdiff_t N> class array; // fwd decl
+
+template<class T, ptrdiff_t N>
+struct reference_value<span_ref<T,N>> {
+  using type = std_e::array<T,N>;
+};
+// customization point for reference_value_t }
 
 
 } // std_e

@@ -441,9 +441,9 @@ MPI_TEST_CASE("parallel pivot_partition_eq - block_range - 2 procs",2) {
   range<1>(t) = ys;
 
   constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
-  //std_e::pivot_partition_eq(t,test_comm,proj);
-  //// TODO check idx
-  //CHECK( x == std::vector{6,3,12,  10,4,5} );
-  //CHECK( y == std::vector{200   ,  100} );
+  std_e::pivot_partition_eq(t,test_comm,proj);
+  // TODO check idx
+  CHECK( x == std::vector{6,3,12,  10,4,5} );
+  CHECK( y == std::vector{200   ,  100} );
 }
 #endif // __cplusplus > 201703L

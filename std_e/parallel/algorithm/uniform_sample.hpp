@@ -10,7 +10,7 @@ namespace std_e {
 
 template<
   class RA_rng, class I, class Proj = identity_closure,
-  class T = typename RA_rng::value_type, class T_piv = proj_return_type<Proj,T>
+  class T = typename RA_rng::value_type, class T_piv = value_return_t<Proj,T>
 > auto
 uniform_sample_local(const RA_rng& x, I n_sample, MPI_Comm comm, Proj proj = {}) -> std::vector<T_piv> {
   I sz = x.size();
