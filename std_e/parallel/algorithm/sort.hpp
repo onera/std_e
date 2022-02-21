@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/parallel/algorithm/pivot_partition_eq.hpp"
+#include "std_e/parallel/algorithm/sort_by_rank.hpp"
 #include "std_e/parallel/mpi/collective/all_to_all.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/meta/pack/range.hpp"
@@ -19,16 +19,16 @@ template<
 > auto
 sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}, Sort_algo sort_algo = {}) {
   // 0. global partitioning
-  auto partition_indices = std_e::pivot_partition_eq(x,comm,proj,comp,max_imbalance,Return_container{});
+  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,Return_container{});
 
   // 1. exchange
-  auto [x_part,_] = all_to_all_v_from_indices(x,partition_indices,comm);
+  auto [x_part,_] = all_to_all_v_from_indices(x,rank_indices,comm);
 
   // 2. local sort
   sort_algo(x_part,comp,proj);
 
   // 3. return
-  auto new_distri = all_reduce(partition_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
+  auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
   return std::make_pair(x_part,new_distri);
 }
 
@@ -59,10 +59,10 @@ struct _global_sort {
 
     auto proj_indirect = [&xs...,proj=this->proj](I i){ return proj(xs[i]...); };
 
-    auto partition_indices = std_e::pivot_partition_eq(perm,comm,proj_indirect,comp,max_imbalance,Return_container{});
+    auto rank_indices = std_e::sort_by_rank(perm,comm,proj_indirect,comp,max_imbalance,Return_container{});
     ( permute(xs.begin(),perm) , ... );
 
-    return partition_indices;
+    return rank_indices;
   }
 };
 
@@ -106,13 +106,13 @@ template<
 > auto
 indirect_sort(std::tuple<Rngs&...>&& xs_tuple, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}, Sort_algo sort_algo = {}) {
   // 0. global partitioning
-  auto partition_indices = std::apply(_global_sort(comm,proj,comp,max_imbalance,Return_container{},sort_algo), xs_tuple);
+  auto rank_indices = std::apply(_global_sort(comm,proj,comp,max_imbalance,Return_container{},sort_algo), xs_tuple);
 
   // 1. exchange
-  auto [xs_part_tuple,_] = all_to_all_v_from_indices(xs_tuple,partition_indices,comm);
+  auto [xs_part_tuple,_] = all_to_all_v_from_indices(xs_tuple,rank_indices,comm);
 
   // new distribution of the ranges
-  auto new_distri = all_reduce(partition_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
+  auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
 
   // 3. local sort
   return std::apply(_local_sort(proj,comp,Return_container{},sort_algo,std::move(new_distri)), xs_part_tuple);

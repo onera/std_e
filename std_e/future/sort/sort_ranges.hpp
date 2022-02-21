@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <algorithm>
 #include <ranges>
-#include "std_e/log.hpp"
 
 
 namespace std_e {
@@ -124,7 +123,6 @@ quicksort(I first, I last, Comp comp = {}) -> void {
     insertion_sort(first, last, comp);
   } else {
     int k = quicksort_loop(first, last, comp, threshold);
-    ELOG(k);
     I middle = first + threshold;
     insertion_sort(first, middle, comp);
     unguarded_insertion_sort(middle, last, comp);
@@ -182,7 +180,6 @@ quicksort(I first, I last, Comp comp = {}) -> void {
 //template<class I, class Comp = std::less<>> auto
 //quicksort(I first, I last, Comp comp = {}) -> void {
 //  int n_iter = quicksort_impl(first,last,comp);
-//  ELOG(n_iter);
 //}
 
 template<typename Comp, typename Proj> constexpr auto
