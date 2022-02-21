@@ -14,7 +14,7 @@ template<
   class Comp = std::less<>,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_once(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, Return_container&& = {}) -> Return_container {
+sort_by_rank_once(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, Return_container&& = {}) -> Return_container {
   using T = typename Rng::value_type;
   using T_piv = value_return_t<Proj,T>;
 

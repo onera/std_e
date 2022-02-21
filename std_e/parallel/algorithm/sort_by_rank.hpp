@@ -7,7 +7,7 @@
 #include "std_e/algorithm/algorithm.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
-#include "std_e/parallel/algorithm/pivot_partition_once.hpp"
+#include "std_e/parallel/algorithm/sort_by_rank_once.hpp"
 #include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include <cmath>
@@ -23,7 +23,7 @@ namespace std_e {
 //   sz: local size of `x`
 // For that:
 //   0. we make an initial partitioning
-//        Output: `partition_indices`=[0, ... sz)
+//        Output: `rank_indices`=[0, ... sz)
 //        Deduced output: `partition_indices_tot`=[0, ... sz_tot), the global partition indices.
 //   1. We want to iteratively partition x such that `partition_indices_tot` converges to [0 ... i*sz_tot/n_rank ... sz_tot)
 template<
@@ -32,7 +32,7 @@ template<
   class Comp = std::less<>,
   class Return_container = interval_vector<int>
 > auto
-pivot_partition_eq(
+sort_by_rank(
   Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}
 )
   -> Return_container
@@ -47,12 +47,12 @@ pivot_partition_eq(
 
 
 // 0. initial partitioning
-  Return_container partition_indices = pivot_partition_once(x,comm,proj,comp,Return_container{});
+  Return_container rank_indices = sort_by_rank_once(x,comm,proj,comp,Return_container{});
 
   auto obj_ticks = objective_ticks(sz_tot,n_rk,0,n_rk-1);
-  auto sub_ins = compute_intervals_containing_ticks(obj_ticks,partition_indices,max_interval_tick_shift,comm);
+  auto sub_ins = compute_intervals_containing_ticks(obj_ticks,rank_indices,max_interval_tick_shift,comm);
 
-// 1. loop until there is no sub-interval to partition (that is, until all partition_indices are OK)
+// 1. loop until there is no sub-interval to partition (that is, until all rank_indices are OK)
   int n_iter = 0;
   while (sub_ins.size()>0) {
     if (n_iter++>64) {
@@ -82,7 +82,7 @@ pivot_partition_eq(
     }
     std::vector<std::vector<T_piv>> pivots_by_sub_intervals = find_pivots(x_sub,n_far_ticks,comm,proj);
 
-    // 2. partition sub-ranges, report results in partition_indices, and compute new sub-intervals
+    // 2. partition sub-ranges, report results in rank_indices, and compute new sub-intervals
     std::vector<interval_containing_ticks<I>> new_sub_ins;
     for (int i=0; i<n_sub_intervals; ++i) {
       // 2.0. partition sub-ranges
@@ -95,7 +95,7 @@ pivot_partition_eq(
       auto new_sub_ins_i =
         compute_interval_containing_ticks2(
           obj_ticks,partition_indices_sub,max_interval_tick_shift,
-          sub_ins[i].position,partition_indices,comm
+          sub_ins[i].position,rank_indices,comm
         );
       append(new_sub_ins,new_sub_ins_i);
     }
@@ -104,7 +104,7 @@ pivot_partition_eq(
     sub_ins = std::move(new_sub_ins);
   }
 
-  return partition_indices;
+  return rank_indices;
 }
 
 
