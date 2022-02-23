@@ -9,12 +9,7 @@
 namespace std_e {
 
 
-//TODO allow block_range to own
-template<
-  class C, int N,
-  template<class,auto> class val_type = std_e::array,
-  template<class,auto> class ref_type = std_e::span_ref
->
+template<class C, int N>
 // requires C is a Contiguous_range
 class block_range {
   public:
@@ -26,21 +21,23 @@ class block_range {
       return N;
     }
 
-    using value_type = val_type<T,N>;
-    using reference = ref_type<T,N>;
-    using const_reference = ref_type<const T,N>;
-    using iterator = block_iterator<T,N,val_type,ref_type>;
-    using const_iterator = block_iterator<const T,N,val_type,ref_type>;
+    using scalar_type = T;
+    using iterator = block_iterator<T,N>;
+    using const_iterator = block_iterator<const T,N>;
+    using value_type = typename iterator::value_type;
+    using reference = typename iterator::reference;
+    using const_reference = typename const_iterator::reference;
 
     block_range() = default;
-    block_range(C& cs)
-      : cs_ptr(&cs)
+
+    block_range(C&& cs)
+      : cs(std::forward<C>(cs)) // copy reference if C is ref, move if C is not ref
     {
       STD_E_ASSERT(cs.size()%block_size()==0);
     }
 
     auto total_size() const -> ptrdiff_t {
-      return cs_ptr->size();
+      return cs.size();
     }
     auto size() const -> ptrdiff_t {
       return total_size()/block_size();
@@ -58,47 +55,53 @@ class block_range {
     auto push_back(const block_type& c) { // requires C is a Container
       //static_assert(std::is_same_v<block_type,reference> || std::is_same_v<block_type,const_reference>);
       auto old_tot_sz = total_size();
-      cs_ptr->resize( old_tot_sz + c.size() );
+      cs.resize( old_tot_sz + c.size() );
 
-      auto c_position_in_cs = cs_ptr->begin() + old_tot_sz;
+      auto c_position_in_cs = cs.begin() + old_tot_sz;
       std::copy(c.begin(),c.end(),c_position_in_cs);
     }
 
-    auto data()       ->       T* { return cs_ptr->data(); }
-    auto data() const -> const T* { return cs_ptr->data(); }
+    auto data()       ->       T* { return cs.data(); }
+    auto data() const -> const T* { return cs.data(); }
 
-    auto underlying_range()       ->       C& { return *cs_ptr; }
-    auto underlying_range() const -> const C& { return *cs_ptr; }
+    auto underlying_range()       ->       C& { return cs; }
+    auto underlying_range() const -> const C& { return cs; }
   private:
-    C* cs_ptr;
+    C cs;
 };
 
-template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
-begin(block_range<C,N,VT,RT>& x) {
+template<class C, int N> auto
+begin(block_range<C,N>& x) {
   return x.begin();
 }
-template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
-begin(const block_range<C,N,VT,RT>& x) {
+template<class C, int N> auto
+begin(const block_range<C,N>& x) {
   return x.begin();
 }
-template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
-end(block_range<C,N,VT,RT>& x) {
+template<class C, int N> auto
+end(block_range<C,N>& x) {
   return x.end();
 }
-template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
-end(const block_range<C,N,VT,RT>& x) {
+template<class C, int N> auto
+end(const block_range<C,N>& x) {
   return x.end();
 }
 
 
 template<int N, class C> constexpr auto
 view_as_block_range(C& c) {
-  return block_range<std::remove_reference_t<C>,N>(c);
+  return block_range<C&,N>(c);
+}
+template<class C, int N> constexpr auto
+// requires C&& is a rvalue ref
+deep_copy(const block_range<C,N>& x) {
+  using T = typename block_range<C,N>::scalar_type;
+  std::vector<T> v(x.data() , x.data()+x.total_size());
+  return block_range<std::vector<T>,N>(std::move(v));
 }
 
-template<class C, int N, template<class,auto> class VT, template<class,auto> class RT> auto
-to_string(const block_range<C,N,VT,RT>& x) -> std::string {
-  //std::string s = join(x,;
+template<class C, int N> auto
+to_string(const block_range<C,N>& x) -> std::string {
   std::string s;
   for (auto b : x) {
     s += range_to_lite_string(b) + '|';

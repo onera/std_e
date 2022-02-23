@@ -59,14 +59,14 @@ class multi_range2 {
     range() const -> const auto& {
       return get<index>(_impl);
     }
-    //template<class T> auto
-    //range() -> auto& {
-    //  return get<T>(_impl);
-    //}
-    //template<class T> auto
-    //range() const -> const auto& {
-    //  return get<T>(_impl);
-    //}
+    template<int index> auto
+    range() && -> auto&& {
+      return get<index>(std::move(_impl));
+    }
+    template<int index> auto
+    range() const&& -> const auto&& {
+      return get<index>(std::move(_impl));
+    }
 
     auto
     begin() -> iterator {
@@ -140,23 +140,48 @@ class multi_range2 {
     impl_type _impl;
 };
 
+// deduction guides // TODO use variadic
+template<class R0>                               multi_range2(R0&&               ) -> multi_range2<R0>;
+template<class R0, class R1>                     multi_range2(R0&&,R1&&          ) -> multi_range2<R0,R1>;
+template<class R0, class R1, class R2>           multi_range2(R0&&,R1&&,R2&&     ) -> multi_range2<R0,R1,R2>;
+template<class R0, class R1, class R2, class R3> multi_range2(R0&&,R1&&,R2&&,R3&&) -> multi_range2<R0,R1,R2,R3>;
 
+
+template<int j, class... Rngs> auto
+range(multi_range2<Rngs...>& x) -> auto& {
+  return x.template range<j>();
+}
 template<int j, class... Rngs> auto
 range(const multi_range2<Rngs...>& x) -> const auto& {
   return x.template range<j>();
 }
 template<int j, class... Rngs> auto
-range(multi_range2<Rngs...>& x) -> auto& {
+range(multi_range2<Rngs...>&& x) -> auto&& {
+  return std::move(x).template range<j>();
+}
+template<int j, class... Rngs> auto
+range(const multi_range2<Rngs...>&& x) -> const auto&& {
+  return std::move(x).template range<j>();
+}
+
+// get (for structured bindings) {
+template<int j, class... Rngs> auto
+get(multi_range2<Rngs...>& x) -> auto& {
   return x.template range<j>();
 }
-//template<class T, class... Rngs> auto
-//range(const multi_range2<Rngs...>& x) -> const auto& {
-//  return x.template range<T>();
-//}
-//template<class T, class... Rngs> auto
-//range(multi_range2<Rngs...>& x) -> auto& {
-//  return x.template range<T>();
-//}
+template<int j, class... Rngs> auto
+get(const multi_range2<Rngs...>& x) -> const auto& {
+  return x.template range<j>();
+}
+template<int j, class... Rngs> auto
+get(multi_range2<Rngs...>&& x) -> auto&& {
+  return std::move(x).template range<j>();
+}
+template<int j, class... Rngs> auto
+get(const multi_range2<Rngs...>&& x) -> const auto&& {
+  return std::move(x).template range<j>();
+}
+// get (for structured bindings) }
 
 template<int j, class... Rngs, class I> auto
 element(const multi_range2<Rngs...>& x, I i) -> const auto& {
@@ -233,3 +258,18 @@ view_as_multi_range(Rngs&... rngs) {
 //// multi_span }
 
 } // std_e
+
+
+// tuple protocol
+//   in particular this is useful for structured bindings
+namespace std {
+  template<class... Ranges>
+  struct tuple_size<std_e::multi_range2<Ranges...>>
+    : integral_constant<size_t, sizeof...(Ranges)>
+  {};
+
+  template<size_t Index, class... Ranges>
+  struct tuple_element<Index, std_e::multi_range2<Ranges...>>
+    : tuple_element<Index, tuple<Ranges...>>
+  {};
+}

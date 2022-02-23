@@ -108,7 +108,7 @@ struct element_type__impl<span_ref<T,N>> {
 };
 
 template<class C>
-using element_type = typename element_type__impl<C>::type;
+using element_type = typename element_type__impl<std::remove_cvref_t<C>>::type;
 // element_type }
 
 

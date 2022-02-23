@@ -20,11 +20,7 @@ struct std::basic_common_reference< std_e::span_ref<T,N> , std_e::array<T,N> , T
 namespace std_e {
 
 
-template<
-  class T, int N,
-  template<class,auto> class val_type = std_e::array,
-  template<class,auto> class ref_type = std_e::span_ref
->
+template<class T, int N>
 class block_iterator {
   public:
   // type traits
@@ -32,8 +28,8 @@ class block_iterator {
     using index_type = int; // TODO param I or ptrdiff or size
 
     /// std::iterator type traits
-    using value_type = val_type<T,N>;
-    using reference = ref_type<T,N>;
+    using value_type = std_e::array<T,N>; // we are using std_e::array (instead of std::) for construction from the reference type
+    using reference = std_e::span_ref<T,N>;
     using difference_type = index_type;
     using iterator_category = std::random_access_iterator_tag;
 
@@ -119,9 +115,9 @@ class block_iterator {
 } // std_e
 
 
-template<class T, int N, template<class,auto> class VT, template<class,auto> class RT>
-struct std::iterator_traits<std_e::block_iterator<T,N,VT,RT>> {
-  using type = std_e::block_iterator<T,N,VT,RT>;
+template<class T, int N>
+struct std::iterator_traits<std_e::block_iterator<T,N>> {
+  using type = std_e::block_iterator<T,N>;
   using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;

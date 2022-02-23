@@ -10,7 +10,7 @@ using namespace std_e;
 TEST_CASE("block_range") {
   std::vector<int> x = {10,4,5,  6,3,12};
 
-  block_range<std::vector<int>,3> xb = view_as_block_range<3>(x);
+  block_range<std::vector<int>&,3> xb = view_as_block_range<3>(x);
 
   SUBCASE("basic methods") {
     CHECK( xb.total_size() == 6 );
@@ -29,6 +29,7 @@ TEST_CASE("block_range") {
     xb[1][2] = 0;
     CHECK( xb[0] == std::vector{10,99, 5} );
     CHECK( xb[1] == std::vector{ 6, 3, 0} );
+    CHECK( x == std::vector{10,99,5,  6,3,0} );
   }
 
   SUBCASE("reverse") {
@@ -42,7 +43,7 @@ TEST_CASE("block_range") {
 
   SUBCASE("move") {
     std::vector<int> y(6);
-    block_range<std::vector<int>,3> yb = view_as_block_range<3>(y);
+    block_range<std::vector<int>&,3> yb = view_as_block_range<3>(y);
     std::ranges::move(xb,yb.begin());
     CHECK( y == std::vector{10,4,5,  6,3,12} );
   }
@@ -55,3 +56,15 @@ TEST_CASE("block_range") {
     CHECK( x == std::vector{6,3,12,  10,4,5} );
   }
 };
+
+TEST_CASE("owning block_range") {
+  block_range<std::vector<int>,3> xb;
+  xb.push_back(std::vector{5,6,7});
+  xb.push_back(std::vector{10,11,12});
+
+  CHECK( xb.total_size() == 6 );
+  CHECK( xb.size() == 2 );
+  CHECK( xb[0] == std::vector{5,6,7} );
+  CHECK( xb[1] == std::vector{10,11,12} );
+}
+
