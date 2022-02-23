@@ -161,8 +161,10 @@ struct exchange_protocol {
   std::vector<int> new_to_old; // permutation
 };
 
-template<class Distribution, class Int_range> auto
-create_exchange_protocol2(const Distribution& distri, Int_range ids) {
+template<class Distribution, class Int_range>
+  requires (std::ranges::range<Distribution>)
+    auto
+create_exchange_protocol(const Distribution& distri, Int_range ids) {
   auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,make_span(distri.data()+1,distri.size()-1)); // TODO UGLY
   apply_step(ids,partition_is,distri);
   jagged_vector<int,2> indices_by_rank(std::move(ids),std::move(partition_is));
@@ -171,7 +173,7 @@ create_exchange_protocol2(const Distribution& distri, Int_range ids) {
 }
 
 constexpr auto create_exchange_protocol_fn = [](const auto& distri, const auto& ids) {
-  return create_exchange_protocol2(distri,ids);
+  return create_exchange_protocol(distri,ids);
 };
 
 
@@ -315,7 +317,7 @@ gather(future<const exchange_protocol&> gp, future<dist_jagged_array<T>&> a) { /
 // ==================
 // scatter
 template<class T, class Range> auto
-scatter(future<const exchange_protocol&> gp, future<const dist_array<T>&> a, future<const Range&> values) {
+scatter(future<const exchange_protocol&> gp, future<const Range&> values, future<const dist_array<T>&> a) {
   // TODO const dist_array should result in a compilation error (not const !)
   auto open_a = a | then_comm(open_epoch);
   auto perm_values = join(gp,values) | then(permute_values_fn);
@@ -331,7 +333,7 @@ scatter(
 )
 {
   future gp = create_exchange_protocol(distri,ids); // TODO std::move(ids)
-  return scatter(gp,a,values);
+  return scatter(gp,values,a);
 }
 
 template<class T, class Distribution, class Int_range, class Range> auto
@@ -343,6 +345,21 @@ scatter(const dist_array<T>& a, const Distribution& distri, Int_range&& ids, con
   future f3 = input_data(tg,values);
 
   future f_res = scatter(f0,f1,f2,f3);
+
+  execute_seq(f_res);
+  MPI_Barrier(a.comm()); // TODO in lazy version
+
+  return a.local();
+}
+
+template<class T, class Range> auto
+scatter(const exchange_protocol& sp, const Range& values, dist_array<T>& a) -> decltype(auto) {
+  task_graph tg;
+  future f0 = input_data(tg,sp);
+  future f1 = input_data(tg,values);
+  future f2 = input_data(tg,a);
+
+  future f_res = scatter(f0,f1,f2); // TODO invert in caller (not natural)
 
   execute_seq(f_res);
   MPI_Barrier(a.comm()); // TODO in lazy version
