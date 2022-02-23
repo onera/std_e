@@ -3,6 +3,7 @@
 
 #include "std_e/parallel/partial_distribution.hpp"
 #include "std_e/algorithm/distribution/ticks_in_interval.hpp"
+#include "std_e/parallel/mpi/extra_types.hpp"
 
 
 namespace std_e {

@@ -116,7 +116,7 @@ all_to_all_v(
 }
 
 template<class Range, class Int_range, class F = dense_algo_family> auto
-all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
+all_to_all(const Range& sbuf, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
   using T = typename Range::value_type;
   std::vector<int> sstrides = interval_lengths(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,algo_family.all_to_all);
@@ -164,7 +164,7 @@ all_to_all_v_from_indices_aux(const Int_range& sindices, MPI_Comm comm, F algo_f
     );
 }
 template<class... Ranges, class Int_range, class F = dense_algo_family> auto
-all_to_all_v_from_indices(const std::tuple<Ranges&...>& sbufs_tuple, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
+all_to_all(const std::tuple<Ranges&...>& sbufs_tuple, const Int_range& sindices, MPI_Comm comm, F algo_family = {}) {
   return std::apply(
     [&sindices,comm,algo_family](const auto&... sbufs){
       return all_to_all_v_from_indices_aux(sindices,comm,algo_family,sbufs...);
@@ -175,7 +175,7 @@ all_to_all_v_from_indices(const std::tuple<Ranges&...>& sbufs_tuple, const Int_r
 
 template<class Range, class Int_range> auto
 neighbor_all_to_all_v_from_indices(const Range& sbuf, const Int_range& sindices, MPI_Comm comm) {
-  return all_to_all_v_from_indices(sbuf,sindices,comm,neighbor_algo_family{});
+  return all_to_all(sbuf,sindices,comm,neighbor_algo_family{});
 }
 
 template<class Range, class Int_range, class F = dense_algo_family> auto
@@ -197,7 +197,7 @@ all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm
 
 template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
 all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T> {
-  auto [rbuf,rindices] = all_to_all_v_from_indices(sends.flat_view(), sends.indices(), comm, algo_family);
+  auto [rbuf,rindices] = all_to_all(sends.flat_view(), sends.indices(), comm, algo_family);
   return {std::move(rbuf),std::move(rindices)};
 }
 
@@ -220,8 +220,8 @@ all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = 
   }
   // end extract
 
-  auto recv = all_to_all_v_from_indices(neighbor_data_indices,outer_indices,comm,algo_family);
-  auto recvy = all_to_all_v_from_indices(data,proc_data_indices,comm,algo_family);
+  auto recv = all_to_all(neighbor_data_indices,outer_indices,comm,algo_family);
+  auto recvy = all_to_all(data,proc_data_indices,comm,algo_family);
 
   // TODO extract
   for (int i=0; i<nb_procs; ++i) {

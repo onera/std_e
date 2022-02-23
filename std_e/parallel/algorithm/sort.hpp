@@ -22,7 +22,7 @@ sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance
   auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,Return_container{});
 
   // 1. exchange
-  auto [x_part,_] = all_to_all_v_from_indices(x,rank_indices,comm);
+  auto [x_part,_] = all_to_all(x,rank_indices,comm);
 
   // 2. local sort
   sort_algo(x_part,comp,proj);
@@ -109,7 +109,7 @@ indirect_sort(std::tuple<Rngs&...>&& xs_tuple, MPI_Comm comm, Proj proj = {}, Co
   auto rank_indices = std::apply(_global_sort(comm,proj,comp,max_imbalance,Return_container{},sort_algo), xs_tuple);
 
   // 1. exchange
-  auto [xs_part_tuple,_] = all_to_all_v_from_indices(xs_tuple,rank_indices,comm);
+  auto [xs_part_tuple,_] = all_to_all(xs_tuple,rank_indices,comm);
 
   // new distribution of the ranges
   auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!

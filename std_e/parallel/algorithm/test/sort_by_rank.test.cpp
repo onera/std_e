@@ -414,7 +414,7 @@ MPI_TEST_CASE("sort_by_rank - block_range - 2 procs",2) {
   // The second block of rank 0 and the second block of rank 1 will go to rank 1
   // TODO use different data to make it clear what is going on
   std::vector<int> x = {10,4,5,  6,3,12};
-  block_range<std::vector<int>,3> xb = view_as_block_range<3>(x);
+  auto xb = view_as_block_range<3>(x);
 
   std_e::sort_by_rank(xb,test_comm);
   // TODO check idx
@@ -428,15 +428,13 @@ MPI_TEST_CASE("sort_by_rank - block_range - 2 procs",2) {
   std::vector<int> x = {10,4,5,  6,3,12};
   std::vector<int> y = {100   ,  200};
 
-  using block_range_type = std_e::block_range<std::vector<int>,3>;
+  using block_range_type = std_e::block_range<std::vector<int>&,3>;
   block_range_type xb = std_e::view_as_block_range<3>(x);
 
   using span_type = std_e::span<int>;
   span_type ys (y.data(),y.size());
 
-  std_e::multi_range2<block_range_type,span_type> t;
-  range<0>(t) = xb;
-  range<1>(t) = ys;
+  std_e::multi_range2<block_range_type,span_type> t(xb,ys);
 
   constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
   std_e::sort_by_rank(t,test_comm,proj);
