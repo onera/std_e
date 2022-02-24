@@ -52,11 +52,11 @@ class multi_range2 {
     }
 
     template<int index> auto
-    range() -> auto& {
+    range() & -> auto& {
       return get<index>(_impl); // TODO return span to enforce invariant (1)
     }
     template<int index> auto
-    range() const -> const auto& {
+    range() const& -> const auto& {
       return get<index>(_impl);
     }
     template<int index> auto

@@ -356,16 +356,23 @@ struct reference_value<std_e::tuple<Ts...>> {
 } // std_e
 
 
-template<class... Ts>
-struct std::tuple_size<std_e::tuple<Ts...>> {
-  static constexpr size_t value = sizeof...(Ts);
-};
+
+namespace std {
+  template<class... Ts>
+  struct tuple_size<std_e::tuple<Ts...>> {
+    static constexpr size_t value = sizeof...(Ts);
+  };
+  template<size_t Index, class... Ts>
+  struct tuple_element<Index, std_e::tuple<Ts...>>
+    : tuple_element<Index, std::tuple<Ts...>>
+  {};
 
 
-// Customization point for std::common_reference
-// SEE https://en.cppreference.com/w/cpp/utility/tuple/basic_common_reference
-template<class... Ts, class... Us, template<class> class TQual, template<class> class UQual >
-  requires requires { typename std_e::tuple<std::common_reference_t<TQual<Ts>, UQual<Us>>...>; }
-struct std::basic_common_reference<std_e::tuple<Ts...>, std_e::tuple<Us...>, TQual, UQual> {
-  using type = std_e::tuple<std::common_reference_t<TQual<Ts>, UQual<Us>>...>;
-};
+  // Customization point for std::common_reference
+  // SEE https://en.cppreference.com/w/cpp/utility/tuple/basic_common_reference
+  template<class... Ts, class... Us, template<class> class TQual, template<class> class UQual >
+    requires requires { typename std_e::tuple<common_reference_t<TQual<Ts>, UQual<Us>>...>; }
+  struct basic_common_reference<std_e::tuple<Ts...>, std_e::tuple<Us...>, TQual, UQual> {
+    using type = std_e::tuple<common_reference_t<TQual<Ts>, UQual<Us>>...>;
+  };
+}
