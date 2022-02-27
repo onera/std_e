@@ -367,5 +367,12 @@ scatter(const exchange_protocol& sp, const Range& values, dist_array<T>& a) -> d
   return a.local();
 }
 
+// TODO here, quickfix to use with span => use a concept-based solution: if ranges::view, copy in container
+template<class T, class T0> auto // T0 == T or const T
+scatter(const exchange_protocol& sp, const span<T0>& values, dist_array<T>& a) -> decltype(auto) {
+  std::vector<T> val_copy(begin(values),end(values));
+  return scatter(sp,val_copy,a);
+}
+
 
 } // std_e

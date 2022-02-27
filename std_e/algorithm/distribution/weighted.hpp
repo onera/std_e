@@ -3,6 +3,7 @@
 
 #include "std_e/algorithm/iota.hpp"
 #include "std_e/algorithm/distribution/uniform.hpp"
+#include "std_e/interval/interval_sequence.hpp"
 #include <algorithm>
 #include <numeric>
 
@@ -11,11 +12,12 @@ namespace std_e {
 
 
 template<class Fwd_it0, class S0, class Fwd_it1, class S1, class Fwd_it2, class Out_it> constexpr auto
-distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, Fwd_it2 first_weights, Out_it first_weighted) -> void {
+balanced_distribution(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, Fwd_it2 first_weights, Out_it first_weighted) -> void {
   using I = typename std::iterator_traits<Fwd_it1>::value_type;
   I total_weighted_size = std::inner_product(first_size,last_size,first_weights,I(0));
   // 0. distribution if the size of every block size was multiplied by its weight
   uniform_distribution(first,last,I(0),total_weighted_size);
+  *first_weighted = 0;
 
   // 1. now we need to change this distribution by dividing by the weights
   //    for that, we iterate through each bound of the "multiplied by weight" interval to replace it with the real bound
@@ -49,7 +51,7 @@ distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 l
       remaining_weighted_size = weighted_size % *first_weights;
       partial_size += cur_partial_size;
     }
-    // 1.3. If there is a remainder, take it into account for the next iteration
+    // 1.2. If there is a remainder, take it into account for the next iteration
     //      Ensures that the last bound is exactly the sum all all block sizes
     prev_weighted_size = *first - remaining_weighted_size;
     *first = *std::prev(first)+size;
@@ -57,12 +59,12 @@ distribution_weighted_by_blocks(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 l
   }
 }
 template<class I0, class Range0, class Range1> constexpr auto
-distribution_weighted_by_blocks(I0 dist_sz, const Range0& block_sizes, const Range1& block_weights) {
+balanced_distribution(I0 dist_sz, const Range0& block_sizes, const Range1& block_weights) {
   using I = typename Range0::value_type;
-  std::vector<I> dist(1+dist_sz);
-  std::vector<I> dist_weighted(1+dist_sz);
+  std_e::interval_vector<I> dist(dist_sz);
+  std_e::interval_vector<I> dist_weighted(dist_sz);
 
-  distribution_weighted_by_blocks(
+  balanced_distribution(
     begin(dist),end(dist),
     begin(block_sizes),end(block_sizes),
     begin(block_weights),
@@ -114,6 +116,27 @@ elements_in_interval(I inf, I sup, const Range& n_elts, const Range& w_elts) {
     }
   }
   return std::make_pair(elts_inf,elts_sup);
+}
+
+template<class I, class Range> auto
+elements_in_interval(I inf, I sup, const Range& n_elts) {
+  auto sz = n_elts.size();
+  std::vector<I> w_elts(sz,1);
+  return elements_in_interval(inf,sup,n_elts,w_elts);
+}
+template<class I, class Range> auto
+n_elements_in_interval(I inf, I sup, const Range& n_elts) -> std::vector<I> {
+  size_t sz = n_elts.size();
+  auto [elts_inf,elts_sup] = elements_in_interval(inf,sup,n_elts);
+  std::vector<I> ns(sz);
+  for (size_t i=0; i<sz; ++i) {
+    ns[i] = elts_sup[i]-elts_inf[i];
+  }
+  return ns;
+}
+template<class I, class Range> auto
+n_elements_in_interval(interval<I> inter, const Range& n_elts) -> std::vector<I> {
+  return n_elements_in_interval(inter.first(),inter.last(),n_elts);
 }
 
 
