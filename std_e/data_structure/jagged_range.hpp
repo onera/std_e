@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include "std_e/data_structure/multi_range.hpp"
+#include "std_e/data_structure/block_range/vblock_iterator.hpp"
 // TODO clean up!
 // TODO jagged -> compressed
 
@@ -38,10 +39,7 @@ class jagged_range<data_range_type,indices_range_type,1> : public data_range_typ
     jagged_range(base x)
       : base(std::move(x))
     {}
-    jagged_range(base x, unambiguous)
-      : base(std::move(x))
-    {}
-    auto nb_elements() const { return base::size(); }
+    auto total_size() const { return base::size(); }
     auto flat_view() const -> const base& {
       return *this;
     }
@@ -57,38 +55,62 @@ operator!=(const jagged_range<R00,R01,1>& x, const jagged_range<R10,R11,1>& y) -
   return !(x==y);
 }
 
+
+template<class indices_range_type, int rank>
+struct indices_array_type_impl {
+  using type = jagged_range<indices_range_type,indices_range_type,rank-1>;
+};
+template<class indices_range_type>
+struct indices_array_type_impl<indices_range_type,2> {
+  using type = indices_range_type;
+};
+
 template<class data_range_type, class indices_range_type, int r>
 class jagged_range {
   public:
     static constexpr int rank = r;
   private:
     //using indices_array_type = std::array<indices_range_type,rank-1>;
-    using indices_array_type = jagged_range<indices_range_type,indices_range_type,rank-1>;
-    using T = typename data_range_type::value_type;
-    using I = typename indices_range_type::value_type;
+    using indices_array_type = typename indices_array_type_impl<indices_range_type,rank>::type;
+    using T = typename std::remove_cvref_t<data_range_type>::value_type;
+    using I = typename std::remove_cvref_t<indices_range_type>::value_type;
 
     data_range_type flat_values;
     indices_array_type idx_array; // TODO rename idces
-    I off = 0;
+    I off = 0; // necessary to handle sub-ranges
   public:
   // type traits
-    using value_type = T;
+    using scalar_type = T;
     using indices_type = I;
 
+    using iterator = vblock_iterator<T,I>;
+    using const_iterator = vblock_iterator<const T,I>;
+    //using value_type = typename iterator::value_type; // TODO
+    using reference = typename iterator::reference;
+    using const_reference = typename const_iterator::reference;
+    using value_type = T; // TODO
+
   // ctors
-    jagged_range()
-      : idx_array({0}, unambiguous{})
+    jagged_range() requires (rank>2)
+      : idx_array({0},unambiguous{})
+    {}
+    jagged_range() requires (rank==2)
+      : idx_array({0})
     {}
 
     // TODO private (for default ctor only)
-    jagged_range(data_range_type flat_values, unambiguous)
-      : flat_values(std::move(flat_values))
+    jagged_range(data_range_type flat_values, unambiguous) requires (rank>2)
+      : flat_values(std::forward<data_range_type>(flat_values))
       , idx_array({0},unambiguous{})
+    {}
+    jagged_range(data_range_type flat_values, unambiguous) requires (rank==2)
+      : flat_values(std::forward<data_range_type>(flat_values))
+      , idx_array({0})
     {}
 
     jagged_range(data_range_type flat_values, indices_range_type idx_array, I off = 0)
-      : flat_values(std::move(flat_values))
-      , idx_array(std::move(idx_array))
+      : flat_values(std::forward<data_range_type>(flat_values))
+      , idx_array(std::forward<indices_range_type>(idx_array))
       , off(off)
     {
       static_assert(rank==2);
@@ -138,14 +160,8 @@ class jagged_range {
     }
 
   // basic
-    auto nb_intervals() const -> I { // TODO deprecate
-      return idx_array.size()-1;
-    }
-    auto n_interval() const -> I { // TODO private
-      return idx_array.size()-1;
-    }
     auto size() const -> I {
-      return n_interval();
+      return idx_array.size()-1;
     }
     auto data() const -> const T* {
       return flat_values.data();
@@ -153,12 +169,18 @@ class jagged_range {
     auto data() -> T* {
       return flat_values.data();
     }
-    auto nb_elements() const -> I { // TODO deprecate
+    auto total_size() const -> I {
       return flat_values.size();
     }
-    auto n_elt() const -> I {
-      return flat_values.size();
-    }
+
+  // range
+    auto begin()       ->       iterator { return { data() , idx_array.data()                    }; }
+    auto begin() const -> const_iterator { return { data() , idx_array.data()                    }; }
+    auto end()         ->       iterator { return { data() , idx_array.data()+idx_array.size()-1 }; }
+    auto end()   const -> const_iterator { return { data() , idx_array.data()+idx_array.size()-1 }; }
+
+    auto operator[](I i)       { return subscript_op_impl(*this,i); }
+    auto operator[](I i) const { return subscript_op_impl(*this,i); }
 
   // accessors
     auto flat_view() {
@@ -231,13 +253,6 @@ class jagged_range {
       return back();
     }
 
-  // random access
-    auto operator[](I i) {
-      return subscript_op_impl(*this,i);
-    }
-    auto operator[](I i) const {
-      return subscript_op_impl(*this,i);
-    }
   private:
     template<class R0, class R1, int R> friend class jagged_range;
     template<int lvl>
@@ -264,15 +279,16 @@ class jagged_range {
     template<class jagged_range_type>
     static auto subscript_op_impl(jagged_range_type& x, I i) {
       if constexpr (rank==2) {
-        return make_span(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off); // TODO wrong because returns a view
-                                                                             // but should return a proxy reference
+        return make_span(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
       } else {
         static_assert(rank==3); // Other ranks are not implemented TODO
         auto idx_2 = x.idx_array.indices();
         auto idx_1 = x.idx_array.flat_view();
         jagged_range<span<const I>,span<const I>,rank-2> sub_idx_array( make_span(idx_1,idx_2[i],idx_2[i+1]+1) );
         auto sub_data = make_span(x.flat_values,sub_idx_array[0],sub_idx_array.back());
-        return jagged_range<decltype(sub_data),span<const I>,rank-1>(sub_data,sub_idx_array,idx_1[idx_2[i]]); // TODO wrong (same reason: not a proxy ref)
+        return jagged_range<decltype(sub_data),span<const I>,rank-1>(sub_data,sub_idx_array,idx_1[idx_2[i]]);
+                                                                          // TODO wrong because returns a view
+                                                                          // but should return a proxy reference
       }
     }
 };
@@ -290,23 +306,35 @@ separator(jagged_range<R00,R01,R0>& x) {
   return x.template separator<lvl>();
 }
 
-namespace detail {
-template<class T0, class T1, class I> auto
-equal_index_array(const T0& x, I off_x, const T1& y, I off_y) {
-  for (int j=0; j<(int)x.nb_elements(); ++j) {
-    if ( x.flat_view()[j]-off_x != y.flat_view()[j]-off_y ) return false;
-  }
-  if constexpr (T0::rank==1) {
+template<int R, class T0, class T1, class I> auto
+_equal_index_array(const T0& x, I off_x, const T1& y, I off_y) {
+  if constexpr (R==1) {
+    for (int j=0; j<(int)x.size(); ++j) {
+      if ( x[j]-off_x != y[j]-off_y ) return false;
+    }
     return true;
   } else {
+    for (int j=0; j<(int)x.total_size(); ++j) {
+      if ( x.flat_view()[j]-off_x != y.flat_view()[j]-off_y ) return false;
+    }
     return x.index_array()==y.index_array();
   }
 }
-}
+//template<int R, class T0, class T1, class I> auto
+//_equal_index_array(const T0& x, I off_x, const T1& y, I off_y) {
+//  for (int j=0; j<(int)x.total_size(); ++j) {
+//    if ( x.flat_view()[j]-off_x != y.flat_view()[j]-off_y ) return false;
+//  }
+//  if constexpr (T0::rank==1) {
+//    return true;
+//  } else {
+//    return x.index_array()==y.index_array();
+//  }
+//}
 
 template<class R00, class R01, class R10, class R11, int R> auto
 operator==(const jagged_range<R00,R01,R>& x, const jagged_range<R10,R11,R>& y) -> bool {
-  return x.flat_view()==y.flat_view() && detail::equal_index_array(x.index_array(),x.offset(),y.index_array(),y.offset());
+  return x.flat_view()==y.flat_view() && _equal_index_array<R-1>(x.index_array(),x.offset(),y.index_array(),y.offset());
 }
 template<class R00, class R01, class R10, class R11, int R> auto
 operator!=(const jagged_range<R00,R01,R>& x, const jagged_range<R10,R11,R>& y) -> bool {
@@ -376,7 +404,7 @@ template<
   class RT = decltype(std::declval<F>()(std::declval<T>()))
 > auto
 transform(const jagged_range<R00,R01,rank>& x, F f) -> jagged_vector<RT,rank,I> {
-  std::vector<RT> res(x.nb_elements());;
+  std::vector<RT> res(x.total_size());;
   std::transform(
     begin(x.flat_view()),end(x.flat_view()),
     begin(res),

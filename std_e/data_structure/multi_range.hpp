@@ -408,4 +408,54 @@ make_span(const multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_sp
 }
 // multi_span }
 
+
+// multi_span_ref {
+template<class... Ts> using multi_span_ref = multi_range<dyn_span_ref,Ts...>;
+
+template<class return_type, class multi_range_type, size_t... Is> auto
+make_multi_span_ref__impl(multi_range_type& x, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span_ref(range<Is>(x))...);
+}
+template<template<class> class RT, class... Ts> auto
+make_span_ref(multi_range<RT,Ts...>& x) -> multi_span_ref<Ts...> {
+  using return_type = multi_span_ref<Ts...>;
+  return make_multi_span_ref__impl<return_type>(x,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+template<template<class> class RT, class... Ts> auto
+make_span_ref(const multi_range<RT,Ts...>& x) -> multi_span_ref<const Ts...> {
+  using return_type = multi_span_ref<const Ts...>;
+  return make_multi_span_ref__impl<return_type>(x,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+
+template<class return_type, class multi_range_type, class I, size_t... Is> auto
+make_span_ref_n__impl(multi_range_type& x, I start_idx, I n, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span_ref_n(range<Is>(x),start_idx,n)...);
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_ref_n(multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span_ref<Ts...> {
+  using return_type = multi_span_ref<Ts...>;
+  return make_span_ref_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_ref_n(const multi_range<RT,Ts...>& x, I start_idx, I n) -> multi_span_ref<const Ts...> {
+  using return_type = multi_span_ref<const Ts...>;
+  return make_span_ref_n__impl<return_type>(x,start_idx,n,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+
+template<class return_type, class multi_range_type, class I, size_t... Is> auto
+make_span_ref__impl(multi_range_type& x, I start_idx, I finish_idx, std::index_sequence<Is...>) {
+  return return_type(std_e::make_span_ref(range<Is>(x),start_idx,finish_idx)...);
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_ref(multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span_ref<Ts...> {
+  using return_type = multi_span_ref<Ts...>;
+  return make_span_ref_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+template<template<class> class RT, class... Ts, class I> auto
+make_span_ref(const multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> multi_span_ref<const Ts...> {
+  using return_type = multi_span_ref<const Ts...>;
+  return make_span_ref_n__impl<return_type>(x,start_idx,finish_idx,std::make_index_sequence<multi_range<RT,Ts...>::nb_ranges()>());
+}
+// multi_span_ref }
+
 } // std_e

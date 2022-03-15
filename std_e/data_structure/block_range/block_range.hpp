@@ -14,16 +14,16 @@ template<class C, int N>
 class block_range {
   public:
     using T = std_e::add_other_type_constness<std_e::element_type<C>,C>; // T is the value_type of C, but with constness of C itself
+    using I = typename std::remove_cvref_t<C>::difference_type;
 
-    //using index_type = int;
     static constexpr auto
     block_size() -> int {
       return N;
     }
 
     using scalar_type = T;
-    using iterator = block_iterator<T,N>;
-    using const_iterator = block_iterator<const T,N>;
+    using iterator = block_iterator<T,N,I>;
+    using const_iterator = block_iterator<const T,N,I>;
     using value_type = typename iterator::value_type;
     using reference = typename iterator::reference;
     using const_reference = typename const_iterator::reference;

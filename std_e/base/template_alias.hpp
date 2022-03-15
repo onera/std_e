@@ -1,6 +1,7 @@
 #pragma once
 
 #include "std_e/future/span.hpp"
+#include "std_e/future/span_ref.hpp"
 
 namespace std_e {
 
@@ -11,5 +12,6 @@ namespace std_e {
 // Typical error message: "template template argument has different template parameters than its corresponding template template parameter"
 template<class T> using std_alloc_vector = std::vector<T>;
 template<class T> using dyn_span = std_e::span<T>;
+template<class T> using dyn_span_ref = std_e::span_ref<T>;
 
 }

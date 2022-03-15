@@ -83,7 +83,7 @@ using exchange_protocol_by_rank_var_len = std::vector<indexed_exchange_protocol_
 
 template<class TR, class IR> auto
 create_exchange_protocol_from_ranks(const jagged_range<TR,IR,2>& indices_by_rank, int type_sz) {
-  int n_rank = indices_by_rank.n_interval();
+  int n_rank = indices_by_rank.size();
   exchange_protocol_by_rank protocols_by_rank(n_rank);
   for (int i=0; i<n_rank; ++i) {
     const auto& ins = indices_by_rank[i];
@@ -93,7 +93,7 @@ create_exchange_protocol_from_ranks(const jagged_range<TR,IR,2>& indices_by_rank
 }
 template<class TR, class IR, class Int_contiguous_range> auto
 create_exchange_protocol_from_ranks(const jagged_range<TR,IR,2>& indices_by_rank, const Int_contiguous_range& strides, const std::vector<int>& displs, int type_sz) {
-  int n_rank = indices_by_rank.n_interval();
+  int n_rank = indices_by_rank.size();
   exchange_protocol_by_rank_var_len protocols_by_rank(n_rank);
   int offset_strides = 0; // TODO ugly
   for (int i=0; i<n_rank; ++i) {

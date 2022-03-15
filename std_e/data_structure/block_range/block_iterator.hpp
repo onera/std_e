@@ -5,27 +5,15 @@
 #include "std_e/future/array.hpp"
 
 
-// Customization point for std::common_reference
-// SEE for https://en.cppreference.com/w/cpp/types/common_reference
-template<class T, ptrdiff_t N,  template<class> class TQual0, template<class> class TQual1>
-struct std::basic_common_reference< std_e::array<T,N> , std_e::span_ref<T,N> , TQual0,TQual1 > {
-  using type = std_e::span_ref<T,N>;
-};
-template<class T, ptrdiff_t N,  template<class> class TQual1, template<class> class TQual0>
-struct std::basic_common_reference< std_e::span_ref<T,N> , std_e::array<T,N> , TQual1,TQual0 > {
-  using type = std_e::span_ref<T,N>;
-};
-
-
 namespace std_e {
 
 
-template<class T, int N>
+template<class T, int N, class I = ptrdiff_t>
 class block_iterator {
   public:
   // type traits
     using scalar_type = T;
-    using index_type = int; // TODO param I or ptrdiff or size
+    using index_type = I;
 
     /// std::iterator type traits
     using value_type = std_e::array<T,N>; // we are using std_e::array (instead of std::) for construction from the reference type

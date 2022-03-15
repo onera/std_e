@@ -6,7 +6,7 @@ Jagged array
 Jagged_vector
 -------------
 
-Suppose with want to store arrays :cpp:`[9,5,6,7]`, :cpp:`[1,3]` and :cpp:`[8,2,4]`. Since their size is different, we can't use a multi-dimensional array. The default choice is to use :cpp:`vector<vector<int>>`. However, in some contexts, we may want to use a :cpp:`jagged_vector<int>` instead. A :cpp:`jagged_vector` is a data structure internally holding two vectors.
+Suppose we want to store arrays :cpp:`[9,5,6,7]`, :cpp:`[1,3]` and :cpp:`[8,2,4]`. Since their size is different, we can't use a multi-dimensional array. The default choice is to use :cpp:`vector<vector<int>>`. However, in some contexts, we may want to use a :cpp:`jagged_vector<int>` instead. A :cpp:`jagged_vector` is a data structure internally holding two vectors.
 
 * The first vector stores the concatenated data of all the arrays. In our example, it would hold :cpp:`[9,5,6,7,1,3,8,2,4]`. It can be accessed with the :cpp:`.flat_view()` method.
 *  The second vector hold the indices of the intervals where the inner arrays start and stop. In our example, it would be :cpp:`[0,4,6,9]`. The type of the vector is actually a :ref:`interval_vector <interval_seq>`, it can be accessed with the :cpp:`.indices()` method.

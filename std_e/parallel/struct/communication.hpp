@@ -66,7 +66,7 @@ using protocol_rank_get_indexed = std::vector<protocol_get_indexed>;
 
 template<class TR, class IR> auto
 gather_protocol_from_ranks(const jagged_range<TR,IR,2>& ins_by_rank, int type_sz) {
-  int n_rank = ins_by_rank.n_interval();
+  int n_rank = ins_by_rank.size();
   protocol_rank_get_indexed protocols_by_rank(n_rank);
   for (int i=0; i<n_rank; ++i) {
     const auto& ins = ins_by_rank[i];
@@ -93,8 +93,8 @@ template<class T, class TR, class IR, class Range,
   class = typename Range::value_type // constrain to enable only Ranges
 > auto
 gather_from_ranks(const dist_array<T>& a, const jagged_range<TR,IR,2>& ins_by_rank, Range& out) {
-  STD_E_ASSERT(ins_by_rank.n_elt() == (int)out.size());
-  STD_E_ASSERT(ins_by_rank.n_interval() == a.n_rank());
+  STD_E_ASSERT(ins_by_rank.total_size() == (int)out.size());
+  STD_E_ASSERT(ins_by_rank.size() == a.n_rank());
   int n_rank = a.n_rank();
   auto first = out.data();
   for (int i=0; i<n_rank; ++i) {

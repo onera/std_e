@@ -103,9 +103,25 @@ template<class T> FORCE_INLINE constexpr auto
 make_span_ref(T* ptr, ptrdiff_t n) {
   return span_ref<T,dynamic_size>(ptr,n);
 }
+template<class T> FORCE_INLINE constexpr auto
+make_span_ref(T* ptr, ptrdiff_t offset, ptrdiff_t n) {
+  return span_ref<T,dynamic_size>(ptr+offset,n);
+}
+
 template<class Contiguous_range> FORCE_INLINE constexpr auto
 make_span_ref(Contiguous_range& x) {
   return make_span_ref(x.data(),x.size());
+}
+template<
+  class Contiguous_range, class I,
+  std::enable_if_t<!std::is_pointer_v<std::remove_reference_t<Contiguous_range>>,int> =0
+> FORCE_INLINE constexpr auto
+make_span_ref(Contiguous_range& x, I start, I finish) {
+  return make_span_ref(x.data(),start,finish-start);
+}
+template<class Contiguous_range, class I> FORCE_INLINE constexpr auto
+make_span_ref_n(Contiguous_range& x, I start, I n) {
+  return make_span_ref(x.data(),start,n);
 }
 
 
