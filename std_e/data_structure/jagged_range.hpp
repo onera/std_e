@@ -279,8 +279,9 @@ class jagged_range {
     template<class jagged_range_type>
     static auto subscript_op_impl(jagged_range_type& x, I i) {
       if constexpr (rank==2) {
-        if constexpr (!is_multi_range<typename jagged_range_type::data_value_range_type>) {
-          if constexpr (std::is_const_v<jagged_range_type>) {
+        using data_value_type = typename jagged_range_type::data_value_range_type;
+        if constexpr (!is_multi_range<data_value_type>) {
+          if constexpr (std::is_const_v<jagged_range_type> || std::is_const_v<element_type<data_value_type>>) {
             return const_reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           } else {
             return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
@@ -329,17 +330,6 @@ _equal_index_array(const T0& x, I off_x, const T1& y, I off_y) {
     return x.index_array()==y.index_array();
   }
 }
-//template<int R, class T0, class T1, class I> auto
-//_equal_index_array(const T0& x, I off_x, const T1& y, I off_y) {
-//  for (int j=0; j<(int)x.total_size(); ++j) {
-//    if ( x.flat_view()[j]-off_x != y.flat_view()[j]-off_y ) return false;
-//  }
-//  if constexpr (T0::rank==1) {
-//    return true;
-//  } else {
-//    return x.index_array()==y.index_array();
-//  }
-//}
 
 template<class R00, class R01, class R10, class R11, int R> auto
 operator==(const jagged_range<R00,R01,R>& x, const jagged_range<R10,R11,R>& y) -> bool {

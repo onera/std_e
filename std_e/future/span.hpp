@@ -66,10 +66,6 @@ class span_size<dynamic_size> {
     span_size(size_type n)
       : n(n)
     {}
-    FORCE_INLINE constexpr
-    span_size(ptrdiff_t n)
-      : n(n)
-    {}
 
     FORCE_INLINE constexpr auto
     size() const -> size_type {
@@ -121,6 +117,7 @@ class span_base : public span_size<N> {
     using const_reference = const T&;
     using iterator        = pointer;
     using const_iterator  = const_pointer;
+    using difference_type = ptrdiff_t;
 
   // ctors
     FORCE_INLINE constexpr span_base() = default;

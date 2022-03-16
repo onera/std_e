@@ -5,7 +5,7 @@
 
 using namespace std_e;
 
-TEST_CASE("block_range") {
+TEST_CASE("vblock_range") {
   std::vector<double> x = {2.,10.,4.,5.,  6.,3.,12.};
   std::vector<int>   is = {0           ,  4        ,7};
 

@@ -53,16 +53,26 @@ class vblock_ref {
     }
 
     // operator= const version to satisfy proxy reference in std::indirectly_writable
-    vblock_ref& operator=(const vblock_ref& other) const {
-      std::copy_n(other.ptr, other.size(), ptr);
+    const vblock_ref& operator=(const vblock_ref& other) const {
+      std::copy_n(other.begin(), other.size(), ptr);
       offsets_ptr[1] = offsets_ptr[0] + other.size();
       return *this;
     }
-    vblock_ref& operator=(vblock_ref&& other) const {
-      std::copy_n(other.ptr, other.size(), ptr);
+    const vblock_ref& operator=(vblock_ref&& other) const {
+      std::copy_n(other.begin(), other.size(), ptr);
       offsets_ptr[1] = offsets_ptr[0] + other.size();
       return *this;
     }
+
+    //// assign from other range types
+    ////template<class Range> requires (!std::is_same_v<std::remove_cvref_t<Range>,vblock_ref>)
+    //template<class Range> requires (!std::is_same_v<Range&&,const vblock_ref&> && !std::is_same_v<Range&&,vblock_ref&&>)
+    ////template<class Range> requires (false)
+    //const vblock_ref& operator=(Range&& other) const {
+    //  std::copy_n(other.begin(), other.size(), ptr);
+    //  offsets_ptr[1] = offsets_ptr[0] + other.size();
+    //  return *this;
+    //}
 
 
     /// operator= overloads for const types {
