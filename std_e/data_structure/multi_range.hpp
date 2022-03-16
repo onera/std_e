@@ -458,4 +458,18 @@ make_span_ref(const multi_range<RT,Ts...>& x, I start_idx, I finish_idx) -> mult
 }
 // multi_span_ref }
 
+
+template<class T>
+struct _is_multi_range_impl {
+  static constexpr bool value = false;
+};
+template<template<class> class RT, class... Ts>
+struct _is_multi_range_impl<multi_range<RT,Ts...>> {
+  static constexpr bool value = true;
+};
+
+template<class T>
+constexpr bool is_multi_range = _is_multi_range_impl<std::remove_cvref_t<T>>::value;
+
+
 } // std_e

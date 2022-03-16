@@ -89,6 +89,8 @@ class vblock_ref {
   // range interface
     constexpr auto size() const -> I { return offsets_ptr[1]-offsets_ptr[0]; }
 
+    constexpr auto data ()       ->       T* { return ptr       ; }
+    constexpr auto data () const -> const T* { return ptr       ; }
     constexpr auto begin()       ->       T* { return ptr       ; }
     constexpr auto begin() const -> const T* { return ptr       ; }
     constexpr auto end()         ->       T* { return ptr+size(); }
@@ -101,15 +103,15 @@ class vblock_ref {
     I* offsets_ptr;
 };
 template<class T0, class I0, class T1, class I1> auto
-operator==(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) {
+operator==(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
   return std::equal( x.begin() , x.end() , y.begin() , y.end() );
 }
 template<class T0, class I0, class T1, class I1> auto
-operator!=(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) {
+operator!=(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
   return !(x == y);
 }
 template<class T0, class I0, class T1, class I1> auto
-operator< (const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) {
+operator< (const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
   return
        x.size()< y.size()
    || (x.size()==y.size() && std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end()));
@@ -126,19 +128,19 @@ to_string(const vblock_ref<T,I>& x) {
 }
 
 template<class T0, class I0, class T1> auto
-operator==(const vblock_ref<T0,I0>& x, const std::vector<T1>& y) {
+operator==(const vblock_ref<T0,I0>& x, const std::vector<T1>& y) -> bool {
   return std::equal( x.begin() , x.end() , y.begin() , y.end() );
 }
 template<class T0, class I0, class T1> auto
-operator==(const std::vector<T1>& x, const vblock_ref<T0,I0>& y) {
+operator==(const std::vector<T1>& x, const vblock_ref<T0,I0>& y) -> bool {
   return y==x;
 }
 template<class T0, class I0, class T1> auto
-operator!=(const vblock_ref<T0,I0>& x, const std::vector<T1>& y) {
+operator!=(const vblock_ref<T0,I0>& x, const std::vector<T1>& y) -> bool {
   return !(x==y);
 }
 template<class T0, class I0, class T1> auto
-operator!=(const std::vector<T1>& x, const vblock_ref<T0,I0>& y) {
+operator!=(const std::vector<T1>& x, const vblock_ref<T0,I0>& y) -> bool {
   return !(x==y);
 }
 

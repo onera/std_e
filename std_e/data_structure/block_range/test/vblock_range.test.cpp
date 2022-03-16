@@ -32,18 +32,48 @@ TEST_CASE("block_range") {
     std::vector<double> y(7);
     std::vector<int> y_is(3);
     vblock_range<std::vector<double>&,std::vector<int>&> yb = view_as_vblock_range(y,y_is);
-    std::ranges::copy(xb,yb.begin());
+    //std::ranges::copy(xb,yb.begin());
+    std::copy(xb.begin(),xb.end(),yb.begin());
     CHECK( x == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
     CHECK( y == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
     CHECK(   is == std::vector{0,4,7} );
     CHECK( y_is == std::vector{0,4,7} );
   }
-  SUBCASE("move") {
-    std::vector<double> y(7);
-    std::vector<int> y_is(3);
-    vblock_range<std::vector<double>&,std::vector<int>&> yb = view_as_vblock_range(y,y_is);
-    std::ranges::move(xb,yb.begin());
-    CHECK( y == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
-    CHECK( y_is == std::vector{0,4,7} );
+  SUBCASE("find_if") {
+    auto it = std::find_if(xb.begin(),xb.end(),[](auto&& x){ return x[0]==6.; });
+    CHECK( *it == std::vector{6.,3.,12.} );
   }
+  SUBCASE("find") {
+    auto it = std::find(xb.begin(),xb.end(),xb[1]);
+    CHECK( *it == std::vector{6.,3.,12.} );
+  }
+  SUBCASE("any_of") {
+    bool has_one_elt_begining_with_6 = std::any_of(xb.begin(),xb.end(),[](auto&& x){ return x[0]==6.; });
+    CHECK( has_one_elt_begining_with_6 );
+  }
+  SUBCASE("partition_point") {
+    auto it = std::partition_point(xb.begin(),xb.end(),[](auto&& x){ return x[0]==2.; });
+    CHECK( *it == std::vector{6.,3.,12.} );
+  }
+  SUBCASE("lower_bound") {
+    auto it = std::lower_bound(xb.begin(),xb.end(),xb[1]);
+    CHECK( *it == std::vector{2.,10.,4.,5.} );
+  }
+  SUBCASE("unique") {
+    std::vector<double> x = {2.,10.,4.,5.,  6.,3.,12.,  6.,3.,12., 44.,45.};
+    std::vector<int>   is = {0           ,  4        ,  7        , 10     , 12};
+    vblock_range<std::vector<double>&,std::vector<int>&> xb = view_as_vblock_range(x,is);
+    auto it = std::unique(xb.begin(),xb.end());
+    CHECK( x == std::vector{2.,10.,4.,5.,  6.,3.,12.,  44.,45., 12.,44.,45.} ); // Note: 3 last values are from the old range
+    CHECK( is == std::vector{0,4,7,9,12} ); // Note: last value from the old range
+    CHECK( it-xb.begin() == 3 );
+  }
+  //SUBCASE("move") {
+  //  std::vector<double> y(7);
+  //  std::vector<int> y_is(3);
+  //  vblock_range<std::vector<double>&,std::vector<int>&> yb = view_as_vblock_range(y,y_is);
+  //  std::ranges::move(xb,yb.begin());
+  //  CHECK( y == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
+  //  CHECK( y_is == std::vector{0,4,7} );
+  //}
 }

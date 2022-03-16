@@ -74,21 +74,22 @@ class jagged_range {
     using indices_array_type = typename indices_array_type_impl<indices_range_type,rank>::type;
     using T = typename std::remove_cvref_t<data_range_type>::value_type;
     using I = typename std::remove_cvref_t<indices_range_type>::value_type;
+    using data_value_range_type = data_range_type;
 
     data_range_type flat_values;
     indices_array_type idx_array; // TODO rename idces
-    I off = 0; // necessary to handle sub-ranges
+    I off = 0; // necessary to handle sub-ranges TODO maybe intermediate struct to store flat_values.data()-offset?
   public:
   // type traits
     using scalar_type = T;
     using indices_type = I;
 
     using iterator = vblock_iterator<T,I>;
-    using const_iterator = vblock_iterator<const T,I>;
-    //using value_type = typename iterator::value_type; // TODO
+    using const_iterator = vblock_iterator<const T,const I>;
+    //using value_type = typename iterator::value_type;
+    using value_type = scalar_type; // TODO
     using reference = typename iterator::reference;
     using const_reference = typename const_iterator::reference;
-    using value_type = T; // TODO
 
   // ctors
     jagged_range() requires (rank>2)
@@ -279,14 +280,23 @@ class jagged_range {
     template<class jagged_range_type>
     static auto subscript_op_impl(jagged_range_type& x, I i) {
       if constexpr (rank==2) {
-        return make_span(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
+        if constexpr (!is_multi_range<typename jagged_range_type::data_value_range_type>) {
+          if constexpr (std::is_const_v<jagged_range_type>) {
+            return const_reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
+          } else {
+            return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
+          }
+        } else { // FIXME return as previous (not possible now because `reference` does not work with proxy-refs of multi_range
+          return make_span_ref(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
+          //return make_span_ref(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array[i+1]-x.idx_array[i]);
+        }
       } else {
         static_assert(rank==3); // Other ranks are not implemented TODO
         auto idx_2 = x.idx_array.indices();
         auto idx_1 = x.idx_array.flat_view();
-        jagged_range<span<const I>,span<const I>,rank-2> sub_idx_array( make_span(idx_1,idx_2[i],idx_2[i+1]+1) );
+        jagged_range<span<I>,span<I>,rank-2> sub_idx_array( make_span(idx_1,idx_2[i],idx_2[i+1]+1) );
         auto sub_data = make_span(x.flat_values,sub_idx_array[0],sub_idx_array.back());
-        return jagged_range<decltype(sub_data),span<const I>,rank-1>(sub_data,sub_idx_array,idx_1[idx_2[i]]);
+        return jagged_range<decltype(sub_data),span<I>,rank-1>(sub_data,sub_idx_array,idx_1[idx_2[i]]);
                                                                           // TODO wrong because returns a view
                                                                           // but should return a proxy reference
       }
