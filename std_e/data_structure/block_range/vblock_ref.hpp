@@ -116,6 +116,18 @@ operator< (const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
        x.size()< y.size()
    || (x.size()==y.size() && std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end()));
 }
+template<class T0, class I0, class T1, class I1> auto
+operator> (const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
+  return y<x;
+}
+template<class T0, class I0, class T1, class I1> auto
+operator<=(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
+  return !(x>y);
+}
+template<class T0, class I0, class T1, class I1> auto
+operator>=(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {
+  return !(x<y);
+}
 
 template<class T, class I> constexpr auto begin(const vblock_ref<T,I>& x) { return x.begin(); }
 template<class T, class I> constexpr auto begin(      vblock_ref<T,I>& x) { return x.begin(); }

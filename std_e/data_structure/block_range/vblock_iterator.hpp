@@ -17,7 +17,7 @@ class vblock_iterator {
     using index_type = I;
 
     /// std::iterator type traits
-    //using value_type = vblock_val<T>;
+    using value_type = vblock_val<T>;
     using reference = vblock_ref<T,I>;
     using difference_type = index_type;
     using iterator_category = std::random_access_iterator_tag;
@@ -107,7 +107,7 @@ class vblock_iterator {
 template<class T, class I>
 struct std::iterator_traits<std_e::vblock_iterator<T,I>> {
   using type = std_e::vblock_iterator<T,I>;
-  //using value_type = typename type::value_type;
+  using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;
   using iterator_category = typename type::iterator_category;

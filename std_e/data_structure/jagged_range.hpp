@@ -86,8 +86,7 @@ class jagged_range {
 
     using iterator = vblock_iterator<T,I>;
     using const_iterator = vblock_iterator<const T,const I>;
-    //using value_type = typename iterator::value_type;
-    using value_type = scalar_type; // TODO
+    using value_type = typename iterator::value_type;
     using reference = typename iterator::reference;
     using const_reference = typename const_iterator::reference;
 
