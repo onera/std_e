@@ -13,6 +13,9 @@ template<class T> class vblock_val; // fwd decl
 
 template<class T, class I>
 class vblock_ref {
+  private:
+    T* ptr;
+    I* offsets_ptr;
   public:
   // traits
     using value_type = T;
@@ -39,62 +42,31 @@ class vblock_ref {
     {throw;}
 
     vblock_ref& operator=(const vblock_ref& other) {
-      std::copy_n(other.ptr, other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+      return assign_through(*this,other);
     }
     vblock_ref& operator=(vblock_ref&& other) {
-      // even if the reference is temporary,
-      // we care about the underlying values
-      // (which are not temporary, so we copy, we don't move)
-      std::copy_n(other.ptr, other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+      return assign_through(*this,other);
     }
 
     // operator= const version to satisfy proxy reference in std::indirectly_writable
     const vblock_ref& operator=(const vblock_ref& other) const {
-      std::copy_n(other.begin(), other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+      return assign_through(*this,other);
     }
     const vblock_ref& operator=(vblock_ref&& other) const {
-      std::copy_n(other.begin(), other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+      return assign_through(*this,other);
     }
 
-    //// assign from other range types
-    ////template<class Range> requires (!std::is_same_v<std::remove_cvref_t<Range>,vblock_ref>)
-    //template<class Range> requires (!std::is_same_v<Range&&,const vblock_ref&> && !std::is_same_v<Range&&,vblock_ref&&>)
-    ////template<class Range> requires (false)
-    //const vblock_ref& operator=(Range&& other) const {
-    //  std::copy_n(other.begin(), other.size(), ptr);
-    //  offsets_ptr[1] = offsets_ptr[0] + other.size();
-    //  return *this;
-    //}
-
-
-    /// operator= overloads for const types {
-    template<class,class> friend class vblock_ref;
-
-    template<class T0, class I0>
-      // requires T0 is T or const T
-      // requires I0 is I or const I
-    vblock_ref& operator=(const vblock_ref<T0,I0>& other) {
-      std::copy_n(other.ptr, other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+    // assign from other range types
+    template<class Range>
+      requires (!std::is_same_v<std::remove_cvref_t<Range>,vblock_ref>)
+    vblock_ref& operator=(Range&& other) {
+      return assign_through(*this,other);
     }
-    template<class T0, class I0>
-      // requires T0 is T or const T
-      // requires I0 is I or const I
-    vblock_ref& operator=(vblock_ref<T0,I0>&& other) {
-      std::copy_n(other.ptr, other.size(), ptr);
-      offsets_ptr[1] = offsets_ptr[0] + other.size();
-      return *this;
+    template<class Range>
+      requires (!std::is_same_v<std::remove_cvref_t<Range>,vblock_ref>)
+    const vblock_ref& operator=(Range&& other) const {
+      return assign_through(*this,other);
     }
-    /// }
 
   // range interface
     constexpr auto size() const -> I { return offsets_ptr[1]-offsets_ptr[0]; }
@@ -109,8 +81,12 @@ class vblock_ref {
     template<class Integer> constexpr auto operator[](Integer i)       ->       T& { return ptr[i]; }
     template<class Integer> constexpr auto operator[](Integer i) const -> const T& { return ptr[i]; }
   private:
-    T* ptr;
-    I* offsets_ptr;
+    template<class vblock_ref_type, class Rng> static constexpr auto
+    assign_through(vblock_ref_type& x, const Rng& y) -> vblock_ref_type& {
+      std::copy_n(y.begin(), y.size(), x.ptr);
+      x.offsets_ptr[1] = x.offsets_ptr[0] + y.size();
+      return x;
+    }
 };
 template<class T0, class I0, class T1, class I1> auto
 operator==(const vblock_ref<T0,I0>& x, const vblock_ref<T1,I1>& y) -> bool {

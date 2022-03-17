@@ -401,4 +401,56 @@ column(const multi_array<M0,M1>& x, typename multi_array<M0,M1>::index_type j) {
 // sub views of contiguous memory }
 
 
+template<class R, class Shape> auto
+to_string(const multi_array<R,Shape>& x) -> std::string {
+  using I = typename multi_array<R,Shape>::index_type;
+  if (cartesian_product_size(x.extent())==0) {
+    return "[]";
+  }
+
+  using std::to_string;
+  if constexpr (Shape::ct_rank==0 || Shape::ct_rank==dynamic_size) {
+    if (x.rank()==0) {
+      return "["+to_string(x())+"]";
+    }
+  }
+  if constexpr (Shape::ct_rank==1 || Shape::ct_rank==dynamic_size) {
+    if (x.rank()==1) {
+      std::string s = "["+to_string(x(0));
+      I n = x.extent(0);
+      for (I i=1; i<n; ++i) {
+        s += "," + to_string(x(i));
+      }
+      return s + "]";
+    }
+  }
+  if constexpr (Shape::ct_rank==2 || Shape::ct_rank==dynamic_size) {
+    if (x.rank()==2) {
+      std::string s = "[["+to_string(x(0,0));
+      I n_i = x.extent(0);
+      I n_j = x.extent(1);
+      for (I j=1; j<n_j; ++j) {
+        s += "," + to_string(x(0,j));
+      }
+      s += "]";
+      for (I i=1; i<n_i; ++i) {
+        s += ",[" + to_string(x(i,0));
+        for (I j=1; j<n_j; ++j) {
+          s += "," + to_string(x(i,j));
+        }
+        s += "]";
+      }
+      return s + "]";
+    }
+  }
+
+  // rank > 2
+  std::string s;
+  for (const auto& is : fortran_multi_index_range(x.extent())) {
+    s += to_string(is) + " => " + to_string(x(is)) + "\n";
+  }
+  return s;
+}
+
+
 } // std_e

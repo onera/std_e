@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "std_e/data_structure/multi_range.hpp"
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
+#include "std_e/meta/meta.hpp"
 // TODO clean up!
 // TODO jagged -> compressed
 

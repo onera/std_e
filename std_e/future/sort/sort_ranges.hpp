@@ -122,7 +122,7 @@ quicksort(I first, I last, Comp comp = {}) -> void {
   if (len <= threshold) {
     insertion_sort(first, last, comp);
   } else {
-    int k = quicksort_loop(first, last, comp, threshold);
+    quicksort_loop(first, last, comp, threshold);
     I middle = first + threshold;
     insertion_sort(first, middle, comp);
     unguarded_insertion_sort(middle, last, comp);
