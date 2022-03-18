@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "std_e/data_structure/block_range/ivblock_ref.hpp"
 #include "std_e/data_structure/block_range/vblock_val.hpp"
+#include "std_e/meta/meta.hpp"
 
 
 namespace std_e {
@@ -43,6 +44,10 @@ class ivblock_iterator {
 
     auto operator*() const {
       return reference(ptr);
+    }
+    auto
+    operator->() const {
+      return std_e::arrow_proxy<reference>{**this};
     }
 
     auto data() const -> I* {

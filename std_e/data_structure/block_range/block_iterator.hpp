@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include "std_e/future/array.hpp"
+#include "std_e/meta/meta.hpp"
 
 
 namespace std_e {
@@ -83,6 +84,10 @@ class block_iterator {
 
     auto operator*() const {
       return reference(ptr);
+    }
+    auto
+    operator->() const {
+      return std_e::arrow_proxy<reference>{**this};
     }
     auto
     operator[](index_type i) const -> reference {

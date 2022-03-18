@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "std_e/data_structure/block_range/vblock_ref.hpp"
 #include "std_e/data_structure/block_range/vblock_val.hpp"
+#include "std_e/meta/meta.hpp"
 
 
 namespace std_e {
@@ -84,6 +85,11 @@ class vblock_iterator {
     auto operator*() const {
       return reference(ptr+offsets_ptr[0],offsets_ptr);
     }
+    auto
+    operator->() const {
+      return std_e::arrow_proxy<reference>{**this};
+    }
+
     auto
     operator[](index_type i) const -> reference {
       return reference(ptr+offsets_ptr[i],offsets_ptr+i);

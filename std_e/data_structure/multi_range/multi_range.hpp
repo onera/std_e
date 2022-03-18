@@ -207,6 +207,13 @@ template<class... Rngs> auto
 view_as_multi_range(Rngs&... rngs) {
   return multi_range2<Rngs&...>(rngs...);
 }
+// TODO mixed view/container
+template<class... Ts> auto
+view_as_multi_range2(span<Ts>... rngs) { // TODO rename without 2 (here, just tmp to be sure this one is called)
+  // specialization keep the span by value because it might be ephemeral
+  // while the underlying values are not
+  return multi_range2<span<Ts>...>(rngs...);
+}
 
 //// multi_span {
 //template<class... Ts> using multi_span2 = multi_range2<dyn_span,Ts...>;
