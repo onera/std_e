@@ -4,6 +4,7 @@
 #include "std_e/concept/array.hpp"
 #include <tuple> // just for tuple_size<Array>... (which has, btw, nothing to do with std::tuple)
 #include "std_e/future/contract.hpp"
+#include "std_e/future/algorithm.hpp"
 #include "std_e/base/macros.hpp"
 #include <algorithm>
 #include <type_traits>
@@ -176,6 +177,10 @@ template<
   std::enable_if_t< is_array<Array> , int > =0
 > auto
 to_string(const Array& x) -> std::string {
+  return range_to_string(x);
+}
+template<class T, size_t N> auto
+to_string(const std::array<T,N>& x) -> std::string {
   return range_to_string(x);
 }
 

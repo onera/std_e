@@ -3,7 +3,7 @@
 
 #include <array>
 #include <vector>
-#include "std_e/future/span.hpp"
+#include "std_e/future/span_fwd.hpp"
 
 
 namespace std_e {

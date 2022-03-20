@@ -6,6 +6,7 @@
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/base/macros.hpp"
 #include "std_e/future/contract.hpp"
+#include "std_e/future/span_fwd.hpp"
 #include "std_e/utils/to_string.hpp"
 
 
@@ -288,7 +289,7 @@ operator!=(const std::vector<T1,A>& y, const span_base<T0,N>& x) -> bool {
 }
 
 
-template<class T, ptrdiff_t N=dynamic_size>
+template<class T, ptrdiff_t N>
 class span : public span_base<T,N> {
   public:
     using base = span_base<T,N>;

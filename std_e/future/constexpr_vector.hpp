@@ -9,6 +9,7 @@
 #include "std_e/future/contract.hpp"
 #include <array>
 #include "std_e/concept/array.hpp"
+#include "std_e/base/macros.hpp"
 
 
 namespace std_e {

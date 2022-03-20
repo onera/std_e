@@ -15,6 +15,8 @@ to_string(const std::string& s) -> const std::string&;
 template<class T> auto
 to_string(T* ptr) -> std::string;
 
+template<class T, size_t N> auto
+to_string(const std::array<T,N>& x) -> std::string;
 template<class T, class A> auto
 to_string(const std::vector<T,A>& x) -> std::string;
 template<class T, class A> auto
