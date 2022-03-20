@@ -1,7 +1,6 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/multi_index/multi_index_range.hpp"
-#include "std_e/log.hpp" // TODO
 
 
 using namespace std_e;

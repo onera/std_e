@@ -76,6 +76,20 @@ TEST_CASE("unique_compress_copy_with_index_position") {
   CHECK( positions_old_to_new == expected_positions_old_to_new );
 }
 
+// concatenation as a reduction {
+template<class T> auto
+_append_to_vec(T x) -> std::vector<T> {
+  return {std::move(x)};
+}
+template<class T> auto
+_append_to_vec(std::vector<T>& v, T x) -> std::vector<T>& {
+  v.emplace_back(std::move(x));
+  return v;
+}
+// Intel needs inline
+inline auto append_to_vec = [](auto&&... xs){ return _append_to_vec(FWD(xs)...); };
+
+// concatenation as a reduction }
 TEST_CASE("unique_compress_stride_copy") {
   const vector<int> v =       {10,11,12,13,14,15,16,17,18,19};
   const vector<int> strides = {1 ,2    ,1 ,1 ,1 ,3       ,1 };
@@ -88,7 +102,7 @@ TEST_CASE("unique_compress_stride_copy") {
   }
   SUBCASE("concat") {
     vector<vector<int>> res(strides.size());
-    std_e::unique_compress_strides_copy(begin(v),end(v),begin(res),std_e::concatenate_in_vector,strides.data());
+    std_e::unique_compress_strides_copy(begin(v),end(v),begin(res),append_to_vec,strides.data());
 
     CHECK( res == vector<vector<int>>{{10}, {11,12}, {13},{14},{15}, {16,17,18}, {19}} );
   }

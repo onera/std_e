@@ -9,7 +9,6 @@ namespace views {
 
 
 template<class T>
-// requires order_functor_type has method increment(Multi_index_1& indices)
 class repeat_view_iterator {
   private:
     T val;
@@ -17,10 +16,14 @@ class repeat_view_iterator {
   public:
   // std::iterator type traits
     using value_type = T;
+    using reference = const T&;
     using difference_type = ptrdiff_t;
     using iterator_category = std::forward_iterator_tag;
 
   // ctor
+    constexpr
+    repeat_view_iterator() = default;
+
     constexpr
     repeat_view_iterator(T x, size_t i)
       : val(std::move(x))
@@ -41,7 +44,7 @@ class repeat_view_iterator {
     }
 
     constexpr auto
-    operator*() const -> T {
+    operator*() const -> const T& {
       return val;
     }
 
@@ -66,6 +69,9 @@ class repeat_view : public std::ranges::view_base {
     using iterator = repeat_view_iterator<T>;
   // ctor
     constexpr
+    repeat_view() = default;
+
+    constexpr
     repeat_view(T x, size_t n)
       : val(std::move(x))
       , n(n)
@@ -87,6 +93,25 @@ class repeat_view : public std::ranges::view_base {
     }
 };
 
+template<class T> auto
+begin(const repeat_view<T>& x) {
+  return x.begin();
+}
+template<class T> auto
+end(const repeat_view<T>& x) {
+  return x.end();
+}
+
 
 } // views
+
+namespace ranges {
+
+template<class T> auto
+repeat(T x, size_t n) {
+  return views::repeat_view<T>(x,n);
+}
+
+} // ranges
+
 } // std_e
