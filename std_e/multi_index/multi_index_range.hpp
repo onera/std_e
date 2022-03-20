@@ -9,6 +9,9 @@
 #include "std_e/base/not_implemented_exception.hpp"
 #include "std_e/future/algorithm.hpp"
 #include <iterator>
+#if __cplusplus > 201703L
+  #include <ranges>
+#endif
 
 
 namespace std_e {
@@ -247,7 +250,11 @@ operator!=(multi_index_generator_sentinel<Integer> sentinel, const multi_index_g
 
 
 template<class order_functor_type>
-class multi_index_range {
+class multi_index_range
+  #if __cplusplus > 201703L
+    : public std::ranges::view_base
+  #endif
+{
   public:
     using generator_type = multi_index_generator<order_functor_type>;
     using index_type = typename generator_type::index_type;
