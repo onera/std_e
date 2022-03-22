@@ -77,6 +77,18 @@ permute_copy_n(Rand_it0 first, Output_it d_first, Rand_it1 perm_first, I n) -> O
   //     - permutation_indices = [perm_first,n) is an index permutation (i.e. sort(permutation_indices) == iota(n))
   return std::transform(perm_first, perm_first+n, d_first, [&](I i){ return *(first+i); });
 }
+template<class Rand_it0, class S, class Output_it, class Rand_it1> auto
+// requires Rand_it0,Rand_it1 are random access iterators
+// requires Output_it is an output iterator
+permute_copy(Rand_it0 first, S last, Output_it d_first, Rand_it1 perm_first) -> Output_it {
+  return permute_copy_n(first,d_first,perm_first,last-first);
+}
+template<class RA_rng, class Out_rng, class integer_RA_rng> auto
+// requires Rand_it0,Rand_it1 are random access iterators
+// requires Output_it is an output iterator
+permute_copy(const RA_rng& x, Out_rng& dest, const integer_RA_rng& perm) {
+  return permute_copy(x.begin(),x.end(),dest.begin(),perm.begin());
+}
 template<class T, class I> auto
 permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T> {
   using index_type = typename std::vector<I>::difference_type;
