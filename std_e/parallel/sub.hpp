@@ -28,7 +28,7 @@ struct mpi_sub_comm {
     }
 
     mpi_sub_comm(MPI_Comm origin_comm, int nb_ranks) noexcept
-      : mpi_sub_comm(origin_comm,iota(nb_ranks))
+      : mpi_sub_comm(origin_comm,iota_vector(nb_ranks))
     {}
 
     auto comm() const -> const MPI_Comm& {
@@ -42,13 +42,6 @@ struct mpi_sub_comm {
     }
   }
 };
-
-
-inline auto
-seq_comm_of_rank(MPI_Comm origin_comm) -> mpi_sub_comm {
-  std::vector<int> ranks = {rank(origin_comm)};
-  return mpi_sub_comm(origin_comm,ranks);
-}
 
 
 } // std_e

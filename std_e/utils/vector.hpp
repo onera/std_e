@@ -112,7 +112,7 @@ to_string(const std::vector<T,A>& x) -> std::string {
 }
 
 template<class I> auto
-iota(I n, I init = I()) -> std::vector<I> {
+iota_vector(I n, I init = I()) -> std::vector<I> {
   std::vector<I> res(n);
   std::iota(begin(res), end(res), init);
   return res;
