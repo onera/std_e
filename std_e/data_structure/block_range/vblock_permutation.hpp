@@ -30,6 +30,10 @@ permute_vblock_range(Rng& values, Offset_rng& offsets, const Permutation_rng& pe
   std::ranges::copy(new_values ,values .begin());
   std::ranges::copy(new_offsets,offsets.begin());
 }
+template<class T, class I, class Permutation_rng> auto
+permute_vblock_range(vblock_range<T,I>& x, const Permutation_rng& permutation) -> void {
+  return permute_vblock_range(x.values(),x.offsets());
+}
 
 
 } // std_e

@@ -184,7 +184,7 @@ class jagged_range {
     auto operator[](I i) const { return subscript_op_impl(*this,i); }
 
   // accessors
-    auto flat_view() {
+    auto flat_view() { // TODO deprecate
       return make_span(flat_values);
     }
     auto flat_view() const {
@@ -199,14 +199,21 @@ class jagged_range {
     auto retrieve_values() -> std::vector<T> {
       return std::move(flat_values);
     }
+    auto values() {
+      return flat_view();
+    }
 
     auto index_array() const -> const auto& {
       return idx_array;
     }
-    auto indices() const -> interval_span<const I> {
+    auto indices() const -> interval_span<const I> { // TODO deprecate
       static_assert(rank==2);
       return to_interval_span(make_span(idx_array));
     }
+    auto offsets() const -> interval_span<const I> {
+      return indices();
+    }
+
     template<int lvl>
     auto indices() const -> interval_span<const I> {
       static_assert(lvl>=0 && lvl<rank);
