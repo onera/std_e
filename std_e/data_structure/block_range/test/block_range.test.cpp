@@ -3,7 +3,6 @@
 #include "std_e/data_structure/block_range/block_range.hpp"
 #include "std_e/future/sort/sort_ranges.hpp"
 #include <algorithm>
-#include "std_e/log.hpp" // TODO
 
 using namespace std_e;
 

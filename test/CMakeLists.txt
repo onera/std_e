@@ -23,13 +23,15 @@ create_doctest(
   DOCTEST_ARGS  ${doctest_args}
 )
 
-file(GLOB_RECURSE perfo_test_files
-  CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/test/std_e_perfo/*.test.cpp"
-)
-create_doctest(
-  TESTED_TARGET ${PROJECT_NAME}
-  LABEL         perfo
-  SOURCES       ${unit_test_main} ${perfo_test_files}
-  SERIAL_RUN    ${serial_run}
-  N_PROC        ${n_proc_max_test}
-)
+if (${PROJECT_NAME}_ENABLE_PERFORMANCE_TESTS)
+  file(GLOB_RECURSE perfo_test_files
+    CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/test/std_e_perfo/*.test.cpp"
+  )
+  create_doctest(
+    TESTED_TARGET ${PROJECT_NAME}
+    LABEL         perfo
+    SOURCES       ${unit_test_main} ${perfo_test_files}
+    SERIAL_RUN    ${serial_run}
+    N_PROC        ${n_proc_max_test}
+  )
+endif()
