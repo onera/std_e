@@ -119,4 +119,8 @@ TEST_CASE("vblock_ref") {
       CHECK( is == vector{0,4} );
     }
   }
+  SUBCASE("concepts") {
+    static_assert(std::ranges::range<vblock_ref<double,int>>);
+    static_assert(std::ranges::range<vblock_ref<const double,const int>>);
+  }
 }

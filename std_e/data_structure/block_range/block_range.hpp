@@ -92,6 +92,11 @@ template<int N, class Rng> constexpr auto
 view_as_block_range(Rng& rng) {
   return block_range<Rng&,N>(rng);
 }
+template<int N, class T> constexpr auto
+view_as_block_range2(span<T>& rng) { // TODO proper overload with is_view
+  return block_range<span<T>,N>(rng);
+}
+
 template<class Rng, int N> constexpr auto
 // requires Rng&& is a rvalue ref
 deep_copy(const block_range<Rng,N>& x) {

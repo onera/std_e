@@ -10,12 +10,16 @@
 namespace std_e {
 
 
-template<class T0, class T1>
-using vblock_range = jagged_range<T0,T1,2>;
+template<class T, class I>
+using vblock_range = jagged_range<T,I,2>;
 
-template<class T0, class T1> constexpr auto
-view_as_vblock_range(T0& values, T1& offsets) {
-  return vblock_range<T0&,T1&>(values,offsets);
+template<class Rng, class Int_range> constexpr auto
+view_as_vblock_range(Rng& values, Int_range& offsets) {
+  return vblock_range<Rng&,Int_range&>(values,offsets);
+}
+template<class T, class I> constexpr auto
+view_as_vblock_range2(span<T> values, span<I> offsets) { // TODO proper overload with is_view
+  return vblock_range<span<T>,span<I>>(values,offsets);
 }
 
 

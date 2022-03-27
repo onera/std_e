@@ -85,6 +85,14 @@ apply(const Permutation& p, Range& r) -> void {
     i = p(i);
   }
 }
+template<class Permutation, class Range, class Pred> constexpr auto
+apply_if(const Permutation& p, Range& r, Pred pred) -> void {
+  for (auto& i : r) {
+    if (pred(i)) {
+      i = p(i);
+    }
+  }
+}
 
 
 } // std_e
