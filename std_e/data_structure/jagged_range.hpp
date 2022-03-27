@@ -184,7 +184,7 @@ class jagged_range {
     auto operator[](I i) const { return subscript_op_impl(*this,i); }
 
   // accessors
-    auto flat_view() { // TODO deprecate
+    auto flat_view() { // TODO deprecate (use values that also treats the offset pb)
       return make_span(flat_values);
     }
     auto flat_view() const {
@@ -200,15 +200,25 @@ class jagged_range {
       return std::move(flat_values);
     }
     auto values() {
-      return flat_view();
+      return make_span(flat_values.data()+idx_array[0],idx_array.back());
+    }
+    auto values() const {
+      return make_span(flat_values.data()+idx_array[0],idx_array.back());
     }
 
     auto index_array() const -> const auto& {
       return idx_array;
     }
+    auto indices() -> interval_span<I> { // TODO deprecate
+      static_assert(rank==2);
+      return to_interval_span(make_span(idx_array));
+    }
     auto indices() const -> interval_span<const I> { // TODO deprecate
       static_assert(rank==2);
       return to_interval_span(make_span(idx_array));
+    }
+    auto offsets() -> interval_span<I> {
+      return indices();
     }
     auto offsets() const -> interval_span<const I> {
       return indices();
