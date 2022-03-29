@@ -200,10 +200,10 @@ class jagged_range {
       return std::move(flat_values);
     }
     auto values() {
-      return make_span(flat_values.data()+idx_array[0],idx_array.back());
+      return make_span(flat_values.data()+idx_array[0],flat_values.data()+idx_array.back());
     }
     auto values() const {
-      return make_span(flat_values.data()+idx_array[0],idx_array.back());
+      return make_span(flat_values.data()+idx_array[0],flat_values.data()+idx_array.back());
     }
 
     auto index_array() const -> const auto& {
