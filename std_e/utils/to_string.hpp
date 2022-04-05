@@ -70,7 +70,7 @@ to_string_almost_exact(floating_point_type x) -> std::string {
   return x_as_str;
 }
 
-template<typename... Ts, std::enable_if_t<(sizeof...(Ts)>1),int> =0> auto
+template<typename... Ts, std::enable_if<(sizeof...(Ts)>1),int>> auto
 to_string(const Ts&... xs) -> std::string {
   std::string s;
   using std::to_string;

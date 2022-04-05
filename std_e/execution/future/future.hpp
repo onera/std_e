@@ -8,7 +8,7 @@
 namespace std_e {
 
 template<class R>
-struct future;
+class future;
 
 template<class T> concept Future = std::remove_cvref_t<T>::enable_future; // TODO not really a concept
 
@@ -22,7 +22,7 @@ template<class T, class R> concept Future_of = Future<T> && std::is_convertible_
 //        - the id of the task the future is representing
 //        - a *typed* pointer to where the result of the task will be
 template<class R>
-struct future;
+class future;
 
 
 template<class R>
@@ -102,7 +102,7 @@ class future : public future<const R&> { // TODO also enable future<R&>
     static constexpr bool enable_future = true;
     using result_type = R;
     using result_stored_type = R;
-    using result_stored_ref_type = base::result_stored_type;
+    using result_stored_ref_type = typename base::result_stored_type;
 
     future() = default;
     future(task_graph* tg, int i_node)

@@ -67,7 +67,7 @@ to_mpi_type_of_size(int sz) -> MPI_Datatype {
   else throw mpi_exception(-1,"sizeof primitive type should by 1, 2, 4 or 8");
 }
 
-template<class T> constexpr MPI_Datatype to_mpi_type = to_mpi_type_of_size(sizeof(T));
+template<class T> const MPI_Datatype to_mpi_type = to_mpi_type_of_size(sizeof(T));
 // to_mpi_type }
 
 

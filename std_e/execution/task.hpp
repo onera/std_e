@@ -41,7 +41,7 @@ generic_then_task(task_kind tk, Fut&& fut, F&& f) {
   tg->out_indices(last_active).push_back(n); // ... tell the previous task that this one is following ...
   tg->in_indices(n).push_back(last_active); // ... and symmetrically tell the new task that it depends one the previous one
 
-  using R = task_t::result_type;
+  using R = typename task_t::result_type;
   return future<R>{tg,n};
 }
 
@@ -63,7 +63,7 @@ generic_then_task__impl(task_kind tk, Tuple&& futs, F&& f, std::index_sequence<I
   ( tg->out_indices(std::get<Is>(futs).task_id()).push_back(n) , ... ); // ... tell the previous tasks that this one is following ...
   ( tg->in_indices(n).push_back(std::get<Is>(futs).task_id()) , ... ); // ... and symmetrically tell the new task that it depends one these previous ones
 
-  using R = task_t::result_type;
+  using R = typename task_t::result_type;
   return future<R>{tg,n};
 }
 
