@@ -1,4 +1,3 @@
-#include "std_e/log.hpp"
 #if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
@@ -260,6 +259,44 @@ MPI_TEST_CASE("sort_by_rank - repeated values",3) {
     MPI_CHECK( 2 , rank_indices == interval_vector{0,1,1,1} );
     MPI_CHECK( 2 ,            x ==          vector{10} );
   }
+}
+
+MPI_TEST_CASE("sort_by_rank - irregular case",12) {
+  std::vector<int> v;
+
+  // This case is interesting because one tick found in the initial partition is shifted
+  // (i.e. it delimits two partitions, but not at its original position)
+  if (test_rank== 0) v = std::vector{1,1,1,2,3, 5, 5, 5};
+  if (test_rank== 1) v = std::vector{1,1,1,2,5, 5, 5, 9};
+  if (test_rank== 2) v = std::vector{1,1,1,4,5,13,13,13};
+  if (test_rank== 3) v = std::vector{1,1,1,1,1, 5, 9,13};
+  if (test_rank== 4) v = std::vector{1                 };
+  if (test_rank== 5) v = std::vector{1                 };
+  if (test_rank== 6) v = std::vector{2                 };
+  if (test_rank== 7) v = std::vector{2                 };
+  if (test_rank== 8) v = std::vector{3                 };
+  if (test_rank== 9) v = std::vector{4                 };
+  if (test_rank==10) v = std::vector{9                 };
+  if (test_rank==11) v = std::vector{9                 };
+
+  const auto v_copy = v;
+
+  auto rank_indices = std_e::sort_by_rank(v,test_comm);
+
+  CHECK( v == v_copy ); // v was already sorted locally
+  //                                                           v   v v v   v   v v  // ranks that will contain data
+  MPI_CHECK(  0 , rank_indices == std_e::interval_vector{0,0,0,3,3,3,5,5,5,8,8,8,8} );
+  MPI_CHECK(  1 , rank_indices == std_e::interval_vector{0,0,0,3,3,3,4,4,4,7,7,8,8} );
+  MPI_CHECK(  2 , rank_indices == std_e::interval_vector{0,0,0,3,3,3,3,4,4,5,5,5,8} );
+  MPI_CHECK(  3 , rank_indices == std_e::interval_vector{0,0,0,5,5,5,5,5,5,6,6,7,8} );
+  MPI_CHECK(  4 , rank_indices == std_e::interval_vector{0,0,0,1,1,1,1,1,1,1,1,1,1} );
+  MPI_CHECK(  5 , rank_indices == std_e::interval_vector{0,0,0,1,1,1,1,1,1,1,1,1,1} );
+  MPI_CHECK(  6 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,1,1,1,1,1,1,1} );
+  MPI_CHECK(  7 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,1,1,1,1,1,1,1} );
+  MPI_CHECK(  8 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,1,1,1,1,1,1,1} );
+  MPI_CHECK(  9 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,0,1,1,1,1,1,1} );
+  MPI_CHECK( 10 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,0,0,0,0,0,1,1} );
+  MPI_CHECK( 11 , rank_indices == std_e::interval_vector{0,0,0,0,0,0,0,0,0,0,0,1,1} );
 }
 
 

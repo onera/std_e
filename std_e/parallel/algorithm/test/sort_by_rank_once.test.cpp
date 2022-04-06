@@ -1,7 +1,7 @@
 #if __cplusplus > 201703L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
-#include "std_e/parallel/algorithm/sort_by_rank.hpp"
+#include "std_e/parallel/algorithm/sort_by_rank_once.hpp"
 #include "std_e/interval/algorithm.hpp"
 #include "std_e/unit_test/math.hpp"
 

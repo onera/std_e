@@ -50,7 +50,17 @@ sort_by_rank(
   Return_container rank_indices = sort_by_rank_once(x,comm,proj,comp,Return_container{});
 
   auto obj_ticks = objective_ticks(sz_tot,n_rk,0,n_rk-1);
-  auto sub_ins = compute_intervals_containing_ticks(obj_ticks,rank_indices,max_interval_tick_shift,comm);
+
+  // TODO this one is wrong because it does not update rank_indices
+  //auto sub_ins = compute_intervals_containing_ticks(obj_ticks,rank_indices,max_interval_tick_shift,comm);
+
+  // TODO this one does not work either, not sure why
+  //auto rank_indices_copy = rank_indices; // need to copy aside because next function can't read from it and update at the same time
+  //auto offset = 0;
+  //auto sub_ins = compute_interval_containing_ticks2(obj_ticks,rank_indices_copy,max_interval_tick_shift,offset,rank_indices,comm);
+
+  auto rank_indices_copy = rank_indices; // need to copy aside because next function can't read from it and update at the same time
+  auto sub_ins = compute_intervals_containing_ticks3(obj_ticks,rank_indices_copy,max_interval_tick_shift,rank_indices,comm);
 
 // 1. loop until there is no sub-interval to partition (that is, until all rank_indices are OK)
   int n_iter = 0;
