@@ -93,6 +93,7 @@ view_as_ivblock_range(Rng& rng) {
 
 template<class Rng> auto
 to_string(const ivblock_range<Rng>& x) -> std::string {
+  if (x.size()==0) return "";
   std::string s;
   for (auto b : x) {
     s += range_to_lite_string(b) + '|';

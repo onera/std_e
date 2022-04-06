@@ -107,6 +107,7 @@ deep_copy(const block_range<Rng,N>& x) {
 
 template<class Rng, int N> auto
 to_string(const block_range<Rng,N>& x) -> std::string {
+  if (x.size()==0) return "";
   std::string s;
   for (auto b : x) {
     s += range_to_lite_string(b) + '|';
