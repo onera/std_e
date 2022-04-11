@@ -123,21 +123,23 @@ MPI_TEST_CASE("send recv async overlap",2) {
     CHECK( res == std::vector{2,1,0, 5,4,3} );
     CHECK( elaps - 2.*p_to_p_test_sleep_duration < 2.*p_to_p_test_sleep_duration / 10 );
   }
-  SUBCASE("async comm") {
-    // WARNING: This test seems to work consistently (in term of time taken) with 4 comm threads.
-    //          Two comm threads should be enought, however, it result in no parallelisation most of the time
-    //            (but it is inconsistent and sometimes, the timing is the one expected
-    // TODO: investigate (thread_pool bug? MPI funny behavior? ...)
-    thread_pool comm_tp(4);
+  #if __cpp_lib_atomic_wait
+    SUBCASE("async comm") {
+      // WARNING: This test seems to work consistently (in term of time taken) with 4 comm threads.
+      //          Two comm threads should be enought, however, it result in no parallelisation most of the time
+      //            (but it is inconsistent and sometimes, the timing is the one expected
+      // TODO: investigate (thread_pool bug? MPI funny behavior? ...)
+      thread_pool comm_tp(4);
 
-    timer t;
-    auto res = execute_async_comm(s3,comm_tp);
-    double elaps = t.elapsed();
+      timer t;
+      auto res = execute_async_comm(s3,comm_tp);
+      double elaps = t.elapsed();
 
-    CHECK( res == std::vector{2,1,0, 5,4,3} );
-    // the two "heavy" communication tasks `send_recv_msg_0` and `send_recv_msg_1` are done in parallel
-    CHECK( elaps - 1.1*p_to_p_test_sleep_duration < 1.1*p_to_p_test_sleep_duration / 10 );
-  }
+      CHECK( res == std::vector{2,1,0, 5,4,3} );
+      // the two "heavy" communication tasks `send_recv_msg_0` and `send_recv_msg_1` are done in parallel
+      CHECK( elaps - 1.1*p_to_p_test_sleep_duration < 1.1*p_to_p_test_sleep_duration / 10 );
+    }
+  #endif
 }
 
 } // async_test

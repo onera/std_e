@@ -130,17 +130,19 @@ TEST_CASE("then_comm") {
     // since tasks are executed sequentially, it needs approx 2*task_test_sleep_duration
     CHECK( elaps - 2*task_test_sleep_duration < task_test_sleep_duration / 10 );
   }
-  SUBCASE("comm") {
-    thread_pool comm_tp(1);
+  #if __cpp_lib_atomic_wait
+    SUBCASE("comm") {
+      thread_pool comm_tp(1);
 
-    timer t;
-    auto res = execute_async_comm(s3,comm_tp);
-    double elaps = t.elapsed();
+      timer t;
+      auto res = execute_async_comm(s3,comm_tp);
+      double elaps = t.elapsed();
 
-    CHECK( res == std::vector{0,1,2,3, 6,5,4,7,    3,2,1,0} );
-    // the two "heavy" tasks `get_remote_info` and `revers_vec_with_delay` need appox task_test_sleep_duration, but are done in parallel
-    CHECK( elaps - task_test_sleep_duration < task_test_sleep_duration / 10 );
-  }
+      CHECK( res == std::vector{0,1,2,3, 6,5,4,7,    3,2,1,0} );
+      // the two "heavy" tasks `get_remote_info` and `revers_vec_with_delay` need appox task_test_sleep_duration, but are done in parallel
+      CHECK( elaps - task_test_sleep_duration < task_test_sleep_duration / 10 );
+    }
+  #endif
 }
 
 

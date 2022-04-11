@@ -170,10 +170,12 @@ MPI_TEST_CASE("distributed array - get",4) {
     SUBCASE("seq") {
       CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
     }
-    SUBCASE("async comm") {
-      thread_pool comm_tp(2);
-      CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
-    }
+    #if __cpp_lib_atomic_wait
+      SUBCASE("async comm") {
+        thread_pool comm_tp(2);
+        CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+      }
+    #endif
   }
 
   SUBCASE("gather with protocol - seq") {
@@ -204,10 +206,12 @@ MPI_TEST_CASE("distributed array - get",4) {
     SUBCASE("seq") {
       CHECK( execute_seq(f_res) == vector{70,90,20,10,30,110,50} );
     }
-    SUBCASE("async comm") {
-      thread_pool comm_tp(2);
-      CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
-    }
+    #if __cpp_lib_atomic_wait
+      SUBCASE("async comm") {
+        thread_pool comm_tp(2);
+        CHECK( execute_async_comm(f_res,comm_tp) == vector{70,90,20,10,30,110,50} );
+      }
+    #endif
   }
 
   SUBCASE("gather - seq") {
@@ -252,16 +256,18 @@ MPI_TEST_CASE("distributed jagged array - gather",4) {
 
       CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
     }
-    SUBCASE("async comm") {
-      thread_pool comm_tp(2);
+    #if __cpp_lib_atomic_wait
+      SUBCASE("async comm") {
+        thread_pool comm_tp(2);
 
-      timer t;
-      auto res = execute_async_comm(f_res,comm_tp);
-      //double elaps = t.elapsed();
-      //ELOG(elaps);
+        timer t;
+        auto res = execute_async_comm(f_res,comm_tp);
+        //double elaps = t.elapsed();
+        //ELOG(elaps);
 
-      CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
-    }
+        CHECK( res == jagged_vector<double>{{7.},{6.,6.1},{1.,1.1,1.2},{},{5.,5.1}} );
+      }
+    #endif
   }
 }
 
@@ -297,15 +303,17 @@ MPI_TEST_CASE("distributed array - scatter",4) {
       MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
       MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
     }
-    SUBCASE("async comm") {
-      thread_pool comm_tp(2);
-      execute_async_comm(f_res,comm_tp);
-      MPI_Barrier(test_comm);
-      MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
-      MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
-      MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
-      MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
-    }
+    #if __cpp_lib_atomic_wait
+      SUBCASE("async comm") {
+        thread_pool comm_tp(2);
+        execute_async_comm(f_res,comm_tp);
+        MPI_Barrier(test_comm);
+        MPI_CHECK(0, a.local() == vector{0., 1., 2.} );
+        MPI_CHECK(1, a.local() == vector{3., 4., 5.} );
+        MPI_CHECK(2, a.local() == vector{6., 7., 8.} );
+        MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
+      }
+    #endif
   }
 
   SUBCASE("eager") {
