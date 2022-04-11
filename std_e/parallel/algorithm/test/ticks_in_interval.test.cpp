@@ -7,7 +7,7 @@ using namespace std;
 using namespace std_e;
 
 // TODO `compute_interval_containing_ticks` is wrong in `sort_by_rank` because found interval do not shift `indices`
-// => use `compute_interval_containing_ticks2` and delete `compute_interval_containing_ticks`
+// => merge `compute_interval_containing_ticks2/3` and delete `compute_interval_containing_ticks`
 MPI_TEST_CASE("compute_interval_containing_ticks - 12 procs",12) {
   vector<int> obj_ticks = {          4,8,12, 16,19,22,      25,28,31,      34,37};
   //                      {0, 0,0,0,0,       16,   22,24,24,         32,32, 36  ,40}

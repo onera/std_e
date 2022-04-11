@@ -5,9 +5,14 @@
 
 #include <string>
 
+
+
 // TODO RENAME cell->elt, row->multi_elt, col->range
 using std::vector;
 using std::string;
+#if defined REAL_GCC && __GNUC__ < 11
+  using std::get; // found by ADL with GCC 11
+#endif
 
 TEST_CASE("multi_vector2") {
   std_e::multi_vector2<int,string,double> t;

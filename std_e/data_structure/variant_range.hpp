@@ -195,13 +195,9 @@ class variant_range {
     //}
 
     template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
-    get(variant_range<R,RV,Ts0...>& x) -> R<T>& {
-      return std::get<Range<T>>(x.impl);
-    }
+    get(variant_range<R,RV,Ts0...>& x) -> R<T>&;
     template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
-    get(const variant_range<R,RV,Ts0...>& x) -> const R<T>& {
-      return std::get<Range<T>>(x.impl);
-    }
+    get(const variant_range<R,RV,Ts0...>& x) -> const R<T>&;
 
     // TODO remove
     constexpr auto
@@ -240,6 +236,15 @@ class variant_range {
     holds_alternative(const variant_range<R,RV,Ts0...>& x) -> bool;
 };
 // variant_range }
+
+template<class T, template<class> class R, template<class...> class RV, class... Ts0> auto
+get(variant_range<R,RV,Ts0...>& x) -> R<T>& {
+  return std::get<R<T>>(x.impl);
+}
+template<class T, template<class> class R, template<class...> class RV, class... Ts0> auto
+get(const variant_range<R,RV,Ts0...>& x) -> const R<T>& {
+  return std::get<R<T>>(x.impl);
+}
 
 template<template<class> class R, template<class...> class RV, class... Ts, class F> auto
 visit(F&& f, variant_range<R,RV,Ts...>& x) -> decltype(auto) {
