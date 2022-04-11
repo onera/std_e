@@ -169,7 +169,7 @@ MPI_TEST_CASE("sort_by_rank - less values than procs",2) {
     if (rk == 0) x = {10};
     if (rk == 1) x = {};
     interval_vector<int> rank_indices = std_e::sort_by_rank(x,test_comm);
-    MPI_CHECK( 0, rank_indices == interval_vector{0,0,1} ); // the value will stay on proc 0
+    MPI_CHECK( 0, rank_indices == interval_vector{0,1,1} ); // the value will move to proc 1
     MPI_CHECK( 0,            x ==          vector{10} );
     MPI_CHECK( 1, rank_indices == interval_vector{0,0,0} );
     MPI_CHECK( 1,            x ==          vector<int>{} );
@@ -182,7 +182,7 @@ MPI_TEST_CASE("sort_by_rank - less values than procs",2) {
     interval_vector<int> rank_indices = std_e::sort_by_rank(x,test_comm);
     MPI_CHECK( 0, rank_indices == interval_vector{0,0,0} );
     MPI_CHECK( 0,            x ==          vector<int>{} );
-    MPI_CHECK( 1, rank_indices == interval_vector{0,0,1} ); // the value will stay on proc 1
+    MPI_CHECK( 1, rank_indices == interval_vector{0,1,1} ); // the value will move to proc 1
     MPI_CHECK( 1,            x ==          vector{10} );
   }
 }
@@ -194,7 +194,7 @@ MPI_TEST_CASE("sort_by_rank - less values than procs, but still need to sort",3)
     if (rk == 1) x = {};
     if (rk == 2) x = {};
     interval_vector<int> rank_indices = std_e::sort_by_rank(x,test_comm);
-    MPI_CHECK( 0, rank_indices == interval_vector{0,0,1,2} ); // 10 goes to proc 1, 11 goes to proc 2
+    MPI_CHECK( 0, rank_indices == interval_vector{0,1,2,2} ); // 10 stays on proc 0, 11 goes to proc 1
     MPI_CHECK( 0,            x ==          vector{10,11} );
     MPI_CHECK( 1, rank_indices == interval_vector{0,0,0,0} );
     MPI_CHECK( 1,            x ==          vector<int>{} );
@@ -209,11 +209,11 @@ MPI_TEST_CASE("sort_by_rank - less values than procs, but still need to sort",3)
     if (rk == 1) x = {};
     if (rk == 2) x = {10};
     interval_vector<int> rank_indices = std_e::sort_by_rank(x,test_comm);
-    MPI_CHECK( 0, rank_indices == interval_vector{0,0,0,1} ); // 11 goes to proc 2
+    MPI_CHECK( 0, rank_indices == interval_vector{0,0,1,1} ); // 11 goes to proc 1
     MPI_CHECK( 0,            x ==          vector{11} );
     MPI_CHECK( 1, rank_indices == interval_vector{0,0,0,0} );
     MPI_CHECK( 1,            x ==          vector<int>{} );
-    MPI_CHECK( 2, rank_indices == interval_vector{0,0,1,1} ); // 10 goes to proc 1
+    MPI_CHECK( 2, rank_indices == interval_vector{0,1,1,1} ); // 10 goes to proc 0
     MPI_CHECK( 2,            x ==          vector{10} );
   }
 }
