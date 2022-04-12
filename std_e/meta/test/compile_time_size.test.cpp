@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/meta/compile_time_size.hpp"
 #include "std_e/future/span_ref.hpp"
@@ -17,3 +18,4 @@ TEST_CASE("compile_time_size") {
   CHECK( std_e::compile_time_size< std::vector<int> > == std_e::dynamic_size );
   CHECK( std_e::compile_time_size< std::deque<int> > == std_e::dynamic_size );
 }
+#endif // C++>17

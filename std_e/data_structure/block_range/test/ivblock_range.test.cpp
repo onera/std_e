@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/ivblock_range.hpp"
@@ -28,3 +29,4 @@ TEST_CASE("ivblock_range") {
     CHECK( y == std::vector{4,  2,10,4,5,    3,  6,3,12} );
   }
 }
+#endif // C++>17

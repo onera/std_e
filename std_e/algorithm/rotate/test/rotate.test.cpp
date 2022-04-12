@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/algorithm/rotate/rotate.hpp"
@@ -38,3 +39,4 @@ TEST_CASE("rotate_min_first") {
   std_e::rotate_min_first(s);
   CHECK( v == vector{1,4, 2,3} );
 }
+#endif // C++>17

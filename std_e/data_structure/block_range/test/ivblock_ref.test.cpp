@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/ivblock_ref.hpp"
@@ -107,3 +108,4 @@ TEST_CASE("ivblock_ref") {
     }
   }
 }
+#endif // C++>17

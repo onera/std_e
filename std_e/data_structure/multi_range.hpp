@@ -6,6 +6,7 @@
 #include "std_e/data_structure/heterogenous_vector.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/span.hpp"
+#include "std_e/future/type_traits.hpp"
 
 
 namespace std_e {
@@ -469,7 +470,7 @@ struct _is_multi_range_impl<multi_range<RT,Ts...>> {
 };
 
 template<class T>
-constexpr bool is_multi_range = _is_multi_range_impl<std::remove_cvref_t<T>>::value;
+constexpr bool is_multi_range = _is_multi_range_impl<std_e::remove_cvref_t<T>>::value;
 
 
 } // std_e

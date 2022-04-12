@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <type_traits>
+#include "std_e/future/type_traits.hpp"
 
 
 namespace std_e {
@@ -12,7 +12,7 @@ namespace std_e {
 //   but the user is allowed to specialize `reference_value` for his own proxy reference type
 template<class T>
 struct reference_value {
-  using type = std::remove_cvref_t<T>;
+  using type = std_e::remove_cvref_t<T>;
 };
 
 

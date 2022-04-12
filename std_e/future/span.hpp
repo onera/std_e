@@ -7,6 +7,7 @@
 #include "std_e/base/macros.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/future/span_fwd.hpp"
+#include "std_e/future/type_traits.hpp"
 #include "std_e/utils/to_string.hpp"
 
 
@@ -131,12 +132,16 @@ class span_base : public span_size<N> {
     {}
     FORCE_INLINE constexpr explicit
     span_base(T* ptr)
+      #if __cplusplus > 201703L
+        requires (N!=dynamic_size)
+      #endif
       // Precondition: [ptr,ptr+N) is valid range
       : span_size_type()
       , ptr(ptr)
     {
       static_assert(N!=dynamic_size);
     }
+
     FORCE_INLINE constexpr explicit
     span_base(T* first, T* last)
       // Precondition: [first,last) is valid range
@@ -149,22 +154,11 @@ class span_base : public span_size<N> {
       : span_size_type(last-first)
       , ptr(&*first) // TODO
     {}
-    template<class Range, std::enable_if_t< !std::is_pointer_v<std::remove_cvref_t<Range>> , int > =0> FORCE_INLINE constexpr
+    template<class Range, std::enable_if_t< !std::is_pointer_v<std_e::remove_cvref_t<Range>> , int > =0> FORCE_INLINE constexpr
     // requires Range::data() -> T*
     span_base(Range&& r)
       : span_size_type(r.size())
       , ptr(r.data())
-    {}
-
-    // static span ctor
-    FORCE_INLINE constexpr explicit
-    span_base(T* ptr)
-      #if __cplusplus > 201703L
-        requires (N!=dynamic_size)
-      #endif
-      // Precondition: [ptr,ptr+N) is valid range
-      : span_size_type()
-      , ptr(ptr)
     {}
 
   // inherited behavior

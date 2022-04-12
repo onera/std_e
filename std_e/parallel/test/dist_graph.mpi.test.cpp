@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/parallel/all_to_all.hpp"
 #include "std_e/parallel/dist_graph.hpp"
 
@@ -66,3 +67,4 @@ MPI_TEST_CASE("dist_graph_create_adj",4) {
   MPI_CHECK( 2, data_received == std::vector<data_t>{{15,16}}           );
   MPI_CHECK( 3, data_received == std::vector<data_t>{{3,4,5},{6}}       );
 }
+#endif // C++>17

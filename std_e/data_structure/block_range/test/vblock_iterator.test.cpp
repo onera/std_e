@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
@@ -59,3 +60,4 @@ TEST_CASE("vblock_iterator") {
     CHECK( is1 == vector{0,3} );
   }
 }
+#endif // C++>17

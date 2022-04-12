@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #pragma once
 
 
@@ -219,3 +220,4 @@ inline constexpr _sort_fn sort{};
 } // ranges
 
 } // std_e
+#endif // C++>17

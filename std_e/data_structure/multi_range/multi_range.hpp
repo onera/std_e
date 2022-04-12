@@ -7,6 +7,7 @@
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/future/span.hpp"
 #include "std_e/future/tuple.hpp"
+#include "std_e/future/type_traits.hpp"
 #include "std_e/data_structure/multi_range/multi_range_iterator.hpp"
 
 
@@ -22,9 +23,9 @@ class multi_range2 {
     using index_type = std::ptrdiff_t;
     using impl_type = std::tuple<Ranges...>;
 
-    using value_type      = std_e::tuple<typename std::remove_cvref_t<Ranges>::value_type...>;
-    using reference       = std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
-    using const_reference = std_e::tuple<typename std::remove_cvref_t<Ranges>::const_reference ...>;
+    using value_type      = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::value_type...>;
+    using reference       = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::reference ...>;
+    using const_reference = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::const_reference ...>;
     using iterator = multi_range_iterator<this_type>;
     using const_iterator = multi_range_iterator<const this_type>;
 

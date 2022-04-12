@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/meta/transform_values_to_tuple.hpp"
 
@@ -17,3 +18,4 @@ TEST_CASE("transform_values_to_tuple") {
 }
 
 } // anonymous
+#endif // C++>17

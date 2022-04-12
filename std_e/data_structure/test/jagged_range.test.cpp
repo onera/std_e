@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/data_structure/jagged_range.hpp"
 
@@ -173,3 +174,4 @@ TEST_CASE("algorithm") {
     CHECK( vs ==  jagged_vector<string>{{"0"},{"10","20"},{"30"},{"40","50","60"}} );
   }
 }
+#endif // C++>17

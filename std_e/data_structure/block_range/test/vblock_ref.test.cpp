@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/vblock_ref.hpp"
@@ -124,3 +125,4 @@ TEST_CASE("vblock_ref") {
     static_assert(std::ranges::range<vblock_ref<const double,const int>>);
   }
 }
+#endif // C++>17

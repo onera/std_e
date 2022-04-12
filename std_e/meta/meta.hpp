@@ -2,6 +2,7 @@
 
 
 #include <functional>
+#include "std_e/future/type_traits.hpp"
 #include "std_e/meta/types.hpp"
 #include "std_e/base/macros.hpp"
 
@@ -108,7 +109,7 @@ struct element_type__impl<span_ref<T,N>> {
 };
 
 template<class C>
-using element_type = typename element_type__impl<std::remove_cvref_t<C>>::type;
+using element_type = typename element_type__impl<std_e::remove_cvref_t<C>>::type;
 // element_type }
 
 

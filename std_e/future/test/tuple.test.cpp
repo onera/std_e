@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/future/tuple.hpp"
 #include "std_e/future/span_ref.hpp"
@@ -132,3 +133,4 @@ TEST_CASE("reference_value_t<tuple>") {
     std_e::tuple<std_e::array<int,3>,int>
   >);
 }
+#endif // C++>17

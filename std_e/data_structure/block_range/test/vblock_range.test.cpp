@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/vblock_range.hpp"
@@ -76,3 +77,4 @@ TEST_CASE("vblock_range") {
     CHECK( sub_rng.size() == 1 ); // One element duplicated
   }
 }
+#endif // C++>17

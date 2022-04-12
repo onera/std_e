@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/algorithm/mismatch_points.hpp"
 #include <vector>
@@ -28,3 +29,4 @@ TEST_CASE("mismatch_points") {
     CHECK( mismatch_is == expected_mismatch_is );
   }
 }
+#endif // C++>17

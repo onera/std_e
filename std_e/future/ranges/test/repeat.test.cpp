@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/future/ranges/repeat.hpp"
@@ -12,3 +13,4 @@ TEST_CASE("repeat") {
   auto r = std_e::ranges::repeat(97, 4) | std_e::to_vector() ;
   CHECK( r == std::vector{97,97,97,97} );
 }
+#endif // C++>17

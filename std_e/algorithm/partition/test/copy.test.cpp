@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/algorithm/partition/copy.hpp"
 #include "std_e/data_structure/multi_range/multi_range.hpp"
@@ -79,3 +80,4 @@ TEST_CASE("interval_partition_copy") {
 
 
 } // anonymous
+#endif // C++>17

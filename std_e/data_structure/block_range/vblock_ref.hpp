@@ -35,11 +35,11 @@ class vblock_ref {
     vblock_ref(const vblock_ref&  other) = default;
     vblock_ref(      vblock_ref&& other) = default;
 
-    // Should not be needed, see https://stackoverflow.com/q/71488173/1583122
+    // value_type should not be needed, see https://stackoverflow.com/q/71488173/1583122
     vblock_ref(const vblock_val<T>&  other) requires (!std::is_const_v<T>)
-    {throw;}
+    { throw std::logic_error("vblock_val is the value_type of a vblock_range. But it should not be used") ;}
     vblock_ref(      vblock_val<T>&& other) requires (!std::is_const_v<T>)
-    {throw;}
+    { throw std::logic_error("vblock_val is the value_type of a vblock_range. But it should not be used") ;}
 
     vblock_ref& operator=(const vblock_ref& other) {
       return assign_through(*this,other);
