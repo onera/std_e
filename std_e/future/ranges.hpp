@@ -8,8 +8,9 @@
 namespace std_e {
 
 
-template<class Range> constexpr auto
-to_vector(Range&& rng) {
+constexpr auto
+to_vector_fn = [](auto&& rng) {
+  using Range = std::remove_cvref_t<decltype(rng)>;
   using T = std::ranges::range_value_t<Range>;
   if constexpr (std::ranges::sized_range<Range>) { // possible to allocate once
     std::vector<T> v(rng.size());
@@ -20,7 +21,8 @@ to_vector(Range&& rng) {
     std::ranges::copy(FWD(rng),back_inserter(v));
     return v;
   }
-}
+};
+using to_vector_closure = decltype(to_vector_fn);
 
 // If you are like me and don't know how this function work,
 // don't panic! Its goal is just to provide
@@ -29,9 +31,7 @@ to_vector(Range&& rng) {
 // See also this talk by Eric Niebler: https://youtu.be/mFUXNMfaciE
 constexpr auto
 to_vector() {
-  return make_pipeable([](auto&& rng) {
-    return to_vector(FWD(rng));
-  });
+  return make_pipeable(to_vector_fn);
 }
 
 
