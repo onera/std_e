@@ -11,7 +11,7 @@ TEST_CASE("concat") {
     std::vector<int> v = {0,1,2};
     std::deque<int> d = {3,4};
 
-    auto cat_view = std_e::concat(v,d);
+    auto cat_view = std_e::views::concat(v,d);
     auto cat_vector = cat_view | std_e::to_vector();
     CHECK( cat_vector == std::vector{0,1,2,3,4} );
   }
@@ -20,22 +20,22 @@ TEST_CASE("concat") {
     std::vector<int> v = {0,1,2};
     std::deque<int> d = {3,4};
 
-    auto cat_vector = std_e::concat(v,d) | std_e::to_vector();
+    auto cat_vector = std_e::views::concat(v,d) | std_e::to_vector();
     CHECK( cat_vector == std::vector{0,1,2,3,4} );
   }
 
   SUBCASE("with rvalues|rvalues") {
-    auto cat_vector = std_e::concat(std::vector{0,1,2},std::deque{3,4}) | std_e::to_vector();
+    auto cat_vector = std_e::views::concat(std::vector{0,1,2},std::deque{3,4}) | std_e::to_vector();
     CHECK( cat_vector == std::vector{0,1,2,3,4} );
   }
 
   SUBCASE("with nested concat_view") {
     std::vector<int> v = {0,1,2};
     std::deque<int> d = {3,4};
-    auto nested_cat_view = std_e::concat(v,d);
+    auto nested_cat_view = std_e::views::concat(v,d);
 
     std::vector<int> w = {5,6,7};
-    auto cat_vector = std_e::concat(nested_cat_view,w) | std_e::to_vector();
+    auto cat_vector = std_e::views::concat(nested_cat_view,w) | std_e::to_vector();
     CHECK( cat_vector == std::vector{0,1,2,3,4,5,6,7} );
   }
 }
