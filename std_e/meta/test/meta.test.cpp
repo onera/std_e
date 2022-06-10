@@ -2,6 +2,7 @@
 #include "std_e/meta/meta.hpp"
 
 #include <vector>
+#include <memory>
 #include <algorithm>
 #include <functional>
 using std::vector;
