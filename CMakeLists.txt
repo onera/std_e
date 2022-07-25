@@ -37,7 +37,6 @@ project(
 )
 
 option(${PROJECT_NAME}_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
-option(${PROJECT_NAME}_ENABLE_CPP20 "Enable c++20 for ${PROJECT_NAME}" OFF)
 option(${PROJECT_NAME}_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
 option(${PROJECT_NAME}_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
 option(${PROJECT_NAME}_ENABLE_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
@@ -49,10 +48,12 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
 endif()
 ### C++ standard
-if (${PROJECT_NAME}_ENABLE_CPP20)
-  set(CMAKE_CXX_STANDARD 20)
-else()
-  set(CMAKE_CXX_STANDARD 17)
+set(SUPPORTED_CXX_STANDARDS 17 20)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 20 CACHE STRING "C++ standard to compile against")
+endif()
+if(NOT CMAKE_CXX_STANDARD IN_LIST SUPPORTED_CXX_STANDARDS)
+  message(FATAL_ERROR "Supported CXX standards are: ${SUPPORTED_CXX_STANDARDS}.")
 endif()
 
 set(CMAKE_CXX_EXTENSIONS OFF)
