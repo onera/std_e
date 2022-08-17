@@ -71,18 +71,16 @@ struct visitor_for_testing_dfs {
     s += "pre " + std::to_string(i) + "\n";
   }
   auto
-  post(int i) {
+  post(int i) -> void {
     s += "post " + std::to_string(i) + "\n";
   }
   auto
-  up(int below, int above) -> long {
+  up(int below, int above) -> void {
     s += "up " + std::to_string(below) + " -> " + std::to_string(above) + "\n";
-    return 0;
   }
   auto
-  down(int above, int below) -> long {
+  down(int above, int below) -> void {
     s += "down " + std::to_string(above) + " -> " + std::to_string(below) + "\n";
-    return 0;
   }
 
   string s;

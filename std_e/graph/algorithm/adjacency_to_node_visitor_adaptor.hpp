@@ -22,12 +22,12 @@ class graph_adjacency_visitor_adaptor {
     pre(Node_adjacency&& na) {
       return vis.pre(node(na));
     }
-    template<class Node_adjacency> constexpr auto
-    down(Node_adjacency&& na_above, Node_adjacency&& na_below) {
+    template<class Node_adjacency_0, class Node_adjacency_1> constexpr auto
+    down(Node_adjacency_0&& na_above, Node_adjacency_1&& na_below) {
       return vis.down(node(na_above),node(na_below));
     }
-    template<class Node_adjacency> constexpr auto
-    up(Node_adjacency&& na_below, Node_adjacency&& na_above) {
+    template<class Node_adjacency_0, class Node_adjacency_1> constexpr auto
+    up(Node_adjacency_0&& na_below, Node_adjacency_1&& na_above) {
       return vis.up(node(na_below),node(na_above));
     }
     template<class Node_adjacency> constexpr auto
