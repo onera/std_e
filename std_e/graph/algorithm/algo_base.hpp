@@ -28,6 +28,10 @@ class graph_stack {
       return S.size();
     }
     constexpr auto
+    is_valid() const -> bool {
+      return size()>0;
+    }
+    constexpr auto
     is_at_root_level() const -> bool {
       return size()==1;
     }
@@ -45,18 +49,22 @@ class graph_stack {
   // accessors
     constexpr auto
     current_level() -> T& {
+      STD_E_ASSERT(is_valid());
       return S[S.size()-1];
     }
     constexpr auto
     current_level() const -> const T& {
+      STD_E_ASSERT(is_valid());
       return S[S.size()-1];
     }
     constexpr auto
     parent_level() -> T& {
+      STD_E_ASSERT(is_valid() && !is_at_root_level());
       return S[S.size()-2];
     }
     constexpr auto
     parent_level() const -> const T& {
+      STD_E_ASSERT(is_valid() && !is_at_root_level());
       return S[S.size()-2];
     }
 
@@ -162,7 +170,7 @@ depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
       auto&& v = *S.current_node();
       f.post(v);
       auto&& w = *++S.current_node();
-      if (!S.is_done()) {
+      if (!S.is_at_root_level() ) {
         auto&& parent = *S.parent_node();
         f.up(v,parent);
         if (!S.level_is_done()) f.down(parent,w);
@@ -202,7 +210,7 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
       auto&& v = *S.current_node();
       f.post(v);
       auto&& w = *++S.current_node();
-      if (!S.is_done()) {
+      if (!S.is_at_root_level() ) {
         auto&& parent = *S.parent_node();
         f.up(v,parent);
         if (!S.level_is_done()) f.down(parent,w);
