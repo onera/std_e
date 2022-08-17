@@ -7,31 +7,32 @@
 namespace std_e {
 
 
-template<class graph_type>
-class rooted_view {
+template<class graph_t>
+class rooted_graph {
   public:
+    using graph_type = std::remove_reference_t<graph_t>;
     using node_type = typename graph_type::node_type;
     using edge_type = typename graph_type::edge_type;
     using adjacency_list_type = typename graph_type::adjacency_list_type;
     using index_type = typename graph_type::index_type;
 
-    using adjacency_type = io_adjacency<rooted_view>;
-    using const_adjacency_type = io_adjacency<const rooted_view>;
+    using adjacency_type = io_adjacency<rooted_graph>;
+    using const_adjacency_type = io_adjacency<const rooted_graph>;
 
     //using adjacency_node_iterator_type = adjacency_node_iterator<derived>;
     //using const_adjacency_node_iterator_type = adjacency_node_iterator<const derived>;
 
-    using adjacency_connection_iterator_type = adjacency_edge_iterator<rooted_view,adj_orientation::out>;
-    using const_adjacency_connection_iterator_type = adjacency_edge_iterator<const rooted_view,adj_orientation::out>;
+    using adjacency_connection_iterator_type = adjacency_edge_iterator<rooted_graph,adj_orientation::out>;
+    using const_adjacency_connection_iterator_type = adjacency_edge_iterator<const rooted_graph,adj_orientation::out>;
 
     constexpr
-    rooted_view(graph_type& g, index_type root_idx)
-      : g(&g)
+    rooted_graph(graph_t g, index_type root_idx)
+      : g(FWD(g))
       , root_idx(root_idx)
     {}
     constexpr
-    rooted_view(const io_adjacency<graph_type>& adj)
-      : rooted_view(*adj.graph(),adj.node_index())
+    rooted_graph(const io_adjacency<graph_type>& adj)
+      : rooted_graph(*adj.graph(),adj.node_index())
     {}
 
     auto
@@ -53,11 +54,11 @@ class rooted_view {
 
     constexpr auto
     out_adjacencies() -> adjacency_range<graph_type,adj_orientation::out> {
-      return {g,root_idx};
+      return {&g,root_idx};
     }
     constexpr auto
     out_adjacencies() const -> const adjacency_range<graph_type,adj_orientation::out> {
-      return {g,root_idx};
+      return {&g,root_idx};
     }
     constexpr auto
     first_child() {
@@ -82,79 +83,80 @@ class rooted_view {
         STD_E_ASSERT(i_edge==0);
         return root_idx;
       } else {
-        return g->out_index(i_node,i_edge);
+        return g.out_index(i_node,i_edge);
       }
     }
 
     auto
     nodes() -> auto& {
-      return g->nodes();
+      return g.nodes();
     }
     auto
     nodes() const -> const auto& {
-      return g->nodes();
+      return g.nodes();
     }
 
     auto
     out_degree(index_type i) const -> index_type {
-      return g->out_degree(i);
+      return g.out_degree(i);
     }
 
   private:
   // data
-    graph_type* g;
+    std_e::remove_rvalue_reference<graph_t> g;
     index_type root_idx;
 };
 
 template<class GT>
-rooted_view(GT& g, typename GT::index_type root_idx) -> rooted_view<GT>;
+rooted_graph(GT g, typename std::remove_reference_t<GT>::index_type root_idx) -> rooted_graph<GT>;
 
 template<class GT>
-rooted_view(const io_adjacency<GT>& adj) -> rooted_view<GT>;
+rooted_graph(const io_adjacency<GT>& adj) -> rooted_graph<GT&>;
 
 
 template<class GT> constexpr auto
-first_root(rooted_view<GT>& x) {
+first_root(rooted_graph<GT>& x) {
   return x.first_root();
 }
 template<class GT> constexpr auto
-first_root(const rooted_view<GT>& x) {
+first_root(const rooted_graph<GT>& x) {
   return x.first_root();
 }
 template<class GT> constexpr auto
-last_root(rooted_view<GT>& x) {
+last_root(rooted_graph<GT>& x) {
   return x.last_root();
 }
 template<class GT> constexpr auto
-last_root(const rooted_view<GT>& x) {
+last_root(const rooted_graph<GT>& x) {
   return x.last_root();
 }
 
 template<class GT> constexpr auto
-first_child(rooted_view<GT>& x) {
+first_child(rooted_graph<GT>& x) {
   return x.first_child();
 }
 //template<class GT> constexpr auto
-//first_child(rooted_view<GT>&& x) {
+//first_child(rooted_graph<GT>&& x) {
 //  return std::move(x).first_child();
 //}
 template<class GT> constexpr auto
-first_child(const rooted_view<GT>& x) {
+first_child(const rooted_graph<GT>& x) {
   return x.first_child();
 }
 template<class GT> constexpr auto
-last_child(rooted_view<GT>& x) {
+last_child(rooted_graph<GT>& x) {
   return x.last_child();
 }
 //template<class GT> constexpr auto
-//last_child(rooted_view<GT>&& x) {
+//last_child(rooted_graph<GT>&& x) {
 //  return std::move(x).last_child();
 //}
 template<class GT> constexpr auto
-last_child(const rooted_view<GT>& x) {
+last_child(const rooted_graph<GT>& x) {
   return x.last_child();
 }
-// rooted graph view }
 
+template<class GT>
+using rooted_view = rooted_graph<GT&>;
 
 } // std_e

@@ -6,7 +6,6 @@
 #include "std_e/graph/build/tree.hpp"
 
 #include "std_e/graph/test_utils/nested_tree.hpp"
-#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 #include <numeric>
 #include <iostream>
 
@@ -25,7 +24,7 @@ struct builder_0_for_test {
 
 auto
 tree_built_0_for_test() -> nested_tree<int> {
-  /* Tree equivalent to the graph of create_io_graph_for_tests()
+  /* Tree equivalent to the graph of create_rooted_graph_for_tests()
        ____1____
       /    |    \
      2     3     9
@@ -51,10 +50,9 @@ tree_built_0_for_test() -> nested_tree<int> {
 }
 
 TEST_CASE("create_tree_from_nodes - same tree structure") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_view(g,8);
+  auto g = create_rooted_graph_for_tests();
 
-  auto t = create_tree_from_nodes(root,builder_0_for_test{});
+  auto t = create_tree_from_nodes(g,builder_0_for_test{});
 
   CHECK( t == tree_built_0_for_test() );
 }
@@ -224,10 +222,9 @@ tree_built_3_for_test() -> nested_tree<int> {
 }
 
 TEST_CASE("create_pruned_tree_from_nodes") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_view(g,8);
+  auto g = create_rooted_graph_for_tests();
 
-  auto t = create_pruned_tree_from_nodes(root,builder_3_for_test{});
+  auto t = create_pruned_tree_from_nodes(g,builder_3_for_test{});
 
   CHECK( t == tree_built_3_for_test() );
 }
@@ -236,7 +233,7 @@ TEST_CASE("create_pruned_tree_from_nodes") {
 // create_pruned_tree_from_adjacencies {
 struct builder_4_for_test {
   using tree_type = nested_tree<int>;
-  using adjacency_type = io_adjacency<rooted_view<io_graph<int>>>;
+  using adjacency_type = io_adjacency<rooted_graph<io_graph<int>>>;
   auto
   should_go_down(const adjacency_type& adj) -> bool {
     return node(adj)!=3;
@@ -276,10 +273,9 @@ tree_built_4_for_test() -> nested_tree<int> {
 }
 
 TEST_CASE("create_pruned_tree_from_adjacencies") {
-  io_graph<int> g = create_io_graph_for_tests();
-  auto root = rooted_view(g,8);
+  auto g = create_rooted_graph_for_tests();
 
-  auto t = create_pruned_tree_from_adjacencies(root,builder_4_for_test{});
+  auto t = create_pruned_tree_from_adjacencies(g,builder_4_for_test{});
 
   CHECK( t == tree_built_4_for_test() );
 }

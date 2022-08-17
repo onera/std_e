@@ -12,11 +12,9 @@
 
   concept Graph
     Node_adjacency node_adj_type
-    // TODO
 
-  concept Graph
-    first_child(Graph) -> iterator
-    last_child(Graph) -> iterator
+    first_child(Graph) -> Iterator<Node_adjacency>
+    last_child(Graph) -> Iterator<Node_adjacency>
 
   concept Rooted_graph : graph
     first_root(Graph) -> iterator

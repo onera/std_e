@@ -4,7 +4,7 @@
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/algo_nodes.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
-#include "std_e/graph/adjacency_graph/graph_algo.hpp"
+#include "std_e/graph/test_utils/graph.hpp"
 #include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
@@ -288,7 +288,7 @@ TEST_CASE("Nested tree depth-first prune") {
 
 
 struct visitor_for_testing_dfs_prune_adjacencies {
-  using graph_type = rooted_view<io_graph<int>>;
+  using graph_type = rooted_graph<io_graph<int>>;
 
   auto
   pre(const io_adjacency<graph_type>& a) -> bool {
@@ -306,7 +306,7 @@ struct visitor_for_testing_dfs_prune_adjacencies {
 };
 
 TEST_CASE("Adj graph depth-first prune") {
-  /*
+  /* Reminder:
          1               lvl 3
       /  |  \
      |   |    3          lvl 2
@@ -316,20 +316,10 @@ TEST_CASE("Adj graph depth-first prune") {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  auto io_g = make_io_graph<int>({
-    /*0*/ { 4, {2}    , {}     },
-    /*1*/ { 7, {2}    , {}     },
-    /*2*/ { 2, {8}    , {0,1,3}},
-    /*3*/ { 9, {4,8,2}, {}     },
-    /*4*/ { 8, {7}    , {3}    },
-    /*5*/ {10, {7}    , {}     },
-    /*6*/ {11, {7}    , {}     },
-    /*7*/ { 3, {8}    , {4,5,6}},
-    /*8*/ { 1, {}     , {2,7,3}},
-  });
+  auto g = create_rooted_graph_for_tests();
 
   visitor_for_testing_dfs_prune_adjacencies v;
-  prepostorder_depth_first_prune_adjacencies(rooted_view(io_g,8),v);
+  prepostorder_depth_first_prune_adjacencies(g,v);
 
   string expected_s =
     "pre 1\n"
