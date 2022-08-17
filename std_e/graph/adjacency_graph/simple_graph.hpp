@@ -81,7 +81,7 @@ class io_adjacency_list_mixin {
 // edge_mixin {
 template<class ET, class adj_list_type>
 class edge_mixin
-  : adjacency_list_mixin<adj_list_type>
+  : public adjacency_list_mixin<adj_list_type>
 {
   public:
   // types
@@ -98,7 +98,7 @@ class edge_mixin
 /// specialization when no edge values, the edge value is then the target node, and the value can't be changed
 template<class adj_list_type>
 class edge_mixin<void,adj_list_type>
-  : adjacency_list_mixin<adj_list_type>
+  : public adjacency_list_mixin<adj_list_type>
 {
   public:
     constexpr auto edges() const -> const adj_list_type  & { return this->indices(); }
