@@ -2,10 +2,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/algorithm/algo_base.hpp"
-#include "std_e/graph/test_utils/simple_graph_type.hpp"
-//#include "std_e/graph/adjacency_graph/graph.hpp"
-//#include "std_e/graph/adjacency_graph/graph_algo.hpp"
-//#include "std_e/graph/adjacency_graph/rooted_view.hpp"
+#include "std_e/graph/test_utils/graph.hpp"
 #include "std_e/log.hpp"
 #include <string>
 
@@ -15,62 +12,192 @@ using namespace std_e;
 
 namespace {
 
-///* Reminder:
-//       1
-//    /     \
-//   2        3
-// /  \    /  |  \
-//4    7   8  10  11
-//         |
-//         9
-//*/
-//
-//const auto g = make_graph<int>({
-// /* 0*/ { 1, {1,2} },
-// /* 1*/ { 2, {3,7} },
-// /* 2*/ { 3, {5,7,11} },
-// /* 3*/ { 4, {} },
-// /* 4*/ { 7, {} },
-// /* 5*/ { 8, {6} },
-// /* 6*/ { 9, {} },
-// /* 7*/ {10, {} },
-// /* 8*/ {11, {} },
-//});
-//
-//using adj = io_adjacency<rooted_view<const graph<int>>>;
 
 struct visitor_for_testing_dfs {
-  using adj = test::tree;
+  auto
+  pre(auto&& x) -> bool {
+    s += "[pre ] " + std::to_string(node(x)) + "\n";
+    return node(x) == 3;
+  }
+  auto
+  post(auto&& x) -> void {
+    s += "[post] " + std::to_string(node(x)) + "\n";
+  }
+  auto
+  up(auto&& below, auto&& above) -> void {
+    s += "[up  ] " + std::to_string(node(below)) + " -> " + std::to_string(node(above)) + "\n";
+  }
+  auto
+  down(auto&& above, auto&& below) -> void {
+    s += "[down] " + std::to_string(node(above)) + " -> " + std::to_string(node(below)) + "\n";
+  }
 
+  std::string s;
+};
+
+struct visitor_for_testing_dfs2 {
   auto
-  pre(adj& x) {
-    s += "pre " + std::to_string(x.value) + "\n";
+  pre(auto&& x) -> bool {
+    s += "[pre ] " + std::to_string(node(x)) + "\n";
+    return node(x) == 2;
   }
   auto
-  post(adj& x) -> void {
-    s += "post " + std::to_string(x.value) + "\n";
+  post(auto&& x) -> void {
+    s += "[post] " + std::to_string(node(x)) + "\n";
   }
   auto
-  up(adj& below, adj& above) -> void {
-    s += "up " + std::to_string(below.value) + " -> " + std::to_string(above.value) + "\n";
+  up(auto&& below, auto&& above) -> void {
+    s += "[up  ] " + std::to_string(node(below)) + " -> " + std::to_string(node(above)) + "\n";
   }
   auto
-  down(adj& above, adj& below) -> void {
-    s += "down " + std::to_string(above.value) + " -> " + std::to_string(below.value) + "\n";
+  down(auto&& above, auto&& below) -> void {
+    s += "[down] " + std::to_string(node(above)) + " -> " + std::to_string(node(below)) + "\n";
   }
 
   std::string s;
 };
 
 
-TEST_CASE("Nested tree preorder depth-first find") {
-  std::vector<test::tree> tc = { test::create_tree_for_tests() };
+TEST_CASE("depth-first search base algos") {
+  /* Reminder:
+         1               lvl 3
+      /  |  \
+     |   |    3          lvl 2
+     |   | /  |  \
+     2\_ | 8  |   \      lvl 1
+   /  \ \| |  |    \
+   |  |  \ |  |    \
+  4    7  \9  10   11    lvl 0
+  */
+  auto g = create_rooted_graph_for_tests();
 
   visitor_for_testing_dfs v;
-  auto S = graph_traversal_stack(begin(tc),end(tc));
+  auto S = graph_traversal_stack(first_root(g),last_root(g));
 
-  depth_first_scan_adjacency_stack(S,v);
-  ELOG(v.s);
+  SUBCASE("depth_first_find_adjacency_stack") {
+    depth_first_find_adjacency_stack(S,v);
+
+    std::string expected_s =
+      "[pre ] 1\n"
+      "[down] 1 -> 2\n"
+      "[pre ] 2\n"
+      "[down] 2 -> 4\n"
+      "[pre ] 4\n"
+      "[post] 4\n"
+      "[up  ] 4 -> 2\n"
+      "[down] 2 -> 7\n"
+      "[pre ] 7\n"
+      "[post] 7\n"
+      "[up  ] 7 -> 2\n"
+      "[down] 2 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 2\n"
+      "[post] 2\n"
+      "[up  ] 2 -> 1\n"
+      "[down] 1 -> 3\n"
+      "[pre ] 3\n";
+    // These should probably be here too
+      //"[post] 3\n"
+      //"[up  ] 3 -> 1\n"
+      //"[down] 1 -> 9\n"
+      //"[pre ] 9\n"
+      //"[post] 9\n"
+      //"[up  ] 9 -> 1\n"
+      //"[post] 1\n";
+
+    CHECK( v.s == expected_s );
+  }
+
+  SUBCASE("depth_first_scan_adjacency_stack") {
+    depth_first_scan_adjacency_stack(S,v);
+
+    std::string expected_s =
+      "[pre ] 1\n"
+      "[down] 1 -> 2\n"
+      "[pre ] 2\n"
+      "[down] 2 -> 4\n"
+      "[pre ] 4\n"
+      "[post] 4\n"
+      "[up  ] 4 -> 2\n"
+      "[down] 2 -> 7\n"
+      "[pre ] 7\n"
+      "[post] 7\n"
+      "[up  ] 7 -> 2\n"
+      "[down] 2 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 2\n"
+      "[post] 2\n"
+      "[up  ] 2 -> 1\n"
+      "[down] 1 -> 3\n"
+      "[pre ] 3\n"
+      "[down] 3 -> 8\n"
+      "[pre ] 8\n"
+      "[down] 8 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 8\n"
+      "[post] 8\n"
+      "[up  ] 8 -> 3\n"
+      "[down] 3 -> 10\n"
+      "[pre ] 10\n"
+      "[post] 10\n"
+      "[up  ] 10 -> 3\n"
+      "[down] 3 -> 11\n"
+      "[pre ] 11\n"
+      "[post] 11\n"
+      "[up  ] 11 -> 3\n"
+      "[post] 3\n"
+      "[up  ] 3 -> 1\n"
+      "[down] 1 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 1\n"
+      "[post] 1\n";
+
+    CHECK( v.s == expected_s );
+  }
+
+  SUBCASE("depth_first_prune_adjacency_stack") {
+    visitor_for_testing_dfs2 v;
+    depth_first_prune_adjacency_stack(S,v);
+    //depth_first_find_adjacency_stack(S,v2);
+
+    std::string expected_s =
+      "[pre ] 1\n"
+      "[down] 1 -> 2\n"
+      "[pre ] 2\n"
+      "[post] 2\n"
+      "[up  ] 2 -> 1\n"
+      "[down] 1 -> 3\n"
+      "[pre ] 3\n"
+      "[down] 3 -> 8\n"
+      "[pre ] 8\n"
+      "[down] 8 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 8\n"
+      "[post] 8\n"
+      "[up  ] 8 -> 3\n"
+      "[down] 3 -> 10\n"
+      "[pre ] 10\n"
+      "[post] 10\n"
+      "[up  ] 10 -> 3\n"
+      "[down] 3 -> 11\n"
+      "[pre ] 11\n"
+      "[post] 11\n"
+      "[up  ] 11 -> 3\n"
+      "[post] 3\n"
+      "[up  ] 3 -> 1\n"
+      "[down] 1 -> 9\n"
+      "[pre ] 9\n"
+      "[post] 9\n"
+      "[up  ] 9 -> 1\n"
+      "[post] 1\n";
+
+    CHECK( v.s == expected_s );
+  }
 }
 
 

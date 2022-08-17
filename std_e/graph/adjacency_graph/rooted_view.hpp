@@ -1,4 +1,5 @@
 #pragma once
+// TODO rename file root_graph or rooted_graph
 
 
 #include "std_e/graph/adjacency_graph/graph.hpp"
@@ -80,7 +81,6 @@ class rooted_graph {
     auto
     out_index(index_type i_node, index_type i_edge) const -> index_type {
       if (i_node==-1) {
-        STD_E_ASSERT(i_edge==0);
         return root_idx;
       } else {
         return g.out_index(i_node,i_edge);

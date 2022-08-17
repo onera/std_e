@@ -239,8 +239,7 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
       auto&& v = *S.current_node();
       if (!f.pre(v)) { // go down
         S.push_children(first_child(v),last_child(v));
-        auto&& v_first_adj = *first_child(v);
-        if (!S.level_is_done()) f.down(v,v_first_adj);
+        if (!S.level_is_done()) f.down(v,*first_child(v));
       } else { // prune
         S.push_children(first_child(v),last_child(v));
         S.current_node() = S.last_node();

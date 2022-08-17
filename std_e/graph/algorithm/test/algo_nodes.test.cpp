@@ -5,7 +5,6 @@
 #include "std_e/graph/algorithm/algo_nodes.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
 #include "std_e/graph/test_utils/graph.hpp"
-#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
 namespace {
