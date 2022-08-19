@@ -62,32 +62,32 @@ prepostorder_depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_vis
 //      but it is a tad more complex to read,
 //      and maybe a little less efficient (same big O complexity, but with n_child more allocations)
 
-//template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
-//depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> void {
-//  auto S = graph_traversal_stack(first_root(g),last_root(g));
-//  depth_first_prune_adjacency_stack(S,f);
-//}
-
 template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
 depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> void {
-  auto first_r = first_root(g);
-  auto last_r = last_root(g);
-  while (first_r != last_r) {
-    if (!f.pre(*first_r)) { // go down
-      auto first = first_child(g);
-      auto last = last_child(g);
-      while (first != last) {
-        f.down(*first_r,*first);
-        auto S = graph_traversal_stack(first,std::next(first));
-        depth_first_prune_adjacency_stack(S,f);
-        f.up(*first,*first_r);
-        ++first;
-      }
-    }
-    f.post(*first_r);
-    ++first_r;
-  }
+  auto S = graph_traversal_stack(first_root(g),last_root(g));
+  depth_first_prune_adjacency_stack(S,f);
 }
+
+//template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
+//depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> void {
+//  auto first_r = first_root(g);
+//  auto last_r = last_root(g);
+//  while (first_r != last_r) {
+//    if (!f.pre(*first_r)) { // go down
+//      auto first = first_child(g);
+//      auto last = last_child(g);
+//      while (first != last) {
+//        f.down(*first_r,*first);
+//        auto S = graph_traversal_stack(first,std::next(first));
+//        depth_first_prune_adjacency_stack(S,f);
+//        f.up(*first,*first_r);
+//        ++first;
+//      }
+//    }
+//    f.post(*first_r);
+//    ++first_r;
+//  }
+//}
 
 template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
 depth_first_search_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) {
