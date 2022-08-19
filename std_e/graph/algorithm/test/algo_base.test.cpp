@@ -75,7 +75,7 @@ TEST_CASE("depth-first search base algos") {
   auto S = graph_traversal_stack(first_root(g),last_root(g));
 
   SUBCASE("depth_first_find_adjacency_stack") {
-    depth_first_find_adjacency_stack(S,v);
+    auto found = depth_first_find_adjacency_stack(S,v);
 
     std::string expected_s =
       "[pre ] 1\n"
@@ -102,6 +102,7 @@ TEST_CASE("depth-first search base algos") {
       "[post] 1\n";
 
     CHECK( v.s == expected_s );
+    CHECK( node(*found) == 3 );
   }
 
   SUBCASE("depth_first_scan_adjacency_stack") {
