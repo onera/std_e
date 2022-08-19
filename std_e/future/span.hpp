@@ -290,6 +290,11 @@ class span : public span_base<T,N> {
     using base::base;
 };
 
+
+// deduction guideline
+template<class T>
+span(T* ptr, ptrdiff_t n) -> span<T,dynamic_size>;
+
 // op== and op!= {
 // Needed. The span_base ones should be taken by the compiler,
 // however this is not the case and another (unknown) op== is used...

@@ -4,6 +4,7 @@
 #include "std_e/parallel/mpi/collective/all_to_all.hpp"
 #include "std_e/parallel/mpi/collective/gather.hpp"
 #include "std_e/future/array.hpp"
+#include "std_e/future/flatten.hpp"
 #include "std_e/data_structure/block_range/block_range.hpp"
 #include "std_e/data_structure/multi_range/multi_range.hpp"
 #include "std_e/algorithm/algorithm.hpp"
@@ -24,8 +25,8 @@ all_gather(const std::vector<std_e::array<T,N>>& x, MPI_Comm comm) -> std::vecto
   int total_sz = std::accumulate(szs.begin(),szs.end(),0);
   std::vector<std_e::array<T,N>> res(total_sz/N);
 
-  int err = MPI_Allgatherv(x.data(), sz, to_mpi_type<T>,
-                           res.data(), szs.data(), displs.data(), to_mpi_type<T>, comm);
+  int err = MPI_Allgatherv(flat_data(x), sz, to_mpi_type<T>,
+                           flat_data(res), szs.data(), displs.data(), to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 
   return res;
