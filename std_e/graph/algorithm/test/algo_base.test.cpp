@@ -3,7 +3,6 @@
 
 #include "std_e/graph/algorithm/algo_base.hpp"
 #include "std_e/graph/test_utils/graph.hpp"
-#include "std_e/log.hpp"
 #include <string>
 
 
