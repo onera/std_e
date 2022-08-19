@@ -96,15 +96,10 @@ TEST_CASE("depth-first search base algos") {
       "[post] 2\n"
       "[up  ] 2 -> 1\n"
       "[down] 1 -> 3\n"
-      "[pre ] 3\n";
-    // These should probably be here too
-      //"[post] 3\n"
-      //"[up  ] 3 -> 1\n"
-      //"[down] 1 -> 9\n"
-      //"[pre ] 9\n"
-      //"[post] 9\n"
-      //"[up  ] 9 -> 1\n"
-      //"[post] 1\n";
+      "[pre ] 3\n"
+      "[post] 3\n"
+      "[up  ] 3 -> 1\n"
+      "[post] 1\n";
 
     CHECK( v.s == expected_s );
   }
