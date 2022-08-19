@@ -3,6 +3,7 @@
 
 #include "std_e/graph/adjacency_graph/graph_algo.hpp"
 #include "std_e/graph/nested_tree/nested_tree.hpp"
+#include "std_e/graph/adjacency_graph/rooted_view.hpp"
 
 
 namespace std_e {
@@ -31,6 +32,10 @@ create_io_graph_for_tests() -> io_graph<int> {
     /*7*/ { 3, {8}    , {4,5,6}},
     /*8*/ { 1, {}     , {2,7,3}},
   });
+}
+inline auto
+create_rooted_graph_for_tests() -> rooted_graph<io_graph<int>> {
+  return rooted_graph(create_io_graph_for_tests(),8);
 }
 
 

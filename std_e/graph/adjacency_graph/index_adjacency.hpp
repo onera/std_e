@@ -9,6 +9,13 @@ namespace std_e {
 using connection_indices_container = std::vector<int>;
 
 template<class T>
+struct index_adjacency {
+  T node;
+  connection_indices_container indices;
+};
+template<class T> using index_adjacency_vector = std::vector<index_adjacency<T>>;
+
+template<class T>
 struct io_index_adjacency {
   T node;
   connection_indices_container inwards;

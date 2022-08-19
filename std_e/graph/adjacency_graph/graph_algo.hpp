@@ -9,6 +9,15 @@ namespace std_e {
 
 
 template<class NT> auto
+make_graph(const index_adjacency_vector<NT>& idx_adjs) {
+  graph<NT> res;
+  for (const auto& [node,ins] : idx_adjs) {
+    res.nodes().push_back(node);
+    res.indices().push_back(ins);
+  }
+  return res;
+}
+template<class NT> auto
 make_io_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
   io_graph<NT> res;
   for (const auto& [node,ins,out] : idx_adjs) {

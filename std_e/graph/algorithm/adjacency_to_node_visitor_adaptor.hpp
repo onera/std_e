@@ -18,21 +18,21 @@ class graph_adjacency_visitor_adaptor {
 
   // Graph_adjacency_visitor interface {
     // requires Graph_node_visitor::node_adj_type == Node_adjacency
-    template<class Node_adjacency> constexpr auto
-    pre(Node_adjacency&& na) {
+    constexpr auto
+    pre(auto&& na) {
       return vis.pre(node(na));
     }
-    template<class Node_adjacency> constexpr auto
-    down(Node_adjacency&& na_above, Node_adjacency&& na_below) {
-      return vis.down(node(na_above),node(na_below));
+    constexpr auto
+    down(auto&& na_above, auto&& na_below) -> void {
+      vis.down(node(na_above),node(na_below));
     }
-    template<class Node_adjacency> constexpr auto
-    up(Node_adjacency&& na_below, Node_adjacency&& na_above) {
-      return vis.up(node(na_below),node(na_above));
+    constexpr auto
+    up(auto&& na_below, auto&& na_above) -> void {
+      vis.up(node(na_below),node(na_above));
     }
-    template<class Node_adjacency> constexpr auto
-    post(Node_adjacency&& na) {
-      return vis.post(node(na));
+    constexpr auto
+    post(auto na) -> void {
+      vis.post(node(na));
     }
   // Graph_adjacency_visitor interface }
   private:
