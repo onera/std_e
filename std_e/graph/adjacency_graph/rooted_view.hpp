@@ -101,7 +101,11 @@ class rooted_graph {
       return g.out_degree(i);
     }
 
-  private:
+    auto
+    to_string_impl() const -> std::string {
+      return to_string(g);
+    }
+  public:
   // data
     std_e::remove_rvalue_reference<graph_t> g;
     index_type root_idx;
@@ -154,6 +158,11 @@ last_child(rooted_graph<GT>& x) {
 template<class GT> constexpr auto
 last_child(const rooted_graph<GT>& x) {
   return x.last_child();
+}
+
+template<class GT> constexpr auto
+to_string(const rooted_graph<GT>& x) -> std::string {
+  return x.to_string_impl();
 }
 
 template<class GT>
