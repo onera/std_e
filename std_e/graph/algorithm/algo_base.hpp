@@ -109,7 +109,7 @@ class graph_traversal_stack {
     }
 
     constexpr auto
-    push_children(iterator f, iterator l) -> void {
+    push_level(iterator f, iterator l) -> void {
       S.push_level({f,l});
     }
     constexpr auto
@@ -148,7 +148,7 @@ preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) {
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       if (f(v)) return S.current_node();
-      S.push_children(first_child(v),last_child(v));
+      S.push_level(first_child(v),last_child(v));
     } else {
       S.pop_level();
       ++S.current_node();
@@ -181,7 +181,7 @@ depth_first_find_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
         unwind(S,f);
         return S.current_node();
       } else {
-        S.push_children(first_child(v),last_child(v));
+        S.push_level(first_child(v),last_child(v));
         if (!S.level_is_done()) f.down(v,*first_child(v));
       }
     } else {
@@ -206,7 +206,7 @@ prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adj
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       f.pre(v);
-      S.push_children(first_child(v),last_child(v));
+      S.push_level(first_child(v),last_child(v));
     } else {
       S.pop_level();
       auto&& v = *S.current_node();
@@ -222,7 +222,7 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visito
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       f.pre(v);
-      S.push_children(first_child(v),last_child(v));
+      S.push_level(first_child(v),last_child(v));
       if (!S.level_is_done()) f.down(v,*first_child(v));
     } else {
       S.pop_level();
@@ -245,9 +245,9 @@ prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_ad
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       if (!f.pre(v)) { // go down
-        S.push_children(first_child(v),last_child(v));
+        S.push_level(first_child(v),last_child(v));
       } else { // prune
-        S.push_children(first_child(v),last_child(v));
+        S.push_level(first_child(v),last_child(v));
         S.current_node() = S.last_node();
       }
     } else {
@@ -265,10 +265,10 @@ depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visit
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       if (!f.pre(v)) { // go down
-        S.push_children(first_child(v),last_child(v));
+        S.push_level(first_child(v),last_child(v));
         if (!S.level_is_done()) f.down(v,*first_child(v));
       } else { // prune
-        S.push_children(first_child(v),last_child(v));
+        S.push_level(first_child(v),last_child(v));
         S.current_node() = S.last_node();
       }
     } else {
