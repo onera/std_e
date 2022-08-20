@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -87,3 +88,4 @@ TEST_CASE("zip_graphs") {
     CHECK( s == expected_s );
   }
 }
+#endif // C++20

@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -44,3 +45,4 @@ TEST_CASE("record_depth_first with non-identity function") {
 
   CHECK( pre_nodes == expected_pre_nodes );
 }
+#endif // C++20

@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -67,3 +68,4 @@ TEST_CASE("Tree reverse_levels") {
 
 
 } // anon
+#endif // C++20

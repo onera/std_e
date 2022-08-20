@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/future/flatten.hpp"
 
@@ -19,3 +20,4 @@ TEST_CASE("const flat_view") {
 
   CHECK( flat_view(data) == std::vector{3,1,4, 1,5,9, 2,6,0} );
 }
+#endif // C++>17

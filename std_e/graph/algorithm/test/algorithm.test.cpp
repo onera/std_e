@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
@@ -29,3 +30,4 @@ TEST_CASE("Nested tree preorder depth-first find") {
   CHECK( !all_of_adjacencies(t,less_than_11) );
   CHECK(  all_of_adjacencies(t,less_than_12) );
 }
+#endif // C++20
