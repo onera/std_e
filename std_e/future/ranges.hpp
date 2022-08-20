@@ -26,7 +26,7 @@ using to_vector_closure = decltype(to_vector_fn);
 
 // If you are like me and don't know how this function work,
 // don't panic! Its goal is just to provide
-// an additional overload to the `to_cgns_vector` function above
+// an additional overload to the `to_vector` function above
 // that is usable with the pipe (|) syntax.
 // See also this talk by Eric Niebler: https://youtu.be/mFUXNMfaciE
 constexpr auto
