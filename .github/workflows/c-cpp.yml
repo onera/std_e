@@ -10,7 +10,7 @@ on:
 jobs:
   ci:
     name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -26,44 +26,33 @@ jobs:
         # Github Actions requires a single row to be added to the build matrix.
         # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
         name: [
-          ubuntu-18.04-gcc-8,
-          ubuntu-18.04-gcc-10,
-          ubuntu-18.04-gcc-11,
-          ubuntu-18.04-gcc-12,
-          ubuntu-18.04-clang-8,
-          ubuntu-18.04-clang-10,
+          gcc-8,
+          gcc-10,
+          gcc-11,
+          #clang-8,
+          #clang-10,
         ]
 
         include:
-          - name: ubuntu-18.04-gcc-8
-            os: ubuntu-18.04
+          - name: gcc-8
             compiler: gcc
             version: "8"
 
-          - name: ubuntu-18.04-gcc-10
-            os: ubuntu-18.04
+          - name: gcc-10
             compiler: gcc
             version: "10"
 
-          - name: ubuntu-18.04-gcc-11
-            os: ubuntu-18.04
+          - name: gcc-11
             compiler: gcc
             version: "11"
 
-          - name: ubuntu-18.04-gcc-12
-            os: ubuntu-18.04
-            compiler: gcc
-            version: "12"
+          #- name: clang-8
+          #  compiler: clang
+          #  version: "8"
 
-          - name: ubuntu-18.04-clang-8
-            os: ubuntu-18.04
-            compiler: clang
-            version: "8"
-
-          - name: ubuntu-18.04-clang-10
-            os: ubuntu-18.04
-            compiler: clang
-            version: "10"
+          #- name: clang-10
+          #  compiler: clang
+          #  version: "10"
 
     steps:
       - uses: actions/checkout@v2
@@ -73,10 +62,10 @@ jobs:
       - name: Install (Linux)
         if: runner.os == 'Linux'
         run: |
-          # CMake 3.15 allows specifying the generator using the CMAKE_GENERATOR
-          # environment variable.
-          curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
-          sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
+          ## CMake 3.15 allows specifying the generator using the CMAKE_GENERATOR
+          ## environment variable.
+          #curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
+          #sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
 
           sudo apt-get update
 
