@@ -184,12 +184,13 @@ jobs:
           ctest
 
       - name: Build & Test Release x64 - C++20
+        if: matrix.compiler != 'gcc' || matrix.version != '8'
         run: |
-          cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
-          cmake --build build
-          cd build
-          ctest
+            cmake -E remove_directory build
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
+            cmake --build build
+            cd build
+            ctest
 
       #- name: Build & Test Debug x64 Thread Sanitizers
       #  if: runner.os == 'Linux' || runner.os == 'macOS'
