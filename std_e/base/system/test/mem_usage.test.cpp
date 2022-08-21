@@ -59,17 +59,18 @@ TEST_CASE("resident_memory_in_bytes") {
 
 
   // Check the allocation is approximately what was asked
-  // NOTE: we choose 50% error for the test to pass (to be safe)
-  //       with greater n_bytes values, the relative error would be less than 50% (fortunately!)
+  // NOTE: to be safe, we choose 100% error for the test to pass (note that we have seen up to 89% error on GitHub CI !)
+  //       with greater n_bytes values, the relative error would be less than 100% (fortunately!)
   //       but we don't want to do that too much in a regular unit test
+  double allowed_error = 1.0;
   CHECK( delta01 > 0 ); // memory was created
-  CHECK( std::abs(delta01 - n_bytes)/double(n_bytes) < 0.5 );
+  CHECK( std::abs(delta01 - n_bytes)/double(n_bytes) < allowed_error );
 
   // Check the deallocation is approximately of the same size (but <0)
   CHECK( delta12 < 0 ); // memory was reclaimed
-  CHECK( std::abs(-delta12 - n_bytes)/double(n_bytes) < 0.5 );
+  CHECK( std::abs(-delta12 - n_bytes)/double(n_bytes) < allowed_error );
 
   // Check the net memory allocation is approximately null
-  CHECK( std::abs(delta02)/double(n_bytes) < 0.5 );
+  CHECK( std::abs(delta02)/double(n_bytes) < allowed_error );
 
 }

@@ -2,15 +2,15 @@ name: std_e C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    #branches: [ master ]
   pull_request:
-    branches: [ master ]
+    #branches: [ master ]
 
 
 jobs:
   ci:
     name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -26,44 +26,33 @@ jobs:
         # Github Actions requires a single row to be added to the build matrix.
         # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
         name: [
-          ubuntu-18.04-gcc-8,
-          ubuntu-18.04-gcc-9,
-          ubuntu-18.04-gcc-10,
-          ubuntu-18.04-clang-8,
-          # ubuntu-18.04-clang-9,
-          ubuntu-18.04-clang-10,
+          gcc-8,
+          gcc-10,
+          gcc-11,
+          #clang-8,
+          #clang-10,
         ]
 
         include:
-          - name: ubuntu-18.04-gcc-8
-            os: ubuntu-18.04
+          - name: gcc-8
             compiler: gcc
             version: "8"
 
-          - name: ubuntu-18.04-gcc-9
-            os: ubuntu-18.04
-            compiler: gcc
-            version: "9"
-
-          - name: ubuntu-18.04-gcc-10
-            os: ubuntu-18.04
+          - name: gcc-10
             compiler: gcc
             version: "10"
 
-          - name: ubuntu-18.04-clang-8
-            os: ubuntu-18.04
-            compiler: clang
-            version: "8"
+          - name: gcc-11
+            compiler: gcc
+            version: "11"
 
-          - name: ubuntu-18.04-clang-10
-            os: ubuntu-18.04
-            compiler: clang
-            version: "10"
+          #- name: clang-8
+          #  compiler: clang
+          #  version: "8"
 
-          # - name: ubuntu-18.04-clang-10
-          #   os: ubuntu-18.04
-          #   compiler: clang
-          #   version: "10"
+          #- name: clang-10
+          #  compiler: clang
+          #  version: "10"
 
     steps:
       - uses: actions/checkout@v2
@@ -73,156 +62,149 @@ jobs:
       - name: Install (Linux)
         if: runner.os == 'Linux'
         run: |
-          # CMake 3.15 allows specifying the generator using the CMAKE_GENERATOR
-          # environment variable.
-          curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
-          sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
-
-          # Required for libc6-dbg:i386 and g++-multilib packages which are
-          # needed for x86 builds.
-          sudo dpkg --add-architecture i386
-
-          # clang-3.7 and earlier are not available in Bionic anymore so we get
-          # them from the Xenial repositories instead.
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
-
-          # LLVM 9 is not in Bionic's repositories so we add the official LLVM repository.
-          if [ "${{ matrix.compiler }}" = "clang" ] && [ "${{ matrix.version }}" = "9" ]; then
-            sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
-          fi
+          ## CMake 3.15 allows specifying the generator using the CMAKE_GENERATOR
+          ## environment variable.
+          #curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
+          #sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
 
           sudo apt-get update
-          sudo apt-get install lcov
-
-          # libc6-dbg:i386 is required for running valgrind on x86.
-          sudo apt-get install -y ninja-build valgrind libc6-dbg:i386
 
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            sudo apt-get install -y g++-${{ matrix.version }} g++-${{ matrix.version }}-multilib
+            sudo apt-get install -y g++-${{ matrix.version }}
             echo "::set-env name=CC::gcc-${{ matrix.version }}"
             echo "::set-env name=CXX::g++-${{ matrix.version }}"
           else
-            sudo apt-get install -y clang-${{ matrix.version }} g++-multilib
+            sudo apt-get install -y clang-${{ matrix.version }}
             echo "::set-env name=CC::clang-${{ matrix.version }}"
             echo "::set-env name=CXX::clang++-${{ matrix.version }}"
           fi
 
-      - name: Configure ASAN/UBSAN
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: |
-          # https://stackoverflow.com/a/37939589/11900641
-          function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+          #sudo apt-get install lcov
+          #sudo apt-get install -y ninja-build valgrind
 
-          # Disable sanitizers in configurations where we know they are buggy.
+      #- name: Configure ASAN/UBSAN
+      #  if: runner.os == 'Linux' || runner.os == 'macOS'
+      #  run: |
+      #    # https://stackoverflow.com/a/37939589/11900641
+      #    function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
-          # TODO: Move these conditions to the if clause if Github Actions ever
-          # adds support for comparing versions.
-          # See: https://github.community/t5/GitHub-Actions/Allow-comparing-versions-in-if-conditions/m-p/33912#M1710
+      #    # Disable sanitizers in configurations where we know they are buggy.
 
-          if [ "${{ runner.os }}" = "Linux" ] && \
-             [ "${{ matrix.compiler }}" = "gcc" ] && \
-             [ $(version ${{ matrix.version }}) -le $(version "5.0") ]; then
-            exit 0
-          fi
+      #    # TODO: Move these conditions to the if clause if Github Actions ever
+      #    # adds support for comparing versions.
+      #    # See: https://github.community/t5/GitHub-Actions/Allow-comparing-versions-in-if-conditions/m-p/33912#M1710
 
-          if [ "${{ runner.os }}" = "Linux" ] && \
-             [ "${{ matrix.compiler }}" = "clang" ] && \
-             [ $(version ${{ matrix.version }}) -le $(version "6.0") ]; then
-            exit 0
-          fi
+      #    if [ "${{ runner.os }}" = "Linux" ] && \
+      #       [ "${{ matrix.compiler }}" = "gcc" ] && \
+      #       [ $(version ${{ matrix.version }}) -le $(version "5.0") ]; then
+      #      exit 0
+      #    fi
 
-          if [ "${{ runner.os }}" = "macOS" ] && \
-             [ "${{ matrix.compiler }}" = "xcode" ] && \
-             [ $(version ${{ matrix.version }}) -le $(version "9.4.1") ]; then
-            exit 0
-          fi
+      #    if [ "${{ runner.os }}" = "Linux" ] && \
+      #       [ "${{ matrix.compiler }}" = "clang" ] && \
+      #       [ $(version ${{ matrix.version }}) -le $(version "6.0") ]; then
+      #      exit 0
+      #    fi
 
-          if [ "${{ runner.os }}" = "macOS" ] && \
-             [ "${{ matrix.compiler }}" = "gcc" ]; then
-            exit 0
-          fi
+      #    if [ "${{ runner.os }}" = "macOS" ] && \
+      #       [ "${{ matrix.compiler }}" = "xcode" ] && \
+      #       [ $(version ${{ matrix.version }}) -le $(version "9.4.1") ]; then
+      #      exit 0
+      #    fi
 
-          ASAN_UBSAN_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      #    if [ "${{ runner.os }}" = "macOS" ] && \
+      #       [ "${{ matrix.compiler }}" = "gcc" ]; then
+      #      exit 0
+      #    fi
 
-          # Link statically against ASAN libraries because dynamically linking
-          # against ASAN libraries causes problems when using dlopen on Ubuntu.
-          # See: https://github.com/DaanDeMeyer/doctest/runs/249002713
-          if [ "${{ runner.os }}" = "Linux" ] && [ "${{ matrix.compiler }}" = "gcc" ]; then
-            ASAN_UBSAN_FLAGS="$ASAN_UBSAN_FLAGS -static-libasan"
-          fi
+      #    ASAN_UBSAN_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
 
-          # Compiling in bash on Windows doesn't work and powershell doesn't
-          # exit on non-zero exit codes so we're forced to use cmd which means
-          # we don't have a cross platform way to access environment variables.
-          # To circumvent this, we put the sanitizer flags in an environment
-          # variable that is automatically picked up by CMake.
-          echo "::set-env name=CXXFLAGS::$ASAN_UBSAN_FLAGS"
+      #    # Link statically against ASAN libraries because dynamically linking
+      #    # against ASAN libraries causes problems when using dlopen on Ubuntu.
+      #    # See: https://github.com/DaanDeMeyer/doctest/runs/249002713
+      #    if [ "${{ runner.os }}" = "Linux" ] && [ "${{ matrix.compiler }}" = "gcc" ]; then
+      #      ASAN_UBSAN_FLAGS="$ASAN_UBSAN_FLAGS -static-libasan"
+      #    fi
 
-      - name: Configure TSAN
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: |
-          # https://stackoverflow.com/a/37939589/11900641
-          function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+      #    # Compiling in bash on Windows doesn't work and powershell doesn't
+      #    # exit on non-zero exit codes so we're forced to use cmd which means
+      #    # we don't have a cross platform way to access environment variables.
+      #    # To circumvent this, we put the sanitizer flags in an environment
+      #    # variable that is automatically picked up by CMake.
+      #    echo "::set-env name=CXXFLAGS::$ASAN_UBSAN_FLAGS"
 
-          if [ "${{ runner.os }}" = "Linux" ] && \
-             [ "${{ matrix.compiler }}" = "gcc" ] && \
-             [ $(version ${{ matrix.version }}) -le $(version "6.0") ]; then
-            exit 0
-          fi
+      #- name: Configure TSAN
+      #  if: runner.os == 'Linux' || runner.os == 'macOS'
+      #  run: |
+      #    # https://stackoverflow.com/a/37939589/11900641
+      #    function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
-          if [ "${{ runner.os }}" = "Linux" ] && \
-             [ "${{ matrix.compiler }}" = "clang" ] && \
-             [ $(version ${{ matrix.version }}) -le $(version "3.9") ]; then
-            exit 0
-          fi
+      #    if [ "${{ runner.os }}" = "Linux" ] && \
+      #       [ "${{ matrix.compiler }}" = "gcc" ] && \
+      #       [ $(version ${{ matrix.version }}) -le $(version "6.0") ]; then
+      #      exit 0
+      #    fi
 
-          if [ "${{ runner.os }}" = "macOS" ] && \
-             [ "${{ matrix.compiler }}" = "gcc" ]; then
-            exit 0
-          fi
+      #    if [ "${{ runner.os }}" = "Linux" ] && \
+      #       [ "${{ matrix.compiler }}" = "clang" ] && \
+      #       [ $(version ${{ matrix.version }}) -le $(version "3.9") ]; then
+      #      exit 0
+      #    fi
 
-          TSAN_FLAGS="-fsanitize=thread -pie -fPIE"
+      #    if [ "${{ runner.os }}" = "macOS" ] && \
+      #       [ "${{ matrix.compiler }}" = "gcc" ]; then
+      #      exit 0
+      #    fi
 
-          if [ "${{ runner.os }}" = "Linux" ] && [ "${{ matrix.compiler }}" = "gcc" ]; then
-            TSAN_FLAGS="$TSAN_FLAGS -static-libtsan"
-          fi
+      #    TSAN_FLAGS="-fsanitize=thread -pie -fPIE"
 
-          # The thread sanitizers build does not run on Windows so we can just
-          # use bash syntax to access the TSAN flags in the thread sanitizers
-          # build step.
-          echo "::set-env name=TSAN_FLAGS::$TSAN_FLAGS"
+      #    if [ "${{ runner.os }}" = "Linux" ] && [ "${{ matrix.compiler }}" = "gcc" ]; then
+      #      TSAN_FLAGS="$TSAN_FLAGS -static-libtsan"
+      #    fi
+
+      #    # The thread sanitizers build does not run on Windows so we can just
+      #    # use bash syntax to access the TSAN flags in the thread sanitizers
+      #    # build step.
+      #    echo "::set-env name=TSAN_FLAGS::$TSAN_FLAGS"
 
       - name: Build & Test Debug x64
         run: |
           cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17
           cmake --build build
           cd build
           ctest
-
 
       - name: Build & Test Release x64
         run: |
           cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17
           cmake --build build
           cd build
           ctest
 
-      - name: Build & Test Debug x64 Thread Sanitizers
-        if: runner.os == 'Linux' || runner.os == 'macOS'
+      - name: Build & Test Release x64 - C++20
+        if: matrix.compiler != 'gcc' || matrix.version != '8'
         run: |
-          cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4 $TSAN_FLAGS" -DCMAKE_CXX_STANDARD=17 -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=OFF -DSTD_E_BUILD_DOCUMENTATION=OFF
-          cmake --build build
-          cd build
-          ctest
+            cmake -E remove_directory build
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
+            cmake --build build
+            cd build
+            ctest
+
+      #- name: Build & Test Debug x64 Thread Sanitizers
+      #  if: runner.os == 'Linux' || runner.os == 'macOS'
+      #  run: |
+      #    cmake -E remove_directory build
+      #    cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="$TSAN_FLAGS"
+      #    cmake --build build
+      #    cd build
+      #    ctest
 
       # - name: Build & Test Debug and Coverage x64
       #   run: |
       #     cmake -E remove_directory build
-      #     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -std=c++17 -fmax-errors=4" -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native -DNDEBUG -fPIC" -DSTD_E_ENABLE_TEST=ON -DSTD_E_ENABLE_COVERAGE=ON -DSTD_E_BUILD_DOCUMENTATION=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
+      #     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -Dstd_e_ENABLE_COVERAGE=ON
       #     cmake --build build
       #     cd build
       #     ctest

@@ -11,9 +11,6 @@ else()
   set(serial_run "true")
 endif()
 
-file(GLOB_RECURSE unit_test_files
-  CONFIGURE_DEPENDS "${src_dir}/*.test.cpp"
-)
 create_doctest(
   TESTED_TARGET ${PROJECT_NAME}
   LABEL         unit_tests
