@@ -90,15 +90,15 @@ file(GLOB_RECURSE cpp_and_test_files
 set(cpp_files ${cpp_and_test_files})
 list(FILTER cpp_files EXCLUDE REGEX ".*\\.test\\.cpp$")
 
-set(test_files ${cpp_and_test_files})
-list(FILTER test_files INCLUDE REGEX ".*\\.test\\.cpp$")
+set(unit_test_files ${cpp_and_test_files})
+list(FILTER unit_test_files INCLUDE REGEX ".*\\.test\\.cpp$")
 
 if(${PROJECT_NAME}_ENABLE_MPI)
   list(FILTER cpp_files EXCLUDE REGEX ".*\\.nompi\\.cpp$")
-  list(FILTER test_files EXCLUDE REGEX ".*\\.nompi\\.test\\.cpp$")
+  list(FILTER unit_test_files EXCLUDE REGEX ".*\\.nompi\\.test\\.cpp$")
 else()
   list(FILTER cpp_files EXCLUDE REGEX ".*\\.mpi\\.cpp$")
-  list(FILTER test_files EXCLUDE REGEX ".*\\.mpi\\.test\\.cpp$")
+  list(FILTER unit_test_files EXCLUDE REGEX ".*\\.mpi\\.test\\.cpp$")
 endif()
 
 ## Main library ##
