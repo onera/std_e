@@ -87,6 +87,11 @@ unique(std::vector<T,A>& v, Equiv_pred eq = {}) -> void {
 }
 
 template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
+stable_sort_unique(std::vector<T,A>& v, Equiv_pred eq = {}, Comp_pred cmp = {}) -> void {
+  stable_sort(v,cmp);
+  unique(v,eq);
+}
+template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
 sort_unique(std::vector<T,A>& v, Equiv_pred eq = {}, Comp_pred cmp = {}) -> void {
   sort(v,cmp);
   unique(v,eq);
