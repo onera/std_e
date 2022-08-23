@@ -35,4 +35,14 @@ to_vector() {
 }
 
 
+template<class Rng> constexpr auto
+copy_to(Rng&& dest) { // Note: can be an rvalue ref (e.g. span&&)...
+  auto copy_to_fn = [&dest](auto&& origin){ // ... it is always capture by lvalue ref
+                                            // this is OK: garanteed to be alive till the end of the function
+    std::ranges::copy(FWD(origin),begin(dest));
+  };
+  return make_pipeable(copy_to_fn);
+}
+
+
 } // std_e

@@ -7,8 +7,9 @@
 #include "std_e/data_structure/multi_range.hpp"
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
 #include "std_e/meta/meta.hpp"
+#include "std_e/future/ranges.hpp"
 // TODO clean up!
-// TODO jagged -> compressed
+// TODO jagged -> vblock_range
 
 
 namespace std_e {
@@ -83,7 +84,8 @@ class jagged_range {
   public:
   // type traits
     using scalar_type = T;
-    using indices_type = I;
+    using indices_type = I; // TODO DEL
+    using index_type = I;
 
     using iterator = vblock_iterator<T,I>;
     using const_iterator = vblock_iterator<const T,const I>;
@@ -92,12 +94,17 @@ class jagged_range {
     using const_reference = typename const_iterator::reference;
 
   // ctors
+    // special ctors
     jagged_range() requires (rank>2)
       : idx_array({0},unambiguous{})
     {}
     jagged_range() requires (rank==2)
       : idx_array({0})
     {}
+    jagged_range(const jagged_range&) = default;
+    jagged_range(jagged_range&&) = default;
+    jagged_range& operator=(const jagged_range&) = default;
+    jagged_range& operator=(jagged_range&&) = default;
 
     // TODO private (for default ctor only)
     jagged_range(data_range_type flat_values, unambiguous) requires (rank>2)
@@ -109,6 +116,13 @@ class jagged_range {
       , idx_array({0})
     {}
 
+    jagged_range(I sz, I total_sz)
+      : flat_values(total_sz)
+      , idx_array(sz+1)
+      , off(0)
+    {
+      static_assert(rank==2);
+    }
     jagged_range(data_range_type flat_values, indices_range_type idx_array, I off = 0)
       : flat_values(std::forward<data_range_type>(flat_values))
       , idx_array(std::forward<indices_range_type>(idx_array))
@@ -117,16 +131,23 @@ class jagged_range {
       static_assert(rank==2);
     }
     // same as above, but by copy from different types (e.g. Range==span, data_range_type==vector)
-    template<class Range0, class Range1>
-    jagged_range(Range0&& flat_values, Range1&& idx_array, I off = 0)
+    jagged_range(
+        std::ranges::contiguous_range auto&& flat_values,
+        std::ranges::contiguous_range auto&& idx_array,
+        I off = 0
+    )
       : flat_values(flat_values.begin(),flat_values.end())
       , idx_array(idx_array.begin(),idx_array.end())
       , off(off)
     {
       static_assert(rank==2);
     }
-    template<class Range0, class Range1, class Range2>
-    jagged_range(const Range0& flat_values, const Range1& separators0, const Range2& separators1, I off = 0)
+    jagged_range(
+        std::ranges::contiguous_range auto&& flat_values,
+        std::ranges::contiguous_range auto&& separators0,
+        std::ranges::contiguous_range auto&& separators1,
+        I off = 0
+    )
       : flat_values(flat_values.begin(),flat_values.end())
       , idx_array(separators0,separators1)
       , off(off)
@@ -158,6 +179,18 @@ class jagged_range {
           }
         }
       }
+    }
+
+    // Note:
+    //   this does not always have operator= semantics
+    //   e.g. when indices_array_type==span, this function would assign through,
+    //   while operator= is supposed to just replace where the span points to
+    template<class TR, class IR> auto
+    assign(const jagged_range<TR,IR,rank>& x) {
+      x.values() | copy_to(values());
+
+      auto shift = offsets()[0] - x.offsets()[0];
+      x.offsets().as_base() | std::views::transform([=](I i){ return i+shift; }) | copy_to(offsets().as_base()); // TODO ugly .as_base()
     }
 
   // basic

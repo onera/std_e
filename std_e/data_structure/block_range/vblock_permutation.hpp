@@ -27,32 +27,18 @@ indirect_partition_by_block_size(const Rng& block_offsets) -> std::pair<std::vec
 }
 
 
-template<class Rng, class Offset_rng, class Permutation_rng> auto
-permute_copy_vblock_range(Rng&& values, Offset_rng&& offsets, const Permutation_rng& permutation) {
-  using T = typename std::remove_cvref_t<Rng>::value_type;
-  using I = typename std::remove_cvref_t<Offset_rng>::value_type;
-  // prepare accessors
-  auto old_vbr = std_e::view_as_vblock_range(values,offsets);
-
-  std::vector<T> new_values(values.size());
-  std::vector<I> new_offsets(offsets.size());
-  auto new_vbr = std_e::view_as_vblock_range(new_values,new_offsets);
-
-  // permute
+template<class vblock_range_type, class Permutation_rng> auto
+permute_copy_vblock_range(vblock_range_type&& old_vbr, const Permutation_rng& permutation) {
+  auto new_vbr = vblock_vector_with_same_size(old_vbr);
   std_e::permute_copy(old_vbr,new_vbr,permutation);
-
-  return std::make_pair(std::move(new_values),std::move(new_offsets));
+  return new_vbr;
 }
 
-template<class Rng, class Offset_rng, class Permutation_rng> auto
-permute_vblock_range(Rng&& values, Offset_rng&& offsets, const Permutation_rng& permutation) -> void {
-  auto [new_values,new_offsets] = permute_copy_vblock_range(FWD(values),FWD(offsets),permutation);
-  std::ranges::copy(new_values ,values .begin());
-  std::ranges::copy(new_offsets,offsets.begin());
-}
 template<class T, class I, class Permutation_rng> auto
 permute_vblock_range(vblock_range<T,I>& x, const Permutation_rng& permutation) -> void {
-  return permute_vblock_range(x.values(),x.offsets(),permutation);
+  auto x_new = permute_copy_vblock_range(x,permutation);
+
+  x.assign(std::move(x_new));
 }
 
 

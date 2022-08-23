@@ -74,7 +74,7 @@ scale_inv(Range& r, I value) -> void {
 
 template<class I> auto
 // requires I is an arithmetic type
-offset_copy(I value) {
+offset_fn(I value) {
   return [value](const auto& x){ return x+value; };
 }
 template<class I> auto

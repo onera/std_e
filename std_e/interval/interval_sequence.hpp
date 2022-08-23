@@ -8,6 +8,9 @@
 #include "std_e/future/contract.hpp"
 #include "std_e/algorithm/numeric.hpp"
 
+// TODO does not support its own weight -> DEL
+// in particular, .as_base() too often used
+// assertions are enought + not used that much with vblock_range available
 
 namespace std_e {
 

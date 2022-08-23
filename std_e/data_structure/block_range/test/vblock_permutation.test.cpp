@@ -14,10 +14,11 @@ TEST_CASE("ngons") {
        5, 4, 3,
        1, 8, 9 };
   vector<int> offsets = {0,3,7,10,13};
+  auto bv = std_e::view_as_vblock_range(x,offsets);
   vector<int> my_permutation = {1,2, 0,3};
 
   // test
-  std_e::permute_vblock_range(x,offsets,my_permutation);
+  std_e::permute_vblock_range(bv,my_permutation);
 
   // checks
   vector<int> expected_x = {

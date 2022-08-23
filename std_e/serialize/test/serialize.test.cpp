@@ -1,3 +1,4 @@
+#if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/serialize/serialize.hpp"
 
@@ -27,3 +28,4 @@ TEST_CASE("deserialize_2") {
   auto w = deserialize_2<vector<string>>(szs,serial);
   CHECK( w == v );
 }
+#endif // C++20
