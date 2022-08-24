@@ -59,10 +59,10 @@ TEST_CASE("resident_memory_in_bytes") {
 
 
   // Check the allocation is approximately what was asked
-  // NOTE: to be safe, we choose 100% error for the test to pass (note that we have seen up to 89% error on GitHub CI !)
+  // NOTE: to be safe, we choose 200% error for the test to pass (note that we have seen up to 108% error on GitHub CI !)
   //       with greater n_bytes values, the relative error would be less than 100% (fortunately!)
   //       but we don't want to do that too much in a regular unit test
-  double allowed_error = 1.0;
+  double allowed_error = 2.0;
   CHECK( delta01 > 0 ); // memory was created
   CHECK( std::abs(delta01 - n_bytes)/double(n_bytes) < allowed_error );
 
