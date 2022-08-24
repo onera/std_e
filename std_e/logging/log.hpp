@@ -27,6 +27,9 @@ struct log_printer {
 };
 
 struct stdout_printer : log_printer {
+  ~stdout_printer() {
+    std::cout << std::flush;
+  }
   auto log(const std::string& msg) -> void override {
     std::cout << msg;
   }
@@ -34,7 +37,9 @@ struct stdout_printer : log_printer {
 struct file_printer : log_printer {
   std::string file_name = "log.txt";
   std::ofstream file = std::ofstream(file_name.c_str(), std::fstream::out);
-
+  ~file_printer() {
+    file << std::flush;
+  }
   auto log(const std::string& msg) -> void override {
     file << msg;
   }

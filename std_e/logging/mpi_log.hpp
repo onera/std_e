@@ -12,13 +12,13 @@ namespace std_e {
 struct mpi_stdout_printer : log_printer {
   auto log(const std::string& msg) -> void override {
     std::string rank_msg = to_color_string(console_color::blue,"Rank ",mpi_comm_world_rank(),": ") + msg;
-    std::cout << rank_msg;
+    std::cout << rank_msg << std::flush;
   }
 };
 struct mpi_rank_0_stdout_printer : log_printer {
   auto log(const std::string& msg) -> void override {
     if (mpi_comm_world_rank()==0) {
-      std::cout << msg;
+      std::cout << msg << std::flush;
     }
   }
 };
@@ -33,7 +33,7 @@ struct mpi_file_printer : log_printer {
   std::ofstream file = std::ofstream(file_name.c_str(), std::fstream::out);
 
   auto log(const std::string& msg) -> void override {
-    file << msg;
+    file << msg << std::flush;
   }
 };
 
