@@ -160,7 +160,7 @@ last_child(const rooted_graph<GT>& x) {
   return x.last_child();
 }
 
-template<class GT> constexpr auto
+template<class GT> auto
 to_string(const rooted_graph<GT>& x) -> std::string {
   return x.to_string_impl();
 }

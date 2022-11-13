@@ -130,7 +130,7 @@ TEST_CASE("hvector find algorithms") {
 // [Sphinx Doc] hvector find algorithms }
 
 
-#if __cplusplus > 201703L
+#if __cplusplus > 201703L && REAL_GCC
 TEST_CASE("hvector deduction guidelines") {
   SUBCASE("rvalue") {
     // [Sphinx Doc] hvector deduction {

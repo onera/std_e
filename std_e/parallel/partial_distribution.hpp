@@ -45,7 +45,7 @@ partial_distribution(I size, MPI_Comm comm) {
   I finish = start + size;
   I size_tot = all_reduce(size,MPI_SUM,comm);
 
-  #if __cplusplus > 201703L
+  #if __cplusplus > 201703L && defined(REAL_GCC)
     return partial_distri{start,finish,size_tot};
   #else
     return partial_distri<I>{start,finish,size_tot};

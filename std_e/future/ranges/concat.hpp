@@ -79,7 +79,7 @@ concat(Ts&&... xs) {
 
 template<std::ranges::range Rng, class It, size_t... Is> auto
 concat_copy_impl(const Rng& x, It& first) -> void {
-  first = std::ranges::copy(x,first).out;
+  first = std_e::ranges::copy(x,first).out;
 }
 // specialization handling the `concat_view<concat_view<Ts>>` case
 template<class... Ts, class It, size_t... Is> auto

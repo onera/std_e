@@ -136,7 +136,15 @@ class graph
         NT,ET,adj_list_type,
         orientation::none
       >
-{};
+{
+  using base =   
+      graph_base<
+        graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::none
+      >;
+  using base::base;
+};
 
 template<class NT, class ET, class adj_list_type>
 class io_graph
@@ -146,7 +154,15 @@ class io_graph
         NT,ET,adj_list_type,
         orientation::in_out
       >
-{};
+{
+  using base =   
+      graph_base<
+        io_graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::in_out
+      >;
+  using base::base;
+};
 // end-user classes }
 
 

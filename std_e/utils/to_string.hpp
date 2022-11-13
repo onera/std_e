@@ -21,6 +21,7 @@ to_string(const std::string& s) -> const std::string& {
 
 template<class T> auto
 to_string(T* ptr) -> std::string {
+  if (ptr == nullptr) { return "0"; };
   std::stringstream ss;
   ss << ptr;
   return ss.str();

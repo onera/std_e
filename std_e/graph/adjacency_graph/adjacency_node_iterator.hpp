@@ -97,15 +97,38 @@ class adjacency_node_iterator {
     }
 
     friend constexpr auto
-    operator==(const adjacency_node_iterator& x, const adjacency_node_iterator& y) {
+    operator==(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
       STD_E_ASSERT(x.g==y.g);
       return x.node_idx == y.node_idx;
     }
-    friend constexpr auto
-    operator<=>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) {
-      STD_E_ASSERT(x.g==y.g);
-      return x.node_idx <=> y.node_idx;
-    }
+    #ifdef REAL_GCC
+      friend constexpr auto
+      operator<=>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        STD_E_ASSERT(x.g==y.g);
+        return x.node_idx <=> y.node_idx;
+      }
+    #else
+      friend constexpr auto
+      operator!=(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        return !(x==y);
+      }
+      friend constexpr auto
+      operator<(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        return x.node_idx < y.node_idx;
+      }
+      friend constexpr auto
+      operator<=(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        return x.node_idx <= y.node_idx;
+      }
+      friend constexpr auto
+      operator>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        return x.node_idx > y.node_idx;
+      }
+      friend constexpr auto
+      operator>=(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+        return x.node_idx >= y.node_idx;
+      }
+    #endif
   private:
     graph_type* g;
     index_type node_idx;

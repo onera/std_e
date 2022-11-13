@@ -5,6 +5,7 @@
 #include "std_e/parallel/mpi/collective/all_to_all.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/meta/pack/range.hpp"
+#include "std_e/future/sort/sort_ranges.hpp"
 
 
 namespace std_e {
@@ -15,7 +16,7 @@ template<
   class Proj = identity_closure,
   class Comp = std::less<>,
   class Return_container = interval_vector<int>,
-  class Sort_algo = decltype(std::ranges::sort)
+  class Sort_algo = decltype(std_e::ranges::sort)
 > auto
 sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}, Sort_algo sort_algo = {}) {
   // 0. global partitioning
@@ -102,7 +103,7 @@ template<
   class Proj = identity_closure,
   class Comp = std::less<>,
   class Return_container = interval_vector<int>,
-  class Sort_algo = decltype(std::ranges::sort)
+  class Sort_algo = decltype(std_e::ranges::sort)
 > auto
 indirect_sort(std::tuple<Rngs&...>&& xs_tuple, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}, Sort_algo sort_algo = {}) {
   // 0. global partitioning

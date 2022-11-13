@@ -26,14 +26,14 @@ template<class Func, class I> inline auto
 // requires I is integral type
 // requires Func(I) -> T && T(0) returns neutral element for addition
 sum(const interval<I>& range, Func f, std::invoke_result_t<Func,I> init = 0) -> std::invoke_result_t<Func,I> {
-  return apply_accumulate(range,f,init,std::plus<std::result_of_t<Func(I)>>());
+  return apply_accumulate(range,f,init,std::plus<>{});
 }
 
 template<class Func, class I> inline auto
 // requires I is integral type
 // requires Func(I) -> T && T(1) returns neutral element for multiplication
 prod(const interval<I>& range, Func f, std::invoke_result_t<Func,I> init = 1) -> std::invoke_result_t<Func,I> {
-  return apply_accumulate(range,f,init,std::multiplies<std::result_of_t<Func(I)>>());
+  return apply_accumulate(range,f,init,std::multiplies<>{});
 }
 
 template<class I, size_t N> auto

@@ -2,6 +2,7 @@
 
 
 #include "std_e/graph/adjacency_graph/traits/traits.hpp"
+#include "std_e/future/algorithm.hpp"
 #include <algorithm>
 
 
@@ -69,7 +70,7 @@ class adjacency_range {
     }
     constexpr auto
     operator<=>(const adjacency_range& x) const {
-      return std::lexicographical_compare_three_way(begin(),end(),x.begin(),x.end());
+      return std_e::lexicographical_compare_three_way(begin(),end(),x.begin(),x.end());
     }
   private:
   // functions

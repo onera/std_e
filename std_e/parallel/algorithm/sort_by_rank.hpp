@@ -10,6 +10,7 @@
 #include "std_e/parallel/algorithm/sort_by_rank_once.hpp"
 #include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
+#include "std_e/future/ranges/subrange.hpp"
 #include <cmath>
 #include <ranges>
 
@@ -77,7 +78,7 @@ sort_by_rank(
     int n_sub_intervals = sub_ins.size();
 
     // 0. create sub-ranges of `x` that need partitioning
-    using sub_range_type = std::ranges::subrange<iter_type>;
+    using sub_range_type = std_e::ranges::subrange<iter_type>;
     std::vector<sub_range_type> x_sub(n_sub_intervals);
     for (int i=0; i<n_sub_intervals; ++i) {
       auto start  = begin(x) + sub_ins[i].inf;

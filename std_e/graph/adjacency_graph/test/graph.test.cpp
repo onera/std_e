@@ -3,6 +3,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/adjacency_graph/graph_algo.hpp"
+#include "std_e/future/ranges/concept.hpp"
 
 
 using namespace std_e;
@@ -35,7 +36,7 @@ TEST_CASE("adjacency_graph") {
 
   SUBCASE("range type") {
     using graph_type = decltype(g);
-    static_assert(std::ranges::random_access_range<graph_type>);
+    static_assert(std_e::ranges::random_access_range<graph_type>);
   }
 }
 

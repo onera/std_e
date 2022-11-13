@@ -8,6 +8,8 @@
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
 #include "std_e/meta/meta.hpp"
 #include "std_e/future/ranges.hpp"
+#include "std_e/future/ranges/concept.hpp"
+#include "std_e/future/ranges/transform.hpp"
 // TODO clean up!
 // TODO jagged -> vblock_range
 
@@ -132,8 +134,8 @@ class jagged_range {
     }
     // same as above, but by copy from different types (e.g. Range==span, data_range_type==vector)
     jagged_range(
-        std::ranges::contiguous_range auto&& flat_values,
-        std::ranges::contiguous_range auto&& idx_array,
+        std_e::ranges::contiguous_range auto&& flat_values,
+        std_e::ranges::contiguous_range auto&& idx_array,
         I off = 0
     )
       : flat_values(flat_values.begin(),flat_values.end())
@@ -143,9 +145,9 @@ class jagged_range {
       static_assert(rank==2);
     }
     jagged_range(
-        std::ranges::contiguous_range auto&& flat_values,
-        std::ranges::contiguous_range auto&& separators0,
-        std::ranges::contiguous_range auto&& separators1,
+        std_e::ranges::contiguous_range auto&& flat_values,
+        std_e::ranges::contiguous_range auto&& separators0,
+        std_e::ranges::contiguous_range auto&& separators1,
         I off = 0
     )
       : flat_values(flat_values.begin(),flat_values.end())
@@ -190,7 +192,7 @@ class jagged_range {
       x.values() | copy_to(values());
 
       auto shift = offsets()[0] - x.offsets()[0];
-      x.offsets().as_base() | std::views::transform([=](I i){ return i+shift; }) | copy_to(offsets().as_base()); // TODO ugly .as_base()
+      x.offsets().as_base() | std_e::views::transform([=](I i){ return i+shift; }) | copy_to(offsets().as_base()); // TODO ugly .as_base()
     }
 
   // basic
@@ -460,7 +462,7 @@ transform(const jagged_range<R00,R01,rank>& x, F f) -> jagged_vector<RT,rank,I> 
     begin(res),
     f
   );
-  return {res,x.indices()};
+  return {res,x.indices().as_base()}; // TODO UGLY
 }
 // algorithm }
 

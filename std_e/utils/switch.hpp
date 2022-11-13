@@ -37,7 +37,7 @@ template<class Integer, Integer... Is>
 struct switch_<std::integer_sequence<Integer,Is...>> {
   public:
   // type traits
-    static constexpr std::integer_sequence<Integer,Is...> dispatching_indices = {};
+    static constexpr std::integer_sequence<int,static_cast<int>(Is)...> dispatching_indices = {};
 
     template<class fun_wrap_type, Integer I> using tagged_caller =
       typename fun_wrap_type::template tagged_caller<std::integral_constant<Integer,I>>;

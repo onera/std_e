@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include "std_e/meta/compile_time_size.hpp"
+#include "std_e/future/ranges/algorithm.hpp"
 
 
 namespace std_e {
@@ -47,14 +48,14 @@ rotate_optim(Range& x, It mid) -> void {
   //} else if constexpr (compile_time_size<Range> == 4) {
   //  _rotate_optim_4(x,mid);
   //} else {
-    std::ranges::rotate(x,mid);
+    std_e::ranges::rotate(x,mid);
   //}
 }
 
 
 template<class Range> auto
 rotate_min_first(Range& x) -> void {
-  auto min_pos = std::ranges::min_element(x);
+  auto min_pos = std_e::ranges::min_element(x);
   rotate_optim(x,min_pos);
 }
 

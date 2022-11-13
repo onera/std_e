@@ -109,13 +109,13 @@ TEST_CASE("algorithms") {
       std_e::multi_vector2<int> t(2);
       range<0>(t) = vector{4,3,9,8,0,1,2,7,6,5};
 
-      std::ranges::sort(t);
+      std_e::ranges::sort(t);
 
       CHECK( range<0>(t) == vector{0,1,2,3,4,5,6,7,8,9} );
     }
 
     SUBCASE("more ranges") {
-      std::ranges::sort(t);
+      std_e::ranges::sort(t);
       // check
       const vector<int>         expected_col0 = {0    ,42  ,43 };
       const vector<string> expected_col1 = {"ABC","X" ,"Y"};
@@ -130,7 +130,7 @@ TEST_CASE("algorithms") {
 
     SUBCASE("more ranges - other comp") {
       auto proj = [](const auto& x){ return get<2>(x); };
-      std::ranges::sort(t,{},proj);
+      std_e::ranges::sort(t,{},proj);
       // check
       const vector<int>         expected_col0 = {43 ,42  ,0    };
       const vector<string> expected_col1 = {"Y","X" ,"ABC"};

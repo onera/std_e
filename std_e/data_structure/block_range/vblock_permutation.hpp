@@ -2,6 +2,7 @@
 
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/algorithm/mismatch_points.hpp"
+#include "std_e/future/ranges/algorithm.hpp"
 #include <ranges>
 
 
@@ -20,7 +21,7 @@ indirect_partition_by_block_size(const Rng& block_offsets) -> std::pair<std::vec
 
   // 2. permute // TODO replace by std_e::partition_pivot_stable
   auto proj_to_block_sizes = [&block_sizes](I i){ return block_sizes[i]; };
-  std::ranges::stable_sort(perm,{},proj_to_block_sizes);
+  std_e::ranges::stable_sort(perm,{},proj_to_block_sizes);
   auto partition_indices = std_e::mismatch_indices(perm,{},proj_to_block_sizes,I{});
 
   return {std::move(perm),std::move(partition_indices)};

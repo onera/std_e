@@ -183,7 +183,11 @@ class node_mixin<void,adj_list_type> {
     constexpr node_mixin() = default;
     constexpr node_mixin(index_type sz): sz(sz) {}
   // interface
-    constexpr auto nodes() const -> auto { return std::ranges::iota_view(0,sz); }
+    #if defined(__GLIBCXX__)
+      constexpr auto nodes() const -> auto { return std::ranges::iota_view(0,sz); }
+    #else // iota_view not implemented by libc++ <= 14
+      constexpr auto nodes() const -> auto { return std_e::iota_vector(sz,0); }
+    #endif
 
     auto operator<=>(const node_mixin& x) const = default;
   private:

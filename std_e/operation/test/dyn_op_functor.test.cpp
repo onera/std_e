@@ -1,6 +1,7 @@
 #if __cplusplus > 201703L
 
 #include "std_e/future/make_array.hpp"
+#include "std_e/future/ranges/transform.hpp"
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/operation/dyn_op_functor.hpp"
 #include <ranges>
@@ -9,7 +10,6 @@ namespace {
 
 using namespace std;
 using namespace std_e;
-namespace views = std::ranges::views;
 
 // [Sphinx Doc] apply_operation {
 TEST_CASE("Use of apply_operation for algorithms calling operations") {
@@ -19,7 +19,7 @@ TEST_CASE("Use of apply_operation for algorithms calling operations") {
   auto call_with_9_and_3 = [](operation_kind op) {
     return apply_operation(op,9,3);
   };
-  auto results = ops | views::transform(call_with_9_and_3);
+  auto results = ops | std_e::views::transform(call_with_9_and_3);
   CHECK( results[0] == 9+3 );
   CHECK( results[1] == 3 );
   CHECK( results[2] == 9 );

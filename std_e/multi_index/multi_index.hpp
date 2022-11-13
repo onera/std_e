@@ -6,6 +6,7 @@
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/concept/array.hpp"
 #include "std_e/future/algorithm.hpp"
+#include "std_e/future/ranges/concept.hpp"
 #include "std_e/utils/array.hpp"
 #include <iterator>
 #include <stdexcept>
@@ -89,10 +90,8 @@ struct enable_is_multi_index<cx_multi_index> : std::true_type {};
 template<class T>
 constexpr bool is_multi_index = enable_is_multi_index<std::decay_t<T>>::value;
 
-#if __cplusplus > 201703L
-  template<class T>
-  concept Multi_index = std::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
-#endif
+template<class T>
+concept Multi_index = std_e::ranges::random_access_range<T> && std::integral<std::ranges::range_value_t<T>>;
 // is_multi_index }
 
 // index_type_of {

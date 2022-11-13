@@ -133,7 +133,7 @@ visit(F&& f, const reference_variant<Ts...>& x) -> decltype(auto) {
 
 
 // variant_range {
-template<template<class> class Range, template<class...> class Reference_variant, class... Ts>
+template<template<class...> class Range, template<class...> class Reference_variant, class... Ts>
 // requires Ts types are unique
 // requires Ts types are regular (in partic., not refs)
 class variant_range {
@@ -232,38 +232,38 @@ class variant_range {
       }
     #endif
 
-    template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
+    template<class T, template<class...> class R, template<class...> class RV, class... Ts0> friend auto
     holds_alternative(const variant_range<R,RV,Ts0...>& x) -> bool;
 };
 // variant_range }
 
-template<class T, template<class> class R, template<class...> class RV, class... Ts0> auto
+template<class T, template<class...> class R, template<class...> class RV, class... Ts0> auto
 get(variant_range<R,RV,Ts0...>& x) -> R<T>& {
   return std::get<R<T>>(x.impl);
 }
-template<class T, template<class> class R, template<class...> class RV, class... Ts0> auto
+template<class T, template<class...> class R, template<class...> class RV, class... Ts0> auto
 get(const variant_range<R,RV,Ts0...>& x) -> const R<T>& {
   return std::get<R<T>>(x.impl);
 }
 
-template<template<class> class R, template<class...> class RV, class... Ts, class F> auto
+template<template<class...> class R, template<class...> class RV, class... Ts, class F> auto
 visit(F&& f, variant_range<R,RV,Ts...>& x) -> decltype(auto) {
   return x.visit(FWD(f));
 }
-template<template<class> class R, template<class...> class RV, class... Ts, class F> auto
+template<template<class...> class R, template<class...> class RV, class... Ts, class F> auto
 visit(F&& f, const variant_range<R,RV,Ts...>& x) -> decltype(auto) {
   return x.visit(FWD(f));
 }
 
-template<class T, template<class> class R, template<class...> class RV, class... Ts> auto
+template<class T, template<class...> class R, template<class...> class RV, class... Ts> auto
 data_as(variant_range<R,RV,Ts...>& x) -> T* {
   return get<T>(x).data();
 }
-template<class T, template<class> class R, template<class...> class RV, class... Ts> auto
+template<class T, template<class...> class R, template<class...> class RV, class... Ts> auto
 data_as(const variant_range<R,RV,Ts...>& x) -> const T* {
   return get<T>(x).data();
 }
-template<class T, template<class> class R, template<class...> class RV, class... Ts> auto
+template<class T, template<class...> class R, template<class...> class RV, class... Ts> auto
 holds_alternative(const variant_range<R,RV,Ts...>& x) -> bool {
   return std::holds_alternative<R<T>>(x.impl);
 }

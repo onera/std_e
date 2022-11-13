@@ -17,8 +17,10 @@ iota_n(Fwd_it first, Integer n, T value) -> Fwd_it {
   return first;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Waggressive-loop-optimizations" // else, warning with first==last
+#if defined(REAL_GCC)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Waggressive-loop-optimizations" // else, warning with first==last
+#endif
 template<class Fwd_it, class T> constexpr auto
 exclusive_iota(Fwd_it first, Fwd_it last, T value, const T& step) {
   while (first != last) {
@@ -27,7 +29,9 @@ exclusive_iota(Fwd_it first, Fwd_it last, T value, const T& step) {
     ++first;
   }
 }
-#pragma GCC diagnostic pop
+#if defined(REAL_GCC)
+  #pragma GCC diagnostic pop
+#endif
 
 template<class Fwd_it, class Integer, class T> constexpr auto
 exclusive_iota_n(Fwd_it first, Integer n, T value, const T& step) -> Fwd_it {

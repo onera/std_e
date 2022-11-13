@@ -2,6 +2,7 @@
 
 
 #include <memory>
+#include <string>
 #include "std_e/execution/task/task.hpp"
 #include "std_e/base/macros.hpp"
 

@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <algorithm>
 #include <ranges>
+#include "std_e/future/concept.hpp"
+#include "std_e/future/ranges/concept.hpp"
 
 
 namespace std_e {
@@ -198,17 +200,17 @@ make_comp_proj(Comp& comp, Proj& proj) {
 namespace ranges {
 
 struct _sort_fn {
-  template<std::random_access_iterator It, std::sentinel_for<It> S, class Comp = std::ranges::less, class Proj = std::identity>
-    requires std::sortable<It, Comp, Proj>
+  template<std::random_access_iterator It, std::sentinel_for<It> S, class Comp = std_e::ranges::less, class Proj = std::identity>
+    requires std_e::sortable<It, Comp, Proj>
       constexpr auto
   operator()(It first, S last, Comp comp = {}, Proj proj = {}) const -> It {
-    auto last_it = std::ranges::next(first, last);
+    auto last_it = std_e::ranges::next(first, last);
     quicksort(first, last_it, make_comp_proj(comp, proj));
     return last_it;
   }
 
-  template<std::ranges::random_access_range Range, class Comp = std::ranges::less, class Proj = std::identity>
-    requires std::sortable<std::ranges::iterator_t<Range>, Comp, Proj>
+  template<std_e::ranges::random_access_range Range, class Comp = std_e::ranges::less, class Proj = std::identity>
+    requires std_e::sortable<std::ranges::iterator_t<Range>, Comp, Proj>
       constexpr auto
   operator()(Range&& r, Comp comp = {}, Proj proj = {}) const -> std::ranges::borrowed_iterator_t<Range> {
     return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(comp), std::move(proj));

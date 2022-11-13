@@ -3,6 +3,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/adjacency_graph/graph_algo.hpp"
+#include "std_e/future/ranges/concept.hpp"
 
 
 using namespace std_e;
@@ -28,8 +29,8 @@ TEST_CASE("adjacency_range") {
   SUBCASE("range type") {
     using  in_adj_range_type = decltype( in_rng);
     using out_adj_range_type = decltype(out_rng);
-    static_assert(std::ranges::random_access_range< in_adj_range_type>);
-    static_assert(std::ranges::random_access_range<out_adj_range_type>);
+    static_assert(std_e::ranges::random_access_range< in_adj_range_type>);
+    static_assert(std_e::ranges::random_access_range<out_adj_range_type>);
   }
 
   SUBCASE("range operations") {

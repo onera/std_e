@@ -3,6 +3,7 @@
 
 #include "std_e/data_structure/block_range/block_range.hpp"
 #include "std_e/future/sort/sort_ranges.hpp"
+#include "std_e/future/ranges/algorithm.hpp"
 #include <algorithm>
 
 using namespace std_e;
@@ -33,18 +34,18 @@ TEST_CASE("block_range") {
   }
 
   SUBCASE("reverse") {
-    std::ranges::reverse(xb);
+    std_e::ranges::reverse(xb);
     CHECK( x == std::vector{6,3,12,  10,4,5} );
   }
   SUBCASE("partition") {
-    std::ranges::partition(xb,[](const auto& e){ return e[0] < 7; });
+    std_e::ranges::partition(xb,[](const auto& e){ return e[0] < 7; });
     CHECK( x == std::vector{6,3,12,  10,4,5} );
   }
 
   SUBCASE("move") {
     std::vector<int> y(6);
     block_range<std::vector<int>&,3> yb = view_as_block_range<3>(y);
-    std::ranges::move(xb,yb.begin());
+    std_e::ranges::move(xb,yb.begin());
     CHECK( y == std::vector{10,4,5,  6,3,12} );
   }
   SUBCASE("sort") {
