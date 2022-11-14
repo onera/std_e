@@ -7,9 +7,11 @@
 namespace std_e {
 
 
-#if defined(__GLIBCXX__) && __cplusplus > 201703L
-  template<class I>
-  concept sortable = std::sortable;
+#if defined(REAL_GCC) && defined(__GLIBCXX__) && __cplusplus > 201703L
+  template<class I> concept permutable = std::permutable<I>;
+
+  template<class I, class Comp = std::ranges::less, class Proj = std::identity>
+  concept sortable = std::sortable<I,Comp,Proj>;
 #else
   template<class I>
   concept permutable =

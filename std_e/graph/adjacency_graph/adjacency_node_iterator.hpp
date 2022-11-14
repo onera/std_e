@@ -103,7 +103,7 @@ class adjacency_node_iterator {
     }
     #ifdef REAL_GCC
       friend constexpr auto
-      operator<=>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) -> bool {
+      operator<=>(const adjacency_node_iterator& x, const adjacency_node_iterator& y) {
         STD_E_ASSERT(x.g==y.g);
         return x.node_idx <=> y.node_idx;
       }

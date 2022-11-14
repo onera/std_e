@@ -15,7 +15,7 @@ struct copy_result {
 
 template<class R, class It> auto
 copy(R&& r, It&& it) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::copy(r,it);
   #else
     auto out = std::copy(std::ranges::begin(r),std::ranges::end(r),it);
@@ -27,7 +27,7 @@ copy(R&& r, It&& it) {
 }
 auto
 move(auto&& r, auto&& it) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::move(r,it);
   #else
     return std::move(begin(r),end(r),it);
@@ -36,7 +36,7 @@ move(auto&& r, auto&& it) {
 
 auto
 find(auto&& r, auto&& val) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::find(r,val);
   #else
     return std::find(begin(r),end(r),val);
@@ -44,7 +44,7 @@ find(auto&& r, auto&& val) {
 }
 auto
 find_if(auto&& r, auto&& pred) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::find_if(r,pred);
   #else
     return std::find_if(begin(r),end(r),pred);
@@ -53,7 +53,7 @@ find_if(auto&& r, auto&& pred) {
 
 auto
 any_of(auto&& r, auto&& pred) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::any_of(r,pred);
   #else
     return std::any_of(begin(r),end(r),pred);
@@ -61,7 +61,7 @@ any_of(auto&& r, auto&& pred) {
 }
 auto
 partition_point(auto&& r, auto&& pred) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::partition_point(r,pred);
   #else
     return std::partition_point(begin(r),end(r),pred);
@@ -69,7 +69,7 @@ partition_point(auto&& r, auto&& pred) {
 }
 auto
 lower_bound(auto&& r, auto&& pred) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::lower_bound(r,pred);
   #else
     return std::lower_bound(begin(r),end(r),pred);
@@ -78,7 +78,7 @@ lower_bound(auto&& r, auto&& pred) {
 
 auto
 min_element(auto&& r) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::min_element(r);
   #else
     return std::min_element(begin(r),end(r));
@@ -86,7 +86,7 @@ min_element(auto&& r) {
 }
 auto
 max_element(auto&& r) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::max_element(r);
   #else
     return std::max_element(begin(r),end(r));
@@ -95,7 +95,7 @@ max_element(auto&& r) {
 
 auto
 rotate(auto&& r, auto&& mid) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::rotate(r,mid);
   #else
     return std::rotate(begin(r),mid,end(r));
@@ -103,7 +103,7 @@ rotate(auto&& r, auto&& mid) {
 }
 auto
 partition(auto&& r, auto&& comp) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::partition(r,comp);
   #else
     return std::partition(begin(r),end(r),comp);
@@ -111,7 +111,7 @@ partition(auto&& r, auto&& comp) {
 }
 auto
 reverse(auto&& r) {
-  #if defined(__GLIBCXX__)
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::reverse(r);
   #else
     return std::reverse(begin(r),end(r));
@@ -119,15 +119,15 @@ reverse(auto&& r) {
 }
 auto
 stable_sort(auto&& r, auto&& comp, auto&& proj) {
-  #if defined(__GLIBCXX__)
-    return std::ranges::stable_sort(r,comm,proj);
+  #if defined(REAL_GCC) && defined(__GLIBCXX__)
+    return std::ranges::stable_sort(r,comp,proj);
   #else
     auto cmp = [comp,proj](const auto& x, const auto& y){ return comp(proj(x),proj(y)); };
     return std::reverse(begin(r),end(r),cmp);
   #endif
 }
 
-#if defined(__GLIBCXX__)
+#if defined(REAL_GCC) && defined(__GLIBCXX__)
   inline constexpr auto unique = std::ranges::unique;
 #else
   struct __adjacent_find_fn

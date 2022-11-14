@@ -2,6 +2,7 @@
 
 
 #include <ranges>
+#include <functional>
 #include "std_e/future/ranges/concept.hpp"
 #include "std_e/future/ranges/view_interface.hpp"
 #include "std_e/functional/pipeable.hpp"
@@ -11,6 +12,12 @@
 namespace std_e {
 namespace ranges {
 
+
+#if defined(REAL_GCC) && defined(__GLIBCXX__) && __cplusplus > 201703L
+  namespace views {
+    inline constexpr auto transform = std::views::transform;
+  }
+#else
   namespace detail {
     template<bool is_const, typename T>
       using maybe_const_t = std::conditional_t<is_const, const T, T>;
@@ -28,7 +35,7 @@ namespace ranges {
     public:
       template</*detail::__different_from<ref_view>*/class _Tp>
         requires std::convertible_to<_Tp, _Range&>
-          && requires { _S_fun(declval<_Tp>()); }
+          && requires { _S_fun(std::declval<_Tp>()); }
         constexpr
         ref_view(_Tp&& __t)
         noexcept(noexcept(static_cast<_Range&>(std::declval<_Tp>())))
@@ -158,9 +165,9 @@ namespace ranges {
       template<typename _Range>
         concept __can_owning_view = requires { owning_view{std::declval<_Range>()}; };
   } // namespace detail
- 
 
-  
+
+
   struct _All
     {
       template<typename _Range>
@@ -380,13 +387,13 @@ namespace ranges {
             requires random_access_range<_Base>
           { return !(x < y); }
 
-#ifdef __cpp_lib_three_way_comparison
-          friend constexpr auto
-          operator<=>(const _Iterator& x, const _Iterator& y)
-            requires random_access_range<_Base>
-              && three_way_comparable<_Base_iter>
-          { return x._M_current <=> y._M_current; }
-#endif
+//#ifdef __cpp_lib_three_way_comparison
+//          friend constexpr auto
+//          operator<=>(const _Iterator& x, const _Iterator& y)
+//            requires random_access_range<_Base>
+//              && three_way_comparable<_Base_iter>
+//          { return x._M_current <=> y._M_current; }
+//#endif
 
           friend constexpr _Iterator
           operator+(_Iterator __i, difference_type n)
@@ -586,6 +593,7 @@ namespace ranges {
 
     inline constexpr Transform transform;
   } // namespace views
+#endif
 
 
 } // ranges

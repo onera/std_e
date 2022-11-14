@@ -9,6 +9,9 @@
 namespace std_e {
 namespace ranges {
 
+#if defined(REAL_GCC) && defined(__GLIBCXX__) && __cplusplus > 201703L
+  template<class T> using view_interface = std::ranges::view_interface<T>;
+#else
   template<typename _Derived>
     requires std::is_class_v<_Derived> && std::same_as<_Derived, std::remove_cv_t<_Derived>>
     class view_interface;
@@ -18,13 +21,13 @@ namespace ranges {
     template<typename _Tp, typename _Up>
       requires (!std::same_as<_Tp, view_interface<_Up>>)
       void __is_derived_from_view_interface_fn(const _Tp&,
-					       const view_interface<_Up>&); // not defined
+                 const view_interface<_Up>&); // not defined
 
     // Returns true iff _Tp has exactly one public base class that's a
     // specialization of view_interface.
     template<typename _Tp>
       concept __is_derived_from_view_interface
-	= requires (_Tp __t) { __is_derived_from_view_interface_fn(__t, __t); };
+  = requires (_Tp __t) { __is_derived_from_view_interface_fn(__t, __t); };
   } // detail
 
 
@@ -169,7 +172,8 @@ namespace ranges {
         operator[](Int __n) const
         { return std::ranges::begin(_M_derived())[__n]; }
     };
-
+#endif
 
 } // ranges
 } // std_e
+

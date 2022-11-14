@@ -8,21 +8,30 @@ namespace std_e {
 namespace ranges {
 
 
-#if defined(__GLIBCXX__) && __cplusplus > 201703L
-  template<class T> concept range = std::ranges::range;
-  template<class T> concept input_range = std::ranges::input_range;
-  template<class T> concept forward_range = std::ranges::forward_range;
-  template<class T> concept bidirectional_range = std::ranges::bidirectional_range;
-  template<class T> concept random_access_range = std::ranges::random_access_range;
-  template<class T> concept contiguous_range = std::ranges::contiguous_range;
+#if defined(REAL_GCC) && defined(__GLIBCXX__) && __cplusplus > 201703L
+  template<class T> concept range = std::ranges::range<T>;
+  template<class T> concept input_range = std::ranges::input_range<T>;
+  template<class T> concept forward_range = std::ranges::forward_range<T>;
+  template<class T> concept bidirectional_range = std::ranges::bidirectional_range<T>;
+  template<class T> concept random_access_range = std::ranges::random_access_range<T>;
+  template<class T> concept contiguous_range = std::ranges::contiguous_range<T>;
 
-  template<class T> concept sized_range = std::ranges::sized_range;
-  template<class T> concept common_range = std::ranges::common_range;
+  template<class T> concept sized_range = std::ranges::sized_range<T>;
+  template<class T> concept common_range = std::ranges::common_range<T>;
 
   using less = std::ranges::less;
 
 
+  inline constexpr auto advance = std::ranges::advance;
+  inline constexpr auto prev = std::ranges::prev;
   inline constexpr auto next = std::ranges::next;
+
+  template<typename T> inline constexpr bool enable_view = std::ranges::enable_view<T>;
+
+  template<class T> concept view = std::ranges::view<T>;
+
+  template<class T> concept borrowed_range = std::ranges::borrowed_range<T>;
+  template<class T> concept viewable_range = std::ranges::viewable_range<T>;
 #else
   template<class T>
   concept range =
@@ -187,9 +196,9 @@ namespace ranges {
     requires std::is_class_v<_Derived> && std::same_as<_Derived, std::remove_cv_t<_Derived>>
     class view_interface;
 
-  template<typename _Tp>
-    inline constexpr bool enable_view = std::derived_from<_Tp, std::ranges::view_base>
-      || std::derived_from<_Tp, view_interface<_Tp>>;
+  template<typename T>
+    inline constexpr bool enable_view = std::derived_from<T, std::ranges::view_base>
+      || std::derived_from<T, view_interface<T>>;
 
   template<class T>
   concept view = range<T> && std::movable<T> && std_e::ranges::enable_view<T>;
