@@ -1,13 +1,16 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/future/span.hpp"
-#include "std_e/future/ranges/concept.hpp"
-#include "std_e/future/concept.hpp"
+#if __cplusplus > 201703L
+  #include "std_e/future/concept.hpp"
+  #include "std_e/future/ranges/concept.hpp"
+#endif
 
 #include <vector>
 #include <algorithm>
 
 using std::vector;
 
+#if __cplusplus > 201703L
 TEST_CASE("span concepts") {
   static_assert(std_e::ranges::forward_range< std_e::span<int> >);
   static_assert(std_e::ranges::forward_range< std_e::span<int> >);
@@ -15,6 +18,7 @@ TEST_CASE("span concepts") {
   static_assert(std_e::permutable< std::ranges::iterator_t<std_e::span<int,3>> >);
   static_assert(std_e::permutable< std::ranges::iterator_t<std_e::span<int,3>> >);
 }
+#endif
 
 TEST_CASE("span size") {
   constexpr auto sp1size = std_e::span_size<1>();

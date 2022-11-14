@@ -2,9 +2,9 @@
 
 
 #include "std_e/parallel/mpi/base.hpp"
-#include "std_e/future/ranges/concept.hpp"
 #if __cplusplus > 201703L
   #include <ranges>
+  #include "std_e/future/ranges/concept.hpp"
 #endif
 
 
