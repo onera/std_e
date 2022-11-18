@@ -244,11 +244,11 @@ depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visi
       S.pop_level();
       auto&& v = *S.current_node();
       f.post(v);
-      auto&& w = *++S.current_node();
+      auto&& w_it = ++S.current_node();
       if (!S.is_at_root_level()) {
         auto&& parent = *S.parent_node();
         f.up(v,parent);
-        if (!S.level_is_done()) f.down(parent,w);
+        if (!S.level_is_done()) f.down(parent,*w_it);
       }
     }
   }
@@ -257,7 +257,7 @@ depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visi
 // general algorithm }
 
 
-// adaptation of general algorithm to find,prune and scan {
+// adaptation of general algorithm to find, prune and scan {
 
 /// The general algorithm asks if it should step out/over/into
 /// So the visitor's `pre` function must return a value of `step` type

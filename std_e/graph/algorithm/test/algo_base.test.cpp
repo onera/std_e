@@ -269,7 +269,7 @@ struct modifying_visitor_for_testing_dfs : visitor_for_testing_depth_first_scan 
     node(x) += 10000;
   }
 };
-TEST_CASE("depth_first_search_adjacency_stack") {
+TEST_CASE("depth_first_search_adjacency_stack_inplace_modif") {
   /* Reminder:
          1               lvl 3
       /  |  \
