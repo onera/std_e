@@ -60,7 +60,7 @@ default loggers and MPI
 
 By default, two default loggers are registered in the pool under the name "terminal" and "file", printing messages to the standard output and file "log.txt"
 
-When building with MPI, "terminal" messages will be prefixed by the mpi rank, and "file" actually prints to one file by rank, of name :code:`mpi_log_<rank>.txt`. An additional :cpp:`log_0` function is provided if a message must be printed only once, on rank 0.
+When building with MPI, "terminal" messages will be prefixed by the mpi rank, and "file" actually prints to one file by rank, of name :code:`std_e_log_<rank>.txt`. An additional :cpp:`log_0` function is provided if a message must be printed only once, on rank 0.
 
 
 Debugging

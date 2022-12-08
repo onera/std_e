@@ -26,13 +26,17 @@ struct mpi_file_printer : log_printer {
   mpi_file_printer() = default;
   mpi_file_printer(std::string file_name)
     : file_name(file_name)
-  {
-    file = std::ofstream(file_name.c_str(), std::fstream::out);
-  }
-  std::string file_name = "mpi_log_"+std::to_string(mpi_comm_world_rank())+".txt";
-  std::ofstream file = std::ofstream(file_name.c_str(), std::fstream::out);
+  {}
+
+  std::string file_name = "std_e_log_"+std::to_string(mpi_comm_world_rank())+".txt";
+  std::ofstream file;
+  bool log_init = false;
 
   auto log(const std::string& msg) -> void override {
+    if (!log_init) {
+      file = std::ofstream(file_name.c_str(), std::fstream::out);
+      log_init = true;
+    }
     file << msg << std::flush;
   }
 };
