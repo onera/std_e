@@ -194,14 +194,15 @@ class variant_range {
     //  return std::get<Range<T>>(impl);
     //}
 
-    template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
-    get(variant_range<R,RV,Ts0...>& x) -> R<T>&;
-    template<class T, template<class> class R, template<class...> class RV, class... Ts0> friend auto
-    get(const variant_range<R,RV,Ts0...>& x) -> const R<T>&;
-
     // TODO remove
     constexpr auto
     underlying_variant() -> range_variant& {
+      return impl;
+    }
+
+    // TODO remove
+    constexpr auto
+    underlying_variant() const -> const range_variant& {
       return impl;
     }
 
@@ -239,11 +240,11 @@ class variant_range {
 
 template<class T, template<class...> class R, template<class...> class RV, class... Ts0> auto
 get(variant_range<R,RV,Ts0...>& x) -> R<T>& {
-  return std::get<R<T>>(x.impl);
+  return std::get<R<T>>(x.underlying_variant());
 }
 template<class T, template<class...> class R, template<class...> class RV, class... Ts0> auto
 get(const variant_range<R,RV,Ts0...>& x) -> const R<T>& {
-  return std::get<R<T>>(x.impl);
+  return std::get<R<T>>(x.underlying_variant());
 }
 
 template<template<class...> class R, template<class...> class RV, class... Ts, class F> auto
@@ -265,7 +266,7 @@ data_as(const variant_range<R,RV,Ts...>& x) -> const T* {
 }
 template<class T, template<class...> class R, template<class...> class RV, class... Ts> auto
 holds_alternative(const variant_range<R,RV,Ts...>& x) -> bool {
-  return std::holds_alternative<R<T>>(x.impl);
+  return std::holds_alternative<R<T>>(x.underlying_variant());
 }
 
 

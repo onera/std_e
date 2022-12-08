@@ -2,7 +2,7 @@
 
 
 #include <ranges>
-
+#include "std_e/base/overload_set.hpp"
 
 namespace std_e {
 namespace ranges {
@@ -22,9 +22,9 @@ namespace ranges {
   using less = std::ranges::less;
 
 
-  inline constexpr auto advance = std::ranges::advance;
-  inline constexpr auto prev = std::ranges::prev;
-  inline constexpr auto next = std::ranges::next;
+  inline constexpr auto advance = STD_E_OVERLOAD_SET(std::ranges::advance);
+  inline constexpr auto prev = STD_E_OVERLOAD_SET(std::ranges::prev);
+  inline constexpr auto next = STD_E_OVERLOAD_SET(std::ranges::next);
 
   template<typename T> inline constexpr bool enable_view = std::ranges::enable_view<T>;
 
