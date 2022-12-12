@@ -10,6 +10,14 @@
 
 namespace std_e {
 
+template<class ... Ts>
+constexpr auto
+make_binding_tuple(Ts&&... args) -> std::tuple<std::decay_t<Ts>...>
+{
+  using result_type = std::tuple<std::decay_t<Ts>...>;
+  return result_type(FWD(args)...);
+}
+
 template<typename F, typename... Args>
 constexpr
 auto
