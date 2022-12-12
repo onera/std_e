@@ -227,7 +227,7 @@ depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visi
         case step::out: { // stop
           auto matching_node = S.current_node();
           unwind(S,f);
-          return matching_node;
+          return matching_node; // note: alternative interface: return S, do not unwind (let the caller decide)
         }
         case step::over: { // prune
           S.push_level(first_child(v),last_child(v));
@@ -314,7 +314,7 @@ depth_first_scan_adjacency_stack(Graph_iterator_stack& S, F && f) -> void {
   depth_first_visitor_adaptor<F,convert_to_step> vis(FWD(f));
   depth_first_search_adjacency_stack(S,vis);
 }
-// adaptation of general algorithm to find,prune and scan }
+// adaptation of general algorithm to find, prune and scan }
 
 
 // only pre or post scans {
