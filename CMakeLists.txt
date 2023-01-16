@@ -70,7 +70,7 @@ include(FetchContent)
 FetchContent_Declare(
   doctest
   GIT_REPOSITORY https://github.com/doctest/doctest.git
-  GIT_TAG        110d305 # corrected MPI SUBCASE
+  GIT_TAG        v2.4.9
 )
 FetchContent_MakeAvailable(doctest)
 
@@ -127,7 +127,9 @@ target_install(${PROJECT_NAME})
 # Testing
 # ------------------------------------------------------------------------------
 include(CTest)
-add_subdirectory(test)
+if (${PROJECT_NAME}_ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
 
 
 # ------------------------------------------------------------------------------
