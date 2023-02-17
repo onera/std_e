@@ -37,7 +37,7 @@ project(
 )
 
 option(${PROJECT_NAME}_ENABLE_MPI "Enable mpi for ${PROJECT_NAME}" OFF)
-option(${PROJECT_NAME}_ENABLE_TEST "Enable testing for ${PROJECT_NAME}" ON)
+option(${PROJECT_NAME}_ENABLE_TESTS "Enable testing for ${PROJECT_NAME}" ON)
 option(${PROJECT_NAME}_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
 option(${PROJECT_NAME}_ENABLE_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
 option(${PROJECT_NAME}_ENABLE_PERFORMANCE_TESTS "Enable performance tests for ${PROJECT_NAME}" OFF)
