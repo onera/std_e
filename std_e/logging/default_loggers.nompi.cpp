@@ -5,8 +5,8 @@ using namespace std_e;
 namespace {
 
 bool init_default_loggers() {
-  add_logger({"terminal",full,std::make_unique<stdout_printer>()});
-  add_logger({"file"    ,full,std::make_unique<file_printer>()  });
+  add_logger("std_e"     , std::make_unique<stdout_printer>());
+  add_logger("std_e.file", std::make_unique<mpi_file_printer>());
   return true;
 }
 

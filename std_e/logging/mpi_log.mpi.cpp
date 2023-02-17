@@ -4,27 +4,16 @@ namespace std_e {
 
 
 auto
-log_0(logger& l, const std::string& msg) -> void {
-  if (mpi_comm_world_rank()==0) {
-    log(l,msg);
-  }
+add_mpi_stdout_printer(const std::string& logger_name) -> void {
+  add_printer_to_logger(logger_name, std::make_unique<mpi_stdout_printer>());
 }
 auto
-log_0(const std::string& log_name, const std::string& msg) -> void {
-  if (mpi_comm_world_rank()==0) {
-    log(log_name,msg);
-  }
-}
-auto log_0(logging_level log_lvl, const std::string& msg) -> void {
-  if (mpi_comm_world_rank()==0) {
-    log(log_lvl,msg);
-  }
+add_mpi_rank_0_stdout_printer(const std::string& logger_name) -> void {
+  add_printer_to_logger(logger_name, std::make_unique<mpi_rank_0_stdout_printer>());
 }
 auto
-log_0(const std::string& msg) -> void {
-  if (mpi_comm_world_rank()==0) {
-    log(info,msg);
-  }
+add_mpi_file_printer(const std::string& logger_name, const std::string& file_name) -> void {
+  add_printer_to_logger(logger_name, std::make_unique<mpi_file_printer>(file_name));
 }
 
 
