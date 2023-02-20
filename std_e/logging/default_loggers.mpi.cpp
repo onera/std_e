@@ -1,17 +1,20 @@
-#include "std_e/logging/mpi_log.hpp"
+#include "std_e/logging/log.hpp"
+#include "std_e/logging/printer_common.hpp"
+#include "std_e/logging/printer_mpi.hpp"
 
 using namespace std_e;
 
 namespace {
 
-bool init_default_loggers() {
-  add_logger("std_e"       ,std::make_unique<mpi_stdout_printer>());
-  add_logger("std_e.rank_0",std::make_unique<mpi_rank_0_stdout_printer>());
-  add_logger("std_e.file"  ,std::make_unique<mpi_file_printer>("std_e_log.txt"));
+bool init_std_e_default_loggers() {
+  // ensures that these loggers are present for std_e to run even if no logging configuration file was found
+  add_logger_if_absent("std_e.debug" ,std::make_unique<mpi_stdout_printer>());
+  add_logger_if_absent("std_e.rank_0",std::make_unique<mpi_rank_0_stdout_printer>());
+  add_logger_if_absent("std_e.file"  ,std::make_unique<mpi_file_printer>("std_e_log.txt"));
   return true;
 }
 
 // constant here just to trigger initialization
-const bool _ = init_default_loggers();
+const bool _ = init_std_e_default_loggers();
 
 }

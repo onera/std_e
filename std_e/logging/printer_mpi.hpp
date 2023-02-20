@@ -1,7 +1,9 @@
 #pragma once
 
 
-#include "std_e/logging/log.hpp"
+#include "std_e/logging/printer.hpp"
+#include <iostream>
+#include <fstream>
 #include "std_e/logging/console_color.hpp"
 #include "std_e/parallel/mpi.hpp"
 #include "std_e/utils/string.hpp"
@@ -10,14 +12,14 @@
 namespace std_e {
 
 
-class mpi_stdout_printer : public log_printer {
+class mpi_stdout_printer : public printer {
   public:
     auto log(const std::string& msg) -> void override {
       std::string rank_msg = to_color_string(console_color::blue,"Rank ",mpi_comm_world_rank(),": ") + msg;
       std::cout << rank_msg << std::flush;
     }
 };
-class mpi_rank_0_stdout_printer : public log_printer {
+class mpi_rank_0_stdout_printer : public printer {
   public:
     auto log(const std::string& msg) -> void override {
       if (mpi_comm_world_rank()==0) {
@@ -25,7 +27,7 @@ class mpi_rank_0_stdout_printer : public log_printer {
       }
     }
 };
-class mpi_file_printer : public log_printer {
+class mpi_file_printer : public printer {
   public:
     mpi_file_printer() = default;
     mpi_file_printer(const std::string& file)
@@ -36,7 +38,7 @@ class mpi_file_printer : public log_printer {
         extension = tokens.back();
         tokens.pop_back();
       }
-      file_name = join(tokens,".")+'_'+std::to_string(mpi_comm_world_rank())+'.'+extension;
+      file_name = join(tokens,".")+'.'+std::to_string(mpi_comm_world_rank())+'.'+extension;
     }
 
     auto log(const std::string& msg) -> void override {

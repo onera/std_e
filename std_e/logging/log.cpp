@@ -1,7 +1,9 @@
 #include "std_e/logging/log.hpp"
-#include "std_e/base/msg_exception.hpp"
 
 #include <vector>
+#include <cstdlib>
+#include "std_e/base/msg_exception.hpp"
+#include "std_e/utils/string.hpp"
 
 
 namespace std_e {
@@ -25,30 +27,57 @@ get_logger(const std::string& name) -> logger& {
   std::vector<logger>& loggers = all_loggers();
   auto it = find_if(begin(loggers),end(loggers),[&](const auto& logger){ return logger.name == name; });
   if (it == end(loggers)) {
-    throw msg_exception("std_e::get_logger: no logger of name "+name);
+    throw msg_exception("std_e::get_logger: no logger of name " + name);
   }
   return *it;
 }
 auto
-add_logger(std::string name, std::unique_ptr<log_printer> printer) -> logger& {
+add_logger(std::string name) -> logger& {
   std::vector<logger>& loggers = all_loggers();
   if (has_logger(name)) {
-    throw msg_exception("std_e::add_logger: logger of name "+name+" already exists");
+    throw msg_exception("std_e::add_logger: logger of name " + name + " already exists");
+  } else {
+    loggers.emplace_back(logger(name));
+    return loggers.back();
   }
-  loggers.push_back( logger(std::move(name),std::move(printer)) );
+}
+auto
+add_logger(std::string name, std::unique_ptr<printer> printer) -> logger& {
+  auto& l = add_logger(name);
+  l.printers.emplace_back(std::move(printer));
+  return l;
+}
+auto
+add_logger_if_absent(std::string name, std::unique_ptr<printer> printer) -> logger& {
+  std::vector<logger>& loggers = all_loggers();
+  if (has_logger(name)) {
+    return get_logger(name);
+  } else {
+    loggers.emplace_back(logger(name,std::move(printer)));
+    return loggers.back();
+  }
+}
+auto
+add_or_replace_logger(logger l) -> logger& {
+  std::vector<logger>& loggers = all_loggers();
+  auto it = find_if(begin(loggers),end(loggers),[&](const auto& logger){ return logger.name == l.name; });
+  if (it != end(loggers)) {
+    loggers.erase(it);
+  }
+  loggers.emplace_back(std::move(l));
   return loggers.back();
 }
 auto
-add_printer_to_logger(const std::string& logger_name, std::unique_ptr<log_printer> printer) -> void {
+add_printer_to_logger(const std::string& logger_name, std::unique_ptr<printer> printer) -> void {
   auto& logger = get_logger(logger_name);
   logger.printers.emplace_back(std::move(printer));
 }
 
-auto turn_on(const std::string& logger_name) {
+auto turn_on(const std::string& logger_name) -> void {
   auto& logger = get_logger(logger_name);
   logger.active = true;
 }
-auto turn_off(const std::string& logger_name) {
+auto turn_off(const std::string& logger_name) -> void {
   auto& logger = get_logger(logger_name);
   logger.active = false;
 }
@@ -61,15 +90,6 @@ log(const std::string& logger_name, const std::string& msg) -> void {
       printer->log(msg);
     }
   }
-}
-
-auto
-add_stdout_printer(const std::string& logger_name) -> void {
-  add_printer_to_logger(logger_name, std::make_unique<stdout_printer>());
-}
-auto
-add_file_printer(const std::string& logger_name, const std::string& file_name) -> void {
-  add_printer_to_logger(logger_name, std::make_unique<file_printer>(file_name));
 }
 
 

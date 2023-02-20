@@ -1,4 +1,6 @@
-#include "std_e/logging/mpi_log.hpp"
+#include "std_e/logging/printer_mpi.hpp"
+#include "std_e/logging/log.hpp"
+#include <memory>
 
 namespace std_e {
 

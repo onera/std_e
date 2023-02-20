@@ -28,12 +28,34 @@ TEST_CASE("string utils") {
     CHECK( std_e::split("ab",'|') == vector<string>{"ab"} );
   }
 
+  SUBCASE("balanced_parens") {
+    CHECK( std_e::balanced_parens(""    ,'(',')') == true );
+    CHECK( std_e::balanced_parens("()"  ,'(',')') == true );
+    CHECK( std_e::balanced_parens("(())",'(',')') == true );
+    CHECK( std_e::balanced_parens("()()",'(',')') == true );
+    CHECK( std_e::balanced_parens("(()" ,'(',')') == false );
+    CHECK( std_e::balanced_parens("())" ,'(',')') == false );
+    CHECK( std_e::balanced_parens(")(()",'(',')') == false );
+  }
+
+  SUBCASE("split_with_parens") {
+    CHECK( std_e::split_with_parens("ab(x,y),c(),d,e(x,y(z,z))",',','(',')') == vector<string>{"ab(x,y)","c()","d","e(x,y(z,z))"} );
+  }
+
   SUBCASE("copy_without_spaces") {
     CHECK( std_e::copy_without_spaces("ab c d e") == "abcde" );
 
     CHECK( std_e::copy_without_spaces("ab") == "ab" );
     CHECK( std_e::copy_without_spaces("")   == "" );
     CHECK( std_e::copy_without_spaces(" ")  == "" );
+  }
+
+  SUBCASE("trim") {
+    CHECK( std_e::trim("") == "" );
+    CHECK( std_e::trim("a b  c") == "a b  c" );
+    CHECK( std_e::trim("  a b  c") == "a b  c" );
+    CHECK( std_e::trim("a b  c  ") == "a b  c" );
+    CHECK( std_e::trim(" a b  c  ") == "a b  c" );
   }
 
   SUBCASE("remove_spaces_and_split") {

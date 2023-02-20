@@ -38,24 +38,16 @@ join(const std::vector<std::string>& ss, const std::string& sep) -> std::string 
   remove_back_n(res,sep.size());
   return res;
 }
-inline auto
-split(const std::string& s, char sep) -> std::vector<std::string> {
-   std::vector<std::string> ss;
-   std::string token;
-   std::istringstream token_stream(s);
-   while (std::getline(token_stream, token, sep)) {
-      ss.push_back(token);
-   }
-   return ss;
-}
 
-inline auto
-copy_without_spaces(const std::string& s) -> std::string {
-  std::string res;
-  auto not_space = [](char c){ return !isspace(c); };
-  std::copy_if(begin(s), end(s), std::back_inserter(res), not_space);
-  return res;
-}
+auto split(const std::string& s, char sep) -> std::vector<std::string>;
+
+auto balanced_parens(const std::string& s, char open_paren, char close_paren) -> bool;
+auto split_with_parens(const std::string& s, char sep, char open_paren, char close_paren) -> std::vector<std::string>;
+
+auto copy_without_spaces(const std::string& s) -> std::string;
+
+auto trim(const std::string& s) -> std::string;
+auto trim(const std::vector<std::string>& ss) -> std::vector<std::string>;
 
 inline auto
 remove_spaces_and_split(const std::string& s, char sep) -> std::vector<std::string> {

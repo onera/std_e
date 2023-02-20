@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
 #include <memory>
 #include "std_e/utils/enum.hpp"
+#include "std_e/logging/printer.hpp"
 
 
 namespace std_e {
@@ -21,63 +20,52 @@ STD_E_ENUM(logging_level,
   full
 );
 
-// log_printer: base + common {
-struct log_printer {
-  virtual auto log(const std::string& msg) -> void = 0;
-  virtual ~log_printer() = default;
-};
-
-class stdout_printer : public log_printer {
-  public:
-    ~stdout_printer() {
-      std::cout << std::flush;
-    }
-    auto log(const std::string& msg) -> void override {
-      std::cout << msg;
-    }
-};
-class file_printer : public log_printer {
-  public:
-    file_printer() = default;
-    file_printer(const std::string& file_name)
-      : file(std::ofstream(file_name.c_str(), std::fstream::out))
-    {}
-    ~file_printer() {
-      file << std::flush;
-    }
-    auto log(const std::string& msg) -> void override {
-      file << msg;
-    }
-  private:
-    std::ofstream file;
-};
-// log_printer: base + common }
 
 struct logger {
-  using printers_type = std::vector<std::unique_ptr<log_printer>>;
+  // types
+  using printers_type = std::vector<std::unique_ptr<printer>>;
 
+  // attributes
   std::string name;
   printers_type printers;
   bool active = true;
 
+  // ctors
   logger() = default;
+  //logger(const logger&) = delete;
+  //logger& operator=(const logger&) = delete;
+  logger(const logger&) { throw; }
+  logger& operator=(const logger&) { throw; }
+  logger(logger&&) = default;
+  logger& operator=(logger&&) = default;
+
   logger(std::string name)
     : name(std::move(name))
   {}
-  logger(std::string name, std::unique_ptr<log_printer> printer)
+  logger(std::string name, std::unique_ptr<printer> printer)
     : logger(std::move(name))
   {
     printers.emplace_back(std::move(printer));
   }
+  logger(std::string name, printers_type&& printers)
+    : name(std::move(name))
+    , printers(std::move(printers))
+  {}
 };
 
 auto has_logger(const std::string& name) -> bool;
 auto get_logger(const std::string& name) -> logger&;
-auto add_logger(std::string name, std::unique_ptr<log_printer> printer) -> logger&;
-auto add_printer_to_logger(const std::string& logger_name, std::unique_ptr<log_printer> printer) -> void;
 
-auto turn_on(const std::string& logger_name);
-auto turn_off(const std::string& logger_name);
+auto add_logger(std::string name) -> logger&;
+auto add_logger(std::string name, std::unique_ptr<printer> printer) -> logger&;
+
+auto add_logger_if_absent(std::string name, std::unique_ptr<printer> printer) -> logger&;
+auto add_or_replace_logger(logger l) -> logger&;
+
+auto add_printer_to_logger(const std::string& logger_name, std::unique_ptr<printer> printer) -> void;
+
+auto turn_on(const std::string& logger_name) -> void;
+auto turn_off(const std::string& logger_name) -> void;
 
 
 auto log(const std::string& log_name, const std::string& msg) -> void;
@@ -85,5 +73,6 @@ auto log(const std::string& log_name, const std::string& msg) -> void;
 
 auto add_stdout_printer(const std::string& logger_name) -> void;
 auto add_file_printer(const std::string& logger_name, const std::string& file_name) -> void;
+
 
 } // std_e
