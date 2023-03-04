@@ -8,9 +8,9 @@ namespace {
 
 bool init_std_e_default_loggers() {
   // ensures that these loggers are present for std_e to run even if no logging configuration file was found
-  add_logger_if_absent("std_e.debug" ,std::make_unique<mpi_stdout_printer>());
-  add_logger_if_absent("std_e.rank_0",std::make_unique<mpi_rank_0_stdout_printer>());
-  add_logger_if_absent("std_e.file"  ,std::make_unique<mpi_file_printer>("std_e_log.txt"));
+  add_logger_if_absent(logger{"std_e.debug" ,mpi_stdout_printer{}});
+  add_logger_if_absent(logger{"std_e.rank_0",mpi_rank_0_stdout_printer{}});
+  add_logger_if_absent(logger{"std_e.file"  ,mpi_file_printer{"std_e_log.txt"}});
   return true;
 }
 

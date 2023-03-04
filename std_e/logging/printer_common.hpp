@@ -21,6 +21,9 @@ class stdout_printer : public printer {
 class file_printer : public printer {
   public:
     file_printer() = default;
+    file_printer(file_printer&&) = default;
+    file_printer& operator=(file_printer&&) = default;
+
     file_printer(const std::string& file_name)
       : file(std::ofstream(file_name.c_str(), std::fstream::out))
     {}
@@ -32,6 +35,19 @@ class file_printer : public printer {
     }
   private:
     std::ofstream file;
+};
+class recording_printer : public printer {
+  public:
+    recording_printer() = default;
+    recording_printer(std::string* buffer_ptr)
+      : buffer_ptr(buffer_ptr)
+    {}
+
+    auto log(const std::string& msg) -> void override {
+      (*buffer_ptr) += msg;
+    }
+  private:
+    std::string* buffer_ptr;
 };
 
 
