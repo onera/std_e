@@ -1,6 +1,6 @@
 #include "std_e/parallel/mpi.hpp"
 
-#include "doctest/extensions/doctest_mpi.h"
+#include "std_e/unit_test/doctest_mpi.hpp"
 #include "std_e/parallel/mpi.hpp"
 
 using namespace std;

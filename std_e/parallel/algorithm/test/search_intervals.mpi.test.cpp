@@ -2,7 +2,6 @@
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 
-#include "std_e/log.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
 
 using namespace std_e;

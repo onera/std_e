@@ -4,7 +4,6 @@
 #include "std_e/algorithm/pivot_partition.hpp"
 #include "std_e/interval/algorithm.hpp"
 #include <vector>
-#include "std_e/log.hpp" // TODO
 
 using namespace std;
 using std_e::id_string;

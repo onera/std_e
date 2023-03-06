@@ -3,7 +3,6 @@
 
 #include "std_e/unit_test/doctest_mpi.hpp"
 
-#include "std_e/log.hpp"
 #include "std_e/parallel/struct/distributed_array.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/execution/execution.hpp"

@@ -3,7 +3,6 @@
 #include "std_e/parallel/mpi/base.hpp"
 #include "std_e/logging/time_logger.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
-#include "std_e/log.hpp"
 #include <thread>
 
 using namespace std_e;
@@ -14,7 +13,7 @@ using namespace std::chrono_literals;
 TEST_SUITE_BEGIN("mpi_internode");
 MPI_TEST_CASE("MPI_Win passive mode - multiple compute nodes",48) {
   //auto logger = &std_e::get_logger("terminal");
-  auto logger = &std_e::get_logger("file");
+  auto logger = "std_e.file";
 
   int rk = rank(test_comm);
   int n_rank = test_nb_procs;

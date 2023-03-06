@@ -1,6 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/algorithm/distribution/uniform_sample.hpp"
-#include "std_e/log.hpp"
 
 
 using namespace std_e;

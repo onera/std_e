@@ -5,7 +5,6 @@
 #include "std_e/parallel/algorithm/uniform_sample.hpp"
 #include "std_e/algorithm/distribution/uniform_sample.hpp"
 #include "std_e/parallel/mpi/collective/gather.hpp"
-#include "std_e/log.hpp"
 
 
 namespace std_e {
