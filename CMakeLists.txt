@@ -65,14 +65,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
-include(FetchContent)
-### doctest ###
-FetchContent_Declare(
-  doctest
-  GIT_REPOSITORY https://github.com/doctest/doctest.git
-  GIT_TAG        v2.4.9
-)
-FetchContent_MakeAvailable(doctest)
+include(${PROJECT_UTILS_CMAKE_DIR}/find_or_fetch.cmake)
+find_or_fetch_doctest()
 
 
 # ------------------------------------------------------------------------------
