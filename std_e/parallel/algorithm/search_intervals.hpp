@@ -5,7 +5,6 @@
 #include <vector>
 #include <tuple>
 #include "std_e/algorithm/distribution/uniform.hpp"
-#include "std_e/log.hpp" // TODO
 
 
 namespace std_e {

@@ -3,7 +3,6 @@
 #include "std_e/parallel/mpi/base.hpp"
 #include "std_e/logging/time_logger.hpp"
 #include "std_e/parallel/struct/distribution.hpp"
-#include "std_e/log.hpp"
 #include <thread>
 
 using namespace std_e;

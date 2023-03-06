@@ -2,7 +2,7 @@
 
 // Use these features to save typing when print-debugging
 
-#include "std_e/logging/log.hpp"
+#include <iostream>
 #include "std_e/utils/to_string.hpp"
 
 namespace std_e {
@@ -11,7 +11,7 @@ namespace std_e {
     using std::to_string;
     using std_e::to_string;
     std::string msg = (to_string(xs) + ...) + "\n";
-    std_e::log("std_e.debug",msg);
+    std::cout << msg;
   }
 
   template<class T, class... Ts, size_t... Is> auto
@@ -21,7 +21,7 @@ namespace std_e {
     std::string msg = var_names[0] + " = " + to_string(x);
     ( (msg += "    |    " + var_names[Is+1] + " = " + to_string(xs)) , ...);
     msg += "\n";
-    std_e::log("std_e.debug",msg);
+    std::cout << msg;
   }
   template<class... Ts> auto
   log_with_var_names(const std::string& var_names_str, const Ts&... xs) -> void {

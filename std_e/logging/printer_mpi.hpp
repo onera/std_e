@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include "std_e/logging/console_color.hpp"
+#include "std_e/parallel/string.hpp"
 #include "std_e/parallel/mpi.hpp"
 #include "std_e/utils/string.hpp"
 
@@ -19,6 +20,22 @@ class mpi_stdout_printer : public printer {
       std::cout << rank_msg << std::flush;
     }
 };
+class mpi_sync_stdout_printer : public printer {
+  public:
+    mpi_sync_stdout_printer() = default;
+    mpi_sync_stdout_printer(MPI_Comm comm)
+      : comm(comm)
+    {}
+
+    auto log(const std::string& msg) -> void override {
+      int rk = rank(comm);
+      std::string rank_msg = to_color_string(console_color::blue,"Rank ",rk,": ") + msg;
+      std::cout << cat_on_rank_0(rank_msg,comm) << std::flush;
+    }
+  private:
+    MPI_Comm comm;
+};
+
 class mpi_rank_0_stdout_printer : public printer {
   public:
     auto log(const std::string& msg) -> void override {

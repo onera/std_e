@@ -53,6 +53,7 @@ class recording_printer : public printer {
 
 auto add_stdout_printer(const std::string& logger_name) -> void;
 auto add_file_printer(const std::string& logger_name, const std::string& file_name) -> void;
+auto add_recording_printer(const std::string& logger_name, std::string* s_ptr) -> void;
 
 
 } // std_e

@@ -2,7 +2,6 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
-#include "std_e/log.hpp"
 #include <vector>
 
 using namespace std;
