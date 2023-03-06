@@ -26,8 +26,12 @@ namespace {
 
 bool init_loggers_from_conf_file() {
   const char* logging_conf_file = std::getenv("LOGGING_CONF_FILE");
-  std_e::configure_loggers(logging_conf_file);
-  return true;
+  if (logging_conf_file == nullptr) {
+    return false;
+  } else {
+    std_e::configure_loggers(logging_conf_file);
+    return true;
+  }
 }
 
 // constant here just to trigger initialization
