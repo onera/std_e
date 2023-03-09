@@ -16,7 +16,10 @@ build_printer(const std::string& printer_name, const std::vector<std::string>& p
     return _build_printer_impl_0_arg<mpi_stdout_printer>(printer_name,printer_args,error_msg_context);
   }
   if (printer_name == "mpi_rank_0_stdout_printer") {
-    return _build_printer_impl_0_arg<mpi_stdout_printer>(printer_name,printer_args,error_msg_context);
+    return _build_printer_impl_0_arg<mpi_rank_0_stdout_printer>(printer_name,printer_args,error_msg_context);
+  }
+  if (printer_name == "mpi_rank_0_stderr_printer") {
+    return _build_printer_impl_0_arg<mpi_rank_0_stderr_printer>(printer_name,printer_args,error_msg_context);
   }
 
   if (printer_name == "file_printer") {

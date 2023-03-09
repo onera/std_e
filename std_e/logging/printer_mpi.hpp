@@ -44,6 +44,14 @@ class mpi_rank_0_stdout_printer : public printer {
       }
     }
 };
+class mpi_rank_0_stderr_printer : public printer {
+  public:
+    auto log(const std::string& msg) -> void override {
+      if (mpi_comm_world_rank()==0) {
+        std::cerr << msg << std::flush;
+      }
+    }
+};
 class mpi_file_printer : public printer {
   public:
     mpi_file_printer() = default;
@@ -60,7 +68,7 @@ class mpi_file_printer : public printer {
 
     auto log(const std::string& msg) -> void override {
       if (!log_init) {
-        file = std::ofstream(file_name.c_str(), std::fstream::out);
+        file = std::ofstream(file_name, std::fstream::out);
         log_init = true;
       }
       file << msg << std::flush;
@@ -74,6 +82,7 @@ class mpi_file_printer : public printer {
 
 auto add_mpi_stdout_printer(const std::string& logger_name) -> void;
 auto add_mpi_rank_0_stdout_printer(const std::string& logger_name) -> void;
+auto add_mpi_rank_0_stderr_printer(const std::string& logger_name) -> void;
 auto add_mpi_file_printer(const std::string& logger_name, const std::string& file_name) -> void;
 
 } // std_e
