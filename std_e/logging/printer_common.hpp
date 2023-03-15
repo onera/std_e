@@ -18,6 +18,16 @@ class stdout_printer : public printer {
       std::cout << msg;
     }
 };
+class stderr_printer : public printer {
+  public:
+    ~stderr_printer() {
+      std::cerr << std::flush;
+    }
+    auto log(const std::string& msg) -> void override {
+      std::cerr << msg;
+    }
+};
+
 class file_printer : public printer {
   public:
     file_printer() = default;
@@ -36,6 +46,7 @@ class file_printer : public printer {
   private:
     std::ofstream file;
 };
+
 class recording_printer : public printer {
   public:
     recording_printer() = default;
@@ -49,11 +60,6 @@ class recording_printer : public printer {
   private:
     std::string* buffer_ptr;
 };
-
-
-auto add_stdout_printer(const std::string& logger_name) -> void;
-auto add_file_printer(const std::string& logger_name, const std::string& file_name) -> void;
-auto add_recording_printer(const std::string& logger_name, std::string* s_ptr) -> void;
 
 
 } // std_e

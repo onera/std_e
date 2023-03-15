@@ -75,7 +75,7 @@ create_loggers(const std::string& conf, const std::string& error_msg_context) ->
 
   auto lines = split(conf,'\n');
   for (int i=0; i<(int)lines.size(); ++i) {
-    auto error_msg_context_with_line = error_msg_context + " at line " + std::to_string(i);
+    auto error_msg_context_with_line = error_msg_context + " at line " + std::to_string(i+1);
     loggers.emplace_back( create_logger(lines[i], error_msg_context_with_line) );
   }
 

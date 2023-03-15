@@ -13,13 +13,59 @@
 namespace std_e {
 
 
-class mpi_stdout_printer : public printer {
+class mpi_console_printer : public printer {
   public:
+    mpi_console_printer(std::ostream* os)
+      : os(os)
+    {}
     auto log(const std::string& msg) -> void override {
       std::string rank_msg = to_color_string(console_color::blue,"Rank ",mpi_comm_world_rank(),": ") + msg;
       std::cout << rank_msg << std::flush;
     }
+  private:
+    std::ostream* os;
 };
+class mpi_stdout_printer : public mpi_console_printer {
+  public:
+    mpi_stdout_printer()
+      : mpi_console_printer(&std::cout)
+    {}
+};
+class mpi_stderr_printer : public mpi_console_printer {
+  public:
+    mpi_stderr_printer()
+      : mpi_console_printer(&std::cerr)
+    {}
+};
+
+
+class mpi_rank_0_console_printer : public printer {
+  public:
+    mpi_rank_0_console_printer(std::ostream* os)
+      : os(os)
+    {}
+    auto log(const std::string& msg) -> void override {
+      if (mpi_comm_world_rank()==0) {
+        (*os) << msg << std::flush;
+      }
+    }
+  private:
+    std::ostream* os;
+};
+class mpi_rank_0_stdout_printer : public mpi_rank_0_console_printer {
+  public:
+    mpi_rank_0_stdout_printer()
+      : mpi_rank_0_console_printer(&std::cout)
+    {}
+};
+class mpi_rank_0_stderr_printer : public mpi_rank_0_console_printer {
+  public:
+    mpi_rank_0_stderr_printer()
+      : mpi_rank_0_console_printer(&std::cerr)
+    {}
+};
+
+
 class mpi_sync_stdout_printer : public printer {
   public:
     mpi_sync_stdout_printer() = default;
@@ -36,22 +82,9 @@ class mpi_sync_stdout_printer : public printer {
     MPI_Comm comm;
 };
 
-class mpi_rank_0_stdout_printer : public printer {
-  public:
-    auto log(const std::string& msg) -> void override {
-      if (mpi_comm_world_rank()==0) {
-        std::cout << msg << std::flush;
-      }
-    }
-};
-class mpi_rank_0_stderr_printer : public printer {
-  public:
-    auto log(const std::string& msg) -> void override {
-      if (mpi_comm_world_rank()==0) {
-        std::cerr << msg << std::flush;
-      }
-    }
-};
+
+
+
 class mpi_file_printer : public printer {
   public:
     mpi_file_printer() = default;
@@ -79,10 +112,5 @@ class mpi_file_printer : public printer {
     bool log_init = false;
 };
 
-
-auto add_mpi_stdout_printer(const std::string& logger_name) -> void;
-auto add_mpi_rank_0_stdout_printer(const std::string& logger_name) -> void;
-auto add_mpi_rank_0_stderr_printer(const std::string& logger_name) -> void;
-auto add_mpi_file_printer(const std::string& logger_name, const std::string& file_name) -> void;
 
 } // std_e
