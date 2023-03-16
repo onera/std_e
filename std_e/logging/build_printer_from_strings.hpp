@@ -53,7 +53,7 @@ _build_printer_impl_1_string(
     if (printer_name.size() == 0) {
       throw configure_loggers_exception(error_msg_context + ": empty string argument");
     }
-    return std::make_unique<printer_type>(quoted_arg);
+    return std::make_unique<printer_type>(printer_name);
   }
 }
 

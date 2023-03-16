@@ -69,14 +69,25 @@ create_logger(const std::string& line, const std::string& error_msg_context) -> 
   return logger(logger_name, std::move(printers));
 }
 
+
+auto
+strip_comment(const std::string& s) -> std::string {
+  auto tokens = split(s,'#');
+  if (tokens.size() > 0) return tokens[0];
+  else return "";
+}
+
 auto
 create_loggers(const std::string& conf, const std::string& error_msg_context) -> std::vector<logger> {
   std::vector<logger> loggers = {};
 
   auto lines = split(conf,'\n');
   for (int i=0; i<(int)lines.size(); ++i) {
-    auto error_msg_context_with_line = error_msg_context + " at line " + std::to_string(i+1);
-    loggers.emplace_back( create_logger(lines[i], error_msg_context_with_line) );
+    auto line = trim(strip_comment(lines[i]));
+    if (line != "") {
+      auto error_msg_context_with_line = error_msg_context + " at line " + std::to_string(i+1);
+      loggers.emplace_back( create_logger(line, error_msg_context_with_line) );
+    }
   }
 
   return loggers;

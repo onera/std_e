@@ -6,8 +6,9 @@
 TEST_CASE("create_loggers") {
   std::string conf =
     "my_logger      : stdout_printer\n"
-    "my_other_logger: stdout_printer  \n"
-    //"my_third_logger:  stdout_printer\n"
+    "my_other_logger: stdout_printer # comment with an : and a , \n"
+    "\n"
+    "\t  \n"
     "my_third_logger:  stdout_printer ,  file_printer( 'file_name'  )  \n"
     "no_print_logger:\n";
   auto loggers = std_e::create_loggers(conf, "<context>");
