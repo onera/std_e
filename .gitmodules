@@ -1,3 +1,3 @@
 [submodule "external/project_utils"]
 	path = external/project_utils
-	url = https://github.com/BerengerBerthoul/project_utils.git
+	url = https://github.com/onera/project_utils.git
