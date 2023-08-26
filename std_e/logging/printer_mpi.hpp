@@ -20,7 +20,7 @@ class mpi_console_printer : public printer {
     {}
     auto log(const std::string& msg) -> void override {
       std::string rank_msg = to_color_string(console_color::blue,"Rank ",mpi_comm_world_rank(),": ") + msg;
-      std::cout << rank_msg << std::flush;
+      *os << rank_msg << std::flush;
     }
   private:
     std::ostream* os;
