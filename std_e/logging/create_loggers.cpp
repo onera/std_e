@@ -8,7 +8,7 @@ namespace std_e {
 
 
 auto
-create_printer(const std::string& printer_desc, const std::string& error_msg_context) {
+create_printer(const std::string& printer_desc, const std::string& error_msg_context) -> std::unique_ptr<printer> {
   auto n_open_paren  = std::count(begin(printer_desc),end(printer_desc),'(');
   auto n_close_paren = std::count(begin(printer_desc),end(printer_desc),')');
   STD_E_ASSERT(n_close_paren == n_open_paren); // precondition of the function
@@ -91,6 +91,17 @@ create_loggers(const std::string& conf, const std::string& error_msg_context) ->
   }
 
   return loggers;
+}
+
+
+auto
+add_printer(const std::string& logger_name, const std::string& printer_desc) -> void {
+  const std::string error_msg_context = "in add_printer";
+
+  auto p = create_printer(printer_desc, error_msg_context);
+
+  logger& l = get_logger(logger_name);
+  l.printers.emplace_back(std::move(p));
 }
 
 

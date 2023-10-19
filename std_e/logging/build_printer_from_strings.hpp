@@ -61,8 +61,5 @@ _build_printer_impl_1_string(
 auto
 build_printer(const std::string& printer_name, const std::vector<std::string>& printer_args, const std::string& error_msg_context) -> std::unique_ptr<printer>;
 
-auto
-add_printer(const std::string& logger_name, const std::string& printer_type, const std::vector<std::string>& printer_args) -> void;
-
 
 } // std_e

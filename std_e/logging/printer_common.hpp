@@ -35,16 +35,21 @@ class file_printer : public printer {
     file_printer& operator=(file_printer&&) = default;
 
     file_printer(const std::string& file_name)
-      : file(std::ofstream(file_name.c_str(), std::fstream::out))
+      : _file_name(file_name)
+      , _file(std::ofstream(file_name.c_str(), std::fstream::out))
     {}
     ~file_printer() {
-      file << std::flush;
+      _file << std::flush;
+    }
+    auto file_name() const {
+      return _file_name;
     }
     auto log(const std::string& msg) -> void override {
-      file << msg;
+      _file << msg;
     }
   private:
-    std::ofstream file;
+    std::string _file_name;
+    std::ofstream _file;
 };
 
 class recording_printer : public printer {

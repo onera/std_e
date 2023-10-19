@@ -3,6 +3,18 @@
 #include "std_e/logging/printer_common.hpp"
 
 
+TEST_CASE("create_printer") {
+  std::string printer_0_desc = "stdout_printer";
+  auto printer_0 = std_e::create_printer(printer_0_desc, "<context>");
+  CHECK_NOTHROW( dynamic_cast<std_e::stdout_printer&>(*printer_0) );
+
+  std::string printer_1_desc = "file_printer('my_file.log')";
+  auto printer_1 = std_e::create_printer(printer_1_desc, "<context>");
+  CHECK_NOTHROW( dynamic_cast<std_e::file_printer&>(*printer_1) );
+  auto& fp = dynamic_cast<std_e::file_printer&>(*printer_1);
+  CHECK(fp.file_name() == "my_file.log");
+}
+
 TEST_CASE("create_loggers") {
   std::string conf =
     "my_logger      : stdout_printer\n"

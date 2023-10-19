@@ -49,15 +49,4 @@ build_printer(const std::string& printer_name, const std::vector<std::string>& p
 }
 
 
-auto
-add_printer(const std::string& logger_name, const std::string& printer_type, const std::vector<std::string>& printer_args) -> void {
-  const std::string error_msg_context = "in add_printer";
-
-  auto p = build_printer(printer_type, printer_args, error_msg_context);
-
-  logger& l = get_logger(logger_name);
-  l.printers.emplace_back(std::move(p));
-}
-
-
 } // std_e
