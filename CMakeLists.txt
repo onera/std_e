@@ -66,7 +66,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Dependencies
 # ------------------------------------------------------------------------------
 include(${PROJECT_UTILS_CMAKE_DIR}/find_or_fetch.cmake)
-find_or_fetch_doctest()
 
 
 # ------------------------------------------------------------------------------
@@ -124,6 +123,7 @@ target_install(${PROJECT_NAME})
 # ------------------------------------------------------------------------------
 include(CTest)
 if (${PROJECT_NAME}_ENABLE_TESTS)
+  find_or_fetch_doctest()
   add_subdirectory(test)
 endif()
 
