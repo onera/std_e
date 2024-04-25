@@ -1,7 +1,7 @@
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/mpi/base.hpp"
-#include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/distribution.hpp"
 #include "std_e/future/contract.hpp"
 #include <thread>
 

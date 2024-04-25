@@ -6,6 +6,7 @@
 #include "std_e/unit_test/math.hpp"
 
 using std::vector;
+using std_e::distribution_vector;
 
 MPI_TEST_CASE("parallel sort - with and without indirect projector - 3 procs",3) {
   int rk = test_rank;
@@ -16,14 +17,9 @@ MPI_TEST_CASE("parallel sort - with and without indirect projector - 3 procs",3)
   if (rk == 2) x = {7,9,6,5,1,2};
 
   SUBCASE("direct") {
-    auto [x_sorted,distri] = std_e::sort(x,test_comm);
+    auto x_sorted = std_e::sort(x,test_comm);
 
-    //decltype(distri) toto = "";
-    static_assert(std::is_same_v<decltype(distri), std::vector<int64_t>>);
     static_assert(std::is_same_v<decltype(x_sorted), std::vector<int>>);
-
-    CHECK( distri == vector<int64_t>{0,5,10,15} );
-
     MPI_CHECK( 0 , x_sorted == vector{ 0, 1, 2, 3, 4} );
     MPI_CHECK( 1 , x_sorted == vector{ 5, 6, 7, 8, 9} );
     MPI_CHECK( 2 , x_sorted == vector{10,11,12,13,14} );

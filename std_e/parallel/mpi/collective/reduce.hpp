@@ -57,7 +57,6 @@ all_reduce_in_place(Rng& x, MPI_Op op, MPI_Comm comm) -> void {
 template<class Rng, class Container_out> auto
 all_reduce(Rng& x, MPI_Op op, MPI_Comm comm, Container_out) -> Container_out {
   Container_out res(x.begin(),x.end());
-  using T = typename Rng::value_type;
   all_reduce_in_place(res,op,comm);
   return res;
 }
