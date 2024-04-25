@@ -15,12 +15,22 @@ template<
   class Rng,
   class Proj = identity_closure,
   class Comp = std::less<>,
-  class Return_container = interval_vector<int>,
+  class Local_index_type = int32_t,
+  class Global_index_type = int64_t,
   class Sort_algo = decltype(std_e::ranges::sort)
 > auto
-sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance = 0., Return_container&& = {}, Sort_algo sort_algo = {}) {
+sort(
+  Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {},
+  double max_imbalance = 0.,
+  Local_index_type&& = {}, Global_index_type&& = {}, 
+  Sort_algo sort_algo = {}
+)
+{
+  // Preconditions
+  STD_E_ASSERT(x.size() > (size_t)std::numeric_limits<Local_index_type>::max());
+
   // 0. global partitioning
-  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,Return_container{});
+  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<Local_index_type>{});
 
   // 1. exchange
   auto [x_part,_] = all_to_all(x,rank_indices,comm);
@@ -29,7 +39,8 @@ sort(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, double max_imbalance
   sort_algo(x_part,comp,proj);
 
   // 3. return
-  auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm); // same as ex_scan(x_part.size()) // TODO as_base perm ugly!
+  // Note: 
+  auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm, std::vector<Global_index_type>{}); // TODO same as ex_scan(x_part.size()) => make the caller do the work // TODO as_base ugly!
   return std::make_pair(x_part,new_distri);
 }
 
