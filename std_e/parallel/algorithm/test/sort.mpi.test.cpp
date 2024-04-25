@@ -18,7 +18,11 @@ MPI_TEST_CASE("parallel sort - with and without indirect projector - 3 procs",3)
   SUBCASE("direct") {
     auto [x_sorted,distri] = std_e::sort(x,test_comm);
 
-    CHECK( distri == vector{0,5,10,15} );
+    //decltype(distri) toto = "";
+    static_assert(std::is_same_v<decltype(distri), std::vector<int64_t>>);
+    static_assert(std::is_same_v<decltype(x_sorted), std::vector<int>>);
+
+    CHECK( distri == vector<int64_t>{0,5,10,15} );
 
     MPI_CHECK( 0 , x_sorted == vector{ 0, 1, 2, 3, 4} );
     MPI_CHECK( 1 , x_sorted == vector{ 5, 6, 7, 8, 9} );

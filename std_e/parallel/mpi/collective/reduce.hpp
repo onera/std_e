@@ -51,4 +51,16 @@ all_reduce_in_place(Rng& x, MPI_Op op, MPI_Comm comm) -> void {
 }
 
 
+// This version is useful 
+//   - if we want an out container type different from the in rng type
+//   - to prevent e.g. int32 overflow by returning int64
+template<class Rng, class Container_out> auto
+all_reduce(Rng& x, MPI_Op op, MPI_Comm comm, Container_out) -> Container_out {
+  Container_out res(x.begin(),x.end());
+  using T = typename Rng::value_type;
+  all_reduce_in_place(res,op,comm);
+  return res;
+}
+
+
 } // std_e
