@@ -5,7 +5,7 @@
 #include "std_e/algorithm/pivot_partition_eq_range.hpp"
 #include "std_e/algorithm/distribution.hpp"
 #include "std_e/algorithm/algorithm.hpp"
-#include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/distribution.hpp"
 #include "std_e/parallel/algorithm/search_intervals.hpp"
 #include "std_e/parallel/algorithm/sort_by_rank_once.hpp"
 #include "std_e/parallel/algorithm/exception.hpp"

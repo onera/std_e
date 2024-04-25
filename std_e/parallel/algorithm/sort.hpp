@@ -3,9 +3,12 @@
 
 #include "std_e/parallel/algorithm/sort_by_rank.hpp"
 #include "std_e/parallel/mpi/collective/all_to_all.hpp"
+#include "std_e/parallel/distribution.hpp"
+#include "std_e/parallel/partial_distribution.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/meta/pack/range.hpp"
 #include "std_e/future/sort/sort_ranges.hpp"
+#include <climits>
 
 
 namespace std_e {
@@ -15,33 +18,43 @@ template<
   class Rng,
   class Proj = identity_closure,
   class Comp = std::less<>,
-  class Local_index_type = int32_t,
-  class Global_index_type = int64_t,
   class Sort_algo = decltype(std_e::ranges::sort)
 > auto
 sort(
   Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {},
-  double max_imbalance = 0.,
-  Local_index_type&& = {}, Global_index_type&& = {}, 
-  Sort_algo sort_algo = {}
+  double max_imbalance = 0., Sort_algo sort_algo = {}
 )
 {
-  // Preconditions
-  STD_E_ASSERT(x.size() > (size_t)std::numeric_limits<Local_index_type>::max());
+  // 0. preconditions
+  STD_E_ASSERT(x.size() > (size_t)INT_MAX); // needed because we use `int` for indexing into `x` (see step 2.)
 
-  // 0. global partitioning
-  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<Local_index_type>{});
+  // 1. global partitioning
+  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<int>{});
 
-  // 1. exchange
-  auto [x_part,_] = all_to_all(x,rank_indices,comm);
+  // 2. exchange
+  auto [x_part,_] = all_to_all(x,rank_indices,comm); // `rank_indices::value_type == int` because `MPI_Alltoall` requires `int`
+                                                     // (and `MPI_Alltoall_c` is only available in MPI >= 4)
 
-  // 2. local sort
+  // 3. local sort
   sort_algo(x_part,comp,proj);
 
-  // 3. return
-  // Note: 
-  auto new_distri = all_reduce(rank_indices.as_base(),MPI_SUM,comm, std::vector<Global_index_type>{}); // TODO same as ex_scan(x_part.size()) => make the caller do the work // TODO as_base ugly!
-  return std::make_pair(x_part,new_distri);
+  return x_part;
+}
+
+template<
+  class Rng,
+  class Proj = identity_closure,
+  class Comp = std::less<>,
+  class Sort_algo = decltype(std_e::ranges::sort)
+> auto
+sort_old(
+  Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {},
+  double max_imbalance = 0., Sort_algo sort_algo = {}
+)
+{
+  auto x_part = sort(x, comm, proj, comp, max_imbalance, sort_algo);
+  auto distri = distribution_from_dsizes(int64_t(x_part.size()), comm);
+  return std::make_pair(std::move(x_part),std::move(distri));
 }
 
 template<class Proj, class Comp, class Return_container, class Sort_algo>
