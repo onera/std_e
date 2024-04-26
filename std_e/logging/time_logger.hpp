@@ -20,7 +20,7 @@ class time_logger {
     }
 
     auto stop() -> void {
-      log(name,msg + " - done. [" + std::to_string(t.elapsed()) + "s]\n");
+      log(name,msg + " - done. [" + std::to_string(1000*t.elapsed()) + "ms]\n");
       done = true;
     }
 
