@@ -44,7 +44,7 @@ neighbor_all_to_all_v(Args&&... args) {
 
 // all_to_all {
 template<class T, class F = default_all_to_all> auto
-all_to_all(const T* sbuf, int n, T* rbuf, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> void {
+all_to_all(const T* sbuf, int n, T* rbuf, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> void { // TODO DEL (if n>1, use std::array or std_e::span)
   int err = alltoall_algo(sbuf, n, to_mpi_type<T>,
                           rbuf, n, to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
