@@ -6,12 +6,12 @@
 using namespace std_e;
 
 
-TEST_CASE("uniform_distribution") {
+TEST_CASE("uniform_intervals") {
   SUBCASE("empty remainder") {
     int n_slot = 3;
     std::vector<int> v(1+n_slot);
 
-    uniform_distribution(begin(v),end(v),100,15);
+    uniform_intervals(begin(v),end(v),100,15);
   // distributing 15 over 3 slots gives 5 + 5 + 5
   //                                    |   |   |
   //                                    v   v   v
@@ -23,7 +23,7 @@ TEST_CASE("uniform_distribution") {
     int n_slot = 3;
     std::vector<int> v(1+n_slot);
 
-    uniform_distribution(begin(v),end(v),100,17);
+    uniform_intervals(begin(v),end(v),100,17);
 
   // distributing 17 over 3 slots gives 6 + 6 + 5
   //                                    |   |   |
@@ -36,7 +36,7 @@ TEST_CASE("uniform_distribution") {
     int n_slot = 0;
     std::vector<int> v(1+n_slot);
 
-    uniform_distribution(begin(v),end(v),100,0);
+    uniform_intervals(begin(v),end(v),100,0);
 
   // distributing  0 over 0 slots gives nothing
   //                                    |
@@ -45,7 +45,7 @@ TEST_CASE("uniform_distribution") {
     CHECK( v == v_expected );
   }
 
-  SUBCASE("double specialisation") {
+  SUBCASE("double specialization") {
     int n_slot = 4;
     std::vector<double> v(1+n_slot);
     double ming = 0. ;
@@ -57,7 +57,7 @@ TEST_CASE("uniform_distribution") {
     CHECK( v == v_expected );
   }
 
-  SUBCASE("double specialisation example 2 ") {
+  SUBCASE("double specialization example 2 ") {
     int n_slot = 1;
     std::vector<double> v(1+n_slot);
     double ming = -14. ;

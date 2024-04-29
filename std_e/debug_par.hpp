@@ -9,7 +9,7 @@
 
 namespace std_e {
   template<class... Ts> auto
-  slog(const Ts&... xs, MPI_Comm comm) -> void {
+  slog(MPI_Comm comm, const Ts&... xs) -> void {
     int rk = rank(comm);
     using std::to_string;
     using std_e::to_string;
@@ -21,3 +21,6 @@ namespace std_e {
 } // std_e
 
 #define SLOG(comm,x) std_e::slog(comm,#x," = ",x)
+
+// For lazy people
+#define CLOG(x) SLOG(comm, x)

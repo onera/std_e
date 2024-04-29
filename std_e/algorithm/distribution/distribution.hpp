@@ -15,8 +15,8 @@ concept Distribution : std_e::Interval_sequence (means the values are ordered)
   - the interval starts at 0
 */
 
-template<class Integer> using distribution_vector = std_e::interval_vector<Integer>;
-template<class Integer> using distribution_span = std_e::interval_span<Integer>;
+template<class Integer> using distribution_vector = interval_vector<Integer>;
+template<class Integer> using distribution_span = interval_span<Integer>;
 
 
 // Distribution vocabulary around interval_sequence functions {
@@ -40,20 +40,30 @@ distribution_from_sizes(const Random_access_range& r) -> distribution_vector<I> 
 }
 // Distribution vocabulary around interval_sequence functions }
 
+// TODO move
+template<class I> auto
+uniform_intervals(int n_interval, I start, I size_tot) -> interval_vector<I> {
+  interval_vector<I> iv(n_interval);
+  uniform_intervals(begin(iv),end(iv),start,size_tot);
+  return iv;
+}
 
 template<class I> auto
 uniform_distribution(int n_interval, I size_tot) -> distribution_vector<I> { // rename balanced_distribution? (this name exists already when weights provided)
-  distribution_vector<I> distrib(n_interval);
-  uniform_distribution(begin(distrib),end(distrib),size_tot);
-  return distrib;
+  return uniform_intervals(n_interval, I(0), size_tot);
+}
+
+template<class I> auto
+uniform_intervals_exclude_ends(int n_interval, I start, I size_tot) -> interval_vector<I> { // rename interior_uniform_distribution?
+  interval_vector<I> iv = uniform_intervals(n_interval, start, size_tot);
+  iv.as_base().erase(iv.begin());
+  iv.as_base().pop_back();
+  return iv;
 }
 
 template<class I> auto
 uniform_distribution_exclude_ends(int n_interval, I size_tot) -> distribution_vector<I> { // rename interior_uniform_distribution?
-  auto distrib = uniform_distribution(n_interval,size_tot);
-  distrib.as_base().erase(distrib.begin());
-  distrib.as_base().pop_back();
-  return distrib;
+  return uniform_intervals_exclude_ends(n_interval, I(0), size_tot);
 }
 
 

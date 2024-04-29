@@ -20,7 +20,7 @@ uniform_distribution_point(I sz_tot, I n_interval, I i) -> I {
 
 
 template<class Fwd_it, class T> constexpr auto
-uniform_distribution(Fwd_it first, Fwd_it last, T elt0, T n_elt) {
+uniform_intervals(Fwd_it first, Fwd_it last, T elt0, T n_elt) {
   auto n_interval = std::distance(first,last)-1;
 
   STD_E_ASSERT(n_interval>=0);
@@ -52,7 +52,7 @@ uniform_distribution(Fwd_it first, Fwd_it last, double elt0, double n_elt) {
 
 template<class Fwd_it, class T> constexpr auto
 uniform_distribution(Fwd_it first, Fwd_it last, T n_elt) {
-  return uniform_distribution(first,last,T(0),n_elt);
+  return uniform_intervals(first,last,T(0),n_elt);
 }
 
 

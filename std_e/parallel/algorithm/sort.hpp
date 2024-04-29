@@ -9,6 +9,7 @@
 #include "std_e/meta/pack/range.hpp"
 #include "std_e/future/sort/sort_ranges.hpp"
 #include <climits>
+#include "std_e/logging/time_logger.hpp"
 
 
 namespace std_e {
@@ -29,14 +30,69 @@ sort(
   STD_E_ASSERT(x.size() > (size_t)INT_MAX); // needed because we use `int` for indexing into `x` (see step 2.)
 
   // 1. global partitioning
+
+  auto tl = std_e::time_logger("maia","sort_by_rank");
   auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<int>{});
+  tl.stop();
 
   // 2. exchange
+  auto tl1 = std_e::time_logger("maia","all to all");
   auto [x_part,_] = all_to_all(x,rank_indices,comm); // `rank_indices::value_type == int` because `MPI_Alltoall` requires `int`
                                                      // (and `MPI_Alltoall_c` is only available in MPI >= 4)
+  tl1.stop();
 
   // 3. local sort
+  auto tl2 = std_e::time_logger("maia","sort_local");
   sort_algo(x_part,comp,proj);
+  tl2.stop();
+
+  return x_part;
+}
+template<
+  class Rng,
+  class Proj = identity_closure,
+  class Comp = std::less<>,
+  class Sort_algo = decltype(std_e::ranges::sort)
+> auto
+sort2(
+  Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {},
+  double max_imbalance = 0., Sort_algo sort_algo = {}
+)
+{
+  // 0. preconditions
+  STD_E_ASSERT(x.size() > (size_t)INT_MAX); // needed because we use `int` for indexing into `x` (see step 2.)
+
+  // 1. global partitioning
+
+  auto tl = std_e::time_logger("maia","sort_by_rank");
+  auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<int>{});
+  tl.stop();
+
+  // 2. exchange
+  auto tl1 = std_e::time_logger("maia","all to all");
+  auto [x_part,_] = all_to_all(x,rank_indices,comm); // `rank_indices::value_type == int` because `MPI_Alltoall` requires `int`
+                                                     // (and `MPI_Alltoall_c` is only available in MPI >= 4)
+  tl1.stop();
+
+  // 3. local sort
+  auto tl2 = std_e::time_logger("maia","sort_local");
+  //// 3.0
+  sort_algo(x_part,comp,proj);
+  //// 3.1
+  //auto& x1_sorted = std_e::range<0>(x_part);
+  //auto& x2_sorted = std_e::range<1>(x_part);
+  //auto comp2 = [&x1_sorted](auto i, auto j){ return x1_sorted[i] < x1_sorted[j]; };
+  //std::sort(x2_sorted.begin(),x2_sorted.end(),comp2);
+  //permute(x1_sorted.begin(),x2_sorted);
+  //// 3.2
+  //auto& x1_sorted = std_e::range<0>(x_part);
+  //auto& x2_sorted = std_e::range<1>(x_part);
+  //int64_t max_int = 1000000; 
+  //std::vector<int8_t> counts(max_int, 0);
+  //for (int64_t x : x1_sorted) {
+  //  ++counts[x];
+  //}
+  tl2.stop();
 
   return x_part;
 }
