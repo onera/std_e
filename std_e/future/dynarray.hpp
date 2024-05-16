@@ -55,7 +55,7 @@ class dynarray {
       return *this;
     }
 
-    template<class Input_it, class S>
+    template<class Input_it, class S, std::enable_if_t< !std::is_integral_v<Input_it> , int > =0>
     dynarray(Input_it first, S last)
       : dynarray(last - first)
     {
@@ -65,6 +65,13 @@ class dynarray {
     dynarray(const std::initializer_list<T>& l)
       : dynarray(l.begin(), l.end())
     {}
+
+    template<class I, std::enable_if_t< std::is_integral_v<I> , int > =0>
+    dynarray(I sz, const T& x)
+      : dynarray(sz)
+    {
+      std::fill(ptr, ptr+sz, x);
+    }
 
   // size
     auto size () const -> size_t   { return sz; }
