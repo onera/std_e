@@ -13,6 +13,10 @@ namespace std_e {
     std::string msg = (to_string(xs) + ...) + "\n";
     std::cout << msg;
   }
+  inline auto
+  dlog(const std::string s, const std::string eq, double d) -> void {
+    return mlog(s, eq, std_e::to_string_almost_exact(d));
+  }
 
   template<class T, class... Ts, size_t... Is> auto
   log_with_var_names__impl(std::index_sequence<Is...>, const std::vector<std::string>& var_names, const T& x, const Ts&... xs) -> void {
@@ -35,5 +39,7 @@ namespace std_e {
 #define LOG(...) std_e::mlog(__VA_ARGS__)
 
 #define ELOG(x) std_e::mlog(#x," = ",x)
+#define DLOG(x) std_e::dlog(#x," = ",x)
+
 
 #define MELOG(...) std_e::log_with_var_names(#__VA_ARGS__,__VA_ARGS__)
