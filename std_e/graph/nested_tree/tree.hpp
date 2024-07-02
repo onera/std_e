@@ -1,3 +1,4 @@
+#pragma once
 // from maia.pytree.graph.utils import list_iterator_type
 
 namespace std_e {
@@ -25,6 +26,7 @@ class Tree { //(_TreeToStrMixin,_TreeDepthFirstSearchInterfaceMixing):
     ///   - a `node` attribute,
     ///   - a `children` attribute that is a sequence of `Tree`s.
     ///
+    Tree() = default;
     Tree(T node, std::vector<Tree<T>> children = {})
       : node{std::move(node)}
       , children{std::move(children)}
