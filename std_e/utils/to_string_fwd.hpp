@@ -10,7 +10,7 @@
 namespace std_e {
 
 
-inline auto
+auto
 to_string(const std::string& s) -> const std::string&;
 template<class T> auto
 to_string(T* ptr) -> std::string;
