@@ -2,7 +2,6 @@
 
 #include "std_e/base/macros.hpp"
 #include "std_e/meta/reference_traits.hpp"
-// TODO move to meta/
 
 
 namespace std_e {
@@ -10,6 +9,9 @@ namespace std_e {
 
 constexpr const auto identity = [](auto&& x)->decltype(auto){ return FWD(x); };
 using identity_closure = decltype(identity);
+
+constexpr auto always_true_predicate = [](auto /*x*/){ return true; };
+constexpr auto always_false_predicate = [](auto /*x*/){ return false; };
 
 template<class F, class... Args>
 using value_return_t = reference_value_t<std::invoke_result_t<F,Args...>>;
