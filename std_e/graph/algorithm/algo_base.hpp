@@ -2,76 +2,13 @@
 
 
 #include <vector>
-#include "std_e/iterator/iterator_range.hpp"
 #include "std_e/meta/meta.hpp"
 #include "std_e/graph/algorithm/step_enum.hpp"
+#include "std_e/future/span.hpp"
 
 
 namespace std_e {
 
-
-// graph_traversal_stack {
-template<class T>
-class graph_stack {
-  public:
-  // ctors
-    constexpr
-    graph_stack() {}
-
-    constexpr
-    graph_stack(T root_value)
-      : S{std::move(root_value)}
-    {}
-
-  // basic query
-    constexpr auto
-    size() const -> int {
-      return S.size();
-    }
-    constexpr auto
-    is_valid() const -> bool {
-      return size()>0;
-    }
-    constexpr auto
-    is_at_root_level() const -> bool {
-      return size()==1;
-    }
-
-  // stack functions
-    constexpr auto
-    push_level(const T& x) -> void {
-      S.push_back(x);
-    }
-    constexpr auto
-    pop_level() -> void {
-      S.pop_back();
-    }
-
-  // accessors
-    constexpr auto
-    current_level() -> T& {
-      STD_E_ASSERT(is_valid());
-      return S[S.size()-1];
-    }
-    constexpr auto
-    current_level() const -> const T& {
-      STD_E_ASSERT(is_valid());
-      return S[S.size()-1];
-    }
-    constexpr auto
-    parent_level() -> T& {
-      STD_E_ASSERT(is_valid() && !is_at_root_level());
-      return S[S.size()-2];
-    }
-    constexpr auto
-    parent_level() const -> const T& {
-      STD_E_ASSERT(is_valid() && !is_at_root_level());
-      return S[S.size()-2];
-    }
-
-  private:
-    std::vector<T> S;
-};
 
 template<class iterator>
 // requires iterator is a graph iterator
@@ -79,43 +16,76 @@ class graph_traversal_stack {
   public:
     constexpr
     graph_traversal_stack(iterator f, iterator l)
-      : S({f,l})
+      : S_first({f})
+      , S_last({l})
     {}
 
     constexpr auto
     current_node() -> iterator& {
-      return S.current_level().first;
+      STD_E_ASSERT(is_valid());
+      return S_first[size()-1];
     }
     constexpr auto
     current_node() const -> const iterator& {
-      return S.current_level().first;
+      STD_E_ASSERT(is_valid());
+      return S_first[size()-1];
     }
 
     constexpr auto
     last_node() -> iterator& {
-      return S.current_level().last;
+      STD_E_ASSERT(is_valid());
+      return S_last[size()-1];
     }
     constexpr auto
     last_node() const -> const iterator& {
-      return S.current_level().last;
+      STD_E_ASSERT(is_valid());
+      return S_last[size()-1];
     }
 
     constexpr auto
     parent_node() -> iterator& {
-      return S.parent_level().first;
+      STD_E_ASSERT(is_valid() && !is_at_root_level());
+      return S_first[size()-2];
     }
     constexpr auto
     parent_node() const -> const iterator& {
-      return S.parent_level().first;
+      STD_E_ASSERT(is_valid() && !is_at_root_level());
+      return S_first[size()-2];
     }
 
     constexpr auto
-    push_level(iterator f, iterator l) -> void {
-      S.push_level({f,l});
+    nodes() const {
+      return std_e::span<iterator>(S_first.begin(), S_first.end());
+    }
+    constexpr auto
+    nodes() {
+      return std_e::span<iterator>(S_first.begin(), S_first.end());
+    }
+    constexpr auto
+    parent_stack() const {
+      return std_e::span<iterator>(S_first.begin(), S_first.end()-1);
+    }
+    constexpr auto
+    parent_stack() {
+      return std_e::span<iterator>(S_first.begin(), S_first.end()-1);
+    }
+
+    constexpr auto
+    push_level() -> void {
+      auto&& v = *current_node();
+      S_first.push_back(first_child(v));
+      S_last .push_back(last_child(v));
+    }
+    constexpr auto
+    push_done_level() -> void {
+      auto&& v = *current_node();
+      S_first.push_back(last_child(v));
+      S_last .push_back(last_child(v));
     }
     constexpr auto
     pop_level() -> void {
-      S.pop_level();
+      S_first.pop_back();
+      S_last .pop_back();
     }
 
     constexpr auto
@@ -124,14 +94,26 @@ class graph_traversal_stack {
     }
     constexpr auto
     is_at_root_level() const -> bool {
-      return S.is_at_root_level();
+      return size()==1;
     }
     constexpr auto
     is_done() const -> bool {
       return is_at_root_level() && level_is_done();
     }
   private:
-    graph_stack<iterator_range<iterator>> S;
+  // member functions
+    constexpr auto
+    size() const -> int {
+      STD_E_ASSERT(S_first.size() == S_last.size());
+      return S_first.size();
+    }
+    constexpr auto
+    is_valid() const -> bool {
+      return size()>0;
+    }
+  // data members
+    std::vector<iterator> S_first;
+    std::vector<iterator> S_last;
 };
 
 template<class iterator_type>
@@ -149,7 +131,7 @@ preorder_depth_first_find_adjacency_stack(Graph_iterator_stack& S, F&& f) {
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       if (f(v)) return S.current_node();
-      S.push_level(first_child(v),last_child(v));
+      S.push_level();
     } else {
       S.pop_level();
       ++S.current_node();
@@ -168,7 +150,7 @@ prepostorder_depth_first_scan_adjacency_stack(Graph_iterator_stack& S, Graph_adj
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       f.pre(v);
-      S.push_level(first_child(v),last_child(v));
+      S.push_level();
     } else {
       S.pop_level();
       auto&& v = *S.current_node();
@@ -185,9 +167,9 @@ prepostorder_depth_first_prune_adjacency_stack(Graph_iterator_stack& S, Graph_ad
     if (!S.level_is_done()) {
       auto&& v = *S.current_node();
       if (!f.pre(v)) { // go down
-        S.push_level(first_child(v),last_child(v));
+        S.push_level();
       } else { // prune
-        S.push_level(first_child(v),last_child(v));
+        S.push_level();
         S.current_node() = S.last_node();
       }
     } else {
@@ -208,21 +190,20 @@ unwind(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_at_root_level()) {
     auto&& v = *S.current_node();
     auto&& parent = *S.parent_node();
-    f.post(v);
-    f.up(v,parent);
+    f.post(S.nodes());
+    f.up(S.nodes());
     S.pop_level();
   }
   auto&& v = *S.current_node();
-  f.post(v);
+  f.post(S.nodes());
 }
 
 template<class Graph_iterator_stack, class Graph_adjacency_visitor> auto
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
-depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) {
+_depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) {
   while (!S.is_done()) {
     if (!S.level_is_done()) {
-      auto&& v = *S.current_node();
-      auto next_step = f.pre(v);
+      auto next_step = f.pre(S.nodes());
       switch (next_step) {
         case step::out: { // stop
           auto matching_node = S.current_node();
@@ -230,25 +211,24 @@ depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visi
           return matching_node; // note: alternative interface: return S, do not unwind (let the caller decide)
         }
         case step::over: { // prune
-          S.push_level(first_child(v),last_child(v));
-          S.current_node() = S.last_node();
+          S.push_done_level();
           break;
         }
         case step::into: { // go down
-          S.push_level(first_child(v),last_child(v));
-          if (!S.level_is_done()) f.down(v,*first_child(v));
+          S.push_level();
+          if (!S.level_is_done()) f.down(S.nodes());
           break;
         }
       }
     } else {
       S.pop_level();
-      auto&& v = *S.current_node();
-      f.post(v);
-      auto&& w_it = ++S.current_node();
+      f.post(S.nodes());
       if (!S.is_at_root_level()) {
-        auto&& parent = *S.parent_node();
-        f.up(v,parent);
-        if (!S.level_is_done()) f.down(parent,*w_it);
+        f.up(S.nodes());
+        ++S.current_node();
+        if (!S.level_is_done()) f.down(S.nodes());
+      } else {
+        ++S.current_node();
       }
     }
   }
@@ -256,6 +236,54 @@ depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visi
 }
 // general algorithm }
 
+namespace depth {
+  struct All   {}; constexpr All    all   ;
+  struct Node  {}; constexpr Node   node  ;
+  struct Parent{}; constexpr Parent parent;
+
+  template<class Vis>
+  class node_visitor_adaptor {
+    public:
+      constexpr
+      node_visitor_adaptor(auto&& f)
+        : f(FWD(f))
+      {}
+
+      constexpr auto
+      pre(auto&& ancestors) -> step {
+        return f.pre(*ancestors.back());
+      }
+      constexpr auto
+      down(auto&& ancestors) -> void {
+        auto n = ancestors.size();
+        f.down(*ancestors[n-2],*ancestors[n-1]);
+      }
+      constexpr auto
+      up(auto&& ancestors) -> void {
+        auto n = ancestors.size();
+        f.up  (*ancestors[n-1],*ancestors[n-2]);
+      }
+      constexpr auto
+      post(auto&& ancestors) -> void {
+        return f.post(*ancestors.back());
+      }
+    private:
+      remove_rvalue_reference<Vis> f;
+  };
+}
+
+// primary template: declared, but never defined (but tells that the default is depth::node)
+template<class Graph_iterator_stack, class Graph_adjacency_visitor, class Depth = depth::Node> auto
+// requires Graph_iterator_stack is Array<Iterator_range<Graph>>
+depth_first_search_adjacency_stack(Graph_iterator_stack& S, Graph_adjacency_visitor&& f, Depth = depth::node) {
+  if constexpr (std::is_same_v<Depth, depth::All>) {
+  return _depth_first_search_adjacency_stack(S, Graph_adjacency_visitor(FWD(f)));
+  } else if constexpr (std::is_same_v<Depth, depth::Node>) {
+    return _depth_first_search_adjacency_stack(S, depth::node_visitor_adaptor<Graph_adjacency_visitor>(FWD(f)));
+  } else {
+    throw std_e::msg_exception("depth_first_search_adjacency_stack: unknown depth type");
+  }
+}
 
 // adaptation of general algorithm to find, prune and scan {
 

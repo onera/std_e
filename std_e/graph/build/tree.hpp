@@ -2,6 +2,7 @@
 
 
 #include "std_e/graph/algorithm/algo_adjacencies.hpp"
+#include "std_e/graph/algorithm/graph_stack.hpp"
 #include "std_e/utils/concatenate.hpp"
 
 
