@@ -24,16 +24,23 @@ class Tree {
     T node;
     std::vector<Tree<T>> children;
 };
-// tree interface {
+
+// rooted graph interface {
 template<class T> auto first_child(      Tree<T>& x) ->       Tree<T>* { return x.children.data()                    ; }
-template<class T> auto last_child (      Tree<T>& x) ->       Tree<T>* { return x.children.data() + x.children.size(); }
 template<class T> auto first_child(const Tree<T>& x) -> const Tree<T>* { return x.children.data()                    ; }
+template<class T> auto last_child (      Tree<T>& x) ->       Tree<T>* { return x.children.data() + x.children.size(); }
 template<class T> auto last_child (const Tree<T>& x) -> const Tree<T>* { return x.children.data() + x.children.size(); }
 
 template<class T> auto first_root (      Tree<T>& x) ->       Tree<T>* { return &x  ; }
-template<class T> auto last_root  (      Tree<T>& x) ->       Tree<T>* { return &x+1; }
 template<class T> auto first_root (const Tree<T>& x) -> const Tree<T>* { return &x  ; }
+template<class T> auto last_root  (      Tree<T>& x) ->       Tree<T>* { return &x+1; }
 template<class T> auto last_root  (const Tree<T>& x) -> const Tree<T>* { return &x+1; }
+
+template<class T> auto first_root (      std::vector<Tree<T>>& tc) -> auto { return tc.data()            ; }
+template<class T> auto first_root (const std::vector<Tree<T>>& tc) -> auto { return tc.data()            ; }
+template<class T> auto  last_root (      std::vector<Tree<T>>& tc) -> auto { return tc.data() + tc.size(); }
+template<class T> auto  last_root (const std::vector<Tree<T>>& tc) -> auto { return tc.data() + tc.size(); }
+// rooted graph interface }
 
 template<class T> auto node(      Tree<T>& x) ->       T& { return x.node; }
 template<class T> auto node(const Tree<T>& x) -> const T& { return x.node; }
