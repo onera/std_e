@@ -1,7 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/tree.hpp"
-#include "std_e/graph/algorithm/algo_nodes.hpp"
+#include "std_e/graph/algorithm/algo_adjacencies.hpp"
 
 using namespace std_e;
 using std::vector;
@@ -39,8 +39,8 @@ TEST_CASE("Tree depth-first find") {
   vector<int> pre_nodes;
 
   SUBCASE("found in the middle") {
-    auto f = [&](int i){  pre_nodes.push_back(i); return i==8; };
-    auto found_sub_tree = preorder_depth_first_find(t,f);
+    auto f = [&](const auto& adj){  pre_nodes.push_back(node(adj)); return node(adj)==8; };
+    auto found_sub_tree = preorder_depth_first_find_adjacencies(t,f);
 
     std::vector<int> expected_pre_nodes = {1, 2,4,7, 3,8};
 

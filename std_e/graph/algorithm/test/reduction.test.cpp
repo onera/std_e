@@ -3,7 +3,6 @@
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
 #include "std_e/graph/algorithm/reduction.hpp"
-#include "std_e/graph/algorithm/record.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 
@@ -19,6 +18,11 @@ struct node_with_level_for_test {
 };
 
 auto
+to_string(const node_with_level_for_test& x) -> std::string {
+  return std::to_string(x.value) + ", " + std::to_string(x.reverse_level);
+}
+
+auto
 level(const node_with_level_for_test& x) {
   return x.reverse_level;
 }
@@ -27,19 +31,21 @@ using nested_tree_with_level_for_tests = nested_tree<node_with_level_for_test>;
 
 struct graph_with_levels_creator {
   public:
-    using node_type = int;
-    using reducted_type = nested_tree_with_level_for_tests;
+    using input_type = nested_tree<int>;
+    using adj_type = typename input_type::node_adj_type;
+    using reduced_type = nested_tree_with_level_for_tests;
 
     auto
-    init(int i) -> reducted_type {
-      return reducted_type({i,0});
+    init(const input_type& t) -> reduced_type {
+      int i = node(t);
+      return reduced_type({i,0});
     }
     auto
-    finish(reducted_type& parent, const reducted_type& child) -> void {
+    finish(reduced_type& parent, const reduced_type& child) -> void {
       parent.append_child(child);
     }
     auto
-    accumulate(reducted_type& parent, const reducted_type& child) -> void {
+    accumulate(reduced_type& parent, const reduced_type& child) -> void {
       int& parent_level = node(parent).reverse_level;
       const int& child_level = node(child).reverse_level;
       parent_level = std::max(parent_level,child_level+1);
@@ -48,9 +54,6 @@ struct graph_with_levels_creator {
 
 TEST_CASE("Tree reverse_levels") {
   auto t = create_nested_tree_for_tests();
-
-  auto t_with_levels = depth_first_reduce(t,graph_with_levels_creator{});
-
   /* Reminder:
          1               lvl 3
       /     \
@@ -60,10 +63,20 @@ TEST_CASE("Tree reverse_levels") {
    /  \    |  |    \
   4    7   9  10   11    lvl 0
   */
-  std::vector<int> reverse_levels = preorder_record_depth_first(t_with_levels,level);
-  std::vector<int> expected_reverse_levels = {3, 1,0,0, 2,1,0,0,0};
 
-  CHECK( reverse_levels == expected_reverse_levels);
+  auto t_with_levels = depth_first_reduce(t,graph_with_levels_creator{});
+
+  std::string expected_s =
+    "1, 3\n"
+    "  2, 1\n"
+    "    4, 0\n"
+    "    7, 0\n"
+    "  3, 2\n"
+    "    8, 1\n"
+    "      9, 0\n"
+    "    10, 0\n"
+    "    11, 0\n";
+  CHECK( to_string(t_with_levels) == expected_s );
 }
 
 

@@ -13,12 +13,13 @@ namespace {
 
 using namespace std_e;
 
-// create_tree_from_nodes - same tree structure {
+// create_tree_from_adjacencies - same tree structure {
 struct builder_0_for_test {
   using tree_type = nested_tree<int>;
+  //using from_adjacency_ref_type = typename tree_type::adjacency_type;
   auto
-  build(int node) -> nested_tree<int> {
-    return nested_tree<int>(node);
+  build(const auto& adj) -> nested_tree<int> {
+    return nested_tree<int>(node(adj));
   }
 };
 
@@ -49,24 +50,24 @@ tree_built_0_for_test() -> nested_tree<int> {
   return t1;
 }
 
-TEST_CASE("create_tree_from_nodes - same tree structure") {
+TEST_CASE("create_tree_from_adjacencies - same tree structure") {
   auto g = create_rooted_graph_for_tests();
 
-  auto t = create_tree_from_nodes(g,builder_0_for_test{});
+  auto t = create_tree_from_adjacencies(g,builder_0_for_test{});
 
   CHECK( t == tree_built_0_for_test() );
 }
-// create_tree_from_nodes - same tree structure }
+// create_tree_from_adjacencies - same tree structure }
 
 
-// create_tree_from_nodes - more complex tree structure {
+// create_tree_from_adjacencies - more complex tree structure {
 struct builder_1_for_test {
   using tree_type = nested_tree<double>;
   auto
-  build(int node) -> nested_tree<double> {
-    auto tl = nested_tree<double>(node*0.5);
-    auto tr = nested_tree<double>(node*1.5);
-    return create_tree(node,tl,tr);
+  build(const auto& adj ) -> nested_tree<double> {
+    auto tl = nested_tree<double>(node(adj)*0.5);
+    auto tr = nested_tree<double>(node(adj)*1.5);
+    return create_tree(node(adj),tl,tr);
   }
 };
 
@@ -133,14 +134,14 @@ Result tree:
 }
 
 
-TEST_CASE("create_tree_from_nodes - more complex tree structure") {
+TEST_CASE("create_tree_from_adjacencies - more complex tree structure") {
   nested_tree<int> t_init = tree_init_1_for_test();
 
-  auto t = create_tree_from_nodes(t_init,builder_1_for_test{});
+  auto t = create_tree_from_adjacencies(t_init,builder_1_for_test{});
 
   CHECK( t == tree_built_1_for_test() );
 }
-// create_tree_from_nodes - more complex tree structure }
+// create_tree_from_adjacencies - more complex tree structure }
 
 
 // create_tree_from_adjacencies {
@@ -185,13 +186,14 @@ TEST_CASE("create_tree_from_adjacencies") {
 // create_pruned_tree_from_nodes {
 struct builder_3_for_test {
   using tree_type = nested_tree<int>;
+  using from_adjacency_ref_type = typename tree_type::reference;
   auto
-  should_go_down(int node) -> bool {
-    return node!=3;
+  should_go_down(const auto& adj) -> bool {
+    return node(adj)!=3;
   }
   auto
-  build(int node) -> nested_tree<int> {
-    return nested_tree<int>(node*2);
+  build(const auto& adj) -> nested_tree<int> {
+    return nested_tree<int>(node(adj)*2);
   }
 };
 
@@ -224,7 +226,7 @@ tree_built_3_for_test() -> nested_tree<int> {
 TEST_CASE("create_pruned_tree_from_nodes") {
   auto g = create_rooted_graph_for_tests();
 
-  auto t = create_pruned_tree_from_nodes(g,builder_3_for_test{});
+  auto t = create_pruned_tree_from_adjacencies(g,builder_3_for_test{});
 
   CHECK( t == tree_built_3_for_test() );
 }

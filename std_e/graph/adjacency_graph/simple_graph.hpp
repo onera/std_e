@@ -206,7 +206,7 @@ class simple_graph
 
     // Class invariant: adj_list.size() == nodes.size() == edges.size()
     // Class invariant: adj_list[i].size() == edges[i].size() for all i in [0,adj_list.size())
-    constexpr auto size() const -> index_type { return this->nodes.size(); }
+    constexpr auto size() const -> index_type { return this->nodes().size(); }
 
     auto operator<=>(const simple_graph& x) const = default;
 };
@@ -234,11 +234,40 @@ class io_simple_graph
 
 
 template<class NT, class ET, class ALT> auto
+to_string(const simple_graph<NT,ET,ALT>& x) {
+  using std::to_string;
+  using std_e::to_string;
+  std::string s = "";
+  for (int i=0; i<x.nodes().size(); ++i) {
+    s += "{" + to_string(x.node(i)) + ", {";
+    for (int j=0; j<x.indices(i).size(); ++j) {
+      s += to_string(x.index(i,j)) + ",";
+    }
+    s += "}}\n";
+  }
+  return s;
+}
+template<class NT, class ET, class ALT> auto
 to_string(const io_simple_graph<NT,ET,ALT>& x) {
-  return
-      "nodes: " + std_e::range_to_string(x.nodes()) + '\n'
-    + "in_indices:" + std_e::range_to_string(x.in_indices()) + '\n'
-    + "out_indices:" + std_e::range_to_string(x.out_indices()) + '\n';
+  //return
+  //    "nodes: " + std_e::range_to_string(x.nodes()) + '\n'
+  //  + "in_indices:" + std_e::range_to_string(x.in_indices()) + '\n'
+  //  + "out_indices:" + std_e::range_to_string(x.out_indices()) + '\n';
+  using std::to_string;
+  using std_e::to_string;
+  std::string s = "";
+  for (int i=0; i<x.nodes().size(); ++i) {
+    s += "{" + to_string(x.node(i)) + ", {";
+    for (int j=0; j<x.in_indices(i).size(); ++j) {
+      s += to_string(x.in_index(i,j)) + ",";
+    }
+    s += "}, {";
+    for (int j=0; j<x.out_indices(i).size(); ++j) {
+      s += to_string(x.out_index(i,j)) + ",";
+    }
+    s += "}}\n";
+  }
+  return s;
 }
 
 } // std_e

@@ -37,7 +37,7 @@ using associated_simple_graph = typename detail::associated_adj_graph_types<ori>
 // adjacency_graph associated types }
 
 
-template<class derived, class NT, class ET, class ALT, orientation ori>
+template<class derived, class NT, class ET, class ALT, orientation ori, node_kind nk>
 class graph_base
   : public associated_simple_graph<NT,ET,ALT,ori>
 {
@@ -49,6 +49,7 @@ class graph_base
     using edge_type = ET;
     using adjacency_list_type = ALT;
     using index_type = value_type<ALT>;
+    static constexpr node_kind node_k = nk;
 
     using adjacency_type = associated_adjacency_type<derived,ori>;
     using const_adjacency_type = associated_adjacency_type<const derived,ori>;
@@ -81,6 +82,27 @@ class graph_base
         this->out_edges().emplace_back(std::deque<ET>{});
       }
       return emplaced_x;
+    }
+    // TODO clean, f_graph only
+    constexpr auto
+    emplace_back(auto&& x, auto&& idces) -> void { // TODO return adj
+      NT& emplaced_x = this->nodes().emplace_back(std::move(x));
+      this->indices().emplace_back(std::vector<int>(idces.begin(),idces.end())); // TODO vector, deque,...
+      if constexpr (!std::is_same_v<ET,void>) {
+        this->in_edges().emplace_back(std::deque<ET>{});
+        this->out_edges().emplace_back(std::deque<ET>{});
+      }
+    }
+    // TODO clean, fb_graph only
+    constexpr auto
+    emplace_back(auto&& x, auto&& in_idces, auto&& out_idces) -> void { // TODO return adj
+      NT& emplaced_x = this->nodes().emplace_back(std::move(x));
+      this->in_indices().emplace_back(std::vector<int>(in_idces.begin(),in_idces.end())); // TODO vector, deque,...
+      this->out_indices().emplace_back(std::vector<int>(out_idces.begin(),out_idces.end())); // TODO vector, deque,...
+      if constexpr (!std::is_same_v<ET,void>) {
+        this->in_edges().emplace_back(std::deque<ET>{});
+        this->out_edges().emplace_back(std::deque<ET>{});
+      }
     }
 
   // range interface
@@ -134,14 +156,16 @@ class graph
       graph_base<
         graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
-        orientation::none
+        orientation::none,
+        node_kind::value
       >
 {
   using base =   
       graph_base<
         graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
-        orientation::none
+        orientation::none,
+        node_kind::value
       >;
   using base::base;
 };
@@ -152,14 +176,56 @@ class io_graph
       graph_base<
         io_graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
-        orientation::in_out
+        orientation::in_out,
+        node_kind::value
       >
 {
   using base =   
       graph_base<
         io_graph<NT,ET,adj_list_type>,
         NT,ET,adj_list_type,
-        orientation::in_out
+        orientation::in_out,
+        node_kind::value
+      >;
+  using base::base;
+};
+
+template<class NT, class ET, class adj_list_type>
+class index_graph
+  : public
+      graph_base<
+        index_graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::none,
+        node_kind::value_with_index
+      >
+{
+  using base =   
+      graph_base<
+        index_graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::none,
+        node_kind::value_with_index
+      >;
+  using base::base;
+};
+
+template<class NT, class ET, class adj_list_type>
+class index_io_graph
+  : public
+      graph_base<
+        index_io_graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::in_out,
+        node_kind::value_with_index
+      >
+{
+  using base =   
+      graph_base<
+        index_io_graph<NT,ET,adj_list_type>,
+        NT,ET,adj_list_type,
+        orientation::in_out,
+        node_kind::value_with_index
       >;
   using base::base;
 };
