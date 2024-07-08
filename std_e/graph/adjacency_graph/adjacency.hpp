@@ -76,12 +76,18 @@ operator!=(const adjacency<AGT0>& x, const adjacency<AGT1>& y) -> bool {
   return !(x==y);
 }
 
+template<class T, class index_type>
+struct node_ref_with_index {
+  T& ref;
+  index_type index;
+};
 
 template<class graph_type>
 class io_adjacency {
   public:
     using index_type = typename graph_type::index_type;
     //using node_type  = typename adjacency_graph_traits<graph_type>::node_type;
+    static constexpr node_kind node_k = graph_type::node_k;
 
     constexpr
     io_adjacency() = default;
@@ -126,12 +132,20 @@ class io_adjacency {
     }
 
     constexpr auto
-    node() -> auto& {
-      return g->nodes()[node_idx];
+    node() -> decltype(auto) {
+      if constexpr (node_k == node_kind::value) {
+        return g->nodes()[node_idx];
+      } else {
+        return node_ref_with_index{ g->nodes()[node_idx] , node_idx };
+      }
     }
     constexpr auto
-    node() const -> const auto& {
-      return g->nodes()[node_idx];
+    node() const -> decltype(auto) {
+      if constexpr (node_k == node_kind::value) {
+        return g->nodes()[node_idx];
+      } else {
+        return node_ref_with_index{ g->nodes()[node_idx] , node_idx };
+      }
     }
 
     constexpr auto
@@ -233,15 +247,15 @@ out_indices(const io_adjacency<GT>& x) -> const auto& {
   return x.out_indices();
 }
 template<class GT> constexpr auto
-node(io_adjacency<GT>& x) -> auto& {
+node(io_adjacency<GT>& x) -> decltype(auto) {
   return x.node();
 }
 template<class GT> constexpr auto
-node(io_adjacency<GT>&& x) -> auto& {
+node(io_adjacency<GT>&& x) -> decltype(auto) {
   return x.node();
 }
 template<class GT> constexpr auto
-node(const io_adjacency<GT>& x) -> const auto& {
+node(const io_adjacency<GT>& x) -> decltype(auto) {
   return x.node();
 }
 template<class GT> constexpr auto

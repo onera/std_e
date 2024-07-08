@@ -17,6 +17,8 @@ enum class orientation {
 using default_adjacency_index_list_type = range_of_ranges<int,std::vector>;
 template<class NT, class ET = void, class adj_list_type = default_adjacency_index_list_type> class graph;
 template<class NT, class ET = void, class adj_list_type = default_adjacency_index_list_type> class io_graph;
+template<class NT, class ET = void, class adj_list_type = default_adjacency_index_list_type> class index_graph;
+template<class NT, class ET = void, class adj_list_type = default_adjacency_index_list_type> class index_io_graph;
 
 template<class NT, class ET, class adj_list_type> class simple_graph;
 template<class NT, class ET, class adj_list_type> class io_simple_graph;
@@ -33,6 +35,11 @@ enum class adj_orientation {
 };
 template<class adjacency_graph_type, adj_orientation orientation = adj_orientation::none> class adjacency_range;
 template<class adjacency_graph_type, adj_orientation orientation> class adjacency_edge_iterator;
+
+enum class node_kind {
+  value,
+  value_with_index
+};
 // forward decl }
 
 

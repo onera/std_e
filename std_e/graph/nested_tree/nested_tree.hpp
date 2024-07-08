@@ -54,10 +54,14 @@ class nested_tree_base {
     using iterator = child_iterator<T*,index_type*>;
     using const_iterator = child_iterator<const T*,const index_type*>;
 
+    using reference = typename iterator::reference;
+    using const_reference = typename const_iterator::reference;
+
     using range_type = std_e::iterator_range<iterator>;
     using const_range_type = std_e::iterator_range<const_iterator>;
 
     using node_adj_type = const_nested_tree_view<T>; // TODO DEL
+    using adjacency_type = const_nested_tree_view<T>; // TODO DEL?
 
     static constexpr size_t is_nested_tree = true;
     template<class T0, template<class> class M0> friend class nested_tree_base;

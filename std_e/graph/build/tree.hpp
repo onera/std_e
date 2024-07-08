@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "std_e/graph/algorithm/algo_nodes.hpp"
+#include "std_e/graph/algorithm/algo_adjacencies.hpp"
 #include "std_e/utils/concatenate.hpp"
 
 
@@ -70,15 +70,6 @@ create_tree_from_adjacencies(Graph& g, builder_from_adjacency_type&& b) {
   return vis.retrieve_final_tree();
 }
 
-template<class Graph, class builder_from_node_type> inline auto
-// requires builder_from_adjacency_type::tree_type is nested_tree<...>
-// requires builder_from_node_type::build(graph_node_type) -> tree
-create_tree_from_nodes(Graph& g, builder_from_node_type&& b) {
-  tree_builder vis(FWD(b));
-  prepostorder_depth_first_scan(g,vis);
-  return vis.retrieve_final_tree();
-}
-
 
 template<class builder_visitor_type>
 // requires builder_from_adjacency_type::tree_type is nested_tree<...>
@@ -121,16 +112,6 @@ template<class Graph, class builder_from_adjacency_type> inline auto
 create_pruned_tree_from_adjacencies(Graph& g, builder_from_adjacency_type&& b) {
   pruned_tree_builder vis(FWD(b));
   prepostorder_depth_first_prune_adjacencies(g,vis);
-  return vis.retrieve_final_tree();
-}
-
-template<class Graph, class builder_from_node_type> inline auto
-// requires builder_from_adjacency_type::tree_type is nested_tree<...>
-// requires builder_from_node_type::should_go_down(graph_node_type) -> bool
-// requires builder_from_node_type::build(graph_node_type) -> tree
-create_pruned_tree_from_nodes(Graph& g, builder_from_node_type&& b) {
-  pruned_tree_builder vis(FWD(b));
-  prepostorder_depth_first_prune(g,vis);
   return vis.retrieve_final_tree();
 }
 

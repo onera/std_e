@@ -27,6 +27,16 @@ make_io_graph(const io_index_adjacency_vector<NT>& idx_adjs) {
   }
   return res;
 }
+template<class NT> auto
+make_index_io_graph(const io_index_adjacency_vector<NT>& idx_adjs) { // TODO factor with `make_io_graph`
+  index_io_graph<NT> res;
+  for (const auto& [node,ins,out] : idx_adjs) {
+    res.nodes().push_back(node);
+    res.in_indices().push_back(ins);
+    res.out_indices().push_back(out);
+  }
+  return res;
+}
 
 
 // algorithm {
