@@ -36,8 +36,21 @@ class dynarray {
       deallocate();
     }
 
-    dynarray(const dynarray& old) = delete;
-    dynarray& operator=(const dynarray& old) = delete;
+    dynarray(const dynarray& old) 
+      : dynarray(old.sz)
+    {
+      std::copy(old.ptr, old.ptr+old.sz, ptr);
+    }
+
+    dynarray& operator=(const dynarray& old) {
+      if (sz != old.sz) {
+        sz = old.sz;
+        deallocate();
+        allocate(sz);
+      }
+      std::copy(old.ptr, old.ptr+old.sz, ptr);
+      return *this;
+    }
 
     dynarray(dynarray&& old)
       : ptr(old.ptr)

@@ -101,7 +101,7 @@ TEST_CASE("dynarray") {
     CHECK( y[3] == 1 );
   }
 
-  SUBCASE("move ctor") {
+  SUBCASE("move assign") {
     dynarray<int> x = {5,3,6,1};
     dynarray<int> y = {10, 11, 12};
 
@@ -112,6 +112,37 @@ TEST_CASE("dynarray") {
     CHECK( y[1] == 3 );
     CHECK( y[2] == 6 );
     CHECK( y[3] == 1 );
+  }
+
+  SUBCASE("copy ctor") {
+    dynarray<int> x = {5,3,6,1};
+    dynarray<int> y(x);
+
+    CHECK( y.size() == 4 );
+    CHECK( y[0] == 5 );
+    CHECK( y[1] == 3 );
+    CHECK( y[2] == 6 );
+    CHECK( y[3] == 1 );
+
+    y[0] = 100;
+    CHECK( y[0] == 100 );
+    CHECK( x[0] == 5 ); // the copy is a deep copy
+  }
+  SUBCASE("copy assign") {
+    dynarray<int> x = {5,3,6,1};
+    dynarray<int> y = {10, 11, 12};
+
+    y = x;
+
+    CHECK( y.size() == 4 );
+    CHECK( y[0] == 5 );
+    CHECK( y[1] == 3 );
+    CHECK( y[2] == 6 );
+    CHECK( y[3] == 1 );
+
+    y[0] = 100;
+    CHECK( y[0] == 100 );
+    CHECK( x[0] == 5 ); // the copy is a deep copy
   }
 }
 #endif
