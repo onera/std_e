@@ -131,9 +131,17 @@ move_to_vector(It first, It last) {
   std::move(first,last,res.begin());
   return res;
 }
+template<class Rng> auto
+to_vector(const Rng& rng) {
+  using T = typename Rng::value_type;
+  auto n = rng.size();
+  std::vector<T> res(n);
+  std::copy(rng.begin(),rng.end(),res.begin());
+  return res;
+}
 template<class T, class... Ts> auto
-make_vector(T&& x, Ts&&... xs) -> std::vector<std::remove_const_t<std::remove_reference_t<T>>> {
-  std::vector<std::remove_const_t<std::remove_reference_t<T>>> res;
+make_vector(T&& x, Ts&&... xs) -> std::vector<std::remove_cvref_t<T>> {
+  std::vector<std::remove_cvref_t<T>> res;
   res.emplace_back(std::forward<T>(x));
   ( res.emplace_back(std::forward<Ts>(xs)) , ...);
   return res;

@@ -40,3 +40,10 @@ TEST_CASE("std::vector sub_vector") {
   std::vector<int> expected_sub_a =     {5,6,7};
   CHECK( std_e::make_sub_vector(a,2,3) == expected_sub_a );
 }
+
+TEST_CASE("to_vector") {
+  std::vector<int> a = {3,4,5,6,7,8};
+  std::vector<int> b = std_e::to_vector(a);
+  CHECK( b == a );
+  CHECK( b.data() != a.data() );
+}
