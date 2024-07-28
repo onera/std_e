@@ -258,6 +258,12 @@ class jagged_range {
     auto offsets() const -> interval_span<const I> {
       return indices();
     }
+    auto offset_data() -> I* {
+      return idx_array.data();
+    }
+    auto offset_data() const -> const I* {
+      return idx_array.data();
+    }
 
     template<int lvl>
     auto indices() const -> interval_span<const I> {
