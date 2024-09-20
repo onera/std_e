@@ -144,5 +144,28 @@ TEST_CASE("dynarray") {
     CHECK( y[0] == 100 );
     CHECK( x[0] == 5 ); // the copy is a deep copy
   }
+
+  SUBCASE("resize") {
+    dynarray<int> x = {5,4,3};
+
+    SUBCASE("smaller") {
+      x.resize(2); // contrary to std::vector, this also `shrink_to_fit`
+
+      CHECK( x.size() == 2 );
+      CHECK( x[0] == 5 );
+      CHECK( x[1] == 4 );
+    }
+    SUBCASE("bigger") {
+      x.resize(4); // contrary to std::vector, this also `shrink_to_fit`
+
+      CHECK( x.size() == 4 );
+      CHECK( x[0] == 5 );
+      CHECK( x[1] == 4 );
+      CHECK( x[2] == 3 );
+
+      x[3] = 100;
+      CHECK( x[3] == 100 );
+    }
+  }
 }
 #endif

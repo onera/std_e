@@ -31,10 +31,10 @@ class dynarray {
     dynarray(size_t sz)
       : sz(sz)
     {
-      allocate(sz);
+      this->ptr = allocate(sz);
     }
     ~dynarray() {
-      deallocate();
+      deallocate(this->ptr);
     }
 
     dynarray(const dynarray& old) 
@@ -46,8 +46,8 @@ class dynarray {
     dynarray& operator=(const dynarray& old) {
       if (sz != old.sz) {
         sz = old.sz;
-        deallocate();
-        allocate(sz);
+        deallocate(this->ptr);
+        this->ptr = allocate(sz);
       }
       std::copy(old.ptr, old.ptr+old.sz, ptr);
       return *this;
@@ -64,7 +64,7 @@ class dynarray {
     {
       std::swap(ptr, old.ptr);
       std::swap(sz, old.sz);
-      old.deallocate();
+      deallocate(old.ptr);
       old.ptr = nullptr;
       return *this;
     }
@@ -85,6 +85,17 @@ class dynarray {
       : dynarray(sz)
     {
       std::fill(ptr, ptr+sz, x);
+    }
+
+    auto
+    resize(size_t new_sz) -> void {
+      T* new_ptr = allocate(new_sz);
+      size_t min_sz = std::min(this->sz,new_sz); 
+      std::copy_n(this->ptr, min_sz, new_ptr);
+
+      deallocate(this->ptr);
+      this->ptr = new_ptr;
+      this->sz = new_sz;
     }
 
   // size
@@ -114,12 +125,12 @@ class dynarray {
       return std::lexicographical_compare_three_way(begin(), end(), x.begin(), x.end());
     }
   private:
-  // member functions
-    auto allocate(size_t n) {
-      ptr = new T[n];
+  // static helper functions
+    static auto allocate(size_t n) -> T* {
+      return new T[n];
     }
-    auto deallocate() {
-      delete[] ptr;
+    static auto deallocate(T* p) -> void {
+      delete[] p;
     }
   // data members
     T* ptr;
