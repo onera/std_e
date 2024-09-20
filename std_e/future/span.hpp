@@ -265,6 +265,7 @@ to_string(const span_base<T,N>& x) {
 }
 
 
+// operator== with vector {
 template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator==(const span_base<T0,N>& x, const std::vector<T1,A>& y) -> bool {
   return x==span_base<const T1>(y);
@@ -281,6 +282,25 @@ template<class T0, class T1, ptrdiff_t N, class A> constexpr auto
 operator!=(const std::vector<T1,A>& y, const span_base<T0,N>& x) -> bool {
   return !(x==y);
 }
+// }
+// operator== with dynarray {
+template<class T0, class T1, ptrdiff_t N> constexpr auto
+operator==(const span_base<T0,N>& x, const std_e::dynarray<T1>& y) -> bool {
+  return x==span_base<const T1>(y);
+}
+template<class T0, class T1, ptrdiff_t N> constexpr auto
+operator!=(const span_base<T0,N>& x, const std_e::dynarray<T1>& y) -> bool {
+  return !(x==y);
+}
+template<class T0, class T1, ptrdiff_t N> constexpr auto
+operator==(const std_e::dynarray<T1>& x, const span_base<T0,N>& y) -> bool {
+  return y==x;
+}
+template<class T0, class T1, ptrdiff_t N> constexpr auto
+operator!=(const std_e::dynarray<T1>& y, const span_base<T0,N>& x) -> bool {
+  return !(x==y);
+}
+// }
 
 
 template<class T, ptrdiff_t N>

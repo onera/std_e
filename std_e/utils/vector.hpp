@@ -116,9 +116,9 @@ to_string(const std::vector<T,A>& x) -> std::string {
   return range_to_string(x);
 }
 
-template<class I> auto
-iota_vector(I n, I init = I()) -> std::vector<I> {
-  std::vector<I> res(n);
+template<class I0, class I1 = I0> auto
+iota_vector(I0 n, I1 init = I1()) -> std::vector<I1> {
+  std::vector<I1> res(n);
   std::iota(begin(res), end(res), init);
   return res;
 }
