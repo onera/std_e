@@ -7,7 +7,7 @@ TEST_CASE("zip") {
   std::vector<int>    v0 = {4  ,3  ,1  ,2  ,6};
   std::vector<double> v1 = {40.,30.,10.,20.};
 
-  auto v = std_e::zip(v0,v1);
+  auto v = std_e::zip2(v0,v1);
 
   SUBCASE("size") {
     CHECK( v.size_0() == 5 );

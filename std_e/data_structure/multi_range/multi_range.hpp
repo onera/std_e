@@ -184,6 +184,11 @@ get(const multi_range2<Rngs...>&& x) -> const auto&& {
 }
 // get (for structured bindings) }
 
+// Same as get() function, but this one is a lambda
+// Useful for expressions such as `std_e::ranges::sort(zip(my_multi_range), proj<0>)`
+template<int i> constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<i>(x); };
+
+
 template<int j, class... Rngs, class I> auto
 element(const multi_range2<Rngs...>& x, I i) -> const auto& {
   return range<j>(x)[i];
@@ -204,15 +209,28 @@ element(multi_range2<Rngs...>& x, I i) -> auto& {
 
 template<class... Ts> using multi_vector2 = multi_range2<std::vector<Ts>...>;
 
+// TODO deprecate for zip
 template<class... Rngs> auto
 view_as_multi_range(Rngs&... rngs) {
   return multi_range2<Rngs&...>(rngs...);
 }
 // TODO mixed view/container
+// TODO deprecate for zip
 template<class... Ts> auto
 view_as_multi_range2(span<Ts>... rngs) { // TODO rename without 2 (here, just tmp to be sure this one is called)
   // specialization keep the span by value because it might be ephemeral
   // while the underlying values are not
+  return multi_range2<span<Ts>...>(rngs...);
+}
+
+// TODO this one is dangerous because if an rvalue is passed, we take a reference to it
+// better use a view of the underlying iterators (e.g. `std::all`)
+template<class... Rngs> auto
+zip(Rngs&&... rngs) {
+  return multi_range2<Rngs&...>(rngs...);
+}
+template<class... Ts> auto
+zip(span<Ts>... rngs) {
   return multi_range2<span<Ts>...>(rngs...);
 }
 

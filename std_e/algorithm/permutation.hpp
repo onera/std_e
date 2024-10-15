@@ -41,21 +41,6 @@ compose_permutations(const array_type& p0, const array_type& p1) {
 }
 
 
-//template<class Rng, class Comp = std::less<>> auto
-//sort_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
-//  std::vector<int> p(x.size());
-//  std::iota(begin(p), end(p), 0);
-//  std::sort(begin(p), end(p), [&](int i, int j){ return comp(x[i], x[j]); });
-//  return p;
-//}
-constexpr auto std_sort_lambda = [](auto f, auto l, auto comp){ std::sort(f,l,comp); };
-template<class Rng, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
-sort_permutation(const Rng& x, Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> std::vector<int> {
-  std::vector<int> p(x.size());
-  std::iota(begin(p), end(p), 0);
-  sort_algo(begin(p), end(p), [&](int i, int j){ return comp(x[i], x[j]); });
-  return p;
-}
 template<class Rng, class Comp = std::equal_to<>> auto
 unique_permutation(const Rng& x, Comp comp = {}) -> std::vector<int> {
   std::vector<int> p(x.size());
@@ -104,25 +89,28 @@ permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T>
 // ALSO: with range-v3 https://stackoverflow.com/a/53785022/1583122
 // ALSO: (in place?) https://stackoverflow.com/a/44030600/1583122
 // TODO look in e.g. TAOCP for inplace
-template<class Rand_it, class I> auto
-permute(Rand_it it, const std::vector<I>& p) -> void {
-  int sz = p.size();
-  std::vector<bool> done(sz);
+template<class Rand_it, class Rand_int_it, class I=std::iter_value_t<Rand_int_it>> auto
+permute(Rand_it it, Rand_int_it p, I sz) -> void {
+  std::vector<int8_t> done(sz,0);
   for (I i = 0; i < sz; ++i){
     if (done[i]){
       continue;
     }
-    done[i] = true;
+    done[i] = 1;
     I prev_j = i;
     I j = p[i];
     while (i != j){
       using std::swap;
       swap(*(it+prev_j),*(it+j));
-      done[j] = true;
+      done[j] = 1;
       prev_j = j;
       j = p[j];
     }
   }
+}
+template<class Rand_it, class I> auto
+permute(Rand_it it, const std::vector<I>& p) -> void {
+  return permute(it,p.begin(),p.size());
 }
 template<class T, class I> auto
 permute(std::vector<T>& vec, const std::vector<I>& p) -> void {
@@ -145,14 +133,6 @@ template<class Int_range, class Tuple> auto
 apply_permutation(const Int_range& perm, Tuple& rngs) -> void {
   constexpr auto n_range = std::tuple_size_v<Tuple>;
   apply_permutation__impl(perm,rngs,std::make_index_sequence<n_range>());
-}
-
-template<class Tuple, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
-zip_sort(Tuple&& rngs, Comp comp = {}, sort_algo_type sort_algo = std_sort_lambda) {
-  auto& first_range = std::get<0>(rngs);
-  auto perm = std_e::sort_permutation(first_range,comp,sort_algo);
-  apply_permutation(perm,rngs);
-  return perm;
 }
 
 

@@ -4,7 +4,7 @@
 #include "std_e/base/template_alias.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/data_structure/heterogenous_vector.hpp"
-#include "std_e/algorithm/permutation.hpp"
+#include "std_e/algorithm/sort.hpp"
 #include "std_e/future/span.hpp"
 #include "std_e/future/type_traits.hpp"
 

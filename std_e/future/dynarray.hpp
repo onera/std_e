@@ -147,4 +147,9 @@ template<class T> auto end  (const dynarray<T>& v) { return v.end(); }
 template<class T> auto end  (      dynarray<T>& v) { return v.end(); }
 
 
+template<class Rng> auto make_dynarray(const Rng& x) { 
+  using T = typename Rng::value_type;
+  return dynarray<T>(x.begin(), x.end());
+}
+
 } // std_e

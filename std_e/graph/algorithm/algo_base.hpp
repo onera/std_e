@@ -188,13 +188,10 @@ template<class Graph_iterator_stack, class Graph_adjacency_visitor> constexpr au
 // requires Graph_iterator_stack is Array<Iterator_range<Graph>>
 unwind(Graph_iterator_stack& S, Graph_adjacency_visitor&& f) -> void {
   while (!S.is_at_root_level()) {
-    auto&& v = *S.current_node();
-    auto&& parent = *S.parent_node();
     f.post(S.nodes());
     f.up(S.nodes());
     S.pop_level();
   }
-  auto&& v = *S.current_node();
   f.post(S.nodes());
 }
 
