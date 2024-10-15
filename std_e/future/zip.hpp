@@ -1,4 +1,5 @@
 #pragma once
+// TODO deprecated (use multi_range2)
 
 
 // Basic zip range functionality
@@ -199,7 +200,7 @@ class zip_view {
 
 
 template<class Rng0, class Rng1> auto
-zip(Rng0& r0, Rng1& r1) {
+zip2(Rng0& r0, Rng1& r1) {
   return zip_view<Rng0,Rng1>(r0,r1);
 }
 

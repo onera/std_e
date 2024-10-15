@@ -77,41 +77,6 @@ TEST_CASE("permute") {
 }
 
 
-TEST_CASE("sort and permutations") {
-  vector<int> v = {100, 90, 90, 100, 80, 80, 80, 70, 60};
-
-  vector<int> perm1 = std_e::sort_permutation(v);
-
-  SUBCASE("sort_permutation") {
-    vector<int> perm1_expected = {8, 7, 4, 5, 6, 1, 2, 0, 3};
-
-    CHECK( perm1 == perm1_expected );
-  }
-
-  SUBCASE("sort_permutation custom comp") {
-    vector<int> perm2 = std_e::sort_permutation(v, std::greater<int>());
-    vector<int> perm2_expected = {0, 3, 1, 2, 4, 5, 6, 7, 8};
-
-    CHECK( perm2 == perm2_expected );
-  }
-
-
-  vector<int> p_v_expected = {60, 70, 80, 80, 80, 90, 90, 100, 100};
-
-  SUBCASE("permute_copy") {
-    auto p_v = std_e::permute_copy(v, perm1);
-
-    CHECK( p_v == p_v_expected );
-  }
-
-  SUBCASE("permute") {
-    std_e::permute(v, perm1);
-
-    CHECK( v == p_v_expected );
-  }
-}
-
-
 TEST_CASE("unique permutations") {
   vector<int> v = {60, 70, 80, 80, 80, 90, 90, 100, 100};
 
@@ -121,17 +86,3 @@ TEST_CASE("unique permutations") {
 
   CHECK( perm == perm_expected );
 }
-
-
-TEST_CASE("zip_sort") {
-  vector<int> v0 = {4 ,3 ,1 ,5 ,2 };
-  vector<int> v1 = {40,30,10,50,20};
-
-  auto perm = std_e::zip_sort(std::tie(v0,v1));
-
-  CHECK( v0 == vector{1 ,2 ,3 ,4 ,5 } );
-  CHECK( v1 == vector{10,20,30,40,50} );
-  CHECK( perm == vector{2,4,1,0,3} );
-}
-
-

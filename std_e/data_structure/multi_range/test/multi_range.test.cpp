@@ -129,8 +129,7 @@ TEST_CASE("algorithms") {
     }
 
     SUBCASE("more ranges - other comp") {
-      auto proj = [](const auto& x){ return get<2>(x); };
-      std_e::ranges::sort(t,{},proj);
+      std_e::ranges::sort(t, std_e::proj<2>);
       // check
       const vector<int>         expected_col0 = {43 ,42  ,0    };
       const vector<string> expected_col1 = {"Y","X" ,"ABC"};
@@ -172,8 +171,7 @@ TEST_CASE("multi_range2 of block_range,vector") { // case with proxy reference o
   // Note: As of GCC 11, std::ranges::sort is broken for proxy references
   //     see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104561
   //std::ranges::sort(t.begin(),t.end());
-  constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
-  std_e::ranges::sort(t,{},proj);
+  std_e::ranges::sort(t, std_e::proj<0>);
   CHECK( x == vector{6,3,12,  10,4,5} );
   CHECK( y == vector{200   ,  100} );
 }

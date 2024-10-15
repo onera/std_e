@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include "std_e/utils/to_string_fwd.hpp"
-#include "std_e/algorithm/permutation.hpp"
+#include "std_e/algorithm/sort.hpp"
 #include "std_e/utils/functional.hpp"
 
 

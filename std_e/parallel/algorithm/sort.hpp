@@ -43,7 +43,7 @@ sort(
 
   // 3. local sort
   auto tl2 = std_e::time_logger("maia","sort_local");
-  sort_algo(x_part,comp,proj);
+  sort_algo(x_part,proj,comp);
   tl2.stop();
 
   return x_part;
@@ -77,7 +77,7 @@ sort2(
   // 3. local sort
   auto tl2 = std_e::time_logger("maia","sort_local");
   //// 3.0
-  sort_algo(x_part,comp,proj);
+  sort_algo(x_part,proj,comp);
   //// 3.1
   //auto& x1_sorted = std_e::range<0>(x_part);
   //auto& x2_sorted = std_e::range<1>(x_part);
@@ -171,7 +171,7 @@ struct _local_sort {
 
     auto proj_indirect_local = [&xs_part...,proj=this->proj](I i){ return proj(xs_part[i]...); };
 
-    sort_algo(perm_local,comp,proj_indirect_local);
+    sort_algo(perm_local,proj_indirect_local,comp);
     ( permute(xs_part.begin(),perm_local) , ... );
 
     return std::make_tuple(std::move(xs_part)...,std::move(distri));
