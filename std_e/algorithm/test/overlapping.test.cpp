@@ -1,5 +1,5 @@
 #include "std_e/unit_test/doctest.hpp"
-#include "std_e/algorithm/unique.hpp"
+#include "std_e/algorithm/overlapping.hpp"
 #include <vector>
 
 using namespace std_e;
@@ -34,4 +34,16 @@ TEST_CASE("unique") {
     CHECK( res_ptr == res.begin() );
     CHECK( res == std_e::dynarray<int>{} );
   }
+}
+
+TEST_CASE("remove") {
+  std_e::dynarray<int> x = {0,0,1,3,4,0,  1,0,1,5,  6,7};
+  std_e::dynarray<int> res(x.size());
+  auto res_ptr = res.data();
+  res_ptr = remove(x.data()   , x.data()+ 6, res_ptr, 0);
+  res_ptr = remove(x.data()+ 6, x.data()+10, res_ptr, 0);
+  res_ptr = remove(x.data()+10, x.data()+12, res_ptr, 0);
+  auto final_sz = res_ptr - res.data();
+  res.resize(final_sz);
+  CHECK( res == std_e::dynarray<int>{1,3,4,  1,1,5,  6,7} );
 }

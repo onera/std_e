@@ -20,15 +20,23 @@ TEST_CASE("for_each_block") {
     return d_first;
   };
 
-  for_each_block(idx,x,copy_two_first_odd_numbers);
+  for_each_block(idx, x, copy_two_first_odd_numbers);
   CHECK( idx == std_e::dynarray<int>{0  , 2  , 4, 5} );
   CHECK(   x == std_e::dynarray<int>{1,3, 3,5, 7} );
 }
 
-TEST_CASE("sort_unique_each_block") {
+TEST_CASE("sort_unique_by_block") {
   std_e::dynarray<int> idx = {0          ,  6      , 10  ,12};
   std_e::dynarray<int>   x = {0,0,1,3,3,3,  3,4,4,5,  6,7};
-  sort_unique_each_block(idx,x);
+  sort_unique_by_block(idx, x);
   CHECK( idx == std_e::dynarray<int>{0    , 3    , 6  ,8} );
   CHECK(   x == std_e::dynarray<int>{0,1,3, 3,4,5, 6,7} );
+}
+
+TEST_CASE("remove_by_block") {
+  std_e::dynarray<int> idx = {0          ,  6      , 10  ,12};
+  std_e::dynarray<int>   x = {0,0,1,3,4,0,  1,0,1,5,  6,7};
+  remove_by_block(idx, x, 0);
+  CHECK( idx == std_e::dynarray<int>{0    , 3    , 6  ,8} );
+  CHECK(   x == std_e::dynarray<int>{1,3,4, 1,1,5, 6,7} );
 }
