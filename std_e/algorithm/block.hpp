@@ -2,7 +2,7 @@
 
 
 #include <algorithm>
-#include "std_e/algorithm/unique.hpp"
+#include "std_e/algorithm/overlapping.hpp"
 
 
 namespace std_e {
@@ -45,13 +45,29 @@ for_each_block(Integer_rng& array_idx, Rng& array, F&& f) -> void {
 }
 
 template<class Integer_rng, class Rng> auto
-sort_unique_each_block(Integer_rng& array_idx, Rng& array) -> void {
+sort_unique_by_block(Integer_rng& array_idx, Rng& array) -> void {
   using T = typename Rng::value_type;
   auto f = [](T* first, T* last, T* d_first) {
     std::sort(first, last);
     return unique(first, last, d_first);
   };
   for_each_block(array_idx, array, f);
+}
+
+
+template<class Integer_rng, class Rng, class Pred> auto
+remove_if_by_block(Integer_rng& array_idx, Rng& array, Pred&& p) -> void {
+  using T = typename Rng::value_type;
+  auto f = [&p](T* first, T* last, T* d_first) {
+    return remove_if(first,last,d_first,p);
+  };
+  for_each_block(array_idx, array, f);
+}
+
+template<class Integer_rng, class Rng, class T> auto
+remove_by_block(Integer_rng& array_idx, Rng& array, const T& value) -> void {
+  auto p = [&value](const auto& x){ return x==value; };
+  remove_if_by_block(array_idx, array, p);
 }
 
 
