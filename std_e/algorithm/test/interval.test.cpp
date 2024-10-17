@@ -93,3 +93,10 @@ TEST_CASE("size_to_index") {
     CHECK( idx[0] == 0 );
   }
 }
+TEST_CASE("inplace_size_to_index") {
+  std_e::dynarray<int> bsz = {7,11,29, -1};
+  auto& idx = std_e::inplace_size_to_index(bsz);
+  
+  CHECK( &idx == &bsz );
+  CHECK( idx == std_e::dynarray<int>{0,  7,  7+11,  7+11+29} );
+}
