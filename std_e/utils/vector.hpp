@@ -7,6 +7,7 @@
 #include "std_e/utils/to_string_fwd.hpp"
 #include "std_e/algorithm/sort.hpp"
 #include "std_e/utils/functional.hpp"
+#include "std_e/utils/container.hpp" // TODO del this import, import directly in code
 
 
 namespace std_e {
@@ -71,31 +72,6 @@ hash_vector(const std::vector<T,A>& v) -> std::vector<size_t> {
   return res;
 }
 
-template<class Rng, class Comp_pred = std::less<>> constexpr auto
-sort(Rng& v, Comp_pred cmp = {}) -> void {
-  std::sort(begin(v),end(v),cmp);
-}
-template<class T, class A, class Comp_pred = std::less<>> constexpr auto
-stable_sort(std::vector<T,A>& v, Comp_pred cmp = {}) -> void {
-  std::stable_sort(begin(v),end(v),cmp);
-}
-
-template<class T, class A, class Equiv_pred = std::equal_to<>> constexpr auto
-unique(std::vector<T,A>& v, Equiv_pred eq = {}) -> void {
-  auto new_end = std::unique(begin(v),end(v), eq);
-  v.erase(new_end,end(v));
-}
-
-template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
-stable_sort_unique(std::vector<T,A>& v, Equiv_pred eq = {}, Comp_pred cmp = {}) -> void {
-  stable_sort(v,cmp);
-  unique(v,eq);
-}
-template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
-sort_unique(std::vector<T,A>& v, Equiv_pred eq = {}, Comp_pred cmp = {}) -> void {
-  sort(v,cmp);
-  unique(v,eq);
-}
 template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
 sort_unique_permutation(std::vector<T,A>& x, Equiv_pred eq = {}, Comp_pred cmp = {}) {
   auto p = sort_permutation(x,cmp);
