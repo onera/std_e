@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include "std_e/algorithm/overlapping.hpp"
+#include "std_e/algorithm/interval.hpp"
 
 
 namespace std_e {
@@ -68,6 +69,31 @@ template<class Integer_rng, class Rng, class T> auto
 remove_by_block(Integer_rng& arr_idx, Rng& arr, const T& value) -> void {
   auto p = [&value](const auto& x){ return x==value; };
   remove_if_by_block(arr_idx, arr, p);
+}
+
+
+template<class Integer_rng_0, class Rng, class Integer_rng_1> auto
+permute_by_block(const Integer_rng_0& arr_idx, const Rng& arr, const Integer_rng_1& new_to_old)
+{
+  using I = typename Integer_rng_0::value_type;
+  I n_node = arr_idx.size()-1;
+
+  std_e::dynarray<I> connectivity_bsz(n_node+1); // `n_node+1` because reused below for `_idx`
+  for (I i=0; i<n_node; ++i) {
+    I bsz = arr_idx[new_to_old[i] + 1] - arr_idx[new_to_old[i]];
+    connectivity_bsz[i] = bsz;
+  }
+  auto& new_arr_idx = std_e::inplace_size_to_index(connectivity_bsz); // reuse the buffer
+
+  std_e::dynarray<I> new_arr(arr.size());
+  for (I i=0; i<n_node; ++i) {
+    I bsz = arr_idx[new_to_old[i] + 1] - arr_idx[new_to_old[i]];
+    for (I j=0; j<bsz; ++j) {
+      new_arr[new_arr_idx[i] + j] = arr[arr_idx[new_to_old[i]] + j];
+    }
+  }
+
+  return std::make_tuple(std::move(new_arr_idx), std::move(new_arr));
 }
 
 
