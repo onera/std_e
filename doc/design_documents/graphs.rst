@@ -60,29 +60,29 @@ https://en.wikipedia.org/wiki/Adjacency_matrix
 Mesh-like structures
 --------------------
 
-A mesh is a special kind of graph where the nodes are called vertices. It can be encoded with the structures above. However, by doing so, an important information would be lost, that is, groups of nodes are gathered into "elements". The usual way to represent a mesh is by connectivity (note: we know no better technical term): a set of elements, where each element of the mesh is defined by its connectivity, i.e. an array of vertices (integers). This representation is often called "elt_vtx", "cell_vtx", "face_vtx" or "edge_vtx" (an edge [in mesh terminology, not graph terminology] is 1D, i.e. a linear graph; a face is 2D, i.e. it is a polygon graph; a cell is 3D, i.e. polyhedron graph; an element is either). In general an elt_vtx is not a graph, but a multi-graph where elements are the nodes and the vertices are the edges (two elements can be connected through multiple vertices, hence it is not a graph).
+A mesh is a special kind of graph where the nodes are called vertices. It can be encoded with the structures above. However, by doing so, an important information would be lost, that is, groups of nodes are gathered into "elements". The usual way to represent a mesh is by connectivity (note: we know no better technical term): a set of elements, where each element of the mesh is defined by its connectivity, i.e. an array of vertices (integers). This representation is often called "elt_vtx", "cell_vtx", "face_vtx" or "ridge_vtx" (a ridge is often called an edge, but we don't use this term for a ridge to not conflict with graph terminology). In general an elt_vtx is not a graph, but a multi-graph where elements are the nodes and the vertices are the edges (two elements can be connected through multiple vertices, hence it is not a graph).
 
 Several (multi-)graph representations of a mesh are possible:
-- elt_vtx, cell_vtx, face_vtx and edge_vtx
-- cell_face, elt_face, face_edge and cell_edge, elt_edge similar to the previous ones, but instead of vertices, the elements are constructed from their lower dimension parts. It is possible to go from on representation to another. For example, a cell can be decomposed into its faces, so a "cell_face" and "face_vtx" can be deduced from a "cell_vtx".
+- elt_vtx, cell_vtx, face_vtx and ridge_vtx
+- cell_face, elt_face, face_ridge and cell_ridge, elt_ridge similar to the previous ones, but instead of vertices, the elements are constructed from their lower dimension parts. It is possible to go from on representation to another. For example, a cell can be decomposed into its faces, so a "cell_face" and "face_vtx" can be deduced from a "cell_vtx".
 - vtx_vtx, the adjacency list representation of the mesh. Not used much because no connectivity information.
-- the edge list representation of the mesh. Not used. (note: edge list is equal to edge_vtx if the edges are segments)
+- the edge list representation of the mesh. Not used. (note: edge list is equal to ridge_vtx if the ridges are segments)
 - cell_cell or elt_elt, an adjacency list for the graph where the elements or the cells are the nodes of the graph.
-- face_face, edge_edge same. Not used.
+- face_face, ridge_ridge same. Not used.
 - face_cell or face_elt, the edge list version of cell_cell/elt_elt
-- vtx_edge, vtx_face, vtx_cell, vtx_elt, edge_face, edge_cell, edge_elt
+- vtx_ridge, vtx_face, vtx_cell, vtx_elt, ridge_face, ridge_cell, ridge_elt
 
-Note that several different cell_cell graphes can by created from one cell_vtx: by drawing edges beween cells sharing either a node, or an edge, or a face. In cases where cells only touch by a corner for example (only share one single vertex), the cells are adjacent by vertices, but non-adjacent by faces or by edges.
+Note that several different cell_cell graphes can by created from one cell_vtx: by drawing edges beween cells sharing either a node, or an ridge, or a face. In cases where cells only touch by a corner for example (only share one single vertex), the cells are adjacent by vertices, but non-adjacent by faces or by ridges.
 
 We can classify them into categories:
 
 1. Adjacency list:
-   vtx_vtx, cell_cell, elt_elt, (edge_edge, face_face)
+   vtx_vtx, cell_cell, elt_elt, (ridge_ridge, face_face)
 2. Edge list:
-   face_cell, face_elt (Represent the same graphs as respectively cell_cell and elt_elt. The edge list representations of vtx_vtx, edge_edge and face_face have no name)
+   face_cell, face_elt (Represent the same graphs as respectively cell_cell and elt_elt. The edge list representations of vtx_vtx, ridge_ridge and face_face have no name)
 3. (Lower) connectivity:
-   edge_vtx, face_vtx, cell_vtx, elt_vtx, face_edge, cell_edge, elt_edge, cell_face, elt_face
+   ridge_vtx, face_vtx, cell_vtx, elt_vtx, face_ridge, cell_ridge, elt_ridge, cell_face, elt_face
 4. Upper connectivity (same as connnectivity, but the roles are switched):
-   vtx_edge, vtx_face, vtx_cell, vtx_elt, edge_face, edge_cell, edge_elt [face_cell, face_elt are also here, but they are regular edge list structures]
+   vtx_ridge, vtx_face, vtx_cell, vtx_elt, ridge_face, ridge_cell, ridge_elt [face_cell, face_elt are also here, but they are regular edge list structures]
 
 The point to remember is that while categories 1 and 2 are regular graph representations, this is not the case for 3 and 4. They are actually multi-graphs, and while they are stored in structures similar to adjacency lists, these are not adjacency lists since the adjacenies are not nodes.
