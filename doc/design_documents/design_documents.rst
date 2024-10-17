@@ -17,3 +17,4 @@ Design documents
   static_inheritance_trick
   type_traits_constraints
   value_reference_and_view_types
+  why_no_interval_type

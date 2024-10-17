@@ -7,18 +7,6 @@ using namespace std;
 using namespace std_e;
 
 
-TEST_CASE("is_interval") {
-  vector<int> inter = {2,3,4,5};
-  CHECK(is_interval(inter));
-
-  vector<int> non_inter0 = {2,3,  5};
-  CHECK_FALSE(is_interval(non_inter0));
-
-  vector<int> non_inter1 = {2,3,4,5,4};
-  CHECK_FALSE(is_interval(non_inter1));
-}
-
-
 TEST_CASE("rotated_position") {
 
   //  10  11  12  13  14  15  16  17  18  19  20   (old positions)

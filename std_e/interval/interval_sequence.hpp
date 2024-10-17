@@ -6,7 +6,7 @@
 #include <numeric>
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
-#include "std_e/algorithm/numeric.hpp"
+#include "std_e/algorithm/interval.hpp"
 
 // TODO does not support its own weight -> DEL
 // in particular, .as_base() too often used
@@ -209,23 +209,19 @@ to_interval_vector(std::vector<Number> v) {
 
 
 // algorithms {
+// TODO deprecate for index_to_size
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
   std::vector<T> res(is.size()-1);
-  std_e::exclusive_adjacent_difference(is.begin(),is.end(),begin(res));
+  std_e::index_to_size(is, res);
   return res;
 }
+// TODO deprecate for size_to_index
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
 indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
   interval_vector<T> indices(r.size());
-  indices[0] = 0;
-  std_e::inclusive_scan(begin(r),end(r),begin(indices)+1);
+  std_e::size_to_index(r, indices);
   return indices;
-}
-template<class Number, class Interval_sequence> auto
-interval_index(Number x, const Interval_sequence& is) {
-  auto it = std::upper_bound(begin(is),end(is),x); // TODO true for interval_seq with 0 sizes? test!
-  return it-begin(is)-1;
 }
 // algorithms }
 
