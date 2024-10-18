@@ -74,13 +74,13 @@ template<class RA_rng, class Out_rng, class integer_RA_rng> auto
 permute_copy(const RA_rng& x, Out_rng& dest, const integer_RA_rng& perm) {
   return permute_copy(x.begin(),x.end(),dest.begin(),perm.begin());
 }
-template<class T, class I> auto
-permute_copy(const std::vector<T>& v, const std::vector<I>& p) -> std::vector<T> {
-  using index_type = typename std::vector<I>::difference_type;
-  index_type n = p.size();
-  std::vector<T> w(n);
-  permute_copy_n(begin(v),begin(w),begin(p),n);
-  return w;
+template<class Rng, class Int_rng> auto
+permute_copy(const Rng& x, const Int_rng& p) -> Rng {
+  using I = typename Int_rng::value_type;
+  I n = p.size();
+  Rng res(n);
+  permute_copy_n(begin(x),begin(res),begin(p),n);
+  return res;
 }
 
 

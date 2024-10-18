@@ -72,7 +72,7 @@ remove_by_block(Integer_rng& arr_idx, Rng& arr, const T& value) -> void {
 }
 
 
-template<class Integer_rng_0, class Rng, class Integer_rng_1> auto
+template<class Integer_rng_0, class Rng, class Integer_rng_1> [[nodiscard]] auto
 permute_by_block(const Integer_rng_0& arr_idx, const Rng& arr, const Integer_rng_1& new_to_old)
 {
   using I = typename Integer_rng_0::value_type;
