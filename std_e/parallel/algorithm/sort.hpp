@@ -83,7 +83,7 @@ sort2(
   //auto& x2_sorted = std_e::range<1>(x_part);
   //auto comp2 = [&x1_sorted](auto i, auto j){ return x1_sorted[i] < x1_sorted[j]; };
   //std::sort(x2_sorted.begin(),x2_sorted.end(),comp2);
-  //permute(x1_sorted.begin(),x2_sorted);
+  //permute(x1_sorted,x2_sorted);
   //// 3.2
   //auto& x1_sorted = std_e::range<0>(x_part);
   //auto& x2_sorted = std_e::range<1>(x_part);
@@ -141,7 +141,7 @@ struct _global_sort {
     auto proj_indirect = [&xs...,proj=this->proj](I i){ return proj(xs[i]...); };
 
     auto rank_indices = std_e::sort_by_rank(perm,comm,proj_indirect,comp,max_imbalance,Return_container{});
-    ( permute(xs.begin(),perm) , ... );
+    ( permute(xs,perm) , ... );
 
     return rank_indices;
   }
@@ -172,7 +172,7 @@ struct _local_sort {
     auto proj_indirect_local = [&xs_part...,proj=this->proj](I i){ return proj(xs_part[i]...); };
 
     sort_algo(perm_local,proj_indirect_local,comp);
-    ( permute(xs_part.begin(),perm_local) , ... );
+    ( permute(xs_part,perm_local) , ... );
 
     return std::make_tuple(std::move(xs_part)...,std::move(distri));
   }

@@ -66,16 +66,26 @@ TEST_CASE("permute_copy_n") {
   CHECK( d_v == expected_d_v );
 }
 
-TEST_CASE("permute") {
+TEST_CASE("_permute_inplace") {
   vector<double> v = { 3.14 , 2.7 , 6.67};
   vector<int> perm = {1,2,0};
 
-  std_e::permute(v.begin(),perm);
+  std_e::_permute_inplace(v,perm);
 
   vector<double> expected_v = {2.7 , 6.67 , 3.14};
   CHECK( v == expected_v );
 }
 
+
+TEST_CASE("permute") {
+  vector<double> v = { 3.14 , 2.7 , 6.67};
+  vector<int> perm = {1,2,0};
+
+  std_e::permute(v,perm);
+
+  vector<double> expected_v = {2.7 , 6.67 , 3.14};
+  CHECK( v == expected_v );
+}
 
 TEST_CASE("unique permutations") {
   vector<int> v = {60, 70, 80, 80, 80, 90, 90, 100, 100};
