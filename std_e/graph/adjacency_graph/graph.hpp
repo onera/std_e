@@ -85,17 +85,18 @@ class graph_base
     }
     // TODO clean, f_graph only
     constexpr auto
-    emplace_back(auto&& x, auto&& idces) -> void { // TODO return adj
+    emplace_back(auto&& x, auto&& idces) -> NT& { // TODO return adj
       NT& emplaced_x = this->nodes().emplace_back(std::move(x));
       this->indices().emplace_back(std::vector<int>(idces.begin(),idces.end())); // TODO vector, deque,...
       if constexpr (!std::is_same_v<ET,void>) {
         this->in_edges().emplace_back(std::deque<ET>{});
         this->out_edges().emplace_back(std::deque<ET>{});
       }
+      return emplaced_x;
     }
     // TODO clean, fb_graph only
     constexpr auto
-    emplace_back(auto&& x, auto&& in_idces, auto&& out_idces) -> void { // TODO return adj
+    emplace_back(auto&& x, auto&& in_idces, auto&& out_idces) -> NT& { // TODO return adj
       NT& emplaced_x = this->nodes().emplace_back(std::move(x));
       this->in_indices().emplace_back(std::vector<int>(in_idces.begin(),in_idces.end())); // TODO vector, deque,...
       this->out_indices().emplace_back(std::vector<int>(out_idces.begin(),out_idces.end())); // TODO vector, deque,...
@@ -103,6 +104,7 @@ class graph_base
         this->in_edges().emplace_back(std::deque<ET>{});
         this->out_edges().emplace_back(std::deque<ET>{});
       }
+      return emplaced_x;
     }
 
   // range interface

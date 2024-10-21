@@ -238,9 +238,9 @@ to_string(const simple_graph<NT,ET,ALT>& x) {
   using std::to_string;
   using std_e::to_string;
   std::string s = "";
-  for (int i=0; i<x.nodes().size(); ++i) {
+  for (int i=0; i<(int)x.nodes().size(); ++i) {
     s += "{" + to_string(x.node(i)) + ", {";
-    for (int j=0; j<x.indices(i).size(); ++j) {
+    for (int j=0; j<(int)x.indices(i).size(); ++j) {
       s += to_string(x.index(i,j)) + ",";
     }
     s += "}}\n";
@@ -256,13 +256,13 @@ to_string(const io_simple_graph<NT,ET,ALT>& x) {
   using std::to_string;
   using std_e::to_string;
   std::string s = "";
-  for (int i=0; i<x.nodes().size(); ++i) {
+  for (int i=0; i<(int)x.nodes().size(); ++i) {
     s += "{" + to_string(x.node(i)) + ", {";
-    for (int j=0; j<x.in_indices(i).size(); ++j) {
+    for (int j=0; j<(int)x.in_indices(i).size(); ++j) {
       s += to_string(x.in_index(i,j)) + ",";
     }
     s += "}, {";
-    for (int j=0; j<x.out_indices(i).size(); ++j) {
+    for (int j=0; j<(int)x.out_indices(i).size(); ++j) {
       s += to_string(x.out_index(i,j)) + ",";
     }
     s += "}}\n";
