@@ -18,9 +18,6 @@ TEST_CASE("renumber_graph") {
   //
 
   std_e::dynarray<int> perm = {0,2,3,1};
-  std_e::renumber_graph(idx, x, perm);
-
-
   // Representation of the permuted graph:
   //    0 ______________  3
   //      |\            |
@@ -31,6 +28,8 @@ TEST_CASE("renumber_graph") {
   //      |          \  |
   //    1 |            \| 2
   //
+
+  std_e::renumber_graph(idx, x, perm);
 
   CHECK( idx == std_e::dynarray<int>{0    ,  3,  4  ,  6  ,  8} );
   CHECK(   x == std_e::dynarray<int>{3,1,2,  0,  3,0,  2,0}     );

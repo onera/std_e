@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <tuple>
+#include "std_e/future/dynarray.hpp"
 
 
 namespace std_e {
@@ -83,6 +84,16 @@ permute_copy(const Rng& x, const Int_rng& p) -> Rng {
   return res;
 }
 
+template<class Rng, class Int_rng> auto
+_permute_cp_algo(Rng&& x, const Int_rng& p) -> void {
+  using T = typename Rng::value_type;
+  using I = typename Int_rng::value_type;
+  I n = p.size();
+  std_e::dynarray<T> old_x(x.begin(), x.end());
+  permute_copy_n(old_x.begin(), x.begin(), p.begin(), n);
+}
+
+
 
 // REF: https://stackoverflow.com/a/17074810/1583122
 // REF: https://blog.merovius.de/2014/08/12/applying-permutation-in-constant.html
@@ -90,7 +101,7 @@ permute_copy(const Rng& x, const Int_rng& p) -> Rng {
 // ALSO: (in place?) https://stackoverflow.com/a/44030600/1583122
 // TODO look in e.g. TAOCP for inplace
 template<class Rand_it, class Rand_int_it, class I=std::iter_value_t<Rand_int_it>> auto
-permute(Rand_it it, Rand_int_it p, I sz) -> void {
+_permute_inplace(Rand_it it, Rand_int_it p, I sz) -> void {
   std::vector<int8_t> done(sz,0);
   for (I i = 0; i < sz; ++i){
     if (done[i]){
@@ -108,20 +119,25 @@ permute(Rand_it it, Rand_int_it p, I sz) -> void {
     }
   }
 }
-template<class Rand_it, class I> auto
-permute(Rand_it it, const std::vector<I>& p) -> void {
-  return permute(it,p.begin(),p.size());
+template<class Rng, class Int_rng> auto
+_permute_inplace(Rng&& x, const Int_rng& p) -> void {
+  return _permute_inplace(x.begin(),p.begin(),p.size());
 }
-template<class T, class I> auto
-permute(std::vector<T>& vec, const std::vector<I>& p) -> void {
-  return permute(vec.begin(),p);
+
+template<class Rng, class Int_rng> auto
+permute(Rng&& x, const Int_rng& p) -> void {
+  _permute_inplace(x, p);
+  // not sure the `permute` algo is really fast
+  // here we use the simple algorithm that uses a copy
+  //_permute_cp_algo(x, p);
 }
+
 
 // TODO there should be a more efficient implementation
 template<class Range, class I> auto
 inv_permute(Range& rng, const std::vector<I>& p) -> void {
   std::vector<I> p_inv = inverse_permutation(p);
-  return permute(rng.begin(),p_inv);
+  return permute(rng,p_inv);
 }
 
 
