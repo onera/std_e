@@ -19,4 +19,15 @@ renumber_graph(auto& graph_idx, auto& graph, const auto& new_to_old_numbering) -
 }
 
 
+auto
+renumber_edge(auto& edge_node, const auto& new_to_old_numbering) -> void
+{
+  auto n_face = edge_node.size()/2;
+  auto edge_node_l = std_e::make_span(edge_node.data()       ,   n_face);
+  auto edge_node_r = std_e::make_span(edge_node.data()+n_face, 2*n_face);
+  std_e::permute(edge_node_l, new_to_old_numbering);
+  std_e::permute(edge_node_r, new_to_old_numbering);
+}
+
+
 } // std_e
