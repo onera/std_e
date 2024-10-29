@@ -60,7 +60,7 @@ https://en.wikipedia.org/wiki/Adjacency_matrix
 Mesh-like structures
 --------------------
 
-A mesh is a special kind of graph where the nodes are called vertices. It can be encoded with the structures above. However, by doing so, an important information would be lost, that is, groups of nodes are gathered into "elements". The usual way to represent a mesh is by connectivity (note: we know no better technical term): a set of elements, where each element of the mesh is defined by its connectivity, i.e. an array of vertices (integers). This representation is often called "elt_vtx", "cell_vtx", "face_vtx" or "ridge_vtx" (a ridge is often called an edge, but we don't use this term for a ridge to not conflict with graph terminology). In general an elt_vtx is not a graph, but a multi-graph where elements are the nodes and the vertices are the edges (two elements can be connected through multiple vertices, hence it is not a graph).
+A mesh is a special kind of graph where the nodes are called vertices. It can be encoded with the structures above. However, by doing so, an important information would be lost, that is, groups of nodes are gathered into "elements". The usual way to represent a mesh is by connectivity (note: we know no better technical term): a set of elements, where each element of the mesh is defined by its connectivity, i.e. an array of vertices (integers). This representation is often called "elt_vtx", "cell_vtx", "face_vtx" or "ridge_vtx" (a ridge is often called an edge, but we don't use this term for a ridge to not conflict with graph terminology). In general an elt_vtx is not a graph, but and hypergraph where vertices are the nodes and the elements are the multi-edges that gather all the vertices of the element. (Note: `elt_vtx` can also be considered multi-graph where elements are the nodes and the vertices are the edges [two elements can be connected through multiple vertices, hence it is not a graph], but it looses some information regarding the unicity of vertices [think of a 2x2 cartesian mesh represented this way: we can't tell easily that there is a center vertex if we only give edges connecting cells]).
 
 Several (multi-)graph representations of a mesh are possible:
 - elt_vtx, cell_vtx, face_vtx and ridge_vtx
@@ -82,7 +82,41 @@ We can classify them into categories:
    face_cell, face_elt (Represent the same graphs as respectively cell_cell and elt_elt. The edge list representations of vtx_vtx, ridge_ridge and face_face have no name)
 3. (Lower) connectivity:
    ridge_vtx, face_vtx, cell_vtx, elt_vtx, face_ridge, cell_ridge, elt_ridge, cell_face, elt_face
-4. Upper connectivity (same as connnectivity, but the roles are switched):
+4. Upper connectivity (same as connectivity, but the roles are switched):
    vtx_ridge, vtx_face, vtx_cell, vtx_elt, ridge_face, ridge_cell, ridge_elt [face_cell, face_elt are also here, but they are regular edge list structures]
 
 The point to remember is that while categories 1 and 2 are regular graph representations, this is not the case for 3 and 4. They are actually multi-graphs, and while they are stored in structures similar to adjacency lists, these are not adjacency lists since the adjacenies are not nodes.
+
+
+TODO replace previous with that:
+
+   |cell_cell| , `face_cell`
+   \cell_face\ , |face_face| ,
+    cell_ridge ,  face_ridge , |ridge_ridge|, \face_cell\
+    cell_vtx   ,  face_vtx   , `ridge_vtx`  , |vtx_vtx|
+
+1. Regular graphs represented by (node) adjacency lists:  vtx_vtx  ,  cell_cell,  ridge_ridge,  face_face
+2. Regular graphs represented by edge lists:              ridge_vtx,  face_cell
+3. Regular graphs represented by (edge) adjacency lists:  vtx_ridge,  cell_face
+
+4. Undirected hypergraphs represented by adjacency lists:
+   Remaining lower connectivities: face_vtx, cell_vtx, face_ridge, cell_ridge (here, face, cell are hyperedges)
+   Remaining upper connectivities: vtx_face, vtx_cell, ridge_face, ridge_cell (here, vtx, ridge are hyperedges)
+
+Notes:
+- It is often implicitly supposed that `cell_cell` is the graph where cells are connected through faces (deduced from cell_face/face_cell), but we could also have a `cell_cell` connected through ridges or vtx (deduced respectively from cell_ridge/ridge_cell and cell_vtx/vtx_cell). 
+- Only edge list representations (ridge_vtx, face_cell) don't need an index array (see :ref:`blocks`)
+- Edge list representations are laid out in memory with all the "left" nodes, followed by the "right" nodes (no interweaving)
+- Elements/High order
+    - the extension of cell and faces to an element formalism is straightforward: one just need to carry a cell (or face) field that gives the element type (a number) of a cell (or face). One could specify ordering rules for not mixing different cell types together (e.g. TRI3 and QUAD8). Note that for higher orders, some (cell-interior) vertices may not be connected to any face/ridge.
+    - the extension of ridges to higher order makes `ridge_vtx` need a `ridge_vtx_index`
+    - it may be of interest to do many sub-computation on a degraded lower-order mesh. For instance, cell-renumbering does not go below the cell, so there is no interest in knowing that the cell actually has interior vertices.
+
+  int          *cell_face;           /*!< Cell face connectivity
+  int          *face_cell;           /*!< Face cell connectivity
+
+  int          *face_edge;           /*!< Edge face connectivity
+  int          *edge_face;           /*!< Edge face connectivity
+
+  int          *face_vtx;            /*!< Face vertex connectivity
+  int          *edge_vtx;           /*!< Face cell connectivity

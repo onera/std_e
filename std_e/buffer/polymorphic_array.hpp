@@ -201,6 +201,10 @@ operator!=(const std::vector<T1>& x, const polymorphic_array<T0>& y) -> bool {
 // comparisons }
 
 
+template<class T> auto
+to_string(const polymorphic_array<T>& x) -> std::string {
+  return std_e::range_to_string(x.as_span());
+}
 
 
 } // std_e

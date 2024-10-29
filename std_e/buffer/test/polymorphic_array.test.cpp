@@ -2,8 +2,7 @@
 
 #include "std_e/buffer/polymorphic_array.hpp"
 
-
-TEST_CASE("polymorphic_buffer") {
+TEST_CASE("polymorphic_array") {
   SUBCASE("from owning") {
     std::vector<int> v = {0,1,2};
     std_e::polymorphic_array<int> x(std::move(v));
@@ -119,5 +118,11 @@ TEST_CASE("polymorphic_buffer") {
       CHECK( x2 != std_e::make_span(w) );
       CHECK( std_e::make_span(w) != x2 );
     }
+  }
+
+  SUBCASE("to_string") {
+    std::vector<int> v = {0,1,2};
+    std_e::polymorphic_array<int> x(std::move(v));
+    CHECK( to_string(x) == "{0,1,2}" );
   }
 }
