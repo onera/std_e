@@ -47,8 +47,8 @@ TEST_CASE("permute_by_block") {
   std_e::dynarray<int>   x = {0,0,1,3,3,3,  3,4,4,5,  6,7};
 
   std_e::dynarray<int> perm = {1,2,0};
-  auto [p_idx, p_x] = std_e::permute_by_block(idx, x, perm);
+  std_e::permute_by_block(idx, x, perm);
 
-  CHECK( p_idx == std_e::dynarray<int>{0      ,  4  ,  6          , 12} );
-  CHECK(   p_x == std_e::dynarray<int>{3,4,4,5,  6,7,  0,0,1,3,3,3}    );
+  CHECK( idx == std_e::dynarray<int>{0      ,  4  ,  6          , 12} );
+  CHECK(   x == std_e::dynarray<int>{3,4,4,5,  6,7,  0,0,1,3,3,3}    );
 }
