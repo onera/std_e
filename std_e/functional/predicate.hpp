@@ -18,7 +18,7 @@ class Predicate {
     {}
 
     auto
-    operator()(const auto& x) {
+    operator()(const auto& x) const {
       return f(x);
     }
 };
@@ -34,7 +34,7 @@ class Not_predicate {
     {}
 
     auto
-    operator()(const auto& x) {
+    operator()(const auto& x) const {
       return !f(x);
     }
 };
@@ -52,7 +52,7 @@ class And_predicate {
     {}
 
     auto
-    operator()(const auto& x) {
+    operator()(const auto& x) const {
       return f0(x) && f1(x);
     }
 };
@@ -71,7 +71,7 @@ class Or_predicate {
     {}
 
     auto
-    operator()(const auto& x) {
+    operator()(const auto& x) const {
       return f0(x) || f1(x);
     }
 };
