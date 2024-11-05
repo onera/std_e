@@ -52,6 +52,11 @@ class hrange {
     push_back(const T& elt) {
       std::get<Range_template<T>>(_impl).push_back(elt);
     }
+    template<class T> auto
+    // requires T is one of the Ts
+    emplace_back(T&& elt) {
+      std::get<Range_template<T>>(_impl).emplace_back(std::forward<T>(elt));
+    }
   private:
     ranges_tuple _impl;
 };
