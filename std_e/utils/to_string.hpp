@@ -18,6 +18,10 @@ inline auto
 to_string(const std::string& s) -> const std::string& {
   return s;
 }
+inline auto
+to_string(std::string_view s) -> std::string {
+  return std::string(s);
+}
 
 template<class T> auto
 to_string(T* ptr) -> std::string {

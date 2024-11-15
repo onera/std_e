@@ -225,13 +225,22 @@ view_as_multi_range2(span<Ts>... rngs) { // TODO rename without 2 (here, just tm
 
 // TODO this one is dangerous because if an rvalue is passed, we take a reference to it
 // better use a view of the underlying iterators (e.g. `std::all`)
+// ... or split in two: zip_view(Rng&)->MR<Rng&> and zip(Rng&&)->MR<Rng>
 template<class... Rngs> auto
 zip(Rngs&&... rngs) {
   return multi_range2<Rngs&...>(rngs...);
 }
 template<class... Ts> auto
-zip(span<Ts>... rngs) {
+zip(span<Ts>... rngs) { // TODO DEL (use zip_view)
   return multi_range2<span<Ts>...>(rngs...);
+}
+template<class... Ts> auto
+zip_view(span<Ts>... rngs) {
+  return multi_range2<span<Ts>...>(rngs...);
+}
+template<class... Rngs> auto
+zip_view(Rngs&... rngs) {
+  return zip_view(std_e::make_span(rngs)...);
 }
 
 //// multi_span {
