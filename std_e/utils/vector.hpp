@@ -72,13 +72,6 @@ hash_vector(const std::vector<T,A>& v) -> std::vector<size_t> {
   return res;
 }
 
-template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
-sort_unique_permutation(std::vector<T,A>& x, Equiv_pred eq = {}, Comp_pred cmp = {}) {
-  auto p = sort_permutation(x,cmp);
-  std_e::unique(p,[&](int i, int j){ return eq(x[i], x[j]); });
-  return p;
-}
-
 template<class T, class A, class I> constexpr auto
 make_sub_vector(const std::vector<T,A>& x, I start, I sub_size) {
   std::vector<T,A> sub(sub_size);
@@ -97,6 +90,20 @@ iota_vector(I0 n, I1 init = I1()) -> std::vector<I1> {
   std::vector<I1> res(n);
   std::iota(begin(res), end(res), init);
   return res;
+}
+
+template<std::ranges::range Rng, class Comp = std::less<>, class sort_algo_type = decltype(std_sort_lambda)> auto
+sort_permutation(const Rng& x, Comp&& comp = {}, sort_algo_type sort_algo = std_sort_lambda) -> std::vector<int> {
+  auto perm = iota_vector<int>(x.size());
+  sort_permutation(x, perm, comp, sort_algo);
+  return perm;
+}
+
+template<class T, class A, class Equiv_pred = std::equal_to<>, class Comp_pred = std::less<>> constexpr auto
+sort_unique_permutation(std::vector<T,A>& x, Equiv_pred eq = {}, Comp_pred cmp = {}) {
+  auto p = sort_permutation(x,cmp);
+  std_e::unique(p,[&](int i, int j){ return eq(x[i], x[j]); });
+  return p;
 }
 
 template<class It> auto

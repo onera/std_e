@@ -3,6 +3,7 @@
 
 #include "std_e/algorithm/block.hpp"
 #include "std_e/algorithm/permutation.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
 
 
 namespace std_e {
@@ -22,9 +23,9 @@ renumber_graph(auto& graph_idx, auto& graph, const auto& new_to_old_numbering) -
 auto
 renumber_edge(auto& edge_node, const auto& new_to_old_numbering) -> void
 {
-  auto n_face = edge_node.size()/2;
-  auto edge_node_l = std_e::make_span(edge_node.data()       ,   n_face);
-  auto edge_node_r = std_e::make_span(edge_node.data()+n_face, 2*n_face);
+  auto n_edge = edge_node.size();
+  auto edge_node_l = std_e::range<0>(edge_node);
+  auto edge_node_r = std_e::range<1>(edge_node);
   std_e::permute(edge_node_l, new_to_old_numbering);
   std_e::permute(edge_node_r, new_to_old_numbering);
 }
