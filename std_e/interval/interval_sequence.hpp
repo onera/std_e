@@ -209,18 +209,18 @@ to_interval_vector(std::vector<Number> v) {
 
 
 // algorithms {
-// TODO deprecate for index_to_size
+// TODO deprecate for offset_to_size
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
   std::vector<T> res(is.size()-1);
-  std_e::index_to_size(is, res);
+  std_e::offset_to_size(is, res);
   return res;
 }
-// TODO deprecate for size_to_index
+// TODO deprecate for size_to_offset
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
 indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
   interval_vector<T> indices(r.size());
-  std_e::size_to_index(r, indices);
+  std_e::size_to_offset(r, indices);
   return indices;
 }
 // algorithms }

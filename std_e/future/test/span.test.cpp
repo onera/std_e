@@ -68,8 +68,8 @@ TEST_CASE("span constructor") {
     CHECK( csp1.size() == ca1.size() );
 
     SUBCASE("from ptr with offset") {
-      auto spo1  = std_e::make_span(pta1, 3, 2);
-      auto cspo1 = std_e::make_span(ptca1, 3, 2);
+      auto spo1  = std_e::make_subspan_n(pta1, 3, 2);
+      auto cspo1 = std_e::make_subspan_n(ptca1, 3, 2);
 
       CHECK( spo1.size()  == 2 );
       CHECK( cspo1.size() == 2 );

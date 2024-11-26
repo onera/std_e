@@ -5,7 +5,6 @@
 #include <type_traits>
 #include "std_e/base/dynamic_size.hpp"
 #include "std_e/base/macros.hpp"
-#include "std_e/future/contract.hpp"
 #include "std_e/future/span_fwd.hpp"
 #include "std_e/future/type_traits.hpp"
 #include "std_e/utils/to_string.hpp"
@@ -377,13 +376,21 @@ make_span(T* ptr, ptrdiff_t n) {
   return span<T,dynamic_size>(ptr,n);
 }
 template<class T> FORCE_INLINE constexpr auto
-make_span(T* start, T* finish) {
-  return span<T,dynamic_size>(start,finish-start);
+make_span(T* start, T* stop) {
+  return span<T,dynamic_size>(start,stop-start);
 }
 
 template<class T> FORCE_INLINE constexpr auto
-make_span(T* ptr, ptrdiff_t offset, ptrdiff_t n) {
-  return span<T,dynamic_size>(ptr+offset,n);
+make_span(T* ptr, ptrdiff_t start, ptrdiff_t n) { // TODO deprecate (use make_subspan_n)
+  return span<T,dynamic_size>(ptr+start,n);
+}
+template<class T, class I> FORCE_INLINE constexpr auto
+make_subspan_n(T* ptr, I start, I n) {
+  return span<T,dynamic_size>(ptr+start,n);
+}
+template<class T, class I> FORCE_INLINE constexpr auto
+make_subspan(T* ptr, I start, I stop) {
+  return make_subspan_n(ptr, start, stop-start);
 }
 
 template<class Contiguous_range> FORCE_INLINE constexpr auto
@@ -394,12 +401,23 @@ template<
   class Contiguous_range, class I,
   std::enable_if_t<!std::is_pointer_v<std::remove_reference_t<Contiguous_range>>,int> =0
 > FORCE_INLINE constexpr auto
-make_span(Contiguous_range& x, I start, I finish) {
-  return make_span(x.data(),start,finish-start);
+make_span(Contiguous_range& x, I start, I stop) { // TODO deprecate (use make_subspan)
+  return make_subspan(x.data(),start,stop);
+}
+template<
+  class Contiguous_range, class I,
+  std::enable_if_t<!std::is_pointer_v<std::remove_reference_t<Contiguous_range>>,int> =0
+> FORCE_INLINE constexpr auto
+make_subspan(Contiguous_range& x, I start, I stop) {
+  return make_subspan(x.data(),start,stop-start);
 }
 template<class Contiguous_range, class I> FORCE_INLINE constexpr auto
-make_span_n(Contiguous_range& x, I start, I n) {
+make_span_n(Contiguous_range& x, I start, I n) { // TODO deprecate (use make_subspan_n)
   return make_span(x.data(),start,n);
+}
+template<class Contiguous_range, class I> FORCE_INLINE constexpr auto
+make_subspan_n(Contiguous_range& x, I start, I n) {
+  return make_subspan_n(x.data(),start,n);
 }
 
 

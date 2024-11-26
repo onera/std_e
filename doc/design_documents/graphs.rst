@@ -90,16 +90,16 @@ The point to remember is that while categories 1 and 2 are regular graph represe
 
 TODO replace previous with that:
 
-   |cell_cell| , `face_cell`
+   |cell_cell| , `face_cell` , 
    \cell_face\ , |face_face| ,
-    cell_ridge ,  face_ridge , |ridge_ridge|, \face_cell\
+    cell_ridge ,  face_ridge , |ridge_ridge|, \vtx_ridge\
     cell_vtx   ,  face_vtx   , `ridge_vtx`  , |vtx_vtx|
 
-1. Regular graphs represented by (node) adjacency lists:  vtx_vtx  ,  cell_cell,  ridge_ridge,  face_face
-2. Regular graphs represented by edge lists:              ridge_vtx,  face_cell
-3. Regular graphs represented by (edge) adjacency lists:  vtx_ridge,  cell_face
+1. Regular graphs represented by (node) adjacency lists (node_node):  vtx_vtx  ,  cell_cell,  ridge_ridge,  face_face
+2. Regular graphs represented by edge lists             (edge_node):  ridge_vtx,  face_cell
+3. Regular graphs represented by (edge) adjacency lists (node_edge):  vtx_ridge,  cell_face
 
-4. Undirected hypergraphs represented by adjacency lists:
+4. Undirected hypergraphs represented by hyperedge lists (hedge_node):
    Remaining lower connectivities: face_vtx, cell_vtx, face_ridge, cell_ridge (here, face, cell are hyperedges)
    Remaining upper connectivities: vtx_face, vtx_cell, ridge_face, ridge_cell (here, vtx, ridge are hyperedges)
 
