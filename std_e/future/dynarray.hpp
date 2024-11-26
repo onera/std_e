@@ -76,9 +76,23 @@ class dynarray {
       std::copy(first, last, ptr);
     }
 
-    dynarray(const std::initializer_list<T>& l)
-      : dynarray(l.begin(), l.end())
+    dynarray(const std::initializer_list<T>& x)
+      : dynarray(x.begin(), x.end())
     {}
+
+    dynarray(const std::ranges::range auto& x)
+      : dynarray(x.begin(), x.end())
+    {}
+    dynarray& operator=(const std::ranges::range auto& x)
+    {
+      if (sz != x.sz) {
+        sz = x.sz;
+        deallocate(this->ptr);
+        this->ptr = allocate(sz);
+      }
+      std::copy(x.ptr, x.ptr+x.sz, ptr);
+      return *this;
+    }
 
     template<class I, std::enable_if_t< std::is_integral_v<I> , int > =0>
     dynarray(I sz, const T& x)

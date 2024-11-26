@@ -3,8 +3,8 @@
 
 #include <array>
 #include <vector>
-#include "std_e/future/dynarray.hpp"
 #include "std_e/future/span_fwd.hpp"
+#include "std_e/future/dynarray.hpp"
 
 
 namespace std_e {
