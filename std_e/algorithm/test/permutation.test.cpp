@@ -96,3 +96,15 @@ TEST_CASE("unique permutations") {
 
   CHECK( perm == perm_expected );
 }
+
+TEST_CASE("is_permutation") {
+  using std_e::is_permutation;
+  CHECK( is_permutation(vector<int>{}) );
+  CHECK( is_permutation(vector<int>{0}) );
+  CHECK( is_permutation(vector<int>{0,1,2}) );
+  CHECK( is_permutation(vector<int>{1,0,2}) );
+  CHECK( is_permutation(vector<int>{2,1,0}) );
+  CHECK( !is_permutation(vector<int>{2,2,0}) );
+  CHECK( !is_permutation(vector<int>{0,1,1,2}) );
+  CHECK( !is_permutation(vector<int>{1}) );
+}

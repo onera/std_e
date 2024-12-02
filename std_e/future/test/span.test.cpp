@@ -66,29 +66,48 @@ TEST_CASE("span constructor") {
 
     CHECK( sp1.size()  == a1.size() );
     CHECK( csp1.size() == ca1.size() );
+  }
 
-    SUBCASE("from ptr with offset") {
-      auto spo1  = std_e::make_subspan_n(pta1, 3, 2);
-      auto cspo1 = std_e::make_subspan_n(ptca1, 3, 2);
+  SUBCASE("make_subspan_n and make_subspan") {
+    std_e::span<double> spo1;
+    std_e::span<const double> cspo1;
 
-      CHECK( spo1.size()  == 2 );
-      CHECK( cspo1.size() == 2 );
-
-      CHECK( spo1.begin()  == pta1+3  );
-      CHECK( cspo1.begin() == ptca1+3 );
-
-      CHECK( spo1.data()  == pta1+3  );
-      CHECK( cspo1.data() == ptca1+3 );
-
-      CHECK( spo1.end()  == pta1+5  );
-      CHECK( cspo1.end() == ptca1+5 );
-
-      CHECK( spo1[0] == a1[3] );
-      CHECK( spo1[1] == a1[4] );
-
-      CHECK( cspo1[0] == ca1[3] );
-      CHECK( cspo1[1] == ca1[4] );
+    SUBCASE("make_subspan_n from ptr") {
+      spo1  = std_e::make_subspan_n(pta1, 1, 3);
+      cspo1 = std_e::make_subspan_n(ptca1, 1, 3);
     }
+    SUBCASE("make_subspan from ptr") {
+      spo1  = std_e::make_subspan(pta1, 1, 4);
+      cspo1 = std_e::make_subspan(ptca1, 1, 4);
+    }
+    SUBCASE("make_subspan_n from range") {
+      spo1  = std_e::make_subspan_n(a1, 1, 3);
+      cspo1 = std_e::make_subspan_n(ca1, 1, 3);
+    }
+    SUBCASE("make_subspan_n from ptr") {
+      spo1  = std_e::make_subspan(a1, 1, 4);
+      cspo1 = std_e::make_subspan(ca1, 1, 4);
+    }
+
+    CHECK( spo1.size()  == 3 );
+    CHECK( cspo1.size() == 3 );
+
+    CHECK( spo1.begin()  == pta1+1  );
+    CHECK( cspo1.begin() == ptca1+1 );
+
+    CHECK( spo1.data()  == pta1+1  );
+    CHECK( cspo1.data() == ptca1+1 );
+
+    CHECK( spo1.end()  == pta1+4  );
+    CHECK( cspo1.end() == ptca1+4 );
+
+    CHECK( spo1[0] == a1[1] );
+    CHECK( spo1[1] == a1[2] );
+    CHECK( spo1[2] == a1[3] );
+
+    CHECK( cspo1[0] == ca1[1] );
+    CHECK( cspo1[1] == ca1[2] );
+    CHECK( cspo1[2] == ca1[3] );
   }
 
   SUBCASE("from container") {

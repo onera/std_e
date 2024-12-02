@@ -50,11 +50,11 @@ TEST_CASE("interval_index") {
 }
 
 
-TEST_CASE("offset_to_size") {
+TEST_CASE("offset_to_stride") {
   SUBCASE("base") {
     std_e::dynarray<int> off = {3,10,21,50};
 
-    std_e::dynarray<int> bsz = std_e::offset_to_size(off);
+    std_e::dynarray<int> bsz = std_e::offset_to_stride(off);
 
     REQUIRE( bsz.size() == 3 );
     CHECK( bsz[0] == 7 );
@@ -65,17 +65,17 @@ TEST_CASE("offset_to_size") {
   SUBCASE("zero-length") {
     std_e::dynarray<int> off = {10};
 
-    std_e::dynarray<int> bsz = std_e::offset_to_size(off);
+    std_e::dynarray<int> bsz = std_e::offset_to_stride(off);
 
     REQUIRE( bsz.size() == 0 );
   }
 }
 
-TEST_CASE("size_to_offset") {
+TEST_CASE("stride_to_offset") {
   SUBCASE("base") {
     std_e::dynarray<int> bsz = {7,11,29};
 
-    std_e::dynarray<int> off = std_e::size_to_offset(bsz);
+    std_e::dynarray<int> off = std_e::stride_to_offset(bsz);
 
     REQUIRE( off.size() == 4 );
     CHECK( off[0] == 0 );
@@ -87,15 +87,15 @@ TEST_CASE("size_to_offset") {
   SUBCASE("no element") {
     std_e::dynarray<int> bsz = {};
 
-    std_e::dynarray<int> off = std_e::size_to_offset(bsz);
+    std_e::dynarray<int> off = std_e::stride_to_offset(bsz);
 
     REQUIRE( off.size() == 1 );
     CHECK( off[0] == 0 );
   }
 }
-TEST_CASE("inplace_size_to_offset") {
+TEST_CASE("inplace_stride_to_offset") {
   std_e::dynarray<int> bsz = {7,11,29, -1};
-  auto& off = std_e::inplace_size_to_offset(bsz);
+  auto& off = std_e::inplace_stride_to_offset(bsz);
   
   CHECK( &off == &bsz );
   CHECK( off == std_e::dynarray<int>{0,  7,  7+11,  7+11+29} );

@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <numeric>
 #include <tuple>
-#include "std_e/future/dynarray.hpp"
+#include "std_e/algorithm/sort_base.hpp"
+#include "std_e/utils/dynarray.hpp"
 
 
 namespace std_e {
@@ -151,5 +152,12 @@ apply_permutation(const Int_range& perm, Tuple& rngs) -> void {
   apply_permutation__impl(perm,rngs,std::make_index_sequence<n_range>());
 }
 
+
+auto
+is_permutation(const auto& x) -> bool {
+  using I = std::decay_t<decltype(x)>::value_type;
+  const I n = x.size();
+  return sorted(x) == iota_dynarray(n);
+}
 
 } // std_e

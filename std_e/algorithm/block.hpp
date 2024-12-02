@@ -83,7 +83,7 @@ permute_copy_offsets(const Integer_rng_0& offsets, const Integer_rng_1& new_to_o
     I bsz = offsets[new_to_old[i] + 1] - offsets[new_to_old[i]];
     connectivity_bsz[i] = bsz;
   }
-  std_e::inplace_size_to_offset(connectivity_bsz); // reuse the buffer
+  std_e::inplace_stride_to_offset(connectivity_bsz); // reuse the buffer
   return connectivity_bsz;
 }
 
