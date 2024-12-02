@@ -6,6 +6,7 @@
 #include <numeric>
 #include "std_e/future/algorithm.hpp"
 #include "std_e/future/contract.hpp"
+#include "std_e/contract/contract.hpp"
 #include "std_e/algorithm/interval.hpp"
 
 // TODO does not support its own weight -> DEL
@@ -207,20 +208,30 @@ to_interval_vector(std::vector<Number> v) {
   return interval_vector<Number>(std::move(v));
 }
 
+template<class Rng> auto
+join_interval(const Rng& x, const Rng& y) {
+  using I = Rng::value_type;
+  STD_E_POSTCOND_LVL0(x.back() == y[0]);
+  std_e::dynarray<I> res(x.size() + y.size() -1);
+  std::copy(x.begin()  , x.end(), res.begin());
+  std::copy(y.begin()+1, y.end(), res.begin()+x.size());
+  return res;
+}
+
 
 // algorithms {
-// TODO deprecate for offset_to_size
+// TODO deprecate for offset_to_stride
 template<class Interval_sequence, class T = std::remove_const_t<typename Interval_sequence::value_type>> constexpr auto
 interval_lengths(const Interval_sequence& is) -> std::vector<T> {
   std::vector<T> res(is.size()-1);
-  std_e::offset_to_size(is, res);
+  std_e::offset_to_stride(is, res);
   return res;
 }
-// TODO deprecate for size_to_offset
+// TODO deprecate for stride_to_offset
 template<class Random_access_range, class T = typename Random_access_range::value_type> auto
 indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
   interval_vector<T> indices(r.size());
-  std_e::size_to_offset(r, indices);
+  std_e::stride_to_offset(r, indices);
   return indices;
 }
 // algorithms }

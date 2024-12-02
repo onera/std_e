@@ -24,6 +24,8 @@ class Edge_node_base : public multi_range2<Rng,Rng> {
     I number_of_nodes;
 
   public:
+  // traits
+    using index_type = I;
   // ctors
     using base::base;
 

@@ -84,3 +84,8 @@ TEST_CASE("zip_sort") {
   CHECK( v1 == vector{10,20,30,40,50} );
   CHECK( perm == vector{2,4,1,0,3} );
 }
+
+
+TEST_CASE("sorted") {
+  CHECK( sorted(vector<int>{4,3,1,5,2}) == vector<int>{1,2,3,4,5} );
+}

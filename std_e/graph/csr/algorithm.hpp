@@ -23,7 +23,6 @@ renumber_graph(auto& graph_idx, auto& graph, const auto& new_to_old_numbering) -
 auto
 renumber_edge(auto& edge_node, const auto& new_to_old_numbering) -> void
 {
-  auto n_edge = edge_node.size();
   auto edge_node_l = std_e::range<0>(edge_node);
   auto edge_node_r = std_e::range<1>(edge_node);
   std_e::permute(edge_node_l, new_to_old_numbering);

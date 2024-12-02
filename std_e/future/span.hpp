@@ -409,7 +409,7 @@ template<
   std::enable_if_t<!std::is_pointer_v<std::remove_reference_t<Contiguous_range>>,int> =0
 > FORCE_INLINE constexpr auto
 make_subspan(Contiguous_range& x, I start, I stop) {
-  return make_subspan(x.data(),start,stop-start);
+  return make_subspan(x.data(),start,stop);
 }
 template<class Contiguous_range, class I> FORCE_INLINE constexpr auto
 make_span_n(Contiguous_range& x, I start, I n) { // TODO deprecate (use make_subspan_n)
