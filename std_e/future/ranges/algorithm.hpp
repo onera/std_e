@@ -15,15 +15,15 @@ struct copy_result {
 
 template<class R, class It> auto
 copy(R&& r, It&& it) {
-  #if defined(REAL_GCC) && defined(__GLIBCXX__)
+  // #if defined(REAL_GCC) && defined(__GLIBCXX__)
     return std::ranges::copy(r,it);
-  #else
-    auto out = std::copy(std::ranges::begin(r),std::ranges::end(r),it);
-    auto in  = std::ranges::end(r);
-    using It0 = decltype(in);
-    using It1 = decltype(out);
-    return copy_result<It0,It1>{in,out};
-  #endif
+  // #else
+  //   auto out = std::copy(std::ranges::begin(r),std::ranges::end(r),it);
+  //   auto in  = std::ranges::end(r);
+  //   using It0 = decltype(in);
+  //   using It1 = decltype(out);
+  //   return copy_result<It0,It1>{in,out};
+  // #endif
 }
 auto
 move(auto&& r, auto&& it) {
@@ -123,7 +123,7 @@ stable_sort(auto&& r, auto&& comp, auto&& proj) {
     return std::ranges::stable_sort(r,comp,proj);
   #else
     auto cmp = [comp,proj](const auto& x, const auto& y){ return comp(proj(x),proj(y)); };
-    return std::reverse(begin(r),end(r),cmp);
+    return std::stable_sort(begin(r),end(r), cmp);
   #endif
 }
 
