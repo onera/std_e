@@ -15,8 +15,12 @@ step_dynarray(I start, I sz, I step = 1) {
   return v;
 }
 template<class I> auto
-iota_dynarray(I sz) {
-  return step_dynarray(I(0),sz,I(1));
+iota_dynarray(I start, I stop) {
+  return step_dynarray(start,stop-start,I(1));
+}
+template<class I> auto
+iota_dynarray(I n) {
+  return iota_dynarray(I(0),n);
 }
 
 
