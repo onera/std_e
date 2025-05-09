@@ -16,6 +16,9 @@ using vblock_range = jagged_range<T,I,2>;
 template<class T, class I>
 using vblock_vector = jagged_vector<T,2,I>;
 
+template<class T, class I>
+using vblock_span = vblock_range<span<T>,span<I>>;
+
 template<class Rng, class Int_range> constexpr auto
 view_as_vblock_range(Rng& values, Int_range& offsets) {
   return vblock_range<Rng&,Int_range&>(values,offsets);
