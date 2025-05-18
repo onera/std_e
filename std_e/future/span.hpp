@@ -394,7 +394,7 @@ make_subspan(T* ptr, I start, I stop) {
 }
 
 template<class Contiguous_range> FORCE_INLINE constexpr auto
-make_span(Contiguous_range& x) {
+make_span(Contiguous_range&& x) {
   return make_span(x.data(),x.size());
 }
 template<

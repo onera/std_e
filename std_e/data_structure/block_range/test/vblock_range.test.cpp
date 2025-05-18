@@ -11,7 +11,7 @@ TEST_CASE("vblock_range") {
   std::vector<double> x = {2.,10.,4.,5.,  6.,3.,12.};
   std::vector<int>   is = {0           ,  4        ,7};
 
-  vblock_range<std::vector<double>&,std::vector<int>&> xb = view_as_vblock_range(x,is);
+  vblock_range<std_e::span<double>,std_e::span<int>> xb = view_as_vblock_range(x,is);
 
   SUBCASE("basic methods") {
     CHECK( xb.total_size() == 7 );
@@ -33,7 +33,7 @@ TEST_CASE("vblock_range") {
   SUBCASE("copy") {
     std::vector<double> y(7);
     std::vector<int> y_is(3);
-    vblock_range<std::vector<double>&,std::vector<int>&> yb = view_as_vblock_range(y,y_is);
+    vblock_range<std_e::span<double>,std_e::span<int>> yb = view_as_vblock_range(y,y_is);
     std_e::ranges::copy(xb,yb.begin());
     CHECK( x == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
     CHECK( y == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
@@ -43,7 +43,7 @@ TEST_CASE("vblock_range") {
   SUBCASE("move") {
     std::vector<double> y(7);
     std::vector<int> y_is(3);
-    vblock_range<std::vector<double>&,std::vector<int>&> yb = view_as_vblock_range(y,y_is);
+    vblock_range<std_e::span<double>,std_e::span<int>> yb = view_as_vblock_range(y,y_is);
     std_e::ranges::move(xb,yb.begin());
     CHECK( y == std::vector{2.,10.,4.,5.,  6.,3.,12.} );
     CHECK( y_is == std::vector{0,4,7} );
@@ -71,7 +71,7 @@ TEST_CASE("vblock_range") {
   SUBCASE("unique") {
     std::vector<double> x = {2.,10.,4.,5.,  6.,3.,12.,  6.,3.,12., 44.,45.};
     std::vector<int>   is = {0           ,  4        ,  7        , 10     , 12};
-    vblock_range<std::vector<double>&,std::vector<int>&> xb = view_as_vblock_range(x,is);
+    vblock_range<std_e::span<double>,std_e::span<int>> xb = view_as_vblock_range(x,is);
     auto sub_rng = std_e::ranges::unique(xb);
     CHECK( x == std::vector{2.,10.,4.,5.,  6.,3.,12.,  44.,45., 12.,44.,45.} ); // Note: 3 last values are from the old range
     CHECK( is == std::vector{0,4,7,9,12} ); // Note: last value from the old range

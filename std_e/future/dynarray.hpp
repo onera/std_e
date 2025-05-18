@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <cstdio>
 #include <algorithm>
 #include <initializer_list>
 
@@ -10,13 +11,46 @@
 namespace std_e {
 
 
-template<class T>
+struct mallocator {
+  static auto allocate(size_t n) -> void* {
+    return malloc(n);
+  }
+  static auto deallocate(void* p) -> void {
+    free(p);
+  }
+
+  template<class T>
+  static auto fill(T* first, T* last, const T& x) {
+    std::fill(first, last, x);
+  }
+  //template<class T>
+  //static auto copy(const T* first, const T* last, T* d_first) {
+  template<class In_it, class S, class Out_it>
+  static auto copy(In_it first, S last, Out_it d_first) {
+    std::copy(first, last, d_first);
+  }
+};
+
+//struct aligned_mallocator {
+//  static auto allocate(size_t n) -> void* {
+//    void* p;
+//    posix_memalign(&p, 64, n);
+//    return p;
+//  }
+//  static auto deallocate(void* p) -> void {
+//    free(p);
+//  }
+//};
+
+template<class T, class Allocator = mallocator> // TODO rename Allocator, it also provide fill and copy
 class dynarray {
   public:
   // type traits
     using value_type      =       T ;
     using       iterator  =       T*;
     using const_iterator  = const T*;
+    using       pointer   =       T*;
+    using const_pointer   = const T*;
     using       reference = const T&;
     using const_reference = const T&;
 
@@ -40,7 +74,7 @@ class dynarray {
     dynarray(const dynarray& old) 
       : dynarray(old.sz)
     {
-      std::copy(old.ptr, old.ptr+old.sz, ptr);
+      Allocator::copy(old.ptr, old.ptr+old.sz, ptr);
     }
 
     dynarray& operator=(const dynarray& old) {
@@ -49,7 +83,7 @@ class dynarray {
         deallocate(this->ptr);
         this->ptr = allocate(sz);
       }
-      std::copy(old.ptr, old.ptr+old.sz, ptr);
+      Allocator::copy(old.ptr, old.ptr+old.sz, ptr);
       return *this;
     }
 
@@ -73,7 +107,7 @@ class dynarray {
     dynarray(Input_it first, S last)
       : dynarray(last - first)
     {
-      std::copy(first, last, ptr);
+      Allocator::copy(first, last, ptr);
     }
 
     dynarray(const std::initializer_list<T>& x)
@@ -90,7 +124,7 @@ class dynarray {
         deallocate(this->ptr);
         this->ptr = allocate(sz);
       }
-      std::copy(x.ptr, x.ptr+x.sz, ptr);
+      Allocator::copy(x.ptr, x.ptr+x.sz, ptr);
       return *this;
     }
 
@@ -98,7 +132,7 @@ class dynarray {
     dynarray(I sz, const T& x)
       : dynarray(sz)
     {
-      std::fill(ptr, ptr+sz, x);
+      Allocator::fill(ptr, ptr+sz, x);
     }
 
     auto
@@ -141,24 +175,24 @@ class dynarray {
   private:
   // static helper functions
     static auto allocate(size_t n) -> T* {
-      return new T[n];
+      return (T*)Allocator::allocate(n * sizeof(T));
     }
     static auto deallocate(T* p) -> void {
-      delete[] p;
+      Allocator::deallocate(p);
     }
   // data members
     T* ptr;
     size_t sz;
 };
 
-template<class T> auto
-to_string(const dynarray<T>& v) {
+template<class T, class A> auto
+to_string(const dynarray<T,A>& v) {
   return range_to_string(v);
 }
-template<class T> auto begin(const dynarray<T>& v) { return v.begin(); }
-template<class T> auto begin(      dynarray<T>& v) { return v.begin(); }
-template<class T> auto end  (const dynarray<T>& v) { return v.end(); }
-template<class T> auto end  (      dynarray<T>& v) { return v.end(); }
+template<class T, class A> auto begin(const dynarray<T,A>& v) { return v.begin(); }
+template<class T, class A> auto begin(      dynarray<T,A>& v) { return v.begin(); }
+template<class T, class A> auto end  (const dynarray<T,A>& v) { return v.end(); }
+template<class T, class A> auto end  (      dynarray<T,A>& v) { return v.end(); }
 
 
 template<class Rng> auto make_dynarray(const Rng& x) { 

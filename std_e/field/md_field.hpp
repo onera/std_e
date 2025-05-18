@@ -7,6 +7,7 @@
 #include "std_e/multi_index/fortran_order.hpp"
 #include "std_e/future/span_ref.hpp"
 #include "std_e/field/concepts.hpp"
+#include "std_e/debug.hpp"
 
 
 namespace std_e {
@@ -111,10 +112,10 @@ class field_base : public Array_type {
     }
 
 };
-template<class T>
-class field : public field_base<std_e::dynarray<T>> {
+template<class T, class A = mallocator>
+class field : public field_base<std_e::dynarray<T,A>> {
   public:
-    using base = field_base<std_e::dynarray<T>>;
+    using base = field_base<std_e::dynarray<T,A>>;
     using base::base;
 };
 
@@ -222,10 +223,10 @@ to_string(const md_field_base<AT,Ns...>& x) -> std::string {
   return to_string(x.underlying());
 }
 
-template<class T, int... Ns>
-class md_field : public md_field_base<std_e::dynarray<T>, Ns...> {
+template<class T, class A, int... Ns>
+class md_field : public md_field_base<std_e::dynarray<T,A>, Ns...> {
   public:
-    using array_1d_t = std_e::dynarray<T>;
+    using array_1d_t = std_e::dynarray<T,A>;
     using base = md_field_base<array_1d_t, Ns...>;
 
     md_field() = default;
@@ -237,7 +238,9 @@ class md_field : public md_field_base<std_e::dynarray<T>, Ns...> {
 
     md_field(size_t n, T value)
     {
-      std::ranges::fill(this->underlying(), array_1d_t(n,value));
+      for (int i=0; i<this->dim_tot; ++i) {
+        this->underlying_linear(i) = array_1d_t(n,value);
+      }
     }
 
     md_field(size_t n, const md_field_uniform<T,Ns...>& uni_fld)
@@ -338,18 +341,19 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
 }
 
 // Double precision types
-struct scalar_field : field<double> {
-  using base = field<double>;
+struct scalar_field : field<double, mallocator> {
+  using base = field<double, mallocator>;
   using base::base;
 };
 template<int N> 
-struct vector_field : md_field<double, N> {
-  using base = md_field<double, N>;
+struct vector_field : md_field<double, mallocator, N> {
+  using base = md_field<double, mallocator, N>;
   using base::base;
 };
+
 template<int N0, int N1> 
-struct tensor_field : md_field<double, N0, N1> {
-  using base = md_field<double, N0, N1>;
+struct tensor_field : md_field<double, mallocator, N0, N1> {
+  using base = md_field<double, mallocator, N0, N1>;
   using base::base;
 };
 struct scalar_field_view : field_view<double> {
@@ -381,34 +385,34 @@ struct tensor_field_uniform : md_field_uniform<double, N0, N1> {
   using base::base;
 };
 
-// Simple precision types
-struct scalar_field_f : field<float> {
-  using base = field<float>;
-  using base::base;
-};
-template<int N>
-struct vector_field_f : md_field<float, N> {
-  using base = md_field<float, N>;
-  using base::base;
-};
-template<int N0, int N1> 
-struct tensor_field_f : md_field<float, N0, N1> {
-  using base = md_field<float, N0, N1>;
-  using base::base;
-};
-struct scalar_field_view_f : field_view<float> {
-  using base = field_view<float>;
-  using base::base;
-};
-template<int N> 
-struct vector_field_view_f : md_field_view<float, N> {
-  using base = md_field_view<float, N>;
-  using base::base;
-};
-template<int N0, int N1> 
-struct tensor_field_view_f : md_field_view<float, N0, N1> {
-  using base = md_field_view<float, N0, N1>;
-  using base::base;
-};
+//// Simple precision types
+//struct scalar_field_f : field<float> {
+//  using base = field<float>;
+//  using base::base;
+//};
+//template<int N>
+//struct vector_field_f : md_field<float, N> {
+//  using base = md_field<float, N>;
+//  using base::base;
+//};
+//template<int N0, int N1> 
+//struct tensor_field_f : md_field<float, N0, N1> {
+//  using base = md_field<float, N0, N1>;
+//  using base::base;
+//};
+//struct scalar_field_view_f : field_view<float> {
+//  using base = field_view<float>;
+//  using base::base;
+//};
+//template<int N> 
+//struct vector_field_view_f : md_field_view<float, N> {
+//  using base = md_field_view<float, N>;
+//  using base::base;
+//};
+//template<int N0, int N1> 
+//struct tensor_field_view_f : md_field_view<float, N0, N1> {
+//  using base = md_field_view<float, N0, N1>;
+//  using base::base;
+//};
 
 } // std_e

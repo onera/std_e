@@ -9,7 +9,7 @@ using namespace std;
 TEST_CASE("jagged_vector principle") {
   jagged_vector<int> v = {{9,5,6,7},{1,3},{8,2,4}};
   CHECK( v.flat_view() == vector{9,5,6,7,1,3,8,2,4} );
-  CHECK( v.indices() == interval_vector<int>{0,4,6,9} );
+  CHECK( v.indices() == vector<int>{0,4,6,9} );
 
   CHECK( v.size() == 3 );
   CHECK( v[0] == vector{9,5,6,7} );
@@ -45,7 +45,7 @@ TEST_CASE("jagged_vector") {
 
     CHECK( v.size() == 4 );
     CHECK( v.flat_view() == vector{10,20,30,40,50,60,70} );
-    CHECK( v.indices() == interval_vector<int>{0,1,3,4,7} );
+    CHECK( v.indices() == vector<int>{0,1,3,4,7} );
     CHECK( v[0].size() == 1 );
     CHECK( v[0][0] == 10 );
 
@@ -65,7 +65,7 @@ TEST_CASE("jagged_vector") {
   SUBCASE("init list") {
     jagged_vector<int> v = {{0},{10,20},{30},{40,50,60}};
     CHECK( v.flat_view() == vector{0,10,20,30,40,50,60} );
-    CHECK( v.indices() == interval_vector<int>{0,1,3,4,7} );
+    CHECK( v.indices() == vector<int>{0,1,3,4,7} );
   }
   SUBCASE("equality") {
     jagged_vector<int> v = {{0},{10,20}};
@@ -93,12 +93,12 @@ TEST_CASE("jagged_vector") {
     v.push_back(60);
     v.push_back(70);
     CHECK( v.flat_view() == vector{10,20,30,40,50,60,70} );
-    CHECK( indices<0>(v) == interval_vector<int>{0,1,3,4,7} );
-    CHECK( indices<1>(v) == interval_vector<int>{0,2,4} );
+    CHECK( indices<0>(v) == vector<int>{0,1,3,4,7} );
+    CHECK( indices<1>(v) == vector<int>{0,2,4} );
 
     CHECK( v == jagged_vector<int,3>{{{10},{20,30}},{{40},{50,60,70}}} );
     CHECK( v[0].flat_view() == vector{10,20,30} );
-    CHECK( v[0].indices() == interval_vector<int>{0,1,3} );
+    CHECK( v[0].indices() == vector<int>{0,1,3} );
     CHECK( v[0].offset() == 0 );
     jagged_vector<int,2> v0 = {{10},{20,30}};
     CHECK( v[0] == v0 );
@@ -106,7 +106,7 @@ TEST_CASE("jagged_vector") {
     CHECK( v[0][1] == vector{20,30} );
 
     CHECK( v[1].flat_view() == vector{40,50,60,70} );
-    CHECK( v[1].indices() == interval_vector<int>{3,4,7} );
+    CHECK( v[1].indices() == vector<int>{3,4,7} );
     CHECK( v[1].offset() == 3 );
     jagged_vector<int,2> v1 = {{40},{50,60,70}};
     CHECK( v[1] == v1 );
@@ -142,7 +142,7 @@ TEST_CASE("jagged_multi_vector") {
   CHECK( v.size() == 4 );
   CHECK( range<0>(v.flat_view()) == vector{10,20,30,40,50,60,70} );
   CHECK( range<1>(v.flat_view()) == vector{"10","20","30","40","50","60","70"} );
-  CHECK( v.indices() == interval_vector<int>{0,1,3,4,7} );
+  CHECK( v.indices() == vector<int>{0,1,3,4,7} );
   CHECK( v[0].size() == 1 );
   CHECK( std::get<0>(v[0][0]) == 10 );
   CHECK( std::get<1>(v[0][0]) == "10" );

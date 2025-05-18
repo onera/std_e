@@ -25,7 +25,7 @@ TEST_CASE("dynarray") {
 
   SUBCASE("[first,last) ctor + read access") {
     std::vector<int> buffer = {5,3,6,1};
-    dynarray<int> x(buffer.begin(), buffer.end());
+    dynarray<int> x(buffer.data(), buffer.data()+buffer.size());
 
     CHECK( x.size() == 4 );
     CHECK( x[0] == 5 );

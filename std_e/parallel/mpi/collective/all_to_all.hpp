@@ -199,7 +199,7 @@ all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm
 template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
 all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T> {
   auto [rbuf,rindices] = all_to_all(sends.flat_view(), sends.indices(), comm, algo_family);
-  return {std::move(rbuf),std::move(rindices)};
+  return {std::move(rbuf),std::move(rindices.as_base())};
 }
 
 
@@ -235,7 +235,7 @@ all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = 
   // end extract
 
   downscale_separators(recvy.second,recv.first);
-  return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second));
+  return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second.as_base()));
 }
 
 
