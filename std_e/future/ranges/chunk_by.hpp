@@ -11,7 +11,12 @@ namespace std_e {
 template<class Range, class Bin_pred> constexpr auto
 chunk_by(Range&& rng, Bin_pred p) {
   auto partition_is = std_e::mismatch_indices(rng,p);
-  return vblock_range<std_e::remove_rvalue_reference<Range&&>,std::vector<int>>(FWD(rng),std::move(partition_is));
+  if constexpr (std::is_rvalue_reference_v<Range&&>) {
+    return vblock_range<Range,std::vector<int>>(std::move(rng),std::move(partition_is));
+  } else {
+    using T = typename std::remove_cvref_t<Range>::value_type;
+    return vblock_range<std_e::span<T>,std::vector<int>>(rng,std::move(partition_is));
+  }
 }
 
 

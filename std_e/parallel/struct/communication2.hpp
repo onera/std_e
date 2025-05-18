@@ -167,7 +167,8 @@ template<class Distribution, class Int_range>
 create_exchange_protocol(const Distribution& distri, Int_range ids) {
   auto [partition_is,new_to_old] = apply_indirect_partition_sort(ids,make_span(distri.data()+1,distri.size()-1)); // TODO UGLY
   apply_step(ids,partition_is,distri);
-  jagged_vector<int,2> indices_by_rank(std::move(ids),std::move(partition_is));
+  std::vector<int> int_ids(ids.begin(),ids.end()); // FIXME needed because long->int conversion
+  jagged_vector<int,2> indices_by_rank(std::move(int_ids),std::move(partition_is));
 
   return exchange_protocol{std::move(indices_by_rank),std::move(new_to_old)};
 }
@@ -262,16 +263,16 @@ constexpr  auto get_values_fn = []<class T>(dist_jagged_array<T>& arr) -> auto& 
   return arr.values_dist_array();
 };
 
-constexpr  auto indices_from_strides_fn = [](std::vector<int>& stris, auto&&...) -> interval_vector<int> {
-  return indices_from_strides(stris);
+constexpr  auto indices_from_strides_fn = [](std::vector<int>& stris, auto&&...) -> std::vector<int> {
+  return indices_from_strides(stris).as_base();
 };
 
 template<class T>
-constexpr auto alloc_res_val_fn = [](const interval_vector<int>& iv) {
-  return std::vector<T>(iv.length());
+constexpr auto alloc_res_val_fn = [](const std::vector<int>& iv) {
+  return std::vector<T>(iv.back());
 };
 
-constexpr auto extract_res_in_jagged_array_fn = []<class T>(interval_vector<int>& displs, std::vector<T>& values) {
+constexpr auto extract_res_in_jagged_array_fn = []<class T>(std::vector<int>& displs, std::vector<T>& values) {
   return jagged_vector<T>(std::move(values),std::move(displs));
 };
 

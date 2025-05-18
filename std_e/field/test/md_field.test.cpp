@@ -29,7 +29,7 @@ TEST_CASE("field") {
 }
 
 TEST_CASE("md_field") {
-  using md_field_t = md_field<double, 3,2>;
+  using md_field_t = md_field<double, mallocator, 3,2>;
   static_assert(std::is_same_v<md_field_t::value_type, double>);
   static_assert(md_field_t::rank == 2);
   static_assert(md_field_t::dims == std::array<int,2>{3,2});
