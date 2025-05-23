@@ -166,10 +166,10 @@ class dynarray {
     auto back ()                 ->       T& { return ptr[sz-1]; }
 
 
-    constexpr auto operator==(const dynarray& x) const {
+    auto operator==(const dynarray& x) const {
       return std::equal(begin(), end(), x.begin(), x.end());
     }
-    constexpr auto operator<=>(const dynarray& x) const {
+    auto operator<=>(const dynarray& x) const {
       return std::lexicographical_compare_three_way(begin(), end(), x.begin(), x.end());
     }
   private:

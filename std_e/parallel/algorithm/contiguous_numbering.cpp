@@ -503,7 +503,7 @@ auto contiguous_numbering_core2(std_e::span<int64_t> xs) {
 }
 template<
   class RA_rng, class RA_pivot_rng
-> constexpr auto
+> auto
 interval_indices2(RA_rng& x, const RA_pivot_rng& pivots) {
   int sz = x.size();
   int n_interval = pivots.size()-1;
@@ -522,7 +522,7 @@ interval_indices2(RA_rng& x, const RA_pivot_rng& pivots) {
 }
 template<
   class RA_rng, class RA_pivot_rng
-> constexpr auto
+> auto
 partition_stable2(RA_rng& x, const auto& x_partition, const RA_pivot_rng& partition_starts, auto& partition_offsets_buffer) {
   int sz = x.size();
   int n_interval = partition_starts.size()-1;

@@ -76,15 +76,15 @@ class tuple_impl<T,Ts...> {
     operator<(const tuple_impl<Ts0...>& x, const tuple_impl<Ts1...>& y) -> bool;
 
 
-    template<size_t I, class... Ts0>
-      requires (I < sizeof...(Ts0))
-        friend constexpr auto
-    get_impl(tuple_impl<Ts0...>& x) -> tuple_element<I,tuple_impl<Ts0...>>&;
+    //template<size_t I, class... Ts0>
+    //  requires (I < sizeof...(Ts0))
+    //    friend constexpr auto
+    //get_impl(tuple_impl<Ts0...>& x) -> tuple_element<I,tuple_impl<Ts0...>>&;
 
-    template<size_t I, class... Ts0>
-      requires (I < sizeof...(Ts0))
-        friend constexpr auto
-    get_impl(const tuple_impl<Ts0...>& x) -> const tuple_element<I,tuple_impl<Ts0...>>&;
+    //template<size_t I, class... Ts0>
+    //  requires (I < sizeof...(Ts0))
+    //    friend constexpr auto
+    //get_impl(const tuple_impl<Ts0...>& x) -> const tuple_element<I,tuple_impl<Ts0...>>&;
 };
 
 template<size_t I, class... Ts0>

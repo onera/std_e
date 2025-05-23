@@ -17,6 +17,7 @@ template<class T, int... Ns>
 struct md_field_uniform {
   public:
     // TODO factor with md_field_base
+    using Self = md_field_uniform<T, Ns...>;
     using value_type = T;
     static constexpr int rank = sizeof...(Ns);
     static constexpr std::array<int,rank> dims = {Ns...};
@@ -24,7 +25,7 @@ struct md_field_uniform {
 
     md_field_uniform(std::initializer_list<T>&& l)
     {
-      static_assert(this->rank==1);
+      static_assert(Self::rank==1);
       int i=0;
       for (const value_type& x : l) {
         (*this)(i) = x;
@@ -33,7 +34,7 @@ struct md_field_uniform {
     }
     md_field_uniform(std::initializer_list<std::initializer_list<T>>&& ll)
     {
-      static_assert(this->rank==2);
+      static_assert(Self::rank==2);
       int i=0;
       for (const auto& l : ll) {
         int j=0;
@@ -47,13 +48,13 @@ struct md_field_uniform {
 
     template<class... Is> auto
     operator()(Is... is) const -> const value_type& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return _values[i];
     }
     template<class... Is> auto
     operator()(Is... is) -> value_type& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return _values[i];
     }
@@ -138,6 +139,7 @@ class field_ref : public field_base<std_e::span_ref<T>> {
 template<class Array_type, int... Ns>
 class md_field_base {
   public:
+    using Self = md_field_base<Array_type, Ns...>;
     using T = typename Array_type::value_type;
     using value_type = T;
     static constexpr int rank = sizeof...(Ns);
@@ -146,48 +148,48 @@ class md_field_base {
 
     template<class... Is> auto
     underlying(Is... is)       ->       auto& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return _arrays[i];
     }
     template<class... Is> auto
     underlying(Is... is) const -> const auto& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return _arrays[i];
     }
 
     template<class... Is> auto
     field(Is... is) -> field_ref<T> {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return std_e::make_span(_arrays[i].begin(), _arrays[i].end());
     }
     template<class... Is> auto
     field(Is... is) const -> field_ref<const T> {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       auto i = index_of_field(is...);
       return std_e::make_span(_arrays[i].begin(), _arrays[i].end());
     }
     template<class... Is> auto
     data(Is... is) -> T* {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       return this->field(is...).data();
     }
     template<class... Is> auto
     data(Is... is) const -> const T* {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       return this->field(is...).data();
     }
 
     template<class I, class... Is> auto
     operator()(I fld_idx, Is... is) const -> const T& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       return field(is...)[fld_idx];
     }
     template<class I, class... Is> auto
     operator()(I fld_idx, Is... is) -> T& {
-      static_assert(sizeof...(Is) == this->rank);
+      static_assert(sizeof...(Is) == Self::rank);
       return field(is...)[fld_idx];
     }
 
@@ -277,11 +279,11 @@ template<class Md_field> auto
 row(Md_field& x, int i) {
   using FT = std::decay_t<Md_field>;
   using T = typename FT::value_type;
-  if constexpr (x.rank == 1) {
+  if constexpr (Md_field::rank == 1) {
     return x.field(i);
-  } else if constexpr (x.rank == 2) {
-    md_field_view<T, x.dims[1]> res;
-    for (int j=0; j<x.dims[1]; ++j) {
+  } else if constexpr (Md_field::rank == 2) {
+    md_field_view<T, Md_field::dims[1]> res;
+    for (int j=0; j<Md_field::dims[1]; ++j) {
       res.underlying(j) = x.underlying(i,j);
     }
     return res;
@@ -302,14 +304,14 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
   static_assert(std::is_same_v<T0,T2>);
   //static_assert(x.rank <= 2);
   //static_assert(y.rank <= 2);
-  if constexpr (x.rank == 0 && y.rank == 0 && z.rank == 0) {
+  if constexpr (Md_field_0::rank == 0 && Md_field_1::rank == 0 && Md_field_2::rank == 0) {
     md_field_view<T0, 3> res;
     res.underlying(0) = x;
     res.underlying(1) = y;
     res.underlying(2) = z;
     return res;
-  } else if constexpr (x.rank == 0 && y.rank == 1 && z.rank == 0) {
-    constexpr int n_row = 1+y.dims[0]+1;
+  } else if constexpr (Md_field_0::rank == 0 && Md_field_1::rank == 1 && Md_field_2::rank == 0) {
+    constexpr int n_row = 1+Md_field_1::dims[0]+1;
     md_field_view<T0, n_row> res;
     res.underlying(0) = x;
     for (int i=0; i<n_row-2; ++i) {
@@ -317,11 +319,11 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
     }
     res.underlying(n_row-1) = z;
     return res;
-  } else if constexpr (x.rank == 1 && y.rank == 2 && z.rank == 1) {
-    static_assert(x.dims[0] == y.dims[1]);
-    static_assert(z.dims[0] == y.dims[1]);
-    constexpr int n_row = 1+y.dims[0]+1;
-    constexpr int n_col = x.dims[0];
+  } else if constexpr (Md_field_0::rank == 1 && Md_field_1::rank == 2 && Md_field_2::rank == 1) {
+    static_assert(Md_field_0::dims[0] == Md_field_1::dims[1]);
+    static_assert(Md_field_2::dims[0] == Md_field_1::dims[1]);
+    constexpr int n_row = 1+Md_field_1::dims[0]+1;
+    constexpr int n_col = Md_field_0::dims[0];
     md_field_view<T0, n_row, n_col> res;
     for (int j=0; j<n_col; ++j) {
       res.underlying(0,j) = x.underlying(j);
