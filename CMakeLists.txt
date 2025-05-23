@@ -105,9 +105,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 if(${PROJECT_NAME}_ENABLE_MPI)
   project_find_package(MPI REQUIRED COMPONENTS CXX)
+  project_find_package(Threads REQUIRED)
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
       MPI::MPI_CXX
+      Threads::Threads
   )
 endif()
 
