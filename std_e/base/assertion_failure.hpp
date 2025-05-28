@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "std_e/base/msg_exception.hpp"
 #include "std_e/base/stacktrace_to_string.hpp"
