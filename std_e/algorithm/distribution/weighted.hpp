@@ -16,7 +16,7 @@ balanced_distribution(Fwd_it0 first, S0 last, Fwd_it1 first_size, S1 last_size, 
   using I = typename std::iterator_traits<Fwd_it1>::value_type;
   I total_weighted_size = std::inner_product(first_size,last_size,first_weights,I(0));
   // 0. distribution if the size of every block size was multiplied by its weight
-  uniform_distribution(first,last,I(0),total_weighted_size);
+  uniform_distribution(first,last,total_weighted_size);
   *first_weighted = 0;
 
   // 1. now we need to change this distribution by dividing by the weights
