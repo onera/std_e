@@ -62,13 +62,6 @@ template<class Contiguous_range, class F = default_all_to_all, class T = typenam
 all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> std::vector<T> {
   return all_to_all(s_array,1,comm,alltoall_algo);
 }
-
-template<class Range, class F = dense_algo_family> auto
-all_to_all(const interval_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all{}) -> std_e::interval_vector<int> {
-  std::vector<int> sstrides = interval_lengths(sindices);
-  std::vector<int> rstrides = all_to_all(sstrides,comm,alltoall_algo);
-  return indices_from_strides(rstrides);
-}
 // all_to_all }
 
 
