@@ -27,7 +27,7 @@ sort(
 )
 {
   // 0. preconditions
-  STD_E_ASSERT(x.size() > (size_t)INT_MAX); // needed because we use `int` for indexing into `x` (see step 2.)
+  STD_E_ASSERT(x.size() < (size_t)INT_MAX); // needed because we use `int` for indexing into `x` (see step 2.)
 
   // 1. global partitioning
 
