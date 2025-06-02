@@ -73,6 +73,7 @@ template<class data_range_type, class indices_range_type, int r>
 class jagged_range {
   public:
     static constexpr int rank = r;
+    static constexpr bool is_jagged_range = true;
   private:
     //using indices_array_type = std::array<indices_range_type,rank-1>;
     using indices_array_type = typename indices_array_type_impl<indices_range_type,rank>::type;
@@ -107,6 +108,15 @@ class jagged_range {
     jagged_range(jagged_range&&) = default;
     jagged_range& operator=(const jagged_range&) = default;
     jagged_range& operator=(jagged_range&&) = default;
+
+    // copy from another jagged_range type
+    template<class Jagged_range_type>
+      requires Jagged_range_type::is_jagged_range
+    jagged_range(const Jagged_range_type& x)
+      : flat_values(x.flat_values)
+      , idx_array(x.idx_array)
+      , off(x.off)
+    {}
 
     // TODO private (for default ctor only)
     jagged_range(data_range_type flat_values, unambiguous) requires (rank>2)
