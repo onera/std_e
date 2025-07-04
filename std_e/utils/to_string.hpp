@@ -80,5 +80,14 @@ to_string(const Ts&... xs) -> std::string {
   return s;
 }
 
+// https://stackoverflow.com/a/5100745/1583122
+template<typename I>
+std::string to_hex_string(I i) {
+  std::stringstream ss;
+  ss << std::setfill ('0') << std::setw(sizeof(I)*2) 
+     << std::hex << i;
+  return ss.str();
+}
+
 
 } // std_e
