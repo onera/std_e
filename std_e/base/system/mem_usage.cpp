@@ -22,7 +22,11 @@ remaining_system_memory_in_bytes() -> long {
 
 auto
 malloc_mem_info() -> void {
-  malloc_stats(); // NOTE: see also mallinfo()
+  #if defined(__GLIBC__)
+    malloc_stats(); // NOTE: see also mallinfo()
+  #else
+    throw std_e::msg_exception("malloc_stats not implemented on non-glibc system");
+  #endif
 }
 
 
