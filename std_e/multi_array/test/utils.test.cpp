@@ -1,6 +1,7 @@
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/multi_array/utils.hpp"
 #include "std_e/multi_array/multi_array.hpp"
+#include <cstdint>
 
 
 using namespace std_e;
