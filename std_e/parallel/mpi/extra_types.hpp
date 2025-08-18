@@ -34,7 +34,7 @@ all_gather(const std::vector<std_e::array<T,N>>& x, MPI_Comm comm) -> std::vecto
 
 
 template<class C, int N, class Int_range, class F = dense_algo_family> auto
-all_to_all(const block_range<C,N>& x, const Int_range& indices, MPI_Comm comm, F algo_family = {}) {
+all_to_all(const block_range<C,N>& x, const Int_range& indices, MPI_Comm comm, [[maybe_unused]] F algo_family = {}) {
   using T = typename block_range<C,N>::scalar_type;
   auto sbuf = x.underlying_range();
 

@@ -42,7 +42,7 @@ template<
   class RA_rng, class I = typename RA_rng::size_type, class Proj = identity_closure,
   class T = std::ranges::range_value_t<RA_rng>, class T_piv = value_return_t<Proj,T>
 > auto
-median_of_3_sample_mod(const RA_rng& x, I n_pivot, Proj proj = {}) -> std::vector<T_piv> {
+median_of_3_sample_mod(const RA_rng& x, [[maybe_unused]] I n_pivot, Proj proj = {}) -> std::vector<T_piv> {
   auto sz = x.size();
   if (sz==0) {
     return {};

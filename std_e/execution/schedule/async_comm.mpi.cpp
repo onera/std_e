@@ -116,7 +116,7 @@ execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
 
 #else // __cpp_lib_atomic_wait not available
 auto
-execute_async_comm(task_graph& tg, thread_pool& comm_tp) -> void {
+execute_async_comm(task_graph& /*tg*/, thread_pool& /*comm_tp*/) -> void {
   throw not_implemented_exception("execute_async_comm not supported because your compiler does not implement std::atomic waiting (__cpp_lib_atomic_wait)");
 }
 #endif

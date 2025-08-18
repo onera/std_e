@@ -13,7 +13,7 @@ _pivot_partition_copy(Rng&& x, const Pivot_range& pivots, Proj proj, F_copy f_co
   auto sz = x.size();
   using I = decltype(sz);
   for (I i=0; i<sz; ++i) {
-    auto it = std::upper_bound(begin(pivots),end(pivots),proj(x[i]));
+    auto it = std::upper_bound(begin(pivots),end(pivots),proj(x[i]), comp);
     auto index = it-begin(pivots)-shift;
     f_copy(index,x[i]);
   }

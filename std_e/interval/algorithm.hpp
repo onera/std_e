@@ -76,7 +76,7 @@ is_partitioned_at_indices(const Rng& x, const Interval_sequence& partition_indic
 
 // TODO factor with minmax_over_interval_sequence
 template<class Rng, class It_range, class Comp = std::less<>> auto
-minmax_over_sub_ranges(const Rng& x, const It_range& partition_points, Comp comp = {}) {
+minmax_over_sub_ranges(const Rng& /*x*/, const It_range& partition_points, Comp comp = {}) {
   using T = typename Rng::value_type;
   if (partition_points.size()==0) {
     return std::make_pair(std::vector<T>{},std::vector<T>{});

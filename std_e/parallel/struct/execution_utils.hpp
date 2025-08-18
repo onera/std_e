@@ -32,7 +32,7 @@ constexpr auto extract_result_fn = [](const auto& x, auto&&...) {
 //constexpr auto local_array_fn = []<class T>(const dist_array<T>& a, auto&&...) -> const dist_array<T>& {
 //  return a.local();
 //}
-constexpr auto local_array_fn = []<class T>(const dist_array<T>& a, auto&&...) {
+constexpr auto local_array_fn = []<class T>(const dist_array<T>&, auto&&...) {
   return 0;
 };
 
