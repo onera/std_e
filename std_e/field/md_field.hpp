@@ -23,6 +23,8 @@ struct md_field_uniform {
     static constexpr std::array<int,rank> dims = {Ns...};
     static constexpr int dim_tot = (Ns * ... * 1);
 
+    md_field_uniform() {}
+
     md_field_uniform(std::initializer_list<T>&& l)
     {
       static_assert(Self::rank==1);
