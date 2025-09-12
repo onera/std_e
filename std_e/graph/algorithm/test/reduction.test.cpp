@@ -22,10 +22,10 @@ to_string(const node_with_level_for_test& x) -> std::string {
   return std::to_string(x.value) + ", " + std::to_string(x.reverse_level);
 }
 
-auto
-level(const node_with_level_for_test& x) {
-  return x.reverse_level;
-}
+//auto
+//level(const node_with_level_for_test& x) {
+//  return x.reverse_level;
+//}
 
 using nested_tree_with_level_for_tests = nested_tree<node_with_level_for_test>;
 

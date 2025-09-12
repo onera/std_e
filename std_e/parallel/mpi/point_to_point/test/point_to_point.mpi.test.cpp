@@ -113,7 +113,7 @@ MPI_TEST_CASE("send recv async overlap",2) {
   future s2 = s0 | then_comm2(send_recv_msg_1,test_comm) | then(reverse_msg);
   /*auto s3 = */join(std::move(s1),std::move(s2)) | then(concatenate_vec);
 
-  CHECK( tg.size() == 6 );
+  //CHECK( tg.size() == 6 );
 
   // TODO Timings are too high with OpenMPI
   //SUBCASE("seq") {

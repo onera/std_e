@@ -31,7 +31,7 @@ TEST_CASE("indent") {
 
 
 TEST_CASE("depth_first_build_simple") {
-  //   Reminder:
+  /*   Reminder:
   //         1
   //      /  |  \
   //     |   |    3
@@ -40,6 +40,7 @@ TEST_CASE("depth_first_build_simple") {
   //   /  \ \| |  |    \
   //   |  |  \ |  |    \
   //  4    7  \9  10   11
+  */
 
   auto g = std_e::create_rooted_graph_for_tests();
 
@@ -165,7 +166,7 @@ class fb_graph_ctor {
 //      return built_idx
 
 TEST_CASE("depth_first_build") {
-  //   Reminder:
+  /*   Reminder:
   //         1
   //      /  |  \
   //     |   |    3
@@ -174,6 +175,7 @@ TEST_CASE("depth_first_build") {
   //   /  \ \| |  |    \
   //   |  |  \ |  |    \
   //  4    7  \9  10   11
+  */
 
 
   // We will build a new graph two ways
@@ -192,6 +194,7 @@ TEST_CASE("depth_first_build") {
     auto res = f.retrieve();
 
     // 3. check
+    /*
     //         1
     //      /  |  \
     //     |   |    3
@@ -200,6 +203,7 @@ TEST_CASE("depth_first_build") {
     //   /  \ \| |  |    \
     //   |  |  \ |  |    \
     //  4    7  \9  10   11
+    */
     std::string expected_res = // TODO to `index_adjacency_vector` rather than `to_string`
       /* 0*/ "{4, {}}\n"
       /* 1*/ "{7, {}}\n"
@@ -230,6 +234,7 @@ TEST_CASE("depth_first_build") {
     auto res = f.retrieve();
 
     // 3. check
+    /*
     //         1
     //      /  |  \
     //     |   |    3
@@ -238,6 +243,7 @@ TEST_CASE("depth_first_build") {
     //   /  \ \| |  |    \
     //   |  |  \ |  |    \
     //  4    7  \9  10   11
+    */
     std::string expected_res = // TODO to `io_index_adjacency_vector` rather than `to_string`
       /* 0*/ "{4, {3,}, {}}\n"
       /* 1*/ "{7, {3,}, {}}\n"

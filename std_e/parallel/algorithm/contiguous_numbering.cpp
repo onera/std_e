@@ -69,8 +69,8 @@ template<
   class Return_container = interval_vector<int>
 > auto
 sort_by_rank_uniform(Rng& x, MPI_Comm comm, Proj proj = {}, Comp comp = {}, Return_container&& = {}) -> Return_container {
-  using T = typename Rng::value_type;
-  using T_piv = value_return_t<Proj,T>;
+  //using T = typename Rng::value_type;
+  //using T_piv = value_return_t<Proj,T>;
 
   auto cmp = [proj](const auto& x, const auto& y){ return proj(x) < proj(y); };
   auto [min_it,max_it] = std::minmax_element(x.begin(), x.end(), cmp);
