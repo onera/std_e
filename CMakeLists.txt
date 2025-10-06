@@ -9,12 +9,11 @@ if(NOT DEFINED PROJECT_ROOT)
 endif()
 
 # Bootstrap project_utils
-set(sub_repo_path "${PROJECT_ROOT}/external/project_utils")
-file(GLOB sub_repo_files ${sub_repo_path}/*)
-list(LENGTH sub_repo_files sub_repo_nb_files)
-if(sub_repo_nb_files EQUAL 0)
+file(GLOB project_utils_files "${PROJECT_ROOT}/external/project_utils/*")
+list(LENGTH project_utils_files n_file_project_utils)
+if(n_file_project_utils EQUAL 0)
   message(FATAL_ERROR
-    "${sub_repo_path} is empty.
+    "external/project_utils is empty.
     Maybe you forgot to initialize it with \"git submodule update --init\""
   )
 endif()

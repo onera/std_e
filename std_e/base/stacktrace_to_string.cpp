@@ -5,7 +5,7 @@
 #include <cxxabi.h>
 #include <iostream>
 
-#if __CYGWIN__
+#if defined(__CYGWIN__) || !defined(__GLIBC__)
 namespace std_e {
   auto stacktrace_to_string() -> std::string { return "no backtrace on CYGWIN"; }
 }

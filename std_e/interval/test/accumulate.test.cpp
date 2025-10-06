@@ -2,6 +2,7 @@
 
 
 #include "std_e/interval/accumulate.hpp"
+#include <cstdint>
 
 
 TEST_CASE("apply_accumulate") {
