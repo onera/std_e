@@ -118,7 +118,7 @@ TEST_CASE("then_comm") {
   auto s0 = input_data(tg,std::vector{3,0,1,2}) | then(sort_vec);
   auto s1 = s0 | then_comm(get_remote_info);
   auto s2 = s0 | then(reverse_vec_with_delay);
-  auto s3 = join(std::move(s1),std::move(s2)) | then(concatenate_vec);
+  /*auto s3 = */join(std::move(s1),std::move(s2)) | then(concatenate_vec);
 
   CHECK( tg.size() == 5 );
 
