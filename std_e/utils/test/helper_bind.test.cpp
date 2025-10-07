@@ -2,16 +2,16 @@
 #include "std_e/utils/helper_bind.hpp"
 #include <memory>
 #include <iostream>
-#include <cassert>
+#include "std_e/future/contract.hpp"
 
 
 void test_helper_bind_1(int& ncell, std::size_t& val){
-  assert(ncell == 100);
+  STD_E_ASSERT(ncell == 100);
   val *= 2;
 };
 
 void test_helper_bind_2(int& ncell, std::size_t& val, int* x, std::size_t* y){
-  assert(ncell == 100);
+  STD_E_ASSERT(ncell == 100);
   val  *= 2;
   x[0] *= 3;
   y[0] *= 4;
