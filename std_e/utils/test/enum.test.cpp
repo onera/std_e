@@ -30,8 +30,8 @@ TEST_CASE("STD_E_ENUM_CLASS") {
     CHECK( std_e::to_enum<my_enum_example_name>("value_1") == my_enum_example_name::value_1 );
   }
 
-  SUBCASE("enum_to_strings<enum_type>") {
-    const vector<string>& strs = std_e::enum_to_strings<my_enum_example_name>;
+  SUBCASE("enum_to_strings(enum_type)") {
+    const vector<string>& strs = enum_to_strings(my_enum_example_name{});
     REQUIRE( strs.size() == 2 );
     CHECK( strs[0] == "value_0" );
     CHECK( strs[1] == "value_1" );
@@ -83,7 +83,7 @@ TEST_CASE("STD_E_ENUM_CLASS_WITH_VALUES") {
   }
 
   SUBCASE("enum_to_strings<enum_type>") {
-    const vector<string>& strs = std_e::enum_to_strings<my_e_val_ex_name>;
+    const vector<string>& strs = enum_to_strings(my_e_val_ex_name{});
     REQUIRE( strs.size() == 6 );
     CHECK( strs[0] == "value_0" );
     CHECK( strs[1] == "value_1" );
@@ -107,7 +107,7 @@ namespace testing_nspace {
 }
 
 TEST_CASE("STD_E_ENUM_CLASS within namespace enum_to_strings") {
-  const vector<string>& strs = std_e::enum_to_strings<testing_nspace::my_enum_example_name>;
+  const vector<string>& strs = enum_to_strings(testing_nspace::my_enum_example_name{});
   REQUIRE( strs.size() == 3 );
   CHECK( strs[0] == "value_2" );
   CHECK( strs[1] == "value_3" );
