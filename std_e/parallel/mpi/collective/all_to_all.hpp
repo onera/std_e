@@ -22,10 +22,8 @@ struct neighbor_algo_family {
   static constexpr auto all_to_all_v = [](auto... xs){ return MPI_Neighbor_alltoallv(xs...); };
 };
 
-constexpr auto& default_all_to_all   = dense_algo_family::all_to_all  ;
-constexpr auto& default_all_to_all_v = dense_algo_family::all_to_all_v;
-using default_all_to_all_t = decltype(default_all_to_all  );
-using default_all_to_all_v_t = decltype(default_all_to_all_v);
+using default_all_to_all   = decltype(dense_algo_family::all_to_all  );
+using default_all_to_all_v = decltype(dense_algo_family::all_to_all_v);
 
 
 /// All algorithms in the sections below take an algo_family as their last argument
@@ -45,28 +43,28 @@ neighbor_all_to_all_v(Args&&... args) {
 
 
 // all_to_all {
-template<class T, class F = default_all_to_all_t> auto
-all_to_all(const T* sbuf, int n, T* rbuf, MPI_Comm comm, F alltoall_algo = default_all_to_all) -> void {
+template<class T, class F = default_all_to_all> auto
+all_to_all(const T* sbuf, int n, T* rbuf, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> void {
   int err = alltoall_algo(sbuf, n, to_mpi_type<T>,
                           rbuf, n, to_mpi_type<T>, comm);
   if (err!=0) throw mpi_exception(err,std::string("in function \"")+__func__+"\"");
 }
 
-template<class Contiguous_range, class F = default_all_to_all_t, class T = typename Contiguous_range::value_type> auto
-all_to_all(const Contiguous_range& s_array, int n, MPI_Comm comm, F alltoall_algo = default_all_to_all) -> std::vector<T> {
+template<class Contiguous_range, class F = default_all_to_all, class T = typename Contiguous_range::value_type> auto
+all_to_all(const Contiguous_range& s_array, int n, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> std::vector<T> {
   int sz = s_array.size();
   //STD_E_ASSERT(sz == nb_ranks(comm)); // TODO this one is false if MPI_Neighbor_ version
   std::vector<T> r_array(sz);
   all_to_all(s_array.data(),n,r_array.data(),comm,alltoall_algo);
   return r_array;
 }
-template<class Contiguous_range, class F = default_all_to_all_t, class T = typename Contiguous_range::value_type> auto
-all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = default_all_to_all) -> std::vector<T> {
+template<class Contiguous_range, class F = default_all_to_all, class T = typename Contiguous_range::value_type> auto
+all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = default_all_to_all{}) -> std::vector<T> {
   return all_to_all(s_array,1,comm,alltoall_algo);
 }
 
 template<class Range, class F = dense_algo_family> auto
-all_to_all(const interval_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all) -> std_e::interval_vector<int> {
+all_to_all(const interval_sequence<Range>& sindices, MPI_Comm comm,  F alltoall_algo = default_all_to_all{}) -> std_e::interval_vector<int> {
   std::vector<int> sstrides = interval_lengths(sindices);
   std::vector<int> rstrides = all_to_all(sstrides,comm,alltoall_algo);
   return indices_from_strides(rstrides);

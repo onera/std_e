@@ -67,7 +67,7 @@ enum_identifiers(const std::string& enum_desc) -> std::vector<std::string> {
     return std_e::enum_value_array(#__VA_ARGS__); \
   } \
   \
-  inline auto enum_to_strings__impl(enum_name) -> std::vector<std::string> { \
+  inline auto enum_to_strings(enum_name) -> std::vector<std::string> { \
     return std_e::enum_identifiers(#__VA_ARGS__); \
   } \
   \
@@ -75,11 +75,12 @@ enum_identifiers(const std::string& enum_desc) -> std::vector<std::string> {
     int e_value = std_e::to_int(e); \
     auto e_values = enum_values(e); \
     int i = std::find(begin(e_values),end(e_values),e_value)-begin(e_values); \
-    return enum_to_strings__impl(enum_name{})[i]; \
+    return enum_to_strings(enum_name{})[i]; \
   } \
   \
   inline auto strings_to_enum_index(enum_name) -> std_e::frozen_flat_map<std::string,int> { \
-    return std_e::permutation_frozen_flat_map(std_e::enum_to_strings<enum_name>); \
+    auto ss = enum_to_strings(enum_name{}); \
+    return std_e::permutation_frozen_flat_map(ss); \
   } \
   \
   inline auto to_enum__impl(const std::string& s, enum_name e) -> enum_name { \
@@ -103,16 +104,6 @@ enum_size__impl(Str_enum_type) -> size_t {
 template<class Str_enum_type>
 constexpr size_t enum_size = enum_size__impl(Str_enum_type{}); // use ADL
 // enum_size }
-
-// enum_to_strings {
-/// primary definition, should be replaced by specific overload
-template<class Str_enum_type> auto
-enum_to_strings__impl(Str_enum_type) -> std::vector<std::string> {
-  return {};
-}
-template<class Str_enum_type>
-const std::vector<std::string> enum_to_strings = enum_to_strings__impl(Str_enum_type{}); // use ADL
-// enum_to_strings }
 
 // to_enum {
 /// primary definition, should be replaced by specific overload
