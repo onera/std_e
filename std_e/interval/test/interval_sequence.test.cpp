@@ -116,6 +116,28 @@ TEST_CASE("indices_from_strides") {
     REQUIRE( res.size() == 1 );
     CHECK( res[0] == 0 );
   }
+  SUBCASE("inplace") {
+    std::vector<int> v = {7,11,29,0};
+
+    std_e::indices_from_strides_inplace(v);
+
+    REQUIRE( v.size() == 4 );
+    CHECK( v[0] == 0 );
+    CHECK( v[1] == 7 );
+    CHECK( v[2] == 7+11 );
+    CHECK( v[3] == 7+11+29 );
+  }
+  SUBCASE("inplace_with_offset") {
+    std::vector<int> v = {7,11,29,0};
+
+    std_e::indices_from_strides_inplace(v, 20);
+
+    REQUIRE( v.size() == 4 );
+    CHECK( v[0] == 0+20 );
+    CHECK( v[1] == 7+20 );
+    CHECK( v[2] == 7+11+20 );
+    CHECK( v[3] == 7+11+29+20 );
+  }
 }
 
 TEST_CASE("interval_index") {

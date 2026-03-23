@@ -222,6 +222,16 @@ indices_from_strides(const Random_access_range& r) -> interval_vector<T> {
   std_e::inclusive_scan(begin(r),end(r),begin(indices)+1);
   return indices;
 }
+template<class Random_access_range, class T = typename Random_access_range::value_type> auto
+indices_from_strides_inplace(Random_access_range& r, T start=0) {
+  T tmp1 = r[0];
+  r[0] = start;
+  for(size_t i = 0; i < r.size()-1; ++i){
+    T tmp2 = r[i+1];
+    r[i+1] = r[i] + tmp1;
+    tmp1 = tmp2;
+  }
+}
 template<class Number, class Interval_sequence> auto
 interval_index(Number x, const Interval_sequence& is) {
   auto it = std::upper_bound(begin(is),end(is),x); // TODO true for interval_seq with 0 sizes? test!
