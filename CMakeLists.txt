@@ -8,16 +8,19 @@ if(NOT DEFINED PROJECT_ROOT)
   set(PROJECT_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH "Root directory, where the submodules are populated")
 endif()
 
+if(NOT DEFINED PROJECT_UTILS_DIR)
+  set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
+endif()
+
 # Bootstrap project_utils
-file(GLOB project_utils_files "${PROJECT_ROOT}/external/project_utils/*")
+file(GLOB project_utils_files ${PROJECT_UTILS_DIR}/*)
 list(LENGTH project_utils_files n_file_project_utils)
 if(n_file_project_utils EQUAL 0)
   message(FATAL_ERROR
-    "external/project_utils is empty.
+    "${PROJECT_UTILS_DIR} is empty.
     Maybe you forgot to initialize it with \"git submodule update --init\""
   )
 endif()
-set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
 set(PROJECT_UTILS_CMAKE_DIR ${PROJECT_UTILS_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_UTILS_CMAKE_DIR}/find_package") # for custom Find*.cmake files
 include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_add_subdirectory, project_find_package and target_install
