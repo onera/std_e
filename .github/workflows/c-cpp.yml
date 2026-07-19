@@ -26,7 +26,6 @@ jobs:
         # Github Actions requires a single row to be added to the build matrix.
         # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
         name: [
-          gcc-8,
           gcc-10,
           gcc-11,
           gcc-13,
@@ -35,10 +34,6 @@ jobs:
         ]
 
         include:
-          - name: gcc-8
-            compiler: gcc
-            version: "8"
-
           - name: gcc-10
             compiler: gcc
             version: "10"
@@ -72,7 +67,6 @@ jobs:
           #curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
           #sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
 
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
 
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
@@ -190,7 +184,6 @@ jobs:
           ctest
 
       - name: Build & Test Release x64 - C++20
-        if: matrix.compiler != 'gcc' || matrix.version != '8'
         run: |
             cmake -E remove_directory build
             cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
