@@ -22,8 +22,8 @@ struct neighbor_algo_family {
   static constexpr auto all_to_all_v = [](auto... xs){ return MPI_Neighbor_alltoallv(xs...); };
 };
 
-constexpr auto& default_all_to_all   = dense_algo_family::all_to_all  ;
-constexpr auto& default_all_to_all_v = dense_algo_family::all_to_all_v;
+inline constexpr auto& default_all_to_all   = dense_algo_family::all_to_all  ;
+inline constexpr auto& default_all_to_all_v = dense_algo_family::all_to_all_v;
 using default_all_to_all_t = decltype(default_all_to_all  );
 using default_all_to_all_v_t = decltype(default_all_to_all_v);
 

@@ -1,8 +1,12 @@
 #pragma once
 
 
-#include <sys/sysinfo.h>
-#include <malloc.h>
+#if defined(__linux__)
+  #include <sys/sysinfo.h>
+  #include <malloc.h>
+#elif defined(__APPLE__)
+  #include <malloc/malloc.h>
+#endif
 #include "std_e/utils/file.hpp"
 
 

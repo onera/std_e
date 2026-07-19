@@ -84,6 +84,7 @@ list(FILTER cpp_files EXCLUDE REGEX ".*\\.test\\.cpp$")
 
 set(unit_test_files ${cpp_and_test_files})
 list(FILTER unit_test_files INCLUDE REGEX ".*\\.test\\.cpp$")
+list(FILTER unit_test_files EXCLUDE REGEX ".*/__unused/.*")
 
 if(${PROJECT_NAME}_ENABLE_MPI)
   add_compile_definitions(STD_E_HAS_MPI=1)
