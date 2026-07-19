@@ -72,6 +72,7 @@ jobs:
           #curl -sSL https://github.com/Kitware/CMake/releases/download/v3.15.4/cmake-3.15.4-Linux-x86_64.tar.gz -o cmake.tar.gz
           #sudo tar xf cmake.tar.gz --strip 1 -C /usr/local
 
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
 
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
