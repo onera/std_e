@@ -148,6 +148,10 @@ class md_field_base {
     static constexpr std::array<int,rank> dims = {Ns...};
     static constexpr int dim_tot = (Ns * ... * 1);
 
+    md_field_base() = default;
+
+
+
     template<class... Is> auto
     underlying(Is... is)       ->       auto& {
       static_assert(sizeof...(Is) == Self::rank);
@@ -232,12 +236,28 @@ class md_field : public md_field_base<std_e::dynarray<T,A>, Ns...> {
   public:
     using array_1d_t = std_e::dynarray<T,A>;
     using base = md_field_base<array_1d_t, Ns...>;
+    using base::base;
 
     md_field() = default;
 
     md_field(size_t n)
     {
       std::ranges::fill(this->underlying(), array_1d_t(n));
+    }
+
+    template<class Array_type0> md_field(const md_field_base<Array_type0,Ns...>& x)
+      : md_field(x.n_element())
+    {
+      for (int i=0;i<this->dim_tot;++i)
+      {
+        using T0 = typename Array_type0::value_type;
+        for (int j=0;j<this->n_element();++j)
+        {
+          T& tmp = this->underlying_linear(i)[j];
+          const T0& tmp0 = x.underlying_linear(i)[j];
+          tmp = tmp0;
+        }
+      }
     }
 
     md_field(size_t n, T value)
@@ -265,6 +285,7 @@ class md_field_view : public md_field_base<std_e::span<T>, Ns...> {
   public:
     using array_1d_t = std_e::span<T>;
     using base = md_field_base<array_1d_t, Ns...>;
+    using base::base;
 
     md_field_view() = default;
 
@@ -364,14 +385,18 @@ struct scalar_field_view : field_view<double> {
   using base = field_view<double>;
   using base::base;
 };
-template<int N> 
-struct vector_field_view : md_field_view<double, N> {
-  using base = md_field_view<double, N>;
-  using base::base;
-  vector_field_view(base x)
-    : base(std::move(x))
-  {}
-};
+// template<class float_t,int N> 
+// struct vector_field_view_t : md_field_view<float_t, N> {
+//   using base = md_field_view<float_t, N>;
+//   using base::base;
+//   vector_field_view_t(base x)
+//     : base(std::move(x))
+//   {}
+// };
+template<class float_t,int N> 
+using vector_field_view_t = md_field_view<float_t, N>;
+template <int N> using vector_field_view = vector_field_view_t<double, N>;
+
 template<int N0, int N1> 
 struct tensor_field_view : md_field_view<double, N0, N1> {
   using base = md_field_view<double, N0, N1>;
