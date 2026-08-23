@@ -74,6 +74,7 @@ class then_task {
       : kd(kd)
       , f(FWD(f))
       , args(args...)
+      , result{}
     {
       if constexpr (std::is_reference_v<R>) {
         result = nullptr;
