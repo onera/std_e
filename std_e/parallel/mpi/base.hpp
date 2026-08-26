@@ -30,6 +30,12 @@ n_rank(MPI_Comm comm) -> int {
 // useful for initializing globals because MPI_Init() cannot be called before main()
 inline auto
 mpi_comm_world_rank() -> int {
+  // First, try to return the proc reported by SLURM
+  const char* slurm_rank_str = std::getenv("SLURM_PROCID");
+  if (slurm_rank_str!=nullptr) {
+    return std::stoi(slurm_rank_str);
+  }
+
   #if defined(OPEN_MPI)
     const char* rank_str = std::getenv("OMPI_COMM_WORLD_RANK");
   #elif defined(I_MPI_VERSION) || defined(MPI_VERSION)
