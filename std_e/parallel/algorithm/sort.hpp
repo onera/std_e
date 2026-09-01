@@ -31,18 +31,18 @@ sort(
 
   // 1. global partitioning
 
-  auto tl = std_e::time_logger("maia","sort_by_rank");
+  auto tl = std_e::time_logger("std_e.debug","sort_by_rank");
   auto rank_indices = std_e::sort_by_rank(x,comm,proj,comp,max_imbalance,interval_vector<int>{});
   tl.stop();
 
   // 2. exchange
-  auto tl1 = std_e::time_logger("maia","all to all");
+  auto tl1 = std_e::time_logger("std_e.debug","all to all");
   auto [x_part,_] = all_to_all(x,rank_indices,comm); // `rank_indices::value_type == int` because `MPI_Alltoall` requires `int`
                                                      // (and `MPI_Alltoall_c` is only available in MPI >= 4)
   tl1.stop();
 
   // 3. local sort
-  auto tl2 = std_e::time_logger("maia","sort_local");
+  auto tl2 = std_e::time_logger("std_e.debug","sort_local");
   sort_algo(x_part,proj,comp);
   tl2.stop();
 
