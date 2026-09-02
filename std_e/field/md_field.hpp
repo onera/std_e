@@ -8,69 +8,11 @@
 #include "std_e/future/span_ref.hpp"
 #include "std_e/field/concepts.hpp"
 #include "std_e/debug.hpp"
+#include "std_e/contract/contract.hpp"
+#include "std_e/field/md_field_uniform.hpp"
 
 
 namespace std_e {
-
-
-template<class T, int... Ns> 
-struct md_field_uniform {
-  public:
-    // TODO factor with md_field_base
-    using Self = md_field_uniform<T, Ns...>;
-    using value_type = T;
-    static constexpr int rank = sizeof...(Ns);
-    static constexpr std::array<int,rank> dims = {Ns...};
-    static constexpr int dim_tot = (Ns * ... * 1);
-
-    md_field_uniform() {}
-
-    md_field_uniform(std::initializer_list<T>&& l)
-    {
-      static_assert(Self::rank==1);
-      int i=0;
-      for (const value_type& x : l) {
-        (*this)(i) = x;
-        ++i;
-      }
-    }
-    md_field_uniform(std::initializer_list<std::initializer_list<T>>&& ll)
-    {
-      static_assert(Self::rank==2);
-      int i=0;
-      for (const auto& l : ll) {
-        int j=0;
-        for (const value_type& x : l) {
-          (*this)(i,j) = x;
-          ++j;
-        }
-        ++i;
-      }
-    }
-
-    template<class... Is> auto
-    operator()(Is... is) const -> const value_type& {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return _values[i];
-    }
-    template<class... Is> auto
-    operator()(Is... is) -> value_type& {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return _values[i];
-    }
-
-  private:
-  // member functions
-    template<class I, class... Is> auto
-    index_of_field(I i, Is... is) const {
-      return std_e::fortran_order_from_dimensions(dims, std_e::multi_index<I>{i,is...});
-    }
-
-  // data members
-    std::array<T, dim_tot> _values;
-};
 
 template<class T> class field_view;
 
@@ -80,7 +22,7 @@ class field_base : public Array_type {
     using base = Array_type;
     using base::base;
     using value_type = typename base::value_type;
-    
+
     static constexpr int rank = 0;
     static constexpr int dim_tot = 1;
     static constexpr std::array<int,0> dims = {};
@@ -142,7 +84,7 @@ template<class Array_type, int... Ns>
 class md_field_base {
   public:
     using Self = md_field_base<Array_type, Ns...>;
-    using T = typename Array_type::value_type;
+    using T = Array_type::value_type;
     using value_type = T;
     static constexpr int rank = sizeof...(Ns);
     static constexpr std::array<int,rank> dims = {Ns...};
@@ -370,13 +312,13 @@ struct scalar_field : field<double, mallocator> {
   using base = field<double, mallocator>;
   using base::base;
 };
-template<int N> 
+template<int N>
 struct vector_field : md_field<double, mallocator, N> {
   using base = md_field<double, mallocator, N>;
   using base::base;
 };
 
-template<int N0, int N1> 
+template<int N0, int N1>
 struct tensor_field : md_field<double, mallocator, N0, N1> {
   using base = md_field<double, mallocator, N0, N1>;
   using base::base;
@@ -385,7 +327,7 @@ struct scalar_field_view : field_view<double> {
   using base = field_view<double>;
   using base::base;
 };
-// template<class float_t,int N> 
+// template<class float_t,int N>
 // struct vector_field_view_t : md_field_view<float_t, N> {
 //   using base = md_field_view<float_t, N>;
 //   using base::base;
@@ -393,26 +335,16 @@ struct scalar_field_view : field_view<double> {
 //     : base(std::move(x))
 //   {}
 // };
-template<class float_t,int N> 
+template<class float_t,int N>
 using vector_field_view_t = md_field_view<float_t, N>;
 template <int N> using vector_field_view = vector_field_view_t<double, N>;
 
-template<int N0, int N1> 
+template<int N0, int N1>
 struct tensor_field_view : md_field_view<double, N0, N1> {
   using base = md_field_view<double, N0, N1>;
   using base::base;
 };
 
-template<int N> 
-struct vector_field_uniform : md_field_uniform<double, N> {
-  using base = md_field_uniform<double, N>;
-  using base::base;
-};
-template<int N0, int N1> 
-struct tensor_field_uniform : md_field_uniform<double, N0, N1> {
-  using base = md_field_uniform<double, N0, N1>;
-  using base::base;
-};
 
 //// Simple precision types
 //struct scalar_field_f : field<float> {
@@ -424,7 +356,7 @@ struct tensor_field_uniform : md_field_uniform<double, N0, N1> {
 //  using base = md_field<float, N>;
 //  using base::base;
 //};
-//template<int N0, int N1> 
+//template<int N0, int N1>
 //struct tensor_field_f : md_field<float, N0, N1> {
 //  using base = md_field<float, N0, N1>;
 //  using base::base;
@@ -433,12 +365,12 @@ struct tensor_field_uniform : md_field_uniform<double, N0, N1> {
 //  using base = field_view<float>;
 //  using base::base;
 //};
-//template<int N> 
+//template<int N>
 //struct vector_field_view_f : md_field_view<float, N> {
 //  using base = md_field_view<float, N>;
 //  using base::base;
 //};
-//template<int N0, int N1> 
+//template<int N0, int N1>
 //struct tensor_field_view_f : md_field_view<float, N0, N1> {
 //  using base = md_field_view<float, N0, N1>;
 //  using base::base;

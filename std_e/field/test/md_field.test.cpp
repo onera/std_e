@@ -158,23 +158,3 @@ TEST_CASE("row") {
     CHECK( res(0,0) ==  3. ); CHECK( res(0,1) ==  4. );
   }
 }
-
-TEST_CASE("md_field_uniform") {
-  SUBCASE("vector") {
-    vector_field_uniform<3> x = {4.,5.,6.};
-
-    CHECK( x(0) == 4. );
-    CHECK( x(1) == 5. );
-    CHECK( x(2) == 6. );
-  }
-  SUBCASE("tensor") {
-    tensor_field_uniform<3,2> x = {
-      {1.,2.},
-      {3.,4.},
-      {5.,6.}
-    };
-    CHECK( x(0,0) ==  1.); CHECK( x(0,1) ==  2.);
-    CHECK( x(1,0) ==  3.); CHECK( x(1,1) ==  4.);
-    CHECK( x(2,0) ==  5.); CHECK( x(2,1) ==  6.);
-  }
-}
