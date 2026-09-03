@@ -41,7 +41,7 @@ class md_field_impl {
     field(this auto&& self, std::integral auto... is) {
       static_assert(sizeof...(is) == rank);
       auto i = self.index_of_field(is...);
-      return field_ref<T>(std_e::make_span_ref(self.rngs[i].begin(), self.n_element()));
+      return field_ref<T>(self.rngs[i].begin(), self.n_element());
     }
     constexpr auto
     data(this auto&& self, std::integral auto... is) -> T* {
@@ -94,6 +94,7 @@ class md_field : public md_field_impl<std_e::dynarray<T,A>, Ns...> {
     using array_1d_t = std_e::dynarray<T,A>;
     using base = md_field_impl<array_1d_t, Ns...>;
     using base::base;
+    constexpr static bool is_owner = true;
 
     md_field() = default;
 
@@ -143,6 +144,7 @@ class md_field_view : public md_field_impl<std_e::span<T>, Ns...> {
     using array_1d_t = std_e::span<T>;
     using base = md_field_impl<array_1d_t, Ns...>;
     using base::base;
+    constexpr static bool is_owner = false;
 
     md_field_view() = default;
 

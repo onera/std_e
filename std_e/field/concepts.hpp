@@ -14,6 +14,9 @@ concept Field = requires
   { T::rank    } -> std::convertible_to<int>;
   { T::dim_tot } -> std::convertible_to<int>;
   { T::dims    } -> std::convertible_to<std::array<int, T::rank>>;
+  // n_element ? (uniform_field does not have that: should we refine the concept? or niform_field.n_element==1?)
+  // operator() ? (uniform_field does not have that: should we refine the concept?)
+  { T::is_owner } -> std::convertible_to<bool>;
 };
 
 
