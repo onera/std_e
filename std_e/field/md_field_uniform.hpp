@@ -10,6 +10,7 @@
 namespace std_e {
 
 
+// --- API type
 template<class T, int... Ns> 
 struct md_field_uniform {
   public:
@@ -51,9 +52,17 @@ struct md_field_uniform {
       static_assert(sizeof...(is) == rank);
       auto i = self.index_of_field(is...);
       STD_E_ASSERT_LVL1(i < dim_tot);
-      return self._values[i];
+      return self.values[i];
     }
 
+    constexpr auto
+    operator<=>(const md_field_uniform&) const = default;
+
+    // --- array API
+    constexpr auto begin(this auto&& self) { return self.values.begin(); }
+    constexpr auto end(this auto&& self)   { return self.values.end(); }
+    constexpr auto data(this auto&& self)  { return self.values.data(); }
+    static constexpr int size() { return dim_tot; }
   private:
   // member functions
     static constexpr auto
@@ -65,20 +74,13 @@ struct md_field_uniform {
     }
 
   // data members
-    std::array<T, dim_tot> _values;
+    std::array<T, dim_tot> values;
 };
 
 
-template<int N>
-struct vector_field_uniform : md_field_uniform<double, N> {
-  using base = md_field_uniform<double, N>;
-  using base::base;
-};
-template<int N0, int N1>
-struct tensor_field_uniform : md_field_uniform<double, N0, N1> {
-  using base = md_field_uniform<double, N0, N1>;
-  using base::base;
-};
+// --- shorthand types (e.g. for tests)
+template<int N>          using vector_field_uniform = md_field_uniform<double, N>;
+template<int N0, int N1> using tensor_field_uniform = md_field_uniform<double, N0, N1>;
 
 
 } // std_e

@@ -10,174 +10,89 @@
 #include "std_e/debug.hpp"
 #include "std_e/contract/contract.hpp"
 #include "std_e/field/md_field_uniform.hpp"
-
+#include "std_e/field/field.hpp"
+#include "std_e/contract/contract.hpp"
 
 namespace std_e {
 
-template<class T> class field_view;
 
-template<class Array_type>
-class field_base : public Array_type {
+// --- impl
+template<std::ranges::sized_range Rng, int... Ns>
+class md_field_impl {
   public:
-    using base = Array_type;
-    using base::base;
-    using value_type = typename base::value_type;
-
-    static constexpr int rank = 0;
-    static constexpr int dim_tot = 1;
-    static constexpr std::array<int,0> dims = {};
-
-    field_base(base x)
-      : base(std::move(x))
-    {}
-
-    auto
-    n_element() const -> int64_t {
-      return this->size();
-    }
-
-    template<class I> auto
-    operator()(I i) const -> const value_type& {
-      return (*this)[i];
-    }
-    template<class I> auto
-    operator()(I i) -> value_type& {
-      return (*this)[i];
-    }
-
-    template<class I> auto
-    sub(I n) -> field_view<value_type> {
-      value_type* ptr = this->data();
-      return std_e::make_span(ptr, ptr+n);
-    }
-    template<class I> auto
-    sub(I n) const -> field_view<const value_type> {
-      const value_type* ptr = this->data();
-      return std_e::make_span(ptr, ptr+n);
-    }
-
-};
-template<class T, class A = mallocator>
-class field : public field_base<std_e::dynarray<T,A>> {
-  public:
-    using base = field_base<std_e::dynarray<T,A>>;
-    using base::base;
-};
-
-template<class T>
-class field_view : public field_base<std_e::span<T>> {
-    using base = field_base<std_e::span<T>>;
-    using base::base;
-
-    field_view(base x)
-      : base(x)
-    {}
-};
-template<class T>
-class field_ref : public field_base<std_e::span_ref<T>> {
-    using base = field_base<std_e::span_ref<T>>;
-    using base::base;
-};
-
-
-template<class Array_type, int... Ns>
-class md_field_base {
-  public:
-    using Self = md_field_base<Array_type, Ns...>;
-    using T = Array_type::value_type;
+    using T = Rng::value_type;
     using value_type = T;
     static constexpr int rank = sizeof...(Ns);
     static constexpr std::array<int,rank> dims = {Ns...};
     static constexpr int dim_tot = (Ns * ... * 1);
 
-    md_field_base() = default;
+    md_field_impl() = default;
 
 
 
-    template<class... Is> auto
-    underlying(Is... is)       ->       auto& {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return _arrays[i];
-    }
-    template<class... Is> auto
-    underlying(Is... is) const -> const auto& {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return _arrays[i];
+    constexpr auto
+    underlying(this auto&& self, std::integral auto... is) -> auto& {
+      static_assert(sizeof...(is) == rank);
+      auto i = self.index_of_field(is...);
+      return self.rngs[i];
     }
 
-    template<class... Is> auto
-    field(Is... is) -> field_ref<T> {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return std_e::make_span(_arrays[i].begin(), _arrays[i].end());
+    constexpr auto
+    field(this auto&& self, std::integral auto... is) {
+      static_assert(sizeof...(is) == rank);
+      auto i = self.index_of_field(is...);
+      return field_ref<T>(std_e::make_span_ref(self.rngs[i].begin(), self.n_element()));
     }
-    template<class... Is> auto
-    field(Is... is) const -> field_ref<const T> {
-      static_assert(sizeof...(Is) == Self::rank);
-      auto i = index_of_field(is...);
-      return std_e::make_span(_arrays[i].begin(), _arrays[i].end());
-    }
-    template<class... Is> auto
-    data(Is... is) -> T* {
-      static_assert(sizeof...(Is) == Self::rank);
-      return this->field(is...).data();
-    }
-    template<class... Is> auto
-    data(Is... is) const -> const T* {
-      static_assert(sizeof...(Is) == Self::rank);
-      return this->field(is...).data();
+    constexpr auto
+    data(this auto&& self, std::integral auto... is) -> T* {
+      static_assert(sizeof...(is) == rank);
+      return self.field(is...).data();
     }
 
-    template<class I, class... Is> auto
-    operator()(I fld_idx, Is... is) const -> const T& {
-      static_assert(sizeof...(Is) == Self::rank);
-      return field(is...)[fld_idx];
-    }
-    template<class I, class... Is> auto
-    operator()(I fld_idx, Is... is) -> T& {
-      static_assert(sizeof...(Is) == Self::rank);
-      return field(is...)[fld_idx];
+    template<class I>constexpr auto
+    operator()(this auto&& self, I fld_idx, std::integral auto... is) -> auto& {
+      static_assert(sizeof...(is) == rank);
+      return self.field(is...)(fld_idx);
     }
 
     auto
     n_element() const -> int64_t {
-      return _arrays[0].size();
+      return int64_t(rngs[0].size());
     }
 
-    auto underlying()       ->       auto& { return _arrays; }
-    auto underlying() const -> const auto& { return _arrays; }
+    auto underlying(this auto&& self) -> auto& { return self.rngs; }
+    auto underlying_linear(this auto&& self, int i) -> auto& { return self.rngs[i]; }
 
-    auto underlying_linear(int i)       ->       auto& { return _arrays[i]; }
-    auto underlying_linear(int i) const -> const auto& { return _arrays[i]; }
-
-    auto begin()       { return _arrays.begin(); }
-    auto begin() const { return _arrays.begin(); }
-    auto end  ()       { return _arrays.end  (); }
-    auto end  () const { return _arrays.end  (); }
+    // --- array API
+    constexpr auto begin(this auto&& self) { return self.rngs.begin(); }
+    constexpr auto end(this auto&& self)   { return self.rngs.end(); }
+    constexpr auto data(this auto&& self)  { return self.rngs.data(); }
+    constexpr auto size(this auto&& self)  { return self.rngs.size(); }
 
   private:
-  // member functions
-    template<class I, class... Is> auto
-    index_of_field(I i, Is... is) const {
-      return std_e::fortran_order_from_dimensions(dims, std_e::multi_index<I>{i,is...});
+  // static functions
+    static constexpr auto
+    index_of_field(std::integral auto... is) -> int {
+      STD_E_ASSERT_LVL1(((std::in_range<int>(is)) && ...));
+      return std_e::fortran_order_from_dimensions(
+        dims, std_e::multi_index<int>{int(is)...}
+      );
     }
 
   // data members
-    std::array<Array_type, dim_tot> _arrays;
+    std::array<Rng, dim_tot> rngs;
 };
 
 template<class AT, int... Ns> auto
-to_string(const md_field_base<AT,Ns...>& x) -> std::string {
+to_string(const md_field_impl<AT,Ns...>& x) -> std::string {
   return to_string(x.underlying());
 }
 
 template<class T, class A, int... Ns>
-class md_field : public md_field_base<std_e::dynarray<T,A>, Ns...> {
+class md_field : public md_field_impl<std_e::dynarray<T,A>, Ns...> {
   public:
     using array_1d_t = std_e::dynarray<T,A>;
-    using base = md_field_base<array_1d_t, Ns...>;
+    using base = md_field_impl<array_1d_t, Ns...>;
     using base::base;
 
     md_field() = default;
@@ -187,7 +102,7 @@ class md_field : public md_field_base<std_e::dynarray<T,A>, Ns...> {
       std::ranges::fill(this->underlying(), array_1d_t(n));
     }
 
-    template<class Array_type0> md_field(const md_field_base<Array_type0,Ns...>& x)
+    template<class Array_type0> md_field(const md_field_impl<Array_type0,Ns...>& x)
       : md_field(x.n_element())
     {
       for (int i=0;i<this->dim_tot;++i)
@@ -223,10 +138,10 @@ class md_field : public md_field_base<std_e::dynarray<T,A>, Ns...> {
 };
 
 template<class T, int... Ns>
-class md_field_view : public md_field_base<std_e::span<T>, Ns...> {
+class md_field_view : public md_field_impl<std_e::span<T>, Ns...> {
   public:
     using array_1d_t = std_e::span<T>;
-    using base = md_field_base<array_1d_t, Ns...>;
+    using base = md_field_impl<array_1d_t, Ns...>;
     using base::base;
 
     md_field_view() = default;
@@ -307,73 +222,12 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
   }
 }
 
-// Double precision types
-struct scalar_field : field<double, mallocator> {
-  using base = field<double, mallocator>;
-  using base::base;
-};
-template<int N>
-struct vector_field : md_field<double, mallocator, N> {
-  using base = md_field<double, mallocator, N>;
-  using base::base;
-};
+// --- shorthand types (e.g. for tests)
+template<int N>          using vector_field = md_field<double, mallocator, N>;
+template<int N0, int N1> using tensor_field = md_field<double, mallocator, N0, N1>;
 
-template<int N0, int N1>
-struct tensor_field : md_field<double, mallocator, N0, N1> {
-  using base = md_field<double, mallocator, N0, N1>;
-  using base::base;
-};
-struct scalar_field_view : field_view<double> {
-  using base = field_view<double>;
-  using base::base;
-};
-// template<class float_t,int N>
-// struct vector_field_view_t : md_field_view<float_t, N> {
-//   using base = md_field_view<float_t, N>;
-//   using base::base;
-//   vector_field_view_t(base x)
-//     : base(std::move(x))
-//   {}
-// };
-template<class float_t,int N>
-using vector_field_view_t = md_field_view<float_t, N>;
-template <int N> using vector_field_view = vector_field_view_t<double, N>;
+template<int N>          using vector_field_view = md_field_view<double, N>;
+template<int N0, int N1> using tensor_field_view = md_field_view<double, N0, N1>;
 
-template<int N0, int N1>
-struct tensor_field_view : md_field_view<double, N0, N1> {
-  using base = md_field_view<double, N0, N1>;
-  using base::base;
-};
-
-
-//// Simple precision types
-//struct scalar_field_f : field<float> {
-//  using base = field<float>;
-//  using base::base;
-//};
-//template<int N>
-//struct vector_field_f : md_field<float, N> {
-//  using base = md_field<float, N>;
-//  using base::base;
-//};
-//template<int N0, int N1>
-//struct tensor_field_f : md_field<float, N0, N1> {
-//  using base = md_field<float, N0, N1>;
-//  using base::base;
-//};
-//struct scalar_field_view_f : field_view<float> {
-//  using base = field_view<float>;
-//  using base::base;
-//};
-//template<int N>
-//struct vector_field_view_f : md_field_view<float, N> {
-//  using base = md_field_view<float, N>;
-//  using base::base;
-//};
-//template<int N0, int N1>
-//struct tensor_field_view_f : md_field_view<float, N0, N1> {
-//  using base = md_field_view<float, N0, N1>;
-//  using base::base;
-//};
 
 } // std_e

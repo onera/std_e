@@ -18,15 +18,6 @@ TEST_CASE("concepts") {
   static_assert( Tensor_field_of_dims< tensor_field<3,2>, 3,2 >);
   static_assert(!Tensor_field_of_dims< tensor_field<3,2>, 2,3 >);
 }
-TEST_CASE("field") {
-  scalar_field x = {0.,1.,2.,3.,4.};
-  
-  auto sub_x = x.sub(3);
-  CHECK( sub_x.size() == 3 );
-  CHECK( sub_x(0) == 0. );
-  CHECK( sub_x(1) == 1. );
-  CHECK( sub_x(2) == 2. );
-}
 
 TEST_CASE("md_field") {
   using md_field_t = md_field<double, mallocator, 3,2>;
@@ -44,17 +35,17 @@ TEST_CASE("md_field") {
   SUBCASE("field() const") {
     vector_field<3> x(2, 7.);
 
-    CHECK( x.field(0) == std::vector{7.,7.} );
-    CHECK( x.field(1) == std::vector{7.,7.} );
-    CHECK( x.field(2) == std::vector{7.,7.} );
+    CHECK( x.field(0) == field({7.,7.}));
+    CHECK( x.field(1) == field({7.,7.}));
+    CHECK( x.field(2) == field({7.,7.}));
   }
 
   SUBCASE("field()") {
     vector_field<3> x(2);
 
-    x.field(0) = std::vector{ 0., 1.};
-    x.field(1) = std::vector{10.,11.};
-    x.field(2) = std::vector{20.,21.};
+    x.field(0) = field({ 0., 1.});
+    x.field(1) = field({10.,11.});
+    x.field(2) = field({20.,21.});
 
     CHECK( x.underlying() == std::array<std_e::dynarray<double>,3>{std_e::dynarray{0.,1.}, std_e::dynarray{10.,11.}, std_e::dynarray{20.,21.}} );
 
@@ -76,21 +67,21 @@ TEST_CASE("md_field_view") {
 
   vector_field_view<3> x_view(x);
 
-  CHECK( x_view.field(0) == std::vector{7.,7.} );
-  CHECK( x_view.field(1) == std::vector{7.,7.} );
-  CHECK( x_view.field(2) == std::vector{7.,7.} );
+  CHECK( x_view.field(0) == field({7.,7.}) );
+  CHECK( x_view.field(1) == field({7.,7.}) );
+  CHECK( x_view.field(2) == field({7.,7.}) );
 
   x_view(1,2) = 10.;
   x(1,0) = 14.;
 
 
-  CHECK( x_view.field(0) == std::vector{7.,14.} );
-  CHECK( x_view.field(1) == std::vector{7., 7.} );
-  CHECK( x_view.field(2) == std::vector{7.,10.} );
+  CHECK( x_view.field(0) == field({7.,14.}) );
+  CHECK( x_view.field(1) == field({7., 7.}) );
+  CHECK( x_view.field(2) == field({7.,10.}) );
 
-  CHECK( x_view.field(0) == std::vector{7.,14.} );
-  CHECK( x_view.field(1) == std::vector{7., 7.} );
-  CHECK( x_view.field(2) == std::vector{7.,10.} );
+  CHECK( x_view.field(0) == field({7.,14.}) );
+  CHECK( x_view.field(1) == field({7., 7.}) );
+  CHECK( x_view.field(2) == field({7.,10.}) );
 }
 
 TEST_CASE("v_stack") {
