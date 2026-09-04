@@ -113,7 +113,7 @@ class field_view : public field_impl {
     template<class F>
       requires (can_take_reference_of_field<F,T>())
     auto
-    operator=(F& x) -> field_view& {
+    operator=(F&& x) -> field_view& {
       this->rng = std_e::make_span(x); // rebind view to `x`
       return *this;
     }

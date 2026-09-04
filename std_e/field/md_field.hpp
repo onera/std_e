@@ -25,15 +25,27 @@ class md_field_impl {
     static constexpr int dim_tot = (Ns * ... * 1);
     static_assert(dim_tot > 0);
 
-    //constexpr auto
-    //underlying(this auto&& self, std::integral auto... is) -> auto& {
-    //  static_assert(sizeof...(is) == rank);
-    //  auto i = self.index_of_field(is...);
-    //  return self.rngs[i];
-    //}
+    constexpr auto
+    n_element(this auto&& self) -> int64_t {
+      return int64_t(self.rngs[0].size());
+    }
+
+    constexpr auto
+    data(this auto&& self, std::integral auto... is) {
+      static_assert(sizeof...(is) == rank);
+      auto i = self.index_of_field(is...);
+      return self.rngs[i].data();
+    }
+
+    constexpr auto
+    field(this auto&& self, std::integral auto... is) -> decltype(auto) {
+      static_assert(sizeof...(is) == rank);
+      auto i = self.index_of_field(is...);
+      return self.rngs[i];
+    }
 
     template<class Self> constexpr auto
-    field(this Self&& self, std::integral auto... is) {
+    ref(this Self&& self, std::integral auto... is) {
       static_assert(sizeof...(is) == rank);
       auto i = self.index_of_field(is...);
       using T = std::decay_t<Self>::value_type;
@@ -43,26 +55,13 @@ class md_field_impl {
         return field_ref<T>(self.rngs[i]);
       }
     }
-    constexpr auto
-    data(this auto&& self, std::integral auto... is) {
-      auto i = self.index_of_field(is...);
-      return self.rngs[i].data();
-    }
 
-    template<class I>constexpr auto
-    operator()(this auto&& self, I fld_idx, std::integral auto... is) -> decltype(auto) {
+    constexpr auto
+    operator()(this auto&& self, std::integral auto fld_idx, std::integral auto... is) -> decltype(auto) { // TODO invert fld_idx <-> is
       static_assert(sizeof...(is) == rank);
       auto i = self.index_of_field(is...);
       return self.rngs[i](fld_idx);
     }
-
-    auto
-    n_element(this auto&& self) -> int64_t {
-      return int64_t(self.rngs[0].size());
-    }
-
-    //auto underlying(this auto&& self) -> auto& { return self.rngs; }
-    //auto underlying_linear(this auto&& self, int i) -> auto& { return self.rngs[i]; }
 
     // --- array API
     constexpr auto begin(this auto&& self) { return self.rngs.begin(); }
@@ -83,7 +82,7 @@ class md_field_impl {
 
 template<class AT, int... Ns> auto
 to_string(const md_field_impl<Ns...>& x) -> std::string {
-  return to_string(x.underlying());
+  return to_string(x());
 }
 
 
@@ -122,7 +121,7 @@ class md_field : public md_field_impl<Ns...> {
 
     template<class... Is> auto
     reclaim(Is... is) -> field<T,A>&& {
-      return std::move(rngs[impl::index_of_field(is...)]);
+      return std::move(this->field(is...));
     }
   private:
   public: // TODO
@@ -140,11 +139,9 @@ class md_field_view : public md_field_impl<Ns...> {
 
     md_field_view() = default;
 
-    //template<class F>
-    //  requires (can_take_reference_of_field<F,T>())
-    //md_field_view(F& x)
-    template<class Md_field_type>
-    md_field_view(Md_field_type& x)
+    template<class F>
+      requires (can_take_reference_of_field<F,T,Ns...>())
+    md_field_view(F& x)
     {
       for (int i=0; i<this->dim_tot; ++i) {
         rngs[i] = x.rngs[i];
@@ -158,23 +155,24 @@ class md_field_view : public md_field_impl<Ns...> {
     std::array<field_view<T>, impl::dim_tot> rngs;
 };
 
-template<class Md_field> auto
-row(Md_field& x, int i) {
-  using FT = std::decay_t<Md_field>;
+template<Vector_field F> 
+auto
+row(F& x, int i) {
+  return x.field(i);
+}
+template<Tensor_field F> 
+auto
+row(F& x, int i) {
+  using FT = std::decay_t<F>;
   using T = typename FT::value_type;
-  if constexpr (Md_field::rank == 1) {
-    return x.field(i);
-  } else if constexpr (Md_field::rank == 2) {
-    md_field_view<T, Md_field::dims[1]> res;
-    for (int j=0; j<Md_field::dims[1]; ++j) {
-      res.underlying(j) = x.underlying(i,j);
-    }
-    return res;
-  } else {
-    throw std_e::msg_exception("Not implemented");
+  md_field_view<T, F::dims[1]> res;
+  for (int j=0; j<F::dims[1]; ++j) {
+    res.rngs[j] = x.field(i,j);
   }
+  return res;
 }
 
+// TODO clean this ugly one
 template<class Md_field_0, class Md_field_1, class Md_field_2> auto
 v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
   using FT0 = std::decay_t<Md_field_0>;
@@ -189,18 +187,18 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
   //static_assert(y.rank <= 2);
   if constexpr (Md_field_0::rank == 0 && Md_field_1::rank == 0 && Md_field_2::rank == 0) {
     md_field_view<T0, 3> res;
-    res.underlying(0) = x;
-    res.underlying(1) = y;
-    res.underlying(2) = z;
+    res.field(0) = x;
+    res.field(1) = y;
+    res.field(2) = z;
     return res;
   } else if constexpr (Md_field_0::rank == 0 && Md_field_1::rank == 1 && Md_field_2::rank == 0) {
     constexpr int n_row = 1+Md_field_1::dims[0]+1;
     md_field_view<T0, n_row> res;
-    res.underlying(0) = x;
+    res.field(0) = x;
     for (int i=0; i<n_row-2; ++i) {
-      res.underlying(1+i) = y.underlying(i);
+      res.field(1+i) = y.field(i);
     }
-    res.underlying(n_row-1) = z;
+    res.field(n_row-1) = z;
     return res;
   } else if constexpr (Md_field_0::rank == 1 && Md_field_1::rank == 2 && Md_field_2::rank == 1) {
     static_assert(Md_field_0::dims[0] == Md_field_1::dims[1]);
@@ -209,15 +207,15 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
     constexpr int n_col = Md_field_0::dims[0];
     md_field_view<T0, n_row, n_col> res;
     for (int j=0; j<n_col; ++j) {
-      res.underlying(0,j) = x.underlying(j);
+      res.field(0,j) = x.field(j);
     }
     for (int j=0; j<n_col; ++j) {
       for (int i=0; i<n_row-2; ++i) {
-        res.underlying(1+i,j) = y.underlying(i,j);
+        res.field(1+i,j) = y.field(i,j);
       }
     }
     for (int j=0; j<n_col; ++j) {
-      res.underlying(n_row-1,j) = z.underlying(j);
+      res.field(n_row-1,j) = z.field(j);
     }
     return res;
   } else {

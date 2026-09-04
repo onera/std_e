@@ -86,68 +86,68 @@ TEST_CASE("md_field_view") {
   CHECK( x_view.field(2) == field({7.,10.}) );
 }
 
-//TEST_CASE("v_stack") {
-//  SUBCASE("vector") {
-//    scalar_field    x(1);
-//    vector_field<3> y(1);
-//    scalar_field    z(1);
-//
-//    x(0  ) = 1.;
-//    y(0,0) = 2.;
-//    y(0,1) = 3.;
-//    y(0,2) = 4.;
-//    z(0  ) = 5.;
-//
-//    auto res = v_stack(x,y,z);
-//
-//    CHECK( res(0,0) == 1. );
-//    CHECK( res(0,1) == 2. );
-//    CHECK( res(0,2) == 3. );
-//    CHECK( res(0,3) == 4. );
-//    CHECK( res(0,4) == 5. );
-//  }
-//  SUBCASE("tensor") {
-//    vector_field<3>   x(1);
-//    tensor_field<3,3> y(1);
-//    vector_field<3>   z(1);
-//
-//    x(0,0  ) =  0.; x(0,1  ) =  1.; x(0,2  ) =  2.;
-//    y(0,0,0) =  3.; y(0,0,1) =  4.; y(0,0,2) =  5.;
-//    y(0,1,0) =  6.; y(0,1,1) =  7.; y(0,1,2) =  8.;
-//    y(0,2,0) =  9.; y(0,2,1) = 10.; y(0,2,2) = 11.;
-//    z(0,0  ) = 12.; z(0,1  ) = 13.; z(0,2  ) = 14.;
-//
-//    auto res = v_stack(x,y,z);
-//
-//    CHECK( res(0,0,0) ==  0. ); CHECK( res(0,0,1) ==  1. ); CHECK( res(0,0,2) ==  2. );
-//    CHECK( res(0,1,0) ==  3. ); CHECK( res(0,1,1) ==  4. ); CHECK( res(0,1,2) ==  5. );
-//    CHECK( res(0,2,0) ==  6. ); CHECK( res(0,2,1) ==  7. ); CHECK( res(0,2,2) ==  8. );
-//    CHECK( res(0,3,0) ==  9. ); CHECK( res(0,3,1) == 10. ); CHECK( res(0,3,2) == 11. );
-//    CHECK( res(0,4,0) == 12. ); CHECK( res(0,4,1) == 13. ); CHECK( res(0,4,2) == 14. );
-//  }
-//}
+TEST_CASE("v_stack") {
+  SUBCASE("vector") {
+    scalar_field    x(1);
+    vector_field<3> y(1);
+    scalar_field    z(1);
 
-//TEST_CASE("row") {
-//  SUBCASE("row of vector") {
-//    vector_field<3> x(1);
-//
-//    x(0,0) =  1.;
-//    x(0,1) =  2.;
-//    x(0,2) =  3.;
-//
-//    auto res = row(x,1);
-//
-//    CHECK( res(0) ==  2. );
-//  }
-//  SUBCASE("row of tensor") {
-//    tensor_field<3,2> x(1);
-//
-//    x(0,0,0) =  1.; x(0,0,1) =  2.;
-//    x(0,1,0) =  3.; x(0,1,1) =  4.;
-//    x(0,2,0) =  5.; x(0,2,1) =  6.;
-//
-//    auto res = row(x,1);
-//
-//    CHECK( res(0,0) ==  3. ); CHECK( res(0,1) ==  4. );
-//  }
-//}
+    x(0  ) = 1.;
+    y(0,0) = 2.;
+    y(0,1) = 3.;
+    y(0,2) = 4.;
+    z(0  ) = 5.;
+
+    auto res = v_stack(x,y,z);
+
+    CHECK( res(0,0) == 1. );
+    CHECK( res(0,1) == 2. );
+    CHECK( res(0,2) == 3. );
+    CHECK( res(0,3) == 4. );
+    CHECK( res(0,4) == 5. );
+  }
+  SUBCASE("tensor") {
+    vector_field<3>   x(1);
+    tensor_field<3,3> y(1);
+    vector_field<3>   z(1);
+
+    x(0,0  ) =  0.; x(0,1  ) =  1.; x(0,2  ) =  2.;
+    y(0,0,0) =  3.; y(0,0,1) =  4.; y(0,0,2) =  5.;
+    y(0,1,0) =  6.; y(0,1,1) =  7.; y(0,1,2) =  8.;
+    y(0,2,0) =  9.; y(0,2,1) = 10.; y(0,2,2) = 11.;
+    z(0,0  ) = 12.; z(0,1  ) = 13.; z(0,2  ) = 14.;
+
+    auto res = v_stack(x,y,z);
+
+    CHECK( res(0,0,0) ==  0. ); CHECK( res(0,0,1) ==  1. ); CHECK( res(0,0,2) ==  2. );
+    CHECK( res(0,1,0) ==  3. ); CHECK( res(0,1,1) ==  4. ); CHECK( res(0,1,2) ==  5. );
+    CHECK( res(0,2,0) ==  6. ); CHECK( res(0,2,1) ==  7. ); CHECK( res(0,2,2) ==  8. );
+    CHECK( res(0,3,0) ==  9. ); CHECK( res(0,3,1) == 10. ); CHECK( res(0,3,2) == 11. );
+    CHECK( res(0,4,0) == 12. ); CHECK( res(0,4,1) == 13. ); CHECK( res(0,4,2) == 14. );
+  }
+}
+
+TEST_CASE("row") {
+  SUBCASE("row of vector") {
+    vector_field<3> x(1);
+
+    x(0,0) =  1.;
+    x(0,1) =  2.;
+    x(0,2) =  3.;
+
+    auto res = row(x,1);
+
+    CHECK( res(0) ==  2. );
+  }
+  SUBCASE("row of tensor") {
+    tensor_field<3,2> x(1);
+
+    x(0,0,0) =  1.; x(0,0,1) =  2.;
+    x(0,1,0) =  3.; x(0,1,1) =  4.;
+    x(0,2,0) =  5.; x(0,2,1) =  6.;
+
+    auto res = row(x,1);
+
+    CHECK( res(0,0) ==  3. ); CHECK( res(0,1) ==  4. );
+  }
+}
