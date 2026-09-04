@@ -61,36 +61,30 @@ class field : public field_impl {
     constexpr static bool is_owner = false;
 
     constexpr
+    field() = default;
+
+    constexpr
     field(int64_t n)
       : rng(n)
+    {}
+    constexpr
+    field(int64_t n, T value)
+      : rng(n,value)
     {}
     constexpr
     field(std::initializer_list<T> l)
       : rng(l.begin(), l.end())
     {}
+
+    template<class F>
+      requires (can_convert_field<F,T>())
+    field(const F& x)
+      : rng(x)
+    {}
   private:
     friend field_impl;
     std_e::dynarray<T,A> rng;
 };
-
-template<class T, class F> constexpr auto
-_can_point_to_field() {
-  // can't make field view of non-field
-  if (! Scalar_field<F>) return false;
-
-  // can't take a view if the element types differ
-  using FT = F::value_type;
-  if (! std::same_as< std::remove_const_t<T> , std::remove_const_t<FT> >) return false;
-
-  if (std::is_const_v<T>) {
-     // the view we want to make will be const: accept const and mutable
-     return true;
-  } else {
-     // the view we want to make will be mutable: accept only mutable
-     if (F::is_owner) return !std::is_const_v<F>; // if owner, being mutable means the type itself is mutable
-     else return !std::is_const_v<FT>; // if non-owner, being mutable means the value_type is mutable
-  }
-}
 
 template<class T>
 class field_view : public field_impl {
@@ -100,11 +94,14 @@ class field_view : public field_impl {
 
     // --- ctors
     template<class F>
-      requires (_can_point_to_field<T,F>())
+      requires (can_take_reference_of_field<F,T>())
     explicit
     field_view(F& x)
       : rng(x)
     {}
+
+    constexpr
+    field_view() = default;
 
     field_view(T* first, int64_t n)
       : rng(first, n)
@@ -114,7 +111,7 @@ class field_view : public field_impl {
     {}
 
     template<class F>
-      requires (_can_point_to_field<T,F>())
+      requires (can_take_reference_of_field<F,T>())
     auto
     operator=(F& x) -> field_view& {
       this->rng = std_e::make_span(x); // rebind view to `x`
@@ -134,7 +131,7 @@ class field_ref : public field_impl {
 
     // --- ctors
     template<class F>
-      requires (_can_point_to_field<T,F>())
+      requires (can_take_reference_of_field<F,T>())
     explicit
     field_ref(F& x)
       : rng(x)

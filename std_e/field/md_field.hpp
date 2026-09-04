@@ -17,51 +17,52 @@ namespace std_e {
 
 
 // --- impl
-template<std::ranges::sized_range Rng, int... Ns>
+template<int... Ns>
 class md_field_impl {
   public:
-    using T = Rng::value_type;
-    using value_type = T;
     static constexpr int rank = sizeof...(Ns);
     static constexpr std::array<int,rank> dims = {Ns...};
     static constexpr int dim_tot = (Ns * ... * 1);
+    static_assert(dim_tot > 0);
 
-    md_field_impl() = default;
+    //constexpr auto
+    //underlying(this auto&& self, std::integral auto... is) -> auto& {
+    //  static_assert(sizeof...(is) == rank);
+    //  auto i = self.index_of_field(is...);
+    //  return self.rngs[i];
+    //}
 
-
-
-    constexpr auto
-    underlying(this auto&& self, std::integral auto... is) -> auto& {
+    template<class Self> constexpr auto
+    field(this Self&& self, std::integral auto... is) {
       static_assert(sizeof...(is) == rank);
       auto i = self.index_of_field(is...);
-      return self.rngs[i];
+      using T = std::decay_t<Self>::value_type;
+      if constexpr (std::is_const_v<Self>) {
+        return field_ref<const T>(self.rngs[i]);
+      } else {
+        return field_ref<T>(self.rngs[i]);
+      }
     }
-
     constexpr auto
-    field(this auto&& self, std::integral auto... is) {
-      static_assert(sizeof...(is) == rank);
+    data(this auto&& self, std::integral auto... is) {
       auto i = self.index_of_field(is...);
-      return field_ref<T>(self.rngs[i].begin(), self.n_element());
-    }
-    constexpr auto
-    data(this auto&& self, std::integral auto... is) -> T* {
-      static_assert(sizeof...(is) == rank);
-      return self.field(is...).data();
+      return self.rngs[i].data();
     }
 
     template<class I>constexpr auto
-    operator()(this auto&& self, I fld_idx, std::integral auto... is) -> auto& {
+    operator()(this auto&& self, I fld_idx, std::integral auto... is) -> decltype(auto) {
       static_assert(sizeof...(is) == rank);
-      return self.field(is...)(fld_idx);
+      auto i = self.index_of_field(is...);
+      return self.rngs[i](fld_idx);
     }
 
     auto
-    n_element() const -> int64_t {
-      return int64_t(rngs[0].size());
+    n_element(this auto&& self) -> int64_t {
+      return int64_t(self.rngs[0].size());
     }
 
-    auto underlying(this auto&& self) -> auto& { return self.rngs; }
-    auto underlying_linear(this auto&& self, int i) -> auto& { return self.rngs[i]; }
+    //auto underlying(this auto&& self) -> auto& { return self.rngs; }
+    //auto underlying_linear(this auto&& self, int i) -> auto& { return self.rngs[i]; }
 
     // --- array API
     constexpr auto begin(this auto&& self) { return self.rngs.begin(); }
@@ -78,83 +79,83 @@ class md_field_impl {
         dims, std_e::multi_index<int>{int(is)...}
       );
     }
-
-  // data members
-    std::array<Rng, dim_tot> rngs;
 };
 
 template<class AT, int... Ns> auto
-to_string(const md_field_impl<AT,Ns...>& x) -> std::string {
+to_string(const md_field_impl<Ns...>& x) -> std::string {
   return to_string(x.underlying());
 }
 
+
 template<class T, class A, int... Ns>
-class md_field : public md_field_impl<std_e::dynarray<T,A>, Ns...> {
+class md_field : public md_field_impl<Ns...> {
   public:
-    using array_1d_t = std_e::dynarray<T,A>;
-    using base = md_field_impl<array_1d_t, Ns...>;
-    using base::base;
+    using value_type = T;
     constexpr static bool is_owner = true;
 
     md_field() = default;
 
-    md_field(size_t n)
-    {
-      std::ranges::fill(this->underlying(), array_1d_t(n));
+    md_field(size_t n) {
+      std::ranges::fill(rngs, field<T,A>(n));
     }
 
-    template<class Array_type0> md_field(const md_field_impl<Array_type0,Ns...>& x)
-      : md_field(x.n_element())
-    {
-      for (int i=0;i<this->dim_tot;++i)
-      {
-        using T0 = typename Array_type0::value_type;
-        for (int j=0;j<this->n_element();++j)
-        {
-          T& tmp = this->underlying_linear(i)[j];
-          const T0& tmp0 = x.underlying_linear(i)[j];
-          tmp = tmp0;
-        }
-      }
-    }
-
-    md_field(size_t n, T value)
-    {
-      for (int i=0; i<this->dim_tot; ++i) {
-        this->underlying_linear(i) = array_1d_t(n,value);
-      }
+    md_field(size_t n, T value) {
+      std::ranges::fill(rngs, field<T,A>(n,value));
     }
 
     md_field(size_t n, const md_field_uniform<T,Ns...>& uni_fld)
     {
       for (int i=0; i<this->dim_tot; ++i) {
-        this->underlying_linear(i) = array_1d_t(n,uni_fld(i));
+        rngs[i] = field<T,A>(n,uni_fld(i));
+      }
+    }
+
+    template<class F>
+      requires (can_convert_field<F,T,Ns...>())
+    md_field(const F& x)
+      : md_field(x.n_element())
+    {
+      for (int i=0;i<this->dim_tot;++i) {
+        std::ranges::copy(x.rngs[i], rngs[i]);
       }
     }
 
     template<class... Is> auto
-    reclaim(Is... is) -> array_1d_t&& {
-      return std::move(this->underlying(is...));
+    reclaim(Is... is) -> field<T,A>&& {
+      return std::move(rngs[impl::index_of_field(is...)]);
     }
+  private:
+  public: // TODO
+  // data members
+    using impl = md_field_impl<Ns...>;
+    friend impl;
+    std::array<field<T,A>, impl::dim_tot> rngs;
 };
 
 template<class T, int... Ns>
-class md_field_view : public md_field_impl<std_e::span<T>, Ns...> {
+class md_field_view : public md_field_impl<Ns...> {
   public:
-    using array_1d_t = std_e::span<T>;
-    using base = md_field_impl<array_1d_t, Ns...>;
-    using base::base;
+    using value_type = T;
     constexpr static bool is_owner = false;
 
     md_field_view() = default;
 
+    //template<class F>
+    //  requires (can_take_reference_of_field<F,T>())
+    //md_field_view(F& x)
     template<class Md_field_type>
     md_field_view(Md_field_type& x)
     {
       for (int i=0; i<this->dim_tot; ++i) {
-        this->underlying_linear(i) = std_e::make_span(x.underlying_linear(i));
+        rngs[i] = x.rngs[i];
       }
     }
+  private:
+  public: // TODO
+  // data members
+    using impl = md_field_impl<Ns...>;
+    friend impl;
+    std::array<field_view<T>, impl::dim_tot> rngs;
 };
 
 template<class Md_field> auto
