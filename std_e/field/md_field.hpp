@@ -118,7 +118,8 @@ class md_field : public md_field_impl<Ns...> {
       : md_field(x.n_element())
     {
       for (int i=0;i<this->dim_tot;++i) {
-        std::ranges::copy(x.rngs[i], rngs[i]);
+        //std::ranges::copy(x.rngs[i], rngs[i]);
+        std::ranges::copy_n(x.rngs[i].data(), x.n_element(), rngs[i].data());
       }
     }
 
