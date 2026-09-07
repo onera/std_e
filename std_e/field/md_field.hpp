@@ -80,9 +80,12 @@ class md_field_impl {
     }
 };
 
-template<class AT, int... Ns> auto
-to_string(const md_field_impl<Ns...>& x) -> std::string {
-  return to_string(x());
+
+template<class F>
+  requires (Field<F> && !Scalar_field<F>)
+auto
+to_string(const F& x) -> std::string {
+  return range_to_string(x);
 }
 
 
@@ -222,6 +225,7 @@ v_stack(Md_field_0& x, Md_field_1& y, Md_field_2& z) {
     throw std_e::msg_exception("Not implemented");
   }
 }
+
 
 // --- shorthand types (e.g. for tests)
 template<int N>          using vector_field = md_field<double, mallocator, N>;

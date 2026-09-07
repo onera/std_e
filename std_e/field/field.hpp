@@ -52,6 +52,13 @@ constexpr bool operator==(const F0& x, const F1& y) {
   return std::ranges::equal(x, y);
 }
 
+template<class F>
+  requires Scalar_field<F>
+auto
+to_string(const F& x) -> std::string {
+  return range_to_string(x);
+}
+
 
 // --- API types
 template<class T, class A = mallocator>

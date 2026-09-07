@@ -8,6 +8,7 @@
 #include "std_e/utils/deque.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 #include <iomanip>
+#include <iterator>
 #include <sstream>
 
 
@@ -45,6 +46,8 @@ to_string(Forward_iterator first, S last, const std::string& inter, F to_string_
 }
 template<class R, class F> auto
 range_to_lite_string(const R& x, const std::string& inter, F to_string_fn) -> std::string {
+  using std::begin; // use <iterator> std::begin to wrap .begin()
+  using std::end;
   return to_string(begin(x),end(x),inter,to_string_fn);
 }
 template<class R, class F> auto
