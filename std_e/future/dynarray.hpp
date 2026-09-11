@@ -158,8 +158,10 @@ class dynarray {
     auto end  ()       ->       T* { return ptr+sz; }
 
   // access
-    auto operator[](int i) const -> const T& { return ptr[i]; }
-    auto operator[](int i)       ->       T& { return ptr[i]; }
+    auto operator[](int i)             const -> const T& { return ptr[i]; }
+    auto operator[](int i)                   ->       T& { return ptr[i]; }
+    auto operator[](difference_type i) const -> const T& { return ptr[i]; }
+    auto operator[](difference_type i)       ->       T& { return ptr[i]; }
     auto front()           const -> const T& { return ptr[0]; }
     auto front()                 ->       T& { return ptr[0]; }
     auto back ()           const -> const T& { return ptr[sz-1]; }
