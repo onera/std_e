@@ -21,12 +21,18 @@ class static_vector {
     static_vector() = default;
 
     template<int N0>
-      requires (N0 <= N)
+      //requires (N0 <= N)
     constexpr
     static_vector(const T(&a)[N0])
       : sz(N0)
     {
       std::copy_n(a, N0, arr.data());
+    }
+    constexpr
+    static_vector(std::initializer_list<T> l)
+      : sz(l.size())
+    {
+      std::copy_n(l.begin(), l.size(), arr.data());
     }
 
     constexpr size_type size() const     { return sz; }
@@ -50,6 +56,11 @@ class static_vector {
     size_type sz = 0;
     std::array<T, N> arr = {};
 };
+
+template <typename T, size_t N> constexpr auto begin(const static_vector<T,N>& x) { return x.begin(); }
+template <typename T, size_t N> constexpr auto begin(      static_vector<T,N>& x) { return x.begin(); }
+template <typename T, size_t N> constexpr auto end  (const static_vector<T,N>& x) { return x.end  (); }
+template <typename T, size_t N> constexpr auto end  (      static_vector<T,N>& x) { return x.end  (); }
 
 
 } // std_e
