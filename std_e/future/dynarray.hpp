@@ -6,41 +6,11 @@
 #include <cstdio>
 #include <algorithm>
 #include <initializer_list>
+#include "std_e/future/allocator.hpp"
 
 
 namespace std_e {
 
-
-struct mallocator {
-  static auto allocate(size_t n) -> void* {
-    return malloc(n);
-  }
-  static auto deallocate(void* p) -> void {
-    free(p);
-  }
-
-  template<class T>
-  static auto fill(T* first, T* last, const T& x) {
-    std::fill(first, last, x);
-  }
-  //template<class T>
-  //static auto copy(const T* first, const T* last, T* d_first) {
-  template<class In_it, class S, class Out_it>
-  static auto copy(In_it first, S last, Out_it d_first) {
-    std::copy(first, last, d_first);
-  }
-};
-
-//struct aligned_mallocator {
-//  static auto allocate(size_t n) -> void* {
-//    void* p;
-//    posix_memalign(&p, 64, n);
-//    return p;
-//  }
-//  static auto deallocate(void* p) -> void {
-//    free(p);
-//  }
-//};
 
 template<class T, class Allocator = mallocator> // TODO rename Allocator, it also provide fill and copy
 class dynarray {
