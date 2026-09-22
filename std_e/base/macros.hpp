@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO should be moved to (and split in) std_e/macro/
+
 #include <utility>
 
 // workaround to clang and icc pretending they are gcc
