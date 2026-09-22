@@ -124,11 +124,11 @@ apply(F&& f, const hrange<RT,Ts...>& x) -> decltype(auto) {
 // algorithms {
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_range(hrange<RT,Ts...>& hr, F f) -> void {
-  for_each(hr.impl(),f);
+  for_each(hr.impl(),f); // TODO should work with std::apply, but doesn't
 }
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_range(const hrange<RT,Ts...>& hr, F f) -> void {
-  for_each(hr.impl(),f);
+  for_each(hr.impl(),f); // TODO should work with std::apply, but doesn't
 }
 
 template<class... Ts, template<class> class RT, class F> constexpr auto
