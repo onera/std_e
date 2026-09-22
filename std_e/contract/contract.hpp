@@ -18,14 +18,6 @@
 // If A returns the inverse of an array of doubles and C check the elements are non-zero, then C is medium
 // If A is a binary search over a sorted array and C checks the array is sorted, then C is expansive
 
-#ifdef STD_E_ASSERT_LEVEL
-  #if STD_E_ASSERT_LEVEL < -1 && STD_E_ASSERT_LEVEL > 2
-    #error "STD_E_ASSERT_LEVEL must be defined with value -1 (no check), 0 (cheap checks only), 1 (cheap and medium checks), or 2 (all checks)"
-  #endif
-#else
-  #define STD_E_ASSERT_LEVEL 0 // default
-#endif
-
 
 // First define the macros as doing nothing (in particular, `expr` is not evaluated)...
 #define STD_E_ASSERT_LVL0(expr)

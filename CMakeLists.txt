@@ -43,6 +43,7 @@ option(${PROJECT_NAME}_ENABLE_TESTS "Enable testing for ${PROJECT_NAME}" ON)
 option(${PROJECT_NAME}_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
 option(${PROJECT_NAME}_ENABLE_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
 option(${PROJECT_NAME}_ENABLE_PERFORMANCE_TESTS "Enable performance tests for ${PROJECT_NAME}" OFF)
+set(${PROJECT_NAME}_ASSERT_LEVEL 0 CACHE STRING "Logging level (-1: deactivate, 0: very lite, 1: medium, 2: all asserts)")
 
 ## Compiler flags
 ### Build type
@@ -100,6 +101,14 @@ endif()
 
 ## Main library ##
 add_library(${PROJECT_NAME} SHARED ${cpp_files})
+
+if(${PROJECT_NAME}_ENABLE_MPI)
+  target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_HAS_MPI=1)
+else()
+  target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_HAS_MPI=0)
+endif()
+target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_ASSERT_LEVEL=${${PROJECT_NAME}_ASSERT_LEVEL})
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
