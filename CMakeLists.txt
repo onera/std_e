@@ -51,7 +51,7 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
 endif()
 ### C++ standard
-set(SUPPORTED_CXX_STANDARDS 17 20 23)
+set(SUPPORTED_CXX_STANDARDS 17 20 23 26)
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20 CACHE STRING "C++ standard to compile against")
 endif()
