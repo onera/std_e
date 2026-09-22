@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <algorithm>
+#include <memory>
 #include <initializer_list>
 #include "std_e/future/allocator.hpp"
 
@@ -21,7 +22,7 @@ class dynarray {
     using const_iterator  = const T*;
     using       pointer   =       T*;
     using const_pointer   = const T*;
-    using       reference = const T&;
+    using       reference =       T&;
     using const_reference = const T&;
 
     using size_type       = size_t;
@@ -29,16 +30,16 @@ class dynarray {
 
   // ctors and assignment
     dynarray()
-      : ptr(nullptr)
-      , sz(0)
+      : sz(0)
+      , ptr(nullptr)
     {}
     dynarray(size_t sz)
       : sz(sz)
-    {
-      this->ptr = allocate(sz);
-    }
+      , ptr(construct(sz))
+    {}
+
     ~dynarray() {
-      deallocate(this->ptr);
+      destruct(ptr, sz);
     }
 
     dynarray(const dynarray& old) 
@@ -50,25 +51,25 @@ class dynarray {
     dynarray& operator=(const dynarray& old) {
       if (sz != old.sz) {
         sz = old.sz;
-        deallocate(this->ptr);
-        this->ptr = allocate(sz);
+        destruct(ptr, sz);
+        this->ptr = construct(sz);
       }
       Allocator::copy(old.ptr, old.ptr+old.sz, ptr);
       return *this;
     }
 
     dynarray(dynarray&& old)
-      : ptr(old.ptr)
-      , sz(old.sz)
+      : sz(old.sz)
+      , ptr(old.ptr)
     {
       old.ptr = nullptr;
       old.sz = 0;
     }
     dynarray& operator=(dynarray&& old)
     {
-      std::swap(ptr, old.ptr);
       std::swap(sz, old.sz);
-      deallocate(old.ptr);
+      std::swap(ptr, old.ptr);
+      destruct(old.ptr, old.sz);
       old.ptr = nullptr;
       return *this;
     }
@@ -91,8 +92,8 @@ class dynarray {
     {
       if (sz != x.sz) {
         sz = x.sz;
-        deallocate(this->ptr);
-        this->ptr = allocate(sz);
+        destruct(ptr, sz);
+        this->ptr = construct(sz);
       }
       Allocator::copy(x.ptr, x.ptr+x.sz, ptr);
       return *this;
@@ -107,11 +108,11 @@ class dynarray {
 
     auto
     resize(size_t new_sz) -> void {
-      T* new_ptr = allocate(new_sz);
+      T* new_ptr = construct(new_sz);
       size_t min_sz = std::min(this->sz,new_sz); 
       std::copy_n(this->ptr, min_sz, new_ptr);
 
-      deallocate(this->ptr);
+      destruct(ptr, sz);
       this->ptr = new_ptr;
       this->sz = new_sz;
     }
@@ -146,15 +147,18 @@ class dynarray {
     }
   private:
   // static helper functions
-    static auto allocate(size_t n) -> T* {
-      return (T*)Allocator::allocate(n * sizeof(T));
+    static auto construct(size_t n) -> T* {
+      T* p = static_cast<T*>(Allocator::allocate(n * sizeof(T)));
+      std::uninitialized_default_construct_n(p, n);
+      return p;
     }
-    static auto deallocate(T* p) -> void {
+    static auto destruct(T* p, size_t n) -> void {
+      std::destroy_n(p, n);
       Allocator::deallocate(p);
     }
   // data members
-    T* ptr;
     size_t sz;
+    T* ptr;
 };
 
 template<class T, class A> auto

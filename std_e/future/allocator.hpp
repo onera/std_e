@@ -8,6 +8,7 @@
 namespace std_e {
 
 
+// TODO use std::allocator (handles failure, overflow, and over-alignment [this one needs to template on the type being allocated])
 struct mallocator {
   static auto allocate(size_t n) -> void* {
     return malloc(n);
