@@ -2,6 +2,7 @@
 
 #include <array>
 #include "std_e/contract/contract.hpp"
+#include "std_e/utils/to_string.hpp"
 
 
 namespace std_e {
@@ -62,5 +63,9 @@ template <typename T, size_t N> constexpr auto begin(      static_vector<T,N>& x
 template <typename T, size_t N> constexpr auto end  (const static_vector<T,N>& x) { return x.end  (); }
 template <typename T, size_t N> constexpr auto end  (      static_vector<T,N>& x) { return x.end  (); }
 
+template<class T, size_t N> auto
+to_string(const static_vector<T,N>& v) {
+  return range_to_string(v);
+}
 
 } // std_e
