@@ -69,7 +69,7 @@ struct md_field_uniform {
     index_of_field(std::integral auto... is) -> int {
       STD_E_ASSERT_LVL1(((std::in_range<int>(is)) && ...));
       return std_e::fortran_order_from_dimensions(
-        dims, std_e::multi_index<int>{int(is)...}
+        dims, std_e::multi_index<int,rank>{int(is)...}
       );
     }
 

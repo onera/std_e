@@ -5,6 +5,7 @@
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/multi_index.hpp"
 #include "std_e/utils/array.hpp"
+#include "std_e/contract/contract.hpp"
 // TODO RENAME file, test (offsets!)
 
 
@@ -22,15 +23,17 @@ fortran_order__impl_for_param_pack_OLD(const strides_type& strides, const offset
 }
 
 
-template<class Multi_index_0, class Multi_index_1> FORCE_INLINE constexpr auto
-// requires std_e::size<Multi_index_0> == std_e::size<Multi_index_1>
+template<class Multi_index_0, class Multi_index_1>
+  requires (std::tuple_size_v<Multi_index_0> == std::tuple_size_v<Multi_index_1>)
+  //requires (std_e::size<Multi_index_0> == std_e::size<Multi_index_1>)
+FORCE_INLINE constexpr auto
 fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& indices) -> int {
-  STD_E_ASSERT(dims.size()>0);
-  STD_E_ASSERT(dims.size()==indices.size());
-  int rank = dims.size();
+  STD_E_ASSERT_LVL1(dims.size()>0);
+  STD_E_ASSERT_LVL1(dims.size()==indices.size());
+  size_t rank = dims.size();
   int res = indices[0];
   int stride = dims[0];
-  for (int k=1; k<rank; ++k) {
+  for (size_t k=1; k<rank; ++k) {
     res += indices[k] * stride;
     stride *= dims[k];
   }
