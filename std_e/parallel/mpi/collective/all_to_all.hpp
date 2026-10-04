@@ -2,10 +2,9 @@
 
 
 #include "std_e/parallel/mpi.hpp"
-#include "std_e/parallel/serialize.hpp"
-#include "std_e/parallel/compressed_array.hpp"
 #include "std_e/data_structure/jagged_range.hpp"
 #include "std_e/interval/interval_sequence.hpp"
+#include "std_e/parallel/serialize.hpp"
 
 
 namespace std_e {
@@ -65,7 +64,13 @@ all_to_all(const Contiguous_range& s_array, MPI_Comm comm, F alltoall_algo = def
 // all_to_all }
 
 
-// DEL{
+template<class T>
+struct compressed_array {
+  std::vector<T> data;
+  std::vector<int> lengths;
+  interval_vector<int> offsets;
+};
+
 template<class T, class F = dense_algo_family> auto
 all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm, F algo_family = {}) -> compressed_array<T> {
   const auto& [sbuf,sstrides,soffsets] = sends;
@@ -81,7 +86,6 @@ all_to_all_v(const compressed_array<T>& sends, MPI_Comm comm, F algo_family = {}
   return {std::move(rbuf),std::move(rstrides),std::move(roffsets)};
 }
 
-// TODO with serialize_array->T instead of std::byte
 template<class Random_access_range, class F = dense_algo_family, class T = typename Random_access_range::value_type> auto
 all_to_all_v(const Random_access_range& sends, MPI_Comm comm, F algo_family = {}) -> std::vector<T> {
   auto [soffsets,sbuf] = serialize_array(sends);
@@ -91,7 +95,7 @@ all_to_all_v(const Random_access_range& sends, MPI_Comm comm, F algo_family = {}
 
   return deserialize_array<T>(rbuf.data(),roffsets);
 }
-// DEL}
+
 
 template<class T, class F = dense_algo_family> auto
 all_to_all_v(

@@ -1,15 +1,8 @@
 #pragma once
 
+
 #include "std_e/data_structure/multi_range.hpp"
 #include "std_e/meta/macro.hpp"
-
-namespace std_e {
-
-// spreadsheet-like class 
-// "column" names may be used to create descriptive function names (through use of macros below)
-template<class... Ts> using multi_vector2 = multi_vector<Ts...>;
-
-} // std_e
 
 
 #define STD_E_GEN_MULTI_VECTOR_ACCESSORS_4(multi_vector_type, type0,attr0, type1,attr1) \

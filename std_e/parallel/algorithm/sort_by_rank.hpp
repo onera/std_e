@@ -11,6 +11,7 @@
 #include "std_e/parallel/algorithm/exception.hpp"
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
 #include "std_e/future/ranges/subrange.hpp"
+#include "std_e/utils/concatenate.hpp"
 #include <cmath>
 #include <ranges>
 
