@@ -126,6 +126,10 @@ class multi_range_iterator {
     index_type pos;
 };
 
+// deduction guideline
+template<class T, class Index_type>
+multi_range_iterator(T* ptr, Index_type pos) -> multi_range_iterator<T>;
+
 
 } // std_e
 

@@ -5,6 +5,7 @@
 #include "std_e/parallel/algorithm/sort_by_rank.hpp"
 #include "std_e/logging/time_logger.hpp"
 #include "std_e/future/dynarray.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
 
 
 namespace std_e {
@@ -94,7 +95,7 @@ auto contiguous_numbering_sort_hyb(std_e::span<const int64_t> xs_in, MPI_Comm co
   auto xs_indices = iota_vector(sz, 0);
   //ELOG(xs);
   //ELOG(xs_indices);
-  auto mr = std_e::view_as_multi_range(xs,xs_indices);
+  auto mr = std_e::zip_view(xs,xs_indices);
   auto proj = [](const auto& x){ return get<0>(x); };
 
   //auto rank_indices = std_e::sort_by_rank(mr,comm,proj,{},1.);

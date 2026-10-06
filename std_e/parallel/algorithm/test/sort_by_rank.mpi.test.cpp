@@ -424,7 +424,7 @@ MPI_TEST_CASE("sort_by_rank - multi_range - 2 procs",2) {
   if (rk == 1) x = {12, 3, 4, 8, 5, 1, 2};
   if (rk == 1) y = { 8, 9,10,11,12,13,14};
 
-  auto mr = view_as_multi_range(x,y);
+  auto mr = zip_view(x,y);
   auto proj = [](const auto& x){ return get<0>(x); };
   interval_vector<int> rank_indices = std_e::sort_by_rank(mr,test_comm,proj);
 

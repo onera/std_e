@@ -31,7 +31,7 @@ TEST_CASE("pivot_partition_copy") {
     res[index].vi.push_back(i);
     res[index].vd.push_back(d);
   };
-  std_e::pivot_partition_copy(std_e::view_as_multi_range(vi,vd),pivots,proj,f_copy);
+  std_e::pivot_partition_copy(std_e::zip_view(vi,vd),pivots,proj,f_copy);
 
   CHECK( res[0].vi == vector{-7 } );
   CHECK( res[0].vd == vector{7.3} );
@@ -68,7 +68,7 @@ TEST_CASE("interval_partition_copy") {
       res[index].vd.push_back(d);
     }
   };
-  std_e::interval_partition_copy(std_e::view_as_multi_range(vi,vd),intervals,proj,f_copy);
+  std_e::interval_partition_copy(std_e::zip_view(vi,vd),intervals,proj,f_copy);
 
   CHECK( below_interval == vector{-7} );
   CHECK( res[0].vi == vector{  8,  50,   0} );

@@ -18,7 +18,7 @@ TEST_CASE("sort_by_first vs indirect_sort") {
 
     // In this case, we sort the first array,
     // and the second "follows" where the elements of the first go
-    ranges::sort(zip(v,perm), proj<0>);
+    ranges::sort(zip_view(v,perm), proj<0>);
 
     vector<int>    v_expected = {4,5,7,9};
     vector<int> perm_expected = {1,2,3,0};
