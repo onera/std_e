@@ -25,9 +25,9 @@ class multi_range2 {
     using index_type = std::ptrdiff_t;
     using impl_type = std::tuple<Ranges...>;
 
-    using value_type      = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::value_type...>;
-    using reference       = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::reference ...>;
-    using const_reference = std_e::tuple<typename std_e::remove_cvref_t<Ranges>::const_reference ...>;
+    using value_type      = std_e::tuple<typename std::remove_cvref_t<Ranges>::value_type...>;
+    using reference       = std_e::tuple<typename std::remove_cvref_t<Ranges>::reference ...>;
+    using const_reference = std_e::tuple<typename std::remove_cvref_t<Ranges>::const_reference ...>;
     using iterator = multi_range_iterator<this_type>;
     using const_iterator = multi_range_iterator<const this_type>;
 
@@ -81,7 +81,7 @@ class multi_range2 {
     auto begin(this auto& self) -> iterator { return multi_range_iterator{&self, 0          }; }
     auto end  (this auto& self) -> iterator { return multi_range_iterator{&self, self.size()}; }
     auto
-    operator[](this auto& self, index_type i) {
+    operator[](this auto&& self, index_type i) {
       return self._subscript_op(i,std::make_index_sequence<n_range>());
     }
     auto
@@ -123,6 +123,16 @@ class multi_range2 {
   // data members
     impl_type _impl;
 };
+
+// TMP (for jagged_range)
+template<class T> struct is_multi_range2_impl : std::false_type {};
+
+template<class T>
+  requires (T::is_multi_range)
+struct is_multi_range2_impl<T> : std::true_type {};
+
+template<class T> constexpr bool is_multi_range2 = is_multi_range2_impl<T>::value;
+// end TMP
 
 // deduction guides
 template<class... R0> multi_range2(R0&&...) -> multi_range2<std::decay_t<R0>...>;
@@ -217,7 +227,7 @@ zip_view(Rngs&... rngs) {
 template<class MR>
   requires (MR::is_multi_range)
 auto
-view(MR& x) {
+make_span(MR& x) {
   auto make_multi_span_from_args = [](auto&&... args){ return multi_range2(make_span(args)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
@@ -225,7 +235,7 @@ view(MR& x) {
 template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
-subview_n(MR& x, I i, I n) {
+make_span_n(MR& x, I i, I n) {
   auto make_multi_span_from_args = [i,n](auto&&... args){ return multi_range2(make_span_n(args,i,n)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
@@ -233,7 +243,7 @@ subview_n(MR& x, I i, I n) {
 template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
-subview(MR& x, I i, I j) {
+make_span(MR& x, I i, I j) {
   auto make_multi_span_from_args = [i,j](auto&&... args){ return multi_range2(make_span_n(args,i,j)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }

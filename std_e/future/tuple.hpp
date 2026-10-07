@@ -4,6 +4,8 @@
 #include "std_e/base/macros.hpp"
 #include "std_e/meta/pack.hpp"
 #include "std_e/meta/types.hpp"
+// TODO I think this tuple is only useful as tuple<Ts&> with assign through behavior
+// So maybe we should call it tuple_ref<Ts>
 
 
 namespace std_e {

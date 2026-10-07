@@ -8,7 +8,6 @@
 
 
 
-// TODO RENAME cell->elt, row->multi_elt, col->range_view
 using std::vector;
 using std::string;
 using std_e::span;
@@ -125,7 +124,7 @@ TEST_CASE("multi_vector2") {
     CHECK( get<0>(row2) ==  0 ); CHECK( get<1>(row2) == "ABC"); CHECK( get<2>(row2) == 100. );
   }
 
-  SUBCASE("structured bindings") {
+  SUBCASE("structured bindings") { // TODO more refined around value/view/ref concepts
     auto& [x,y,z] = t;
     CHECK( x == vector<int>   {42  ,43 ,0    } );
     CHECK( y == vector<string>{"X" ,"Y","ABC"} );
@@ -338,7 +337,7 @@ TEST_CASE("views") {
     vector<double> expected_col2 = {3.14,2.7,100.};
 
     SUBCASE("non-const") {
-      multi_span2 ms = view(mv);
+      multi_span2 ms = make_span(mv);
 
       auto col0 = std_e::range_view<0>(ms);
       auto col1 = std_e::range_view<1>(ms);
@@ -349,7 +348,7 @@ TEST_CASE("views") {
     }
     SUBCASE("const") {
       const auto& cmv = mv;
-      multi_span2 ms = view(cmv);
+      multi_span2 ms = make_span(cmv);
 
       auto col0 = std_e::range_view<0>(ms);
       auto col1 = std_e::range_view<1>(ms);
@@ -364,7 +363,7 @@ TEST_CASE("views") {
     vector<string> expected_col1 = {"Y","ABC"};
     vector<double> expected_col2 = {2.7,100.};
 
-    multi_span2 ms = subview_n(mv,1,2);
+    multi_span2 ms = make_span_n(mv,1,2);
 
     auto col0 = std_e::range_view<0>(ms);
     auto col1 = std_e::range_view<1>(ms);

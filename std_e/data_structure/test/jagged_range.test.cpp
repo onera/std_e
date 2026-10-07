@@ -1,6 +1,7 @@
 #if __cplusplus > 201703L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/data_structure/jagged_range.hpp"
+#include "std_e/debug.hpp"
 
 using namespace std_e;
 using namespace std;
@@ -140,12 +141,12 @@ TEST_CASE("jagged_multi_vector") {
   v.push_back(70,"70");
 
   CHECK( v.size() == 4 );
-  CHECK( range<0>(v.flat_view()) == vector{10,20,30,40,50,60,70} );
-  CHECK( range<1>(v.flat_view()) == vector{"10","20","30","40","50","60","70"} );
-  CHECK( v.indices() == vector<int>{0,1,3,4,7} );
+  CHECK( range_view<0>(v.flat_view()) == vector{ 10 , 20 , 30 , 40 , 50 , 60 , 70 } );
+  CHECK( range_view<1>(v.flat_view()) == vector{"10","20","30","40","50","60","70"} );
+  CHECK( v.indices() == vector{0,1,3,4,7} );
   CHECK( v[0].size() == 1 );
-  CHECK( std::get<0>(v[0][0]) == 10 );
-  CHECK( std::get<1>(v[0][0]) == "10" );
+  CHECK( std_e::get<0>(v[0][0]) ==  10  );
+  CHECK( std_e::get<1>(v[0][0]) == "10" );
 }
 
 TEST_CASE("algorithm") {

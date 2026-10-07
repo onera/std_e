@@ -4,7 +4,7 @@
 #include "std_e/interval/interval_sequence.hpp"
 #include <vector>
 #include <algorithm>
-#include "std_e/data_structure/multi_range.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
 #include "std_e/meta/meta.hpp"
 #include "std_e/future/ranges.hpp"
@@ -25,7 +25,7 @@ template<class T, int rank=2, class I=int>
 using jagged_vector = jagged_range<std::vector<T>,std::vector<I>,rank>;
 
 template<int rank, class... Ts>
-using jagged_multi_vector = jagged_range<multi_vector<Ts...>,std::vector<int>,rank>;
+using jagged_multi_vector = jagged_range<multi_vector2<Ts...>,std::vector<int>,rank>;
 
 template<class multi_vector_type, int rank=2>
 using jagged_multi_vector2 = jagged_range<multi_vector_type,std::vector<int>,rank>;
@@ -349,14 +349,14 @@ class jagged_range {
     static auto subscript_op_impl(jagged_range_type& x, I i) {
       if constexpr (rank==2) {
         using data_value_type = typename jagged_range_type::data_value_range_type;
-        if constexpr (!is_multi_range<data_value_type>) {
+        if constexpr (!is_multi_range2<data_value_type>) {
           if constexpr (std::is_const_v<jagged_range_type> || std::is_const_v<element_type<data_value_type>>) {
             return const_reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           } else {
             return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           }
         } else { // FIXME return as previous (not possible now because `reference` does not work with proxy-refs of multi_range
-          return make_span_ref(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
+          return make_span_n(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
           //return make_span_ref(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array[i+1]-x.idx_array[i]);
         }
       } else {
