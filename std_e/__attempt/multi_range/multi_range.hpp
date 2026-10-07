@@ -10,6 +10,7 @@
 
 
 namespace std_e {
+namespace old {
 
 
 // multi_range: multiple ranges of the same size zipped together
@@ -473,4 +474,5 @@ template<class T>
 constexpr bool is_multi_range = _is_multi_range_impl<std_e::remove_cvref_t<T>>::value;
 
 
+} // old
 } // std_e

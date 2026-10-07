@@ -355,9 +355,8 @@ class jagged_range {
           } else {
             return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           }
-        } else { // FIXME return as previous (not possible now because `reference` does not work with proxy-refs of multi_range
+        } else { // FIXME return as previous (not possible now because `reference` needs to accepts iterators that are not pointers)
           return make_span_n(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
-          //return make_span_ref(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array[i+1]-x.idx_array[i]);
         }
       } else {
         static_assert(rank==3); // Other ranks are not implemented TODO
