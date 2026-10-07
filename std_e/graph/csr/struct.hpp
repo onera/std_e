@@ -42,10 +42,10 @@ class Edge_node_base : public multi_range2<Rng,Rng> {
     }
 
   // interface
-    auto left () const -> const auto& { return get<0>(*this); }
-    auto right() const -> const auto& { return get<1>(*this); }
-    auto left ()       ->       auto& { return get<0>(*this); }
-    auto right()       ->       auto& { return get<1>(*this); }
+    auto left () const { return get<0>(*this); }
+    auto right() const { return get<1>(*this); }
+    auto left ()       { return get<0>(*this); }
+    auto right()       { return get<1>(*this); }
     auto n_node() const -> I { return number_of_nodes; }
     auto n_edge() const -> I { return left().size(); }
 

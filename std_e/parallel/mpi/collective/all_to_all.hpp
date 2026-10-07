@@ -190,47 +190,47 @@ all_to_all_v_from_strides(const Range& sbuf, const Int_range& sstrides, MPI_Comm
   return std::make_pair(std::move(rbuf),std::move(rindices));
 }
 
-template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
-all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T> {
-  auto [rbuf,rindices] = all_to_all(sends.flat_view(), sends.indices(), comm, algo_family);
-  return {std::move(rbuf),std::move(rindices.as_base())};
-}
-
-
-template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
-all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T,3> {
-  const auto& data = sends.flat_ref();
-  const auto& inner_indices = indices<0>(sends);
-  const auto& outer_indices = indices<1>(sends);
-  interval_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
-
-  // TODO extract
-  int nb_procs = outer_indices.size()-1;
-  std::vector<int> neighbor_data_indices(inner_indices.size());
-  for (int i=0; i<nb_procs; ++i) {
-    int off = inner_indices[outer_indices[i]];
-    for (int j=outer_indices[i]; j<outer_indices[i+1]; ++j) {
-      neighbor_data_indices[j] = inner_indices[j]-off;
-    }
-  }
-  // end extract
-
-  auto recv = all_to_all(neighbor_data_indices,outer_indices,comm,algo_family);
-  auto recvy = all_to_all(data,proc_data_indices,comm,algo_family);
-
-  // TODO extract
-  for (int i=0; i<nb_procs; ++i) {
-    int off = recvy.second[i];
-    for (int j=recv.second[i]; j<recv.second[i+1]; ++j) {
-      recv.first[j] += off;
-    }
-  }
-  recv.first.push_back(recvy.second.back());
-  // end extract
-
-  downscale_separators(recvy.second,recv.first);
-  return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second.as_base()));
-}
+//template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
+//all_to_all_v(const jagged_range<DR,IR,2>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T> {
+//  auto [rbuf,rindices] = all_to_all(sends.flat_view(), sends.indices(), comm, algo_family);
+//  return {std::move(rbuf),std::move(rindices.as_base())};
+//}
+//
+//
+//template<class DR, class IR, class F = dense_algo_family, class T = typename DR::value_type> auto
+//all_to_all_v(const jagged_range<DR,IR,3>& sends, MPI_Comm comm, F algo_family = {}) -> jagged_vector<T,3> {
+//  const auto& data = sends.flat_ref();
+//  const auto& inner_indices = indices<0>(sends);
+//  const auto& outer_indices = indices<1>(sends);
+//  interval_vector<int> proc_data_indices = upscaled_separators(outer_indices,inner_indices);
+//
+//  // TODO extract
+//  int nb_procs = outer_indices.size()-1;
+//  std::vector<int> neighbor_data_indices(inner_indices.size());
+//  for (int i=0; i<nb_procs; ++i) {
+//    int off = inner_indices[outer_indices[i]];
+//    for (int j=outer_indices[i]; j<outer_indices[i+1]; ++j) {
+//      neighbor_data_indices[j] = inner_indices[j]-off;
+//    }
+//  }
+//  // end extract
+//
+//  auto recv = all_to_all(neighbor_data_indices,outer_indices,comm,algo_family);
+//  auto recvy = all_to_all(data,proc_data_indices,comm,algo_family);
+//
+//  // TODO extract
+//  for (int i=0; i<nb_procs; ++i) {
+//    int off = recvy.second[i];
+//    for (int j=recv.second[i]; j<recv.second[i+1]; ++j) {
+//      recv.first[j] += off;
+//    }
+//  }
+//  recv.first.push_back(recvy.second.back());
+//  // end extract
+//
+//  downscale_separators(recvy.second,recv.first);
+//  return jagged_vector<int,3>(std::move(recvy.first),std::move(recv.first),std::move(recvy.second.as_base()));
+//}
 
 
 } // std_e

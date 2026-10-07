@@ -31,10 +31,7 @@ class multi_range2 {
     using iterator = multi_range_iterator<this_type>;
     using const_iterator = multi_range_iterator<const this_type>;
 
-    static constexpr auto
-    n_range() -> int {
-      return sizeof...(Ranges);
-    }
+    static constexpr auto n_range = sizeof...(Ranges);
 
   // ctors
     multi_range2() = default;
@@ -53,21 +50,39 @@ class multi_range2 {
       return get<0>(_impl).size();
     }
 
+    // get individual ranges
+    /// get a view
     template<size_t I> auto
-    range(this auto&& self) -> auto&& {
-      return get<I>(FWD(self)._impl); // TODO return span to enforce invariant (1)
+    range_view(this auto&& self) {
+      return make_span(get<I>(FWD(self)._impl));
     }
     template<class T> auto
-    range(this auto&& self) -> auto&& {
+    range_view(this auto&& self) {
       constexpr size_t I = meta::find_rng_idx<T, Ranges...>;
-      return get<I>(FWD(self)._impl); // TODO return span to enforce invariant (1)
+      return self.template range_view<I>();
+    }
+    /// get a ref
+    template<size_t I> auto
+    range_ref(this auto&& self) {
+      return make_span_ref(get<I>(FWD(self)._impl));
+    }
+    template<class T> auto
+    range_ref(this auto&& self) {
+      constexpr size_t I = meta::find_rng_idx<T, Ranges...>;
+      return self.template range_ref<I>();
+    }
+ 
+    // only provided for structured binding (see `get(multi_range)`)
+    template<size_t I> auto
+    _get(this auto&& self) -> auto&& {
+      return get<I>(FWD(self)._impl);
     }
 
     auto begin(this auto& self) -> iterator { return multi_range_iterator{&self, 0          }; }
     auto end  (this auto& self) -> iterator { return multi_range_iterator{&self, self.size()}; }
     auto
     operator[](this auto& self, index_type i) {
-      return self.subscript_op_impl(i,std::make_index_sequence<n_range()>());
+      return self._subscript_op(i,std::make_index_sequence<n_range>());
     }
     auto
     back(this auto& self) {
@@ -83,25 +98,25 @@ class multi_range2 {
   // vector-like interface
     template<class... Ts0> auto
     // requires Ts0 is Ts
-    push_back(const Ts0&... elts) -> reference { // TODO how to enforce invariant (2) ?
-      return push_back_impl(std::forward_as_tuple(elts...),std::make_index_sequence<n_range()>());
+    push_back(const Ts0&... elts) -> reference {
+      return _push_back(std::forward_as_tuple(elts...),std::make_index_sequence<n_range>());
     }
 
   private:
   // methods
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
-    subscript_op_impl(index_type i, std::index_sequence<Is...>) const -> const_reference {
+    _subscript_op(index_type i, std::index_sequence<Is...>) const -> const_reference {
       return const_reference(get<Is>(_impl)[i]...);
     }
     template<size_t... Is> constexpr auto
     // requires T==Ts[index]
-    subscript_op_impl(index_type i, std::index_sequence<Is...>) -> reference {
+    _subscript_op(index_type i, std::index_sequence<Is...>) -> reference {
       return reference(get<Is>(_impl)[i]...);
     }
     template<class args_tuple_type, size_t... Is> auto
     // requires args_tuple_type is tuple<Ts...>
-    push_back_impl(const args_tuple_type& elts, std::index_sequence<Is...>) -> reference {
+    _push_back(const args_tuple_type& elts, std::index_sequence<Is...>) -> reference {
       ( get<Is>(_impl).push_back(get<Is>(elts)) , ... );
       return back();
     }
@@ -117,26 +132,39 @@ template<class... Ts> using multi_vector2 = multi_range2<std::vector<Ts>...>;
 template<class... Ts> using multi_span2 = multi_range2<span<Ts>...>;
 
 
-// range, get, proj
+// range_view, get, proj
 template<size_t I, class MR>
   requires (std::remove_cvref_t<MR>::is_multi_range)
 auto
-range(MR&& mr) -> auto&& {
-  return FWD(mr).template range<I>();
+range_view(MR&& mr) {
+  return FWD(mr).template range_view<I>();
 }
 template<class T, class MR>
   requires (std::remove_cvref_t<MR>::is_multi_range)
 auto
-range(MR&& mr) -> auto&& {
-  return FWD(mr).template range<T>();
+range_view(MR&& mr) {
+  return FWD(mr).template range_view<T>();
 }
 
-// get==range (get is the required name for structured bindings) 
+template<size_t I, class MR>
+  requires (std::remove_cvref_t<MR>::is_multi_range)
+auto
+range_ref(MR&& mr) {
+  return FWD(mr).template range_ref<I>();
+}
+template<class T, class MR>
+  requires (std::remove_cvref_t<MR>::is_multi_range)
+auto
+range_ref(MR&& mr) {
+  return FWD(mr).template range_ref<T>();
+}
+
+// get==range_view (get is the required name for structured bindings) 
 template<size_t I, class MR>
   requires (std::remove_cvref_t<MR>::is_multi_range)
 auto
 get(MR&& mr) -> auto&& {
-  return FWD(mr).template range<I>();
+  return FWD(mr).template _get<I>();
 }
 
 // begin/end
@@ -153,7 +181,7 @@ end(MR& mr) {
   return mr.end();
 }
 
-// Same as range/get function, but this one is a lambda
+// Same as range_view/get function, but this one is a lambda
 // Useful for expressions such as `std_e::ranges::sort(my_multi_range, proj<0>)`
 template<int i> constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<i>(x); };
 
@@ -163,13 +191,13 @@ template<int j, class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
 element(MR& x, I i) -> auto& {
-  return range<j>(x)[i];
+  return range_view<j>(x)[i];
 }
 template<class T, class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
 element(MR& x, I i) -> auto& {
-  return range<T>(x)[i];
+  return range_view<T>(x)[i];
 }
 
 
@@ -185,11 +213,11 @@ zip_view(Rngs&... rngs) {
 }
 
 
-// make_span
+// views
 template<class MR>
   requires (MR::is_multi_range)
 auto
-make_span(MR& x) {
+view(MR& x) {
   auto make_multi_span_from_args = [](auto&&... args){ return multi_range2(make_span(args)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
@@ -197,7 +225,7 @@ make_span(MR& x) {
 template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
-make_span_n(MR& x, I i, I n) {
+subview_n(MR& x, I i, I n) {
   auto make_multi_span_from_args = [i,n](auto&&... args){ return multi_range2(make_span_n(args,i,n)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
@@ -205,7 +233,7 @@ make_span_n(MR& x, I i, I n) {
 template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
-make_span(MR& x, I i, I j) {
+subview(MR& x, I i, I j) {
   auto make_multi_span_from_args = [i,j](auto&&... args){ return multi_range2(make_span_n(args,i,j)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }

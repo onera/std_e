@@ -3,6 +3,7 @@
 
 #include "std_e/future/span.hpp"
 #include "std_e/meta/reference_traits.hpp"
+#include "std_e/contract/contract.hpp"
 
 
 namespace std_e {
@@ -28,13 +29,13 @@ class span_ref : public span_base<T,N> {
     /// move/copy assign
     FORCE_INLINE constexpr
     span_ref& operator=(span_ref&& r) {
-      STD_E_ASSERT(r.size() == this->size());
+      STD_E_ASSERT_LVL0(r.size() == this->size());
       std::copy(r.begin(),r.end(),this->begin());
       return *this;
     }
     FORCE_INLINE constexpr
     span_ref& operator=(const span_ref& r) {
-      STD_E_ASSERT(r.size() == this->size());
+      STD_E_ASSERT_LVL0(r.size() == this->size());
       std::copy(r.begin(),r.end(),this->begin());
       return *this;
     }
@@ -42,14 +43,14 @@ class span_ref : public span_base<T,N> {
     /// others
     template<class Range> FORCE_INLINE constexpr
     span_ref& operator=(Range&& r) {
-      STD_E_ASSERT(r.size() == this->size());
+      STD_E_ASSERT_LVL0(r.size() == this->size());
       std::copy(r.begin(),r.end(),this->begin());
       return *this;
     }
     // operator= const version to satisfy proxy reference in std::indirectly_writable
     template<class Range> FORCE_INLINE constexpr
     const span_ref& operator=(Range&& r) const {
-      STD_E_ASSERT(r.size() == this->size());
+      STD_E_ASSERT_LVL0(r.size() == this->size());
       std::copy(r.begin(),r.end(),this->begin());
       return *this;
     }
@@ -92,7 +93,7 @@ operator>=(const span_ref<T0,N0>& x, const span_ref<T1,N1>& y) -> bool {
 
 template<class T, ptrdiff_t N> constexpr auto
 swap(span_ref<T,N> x, span_ref<T,N> y) -> void {
-  STD_E_ASSERT(x.size()==y.size());
+  STD_E_ASSERT_LVL0(x.size()==y.size());
   for (ptrdiff_t i=0; i<ptrdiff_t(x.size()); ++i) {
     using std::swap;
     swap(x[i],y[i]);
