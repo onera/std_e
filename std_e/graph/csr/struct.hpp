@@ -15,10 +15,10 @@ template<class I> class Edge_node;
 
 
 template<std::ranges::range Rng>
-class Edge_node_base : public multi_range2<Rng,Rng> {
+class Edge_node_base : public multi_range<Rng,Rng> {
   private:
   // traits
-    using base = multi_range2<Rng,Rng>;
+    using base = multi_range<Rng,Rng>;
     using I = typename Rng::value_type;
   // data members
     I number_of_nodes;

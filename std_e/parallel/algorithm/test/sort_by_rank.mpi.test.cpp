@@ -471,7 +471,7 @@ MPI_TEST_CASE("sort_by_rank - block_range - 2 procs",2) {
   using span_type = std_e::span<int>;
   span_type ys (y.data(),y.size());
 
-  std_e::multi_range2<block_range_type,span_type> t(xb,ys);
+  std_e::multi_range<block_range_type,span_type> t(xb,ys);
 
   constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
   std_e::sort_by_rank(t,test_comm,proj);

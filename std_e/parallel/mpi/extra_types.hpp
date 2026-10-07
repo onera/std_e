@@ -52,14 +52,14 @@ all_to_all(const block_range<C,N>& x, const Int_range& indices, MPI_Comm comm, [
 
 template<class Multi_range, class Int_range, class F, size_t... Is> auto
 all_to_all_tail_impl(const Multi_range& x, const Int_range& indices, MPI_Comm comm, F algo_family, auto&& rbuf0, std::index_sequence<Is...>) {
-  return multi_range2(
+  return multi_range(
     std::move(rbuf0),
     all_to_all(range<Is+1>(x),indices,comm,algo_family).first...
   );
 }
 
 template<class R, class... Rs, class Int_range, class F = dense_algo_family> auto
-all_to_all(const multi_range2<R,Rs...>& x, const Int_range& indices, MPI_Comm comm, F algo_family = {}) {
+all_to_all(const multi_range<R,Rs...>& x, const Int_range& indices, MPI_Comm comm, F algo_family = {}) {
   // We call `all_to_all` range by range
   // the received indices will be the same for all ranges, so we only return the first one
 

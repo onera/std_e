@@ -25,7 +25,7 @@ template<class T, int rank=2, class I=int>
 using jagged_vector = jagged_range<std::vector<T>,std::vector<I>,rank>;
 
 template<int rank, class... Ts>
-using jagged_multi_vector = jagged_range<multi_vector2<Ts...>,std::vector<int>,rank>;
+using jagged_multi_vector = jagged_range<multi_vector<Ts...>,std::vector<int>,rank>;
 
 template<class multi_vector_type, int rank=2>
 using jagged_multi_vector2 = jagged_range<multi_vector_type,std::vector<int>,rank>;

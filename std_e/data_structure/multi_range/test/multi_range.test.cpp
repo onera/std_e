@@ -13,15 +13,15 @@ using std::string;
 using std_e::span;
 using std_e::span_ref;
 using std_e::element;
-using std_e::multi_range2;
-using std_e::multi_vector2;
-using std_e::multi_span2;
+using std_e::multi_range;
+using std_e::multi_vector;
+using std_e::multi_span;
 #if defined REAL_GCC && __GNUC__ < 11
   using std::get; // found by ADL with GCC 11
 #endif
 
-TEST_CASE("multi_vector2") {
-  multi_vector2<int,string,double> t;
+TEST_CASE("multi_vector") {
+  multi_vector<int,string,double> t;
   t.push_back(42,"X",3.14);
   t.push_back(43,"Y",2.7);
   t.push_back(0,"ABC",100.);
@@ -136,14 +136,14 @@ TEST_CASE("multi_vector2") {
 }
 
 TEST_CASE("Ctor argument deduction") {
-  multi_vector2 t( vector<int>{4,2}, vector<double>{1.5,9.9} );
+  multi_vector t( vector<int>{4,2}, vector<double>{1.5,9.9} );
 
   CHECK( range_view<0>(t) == vector{4,2} );
   CHECK( range_view<1>(t) == vector{1.5,9.9} );
 }
 
-TEST_CASE("multi_vector2 ctor with size") {
-  multi_vector2<int,string,double> t(2);
+TEST_CASE("multi_vector ctor with size") {
+  multi_vector<int,string,double> t(2);
   std_e::element<0>(t,0) = 42; std_e::element<1>(t,0) = "X"; std_e::element<2>(t,0) = 3.14;
   std_e::element<0>(t,1) = 43; std_e::element<1>(t,1) = "Y"; std_e::element<2>(t,1) = 2.7;
 
@@ -162,7 +162,7 @@ TEST_CASE("multi_vector2 ctor with size") {
 }
 
 TEST_CASE("algorithms") {
-  multi_vector2<int,string,double> t;
+  multi_vector<int,string,double> t;
   t.push_back(42,"X"  ,3.14);
   t.push_back(43,"Y"  ,2.7);
   t.push_back(0 ,"ABC",100.);
@@ -184,7 +184,7 @@ TEST_CASE("algorithms") {
   }
   SUBCASE("sort") {
     SUBCASE("sanity: one range_view") {
-      multi_vector2<int> single(vector{4,3,9,8,0,1,2,7,6,5});
+      multi_vector<int> single(vector{4,3,9,8,0,1,2,7,6,5});
 
       std_e::ranges::sort(single);
 
@@ -220,11 +220,11 @@ TEST_CASE("algorithms") {
     }
   }
 }
-TEST_CASE("multi_range2 of block_range") { // case with proxy reference of proxy reference
+TEST_CASE("multi_range of block_range") { // case with proxy reference of proxy reference
   vector<int> x = {10,4,5,  6,3,12};
   auto xb = std_e::view_as_block_range<3>(x);
 
-  multi_range2 t(xb);
+  multi_range t(xb);
 
   // Note: As of GCC 11, std::ranges::sort is broken for proxy references
   //     see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104561
@@ -232,14 +232,14 @@ TEST_CASE("multi_range2 of block_range") { // case with proxy reference of proxy
   std_e::quicksort(t.begin(),t.end());
   CHECK( x == vector{6,3,12,  10,4,5} );
 }
-TEST_CASE("multi_range2 of block_range,vector") { // case with proxy reference of mixed proxy reference/real references
+TEST_CASE("multi_range of block_range,vector") { // case with proxy reference of mixed proxy reference/real references
   vector<int> x = {10,4,5,  6,3,12};
   vector<int> y = {100   ,  200};
 
   auto xb = std_e::view_as_block_range<3>(x);
   auto ys = std_e::span<int>(y.data(),y.size());
 
-  multi_range2 t(xb,ys);
+  multi_range t(xb,ys);
 
   // Note: As of GCC 11, std::ranges::sort is broken for proxy references
   //     see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104561
@@ -250,10 +250,10 @@ TEST_CASE("multi_range2 of block_range,vector") { // case with proxy reference o
 }
 
 
-TEST_CASE("multi_vector2 ctor from vectors") {
+TEST_CASE("multi_vector ctor from vectors") {
   vector<int>    x = {42,43,0};
   vector<string> y = {"X","Y","ABC"};
-  multi_vector2 t(std::move(x),std::move(y));
+  multi_vector t(std::move(x),std::move(y));
 
   vector<int>    expected_col0 = {42,43,0};
   vector<string> expected_col1 = {"X","Y","ABC"};
@@ -291,11 +291,11 @@ TEST_CASE("zip_view") {
   CHECK( y      == vector<string>{"X","Y","Z"} );
 }
 
-TEST_CASE("multi_span2") {
+TEST_CASE("multi_span") {
   vector<int> vi = {42,43,0};
   vector<string> vs = {"X","Y","ABC"};
   vector<double> vd = {3.14,2.7,100.};
-  multi_span2 t(std_e::make_span(vi),std_e::make_span(vs),std_e::make_span(vd));
+  multi_span t(std_e::make_span(vi),std_e::make_span(vs),std_e::make_span(vd));
 
   SUBCASE("range_view") {
     vector<int>    expected_col0 = {42,43,0};
@@ -326,7 +326,7 @@ TEST_CASE("multi_span2") {
   }
 }
 TEST_CASE("views") {
-  multi_vector2<int,string,double> mv;
+  multi_vector<int,string,double> mv;
   mv.push_back(42,"X",3.14);
   mv.push_back(43,"Y",2.7);
   mv.push_back(0,"ABC",100.);
@@ -337,7 +337,7 @@ TEST_CASE("views") {
     vector<double> expected_col2 = {3.14,2.7,100.};
 
     SUBCASE("non-const") {
-      multi_span2 ms = make_span(mv);
+      multi_span ms = make_span(mv);
 
       auto col0 = std_e::range_view<0>(ms);
       auto col1 = std_e::range_view<1>(ms);
@@ -348,7 +348,7 @@ TEST_CASE("views") {
     }
     SUBCASE("const") {
       const auto& cmv = mv;
-      multi_span2 ms = make_span(cmv);
+      multi_span ms = make_span(cmv);
 
       auto col0 = std_e::range_view<0>(ms);
       auto col1 = std_e::range_view<1>(ms);
@@ -363,7 +363,7 @@ TEST_CASE("views") {
     vector<string> expected_col1 = {"Y","ABC"};
     vector<double> expected_col2 = {2.7,100.};
 
-    multi_span2 ms = make_span_n(mv,1,2);
+    multi_span ms = make_span_n(mv,1,2);
 
     auto col0 = std_e::range_view<0>(ms);
     auto col1 = std_e::range_view<1>(ms);

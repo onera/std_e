@@ -14,14 +14,14 @@
 
 namespace std_e {
 
-// multi_range2: multiple ranges of the same size zipped together
+// multi_range: multiple ranges of the same size zipped together
 // Invariant: all ranges have the same length
 template<std::ranges::random_access_range... Ranges>
-class multi_range2 {
+class multi_range {
   public:
   // type traits
     static constexpr bool is_multi_range = true;
-    using this_type = multi_range2<Ranges...>;
+    using this_type = multi_range<Ranges...>;
     using index_type = std::ptrdiff_t;
     using impl_type = std::tuple<Ranges...>;
 
@@ -34,13 +34,13 @@ class multi_range2 {
     static constexpr auto n_range = sizeof...(Ranges);
 
   // ctors
-    multi_range2() = default;
+    multi_range() = default;
 
-    multi_range2(index_type sz)
-      : multi_range2(Ranges(sz)...)
+    multi_range(index_type sz)
+      : multi_range(Ranges(sz)...)
     {}
     template<std::ranges::random_access_range... Rngs> constexpr
-    multi_range2(Rngs&&... xs)
+    multi_range(Rngs&&... xs)
       : _impl(FWD(xs)...)
     {}
 
@@ -135,11 +135,11 @@ template<class T> constexpr bool is_multi_range2 = is_multi_range2_impl<T>::valu
 // end TMP
 
 // deduction guides
-template<class... R0> multi_range2(R0&&...) -> multi_range2<std::decay_t<R0>...>;
+template<class... R0> multi_range(R0&&...) -> multi_range<std::decay_t<R0>...>;
 
 // aliases
-template<class... Ts> using multi_vector2 = multi_range2<std::vector<Ts>...>;
-template<class... Ts> using multi_span2 = multi_range2<span<Ts>...>;
+template<class... Ts> using multi_vector = multi_range<std::vector<Ts>...>;
+template<class... Ts> using multi_span = multi_range<span<Ts>...>;
 
 
 // range_view, get, proj
@@ -214,12 +214,12 @@ element(MR& x, I i) -> auto& {
 // zip
 template<std::ranges::random_access_range... Rngs> auto
 zip(Rngs&&... rngs) {
-  return multi_range2<std::decay_t<Rngs>...>(rngs...);
+  return multi_range<std::decay_t<Rngs>...>(rngs...);
 }
 
 template<std::ranges::random_access_range... Rngs> auto
 zip_view(Rngs&... rngs) {
-  return multi_range2(make_span(rngs)...);
+  return multi_range(make_span(rngs)...);
 }
 
 
@@ -228,7 +228,7 @@ template<class MR>
   requires (MR::is_multi_range)
 auto
 make_span(MR& x) {
-  auto make_multi_span_from_args = [](auto&&... args){ return multi_range2(make_span(args)...); };
+  auto make_multi_span_from_args = [](auto&&... args){ return multi_range(make_span(args)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
 
@@ -236,7 +236,7 @@ template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
 make_span_n(MR& x, I i, I n) {
-  auto make_multi_span_from_args = [i,n](auto&&... args){ return multi_range2(make_span_n(args,i,n)...); };
+  auto make_multi_span_from_args = [i,n](auto&&... args){ return multi_range(make_span_n(args,i,n)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
 
@@ -244,7 +244,7 @@ template<class MR, class I = MR::index_type>
   requires (MR::is_multi_range)
 auto
 make_span(MR& x, I i, I j) {
-  auto make_multi_span_from_args = [i,j](auto&&... args){ return multi_range2(make_span_n(args,i,j)...); };
+  auto make_multi_span_from_args = [i,j](auto&&... args){ return multi_range(make_span_n(args,i,j)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
 
@@ -255,12 +255,12 @@ make_span(MR& x, I i, I j) {
 //   in particular this is useful for structured bindings
 namespace std {
   template<class... Ranges>
-  struct tuple_size<std_e::multi_range2<Ranges...>>
+  struct tuple_size<std_e::multi_range<Ranges...>>
     : integral_constant<size_t, sizeof...(Ranges)>
   {};
 
   template<size_t I, class... Ranges>
-  struct tuple_element<I, std_e::multi_range2<Ranges...>>
+  struct tuple_element<I, std_e::multi_range<Ranges...>>
     : tuple_element<I, tuple<Ranges...>>
   {};
 }
