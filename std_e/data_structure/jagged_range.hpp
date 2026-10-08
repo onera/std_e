@@ -230,10 +230,18 @@ class jagged_range {
 
   // accessors
     auto flat_view() { // TODO deprecate (use values that also treats the offset pb)
-      return make_span(flat_values);
+      if constexpr (!is_multi_range2<data_range_type>) {
+        return make_span(flat_values);
+      } else {
+        return view(flat_values);
+      }
     }
     auto flat_view() const {
-      return make_span(flat_values);
+      if constexpr (!is_multi_range2<data_range_type>) {
+        return make_span(flat_values);
+      } else {
+        return view(flat_values);
+      }
     }
     auto flat_ref() -> auto& {
       return flat_values;
@@ -356,7 +364,7 @@ class jagged_range {
             return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           }
         } else { // FIXME return as previous (not possible now because `reference` needs to accepts iterators that are not pointers)
-          return make_span_n(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
+          return subview_n(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
         }
       } else {
         static_assert(rank==3); // Other ranks are not implemented TODO

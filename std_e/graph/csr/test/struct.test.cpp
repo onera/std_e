@@ -7,10 +7,10 @@ using namespace std_e;
 
 TEST_CASE("Edge_node_view") {
   int n_node = 5;
-  dynarray<int> l = {0, 1, 2, 3};
-  dynarray<int> r = {1, 2, 4,-1};
+  dynarray<int> e = {0, 1, 2, 3,
+                     1, 2, 4,-1};
 
-  Edge_node_view x(n_node, l, r);
+  Edge_node_view x(n_node, e);
 
   SUBCASE("base interface") {
     CHECK( x.n_node() == 5 );
@@ -21,22 +21,24 @@ TEST_CASE("Edge_node_view") {
 
   SUBCASE("is view") {
     x.left()[2] = 100;
-    r[0] = 200;
+    e[4] = 200;
 
-    CHECK( l         == dynarray{0  , 1, 100, 3} );
-    CHECK( r         == dynarray{200, 2, 4  ,-1} );
+    CHECK( e         == dynarray{0  , 1, 100, 3,
+                                 200, 2, 4  ,-1} );
     CHECK( x.left () == dynarray{0  , 1, 100, 3} );
     CHECK( x.right() == dynarray{200, 2, 4  ,-1} );
 
-    CHECK( x.left ().data() == l.data() );
-    CHECK( x.right().data() == r.data() );
+    CHECK( x.left ().data() == e.data()   );
+    CHECK( x.right().data() == e.data()+4 );
   }
 
   SUBCASE("multi_range interface") {
     CHECK( x.size() == 4 );
-    auto [l3,r3] = x[3];
+    auto&& [l3,r3] = x[3];
     CHECK( l3 ==  3 );
     CHECK( r3 == -1 );
+    CHECK( &l3 == e.data()+3 );
+    CHECK( &r3 == e.data()+3+4 );
   }
 
   SUBCASE("copy") {

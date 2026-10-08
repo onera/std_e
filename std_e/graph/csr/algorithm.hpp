@@ -4,6 +4,7 @@
 #include "std_e/algorithm/block.hpp"
 #include "std_e/algorithm/permutation.hpp"
 #include "std_e/data_structure/multi_range/multi_range.hpp"
+#include "std_e/data_structure/multi_range/cmulti_range.hpp"
 
 
 namespace std_e {

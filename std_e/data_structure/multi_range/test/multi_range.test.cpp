@@ -27,88 +27,88 @@ TEST_CASE("multi_vector") {
   t.push_back(0,"ABC",100.);
 
   SUBCASE("range_view") {
-    vector<int>    expected_col0 = {42,43,0};
-    vector<string> expected_col1 = {"X","Y","ABC"};
-    vector<double> expected_col2 = {3.14,2.7,100.};
+    vector<int>    expected_row0 = {42,43,0};
+    vector<string> expected_row1 = {"X","Y","ABC"};
+    vector<double> expected_row2 = {3.14,2.7,100.};
 
     SUBCASE("range_view") {
       SUBCASE("by index") {
-        span<int>    col0 = std_e::range_view<0>(t);
-        span<string> col1 = std_e::range_view<1>(t);
-        span<double> col2 = std_e::range_view<2>(t);
-        CHECK( col0 == expected_col0 );
-        CHECK( col1 == expected_col1 );
-        CHECK( col2 == expected_col2 );
+        span<int>    row0 = std_e::range_view<0>(t);
+        span<string> row1 = std_e::range_view<1>(t);
+        span<double> row2 = std_e::range_view<2>(t);
+        CHECK( row0 == expected_row0 );
+        CHECK( row1 == expected_row1 );
+        CHECK( row2 == expected_row2 );
       }
       SUBCASE("by index if const") {
         const auto& t_const_ref = t;
-        span<const int>    col0 = std_e::range_view<0>(t_const_ref);
-        span<const string> col1 = std_e::range_view<1>(t_const_ref);
-        span<const double> col2 = std_e::range_view<2>(t_const_ref);
-        CHECK( col0 == expected_col0 );
-        CHECK( col1 == expected_col1 );
-        CHECK( col2 == expected_col2 );
+        span<const int>    row0 = std_e::range_view<0>(t_const_ref);
+        span<const string> row1 = std_e::range_view<1>(t_const_ref);
+        span<const double> row2 = std_e::range_view<2>(t_const_ref);
+        CHECK( row0 == expected_row0 );
+        CHECK( row1 == expected_row1 );
+        CHECK( row2 == expected_row2 );
       }
       SUBCASE("by type") {
-        span<int>    col0 = std_e::range_view<int>(t);
-        span<string> col1 = std_e::range_view<string>(t);
-        span<double> col2 = std_e::range_view<double>(t);
-        CHECK( col0 == expected_col0 );
-        CHECK( col1 == expected_col1 );
-        CHECK( col2 == expected_col2 );
+        span<int>    row0 = std_e::range_view<int>(t);
+        span<string> row1 = std_e::range_view<string>(t);
+        span<double> row2 = std_e::range_view<double>(t);
+        CHECK( row0 == expected_row0 );
+        CHECK( row1 == expected_row1 );
+        CHECK( row2 == expected_row2 );
       }
 
       SUBCASE("view points to underlying") {
         // modifying the view modifies the underlying object
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,43,0} );
-        span<int> col0 = std_e::range_view<0>(t);
-        REQUIRE( col0.data() == std::get<0>(t.underlying_tuple()).data() );
-        col0[1] = 10000;
+        span<int> row0 = std_e::range_view<0>(t);
+        REQUIRE( row0.data() == std::get<0>(t.underlying_tuple()).data() );
+        row0[1] = 10000;
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,10000,0} );
       }
 
       SUBCASE("view can be rebound") {
         // operator= is rebinding the view
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,43,0} );
-        span<int> col0 = std_e::range_view<0>(t);
-        REQUIRE( col0.data() == std::get<0>(t.underlying_tuple()).data() );
-        col0[1] = 10000;
+        span<int> row0 = std_e::range_view<0>(t);
+        REQUIRE( row0.data() == std::get<0>(t.underlying_tuple()).data() );
+        row0[1] = 10000;
         std::vector v = {4,4,4};
-        col0 = v;
-        REQUIRE( col0.data() == v.data() );
-        col0[2] = 20000;
+        row0 = v;
+        REQUIRE( row0.data() == v.data() );
+        row0[2] = 20000;
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,10000,0} );
         CHECK( v == vector{4,4,20000} );
       }
     }
     SUBCASE("range_ref") {
       SUBCASE("by index") {
-        span_ref<int>    col0 = std_e::range_ref<0>(t);
-        span_ref<string> col1 = std_e::range_ref<1>(t);
-        span_ref<double> col2 = std_e::range_ref<2>(t);
-        CHECK( col0 == expected_col0 );
-        CHECK( col1 == expected_col1 );
-        CHECK( col2 == expected_col2 );
+        span_ref<int>    row0 = std_e::range_ref<0>(t);
+        span_ref<string> row1 = std_e::range_ref<1>(t);
+        span_ref<double> row2 = std_e::range_ref<2>(t);
+        CHECK( row0 == expected_row0 );
+        CHECK( row1 == expected_row1 );
+        CHECK( row2 == expected_row2 );
       }
       SUBCASE("ref points to underlying") {
         // modifying the ref modifies the underlying object (same as view)
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,43,0} );
-        span_ref<int> col0 = std_e::range_ref<0>(t);
-        REQUIRE( col0.data() == std::get<0>(t.underlying_tuple()).data() );
-        col0[1] = 10000;
+        span_ref<int> row0 = std_e::range_ref<0>(t);
+        REQUIRE( row0.data() == std::get<0>(t.underlying_tuple()).data() );
+        row0[1] = 10000;
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,10000,0} );
       }
 
       SUBCASE("ref assigns through") {
         // operator= assigns through to the underlying object (contrary to view)
         CHECK( std::get<0>(t.underlying_tuple()) == vector{42,43,0} );
-        span_ref<int> col0 = std_e::range_ref<0>(t);
-        REQUIRE( col0.data() == std::get<0>(t.underlying_tuple()).data() );
-        col0[1] = 10000;
+        span_ref<int> row0 = std_e::range_ref<0>(t);
+        REQUIRE( row0.data() == std::get<0>(t.underlying_tuple()).data() );
+        row0[1] = 10000;
         std::vector v = {4,4,4};
-        col0 = v;
-        REQUIRE( col0.data() == std::get<0>(t.underlying_tuple()).data() ); // still bound to the original mr
-        col0[2] = 20000;
+        row0 = v;
+        REQUIRE( row0.data() == std::get<0>(t.underlying_tuple()).data() ); // still bound to the original mr
+        row0[2] = 20000;
         CHECK( std::get<0>(t.underlying_tuple()) == vector{4,4,20000} );
         CHECK( v == vector{4,4,4} );
       }
@@ -116,12 +116,12 @@ TEST_CASE("multi_vector") {
   }
 
   SUBCASE("indexing") {
-    std_e::tuple<int&,string&,double&> row0 = t[0];
-    std_e::tuple<int&,string&,double&> row1 = t[1];
-    std_e::tuple<int&,string&,double&> row2 = t[2];
-    CHECK( get<0>(row0) == 42 ); CHECK( get<1>(row0) == "X"  ); CHECK( get<2>(row0) == 3.14 );
-    CHECK( get<0>(row1) == 43 ); CHECK( get<1>(row1) == "Y"  ); CHECK( get<2>(row1) == 2.7  );
-    CHECK( get<0>(row2) ==  0 ); CHECK( get<1>(row2) == "ABC"); CHECK( get<2>(row2) == 100. );
+    std_e::tuple<int&,string&,double&> col0 = t[0];
+    std_e::tuple<int&,string&,double&> col1 = t[1];
+    std_e::tuple<int&,string&,double&> col2 = t[2];
+    CHECK( get<0>(col0) == 42   ); CHECK( get<0>(col1) == 43   ); CHECK( get<0>(col2) ==  0   );
+    CHECK( get<1>(col0) == "X"  ); CHECK( get<1>(col1) == "Y"  ); CHECK( get<1>(col2) == "ABC");
+    CHECK( get<2>(col0) == 3.14 ); CHECK( get<2>(col1) == 2.7  ); CHECK( get<2>(col2) == 100. );
   }
 
   SUBCASE("structured bindings") { // TODO more refined around value/view/ref concepts
@@ -144,20 +144,21 @@ TEST_CASE("Ctor argument deduction") {
 
 TEST_CASE("multi_vector ctor with size") {
   multi_vector<int,string,double> t(2);
-  std_e::element<0>(t,0) = 42; std_e::element<1>(t,0) = "X"; std_e::element<2>(t,0) = 3.14;
-  std_e::element<0>(t,1) = 43; std_e::element<1>(t,1) = "Y"; std_e::element<2>(t,1) = 2.7;
+  std_e::element<0>(t,0) = 42  ; std_e::element<0>(t,1) = 43 ;
+  std_e::element<1>(t,0) = "X" ; std_e::element<1>(t,1) = "Y";
+  std_e::element<2>(t,0) = 3.14; std_e::element<2>(t,1) = 2.7;
 
-  auto col0 = std_e::range_view<0>(t);
-  auto col1 = std_e::range_view<1>(t);
-  auto col2 = std_e::range_view<2>(t);
+  auto row0 = std_e::range_view<0>(t);
+  auto row1 = std_e::range_view<1>(t);
+  auto row2 = std_e::range_view<2>(t);
 
-  vector<int>    expected_col0 = {42,43};
-  vector<string> expected_col1 = {"X","Y"};
-  vector<double> expected_col2 = {3.14,2.7};
+  vector<int>    expected_row0 = {42,43};
+  vector<string> expected_row1 = {"X","Y"};
+  vector<double> expected_row2 = {3.14,2.7};
 
-  CHECK( col0 == expected_col0 );
-  CHECK( col1 == expected_col1 );
-  CHECK( col2 == expected_col2 );
+  CHECK( row0 == expected_row0 );
+  CHECK( row1 == expected_row1 );
+  CHECK( row2 == expected_row2 );
 
 }
 
@@ -177,8 +178,8 @@ TEST_CASE("algorithms") {
       auto it = std::find_if(t.begin(),t.end(),first_eq_to_43);
       CHECK( it == t.begin()+1 );
 
-      auto first_eq_to_100 = [](const std_e::tuple<int&,string&,double&>& x){ return get<0>(x)==999; };
-      auto it_not_found = std::find_if(t.begin(),t.end(),first_eq_to_100);
+      auto first_eq_to_999 = [](const std_e::tuple<int&,string&,double&>& x){ return get<0>(x)==999; };
+      auto it_not_found = std::find_if(t.begin(),t.end(),first_eq_to_999);
       CHECK( it_not_found == t.end() );
     }
   }
@@ -194,29 +195,29 @@ TEST_CASE("algorithms") {
     SUBCASE("more ranges") {
       std_e::ranges::sort(t);
       // check
-      const vector<int>    expected_col0 = {0    ,42  ,43 };
-      const vector<string> expected_col1 = {"ABC","X" ,"Y"};
-      const vector<double> expected_col2 = {100. ,3.14,2.7};
-      auto col0 = std_e::range_view<0>(t);
-      auto col1 = std_e::range_view<1>(t);
-      auto col2 = std_e::range_view<2>(t);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      const vector<int>    expected_row0 = {0    ,42  ,43 };
+      const vector<string> expected_row1 = {"ABC","X" ,"Y"};
+      const vector<double> expected_row2 = {100. ,3.14,2.7};
+      auto row0 = std_e::range_view<0>(t);
+      auto row1 = std_e::range_view<1>(t);
+      auto row2 = std_e::range_view<2>(t);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
 
     SUBCASE("more ranges - other comp") {
       std_e::ranges::sort(t, std_e::proj<2>);
       // check
-      const vector<int>    expected_col0 = {43 ,42  ,0    };
-      const vector<string> expected_col1 = {"Y","X" ,"ABC"};
-      const vector<double> expected_col2 = {2.7,3.14,100. };
-      auto col0 = std_e::range_view<0>(t);
-      auto col1 = std_e::range_view<1>(t);
-      auto col2 = std_e::range_view<2>(t);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      const vector<int>    expected_row0 = {43 ,42  ,0    };
+      const vector<string> expected_row1 = {"Y","X" ,"ABC"};
+      const vector<double> expected_row2 = {2.7,3.14,100. };
+      auto row0 = std_e::range_view<0>(t);
+      auto row1 = std_e::range_view<1>(t);
+      auto row2 = std_e::range_view<2>(t);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
   }
 }
@@ -255,14 +256,14 @@ TEST_CASE("multi_vector ctor from vectors") {
   vector<string> y = {"X","Y","ABC"};
   multi_vector t(std::move(x),std::move(y));
 
-  vector<int>    expected_col0 = {42,43,0};
-  vector<string> expected_col1 = {"X","Y","ABC"};
+  vector<int>    expected_row0 = {42,43,0};
+  vector<string> expected_row1 = {"X","Y","ABC"};
 
-  auto col0 = std_e::range_view<0>(t);
-  auto col1 = std_e::range_view<1>(t);
+  auto row0 = std_e::range_view<0>(t);
+  auto row1 = std_e::range_view<1>(t);
 
-  CHECK( col0 == expected_col0 );
-  CHECK( col1 == expected_col1 );
+  CHECK( row0 == expected_row0 );
+  CHECK( row1 == expected_row1 );
 }
 TEST_CASE("zip") {
   vector<int>    x = {42,43,0};
@@ -298,29 +299,29 @@ TEST_CASE("multi_span") {
   multi_span t(std_e::make_span(vi),std_e::make_span(vs),std_e::make_span(vd));
 
   SUBCASE("range_view") {
-    vector<int>    expected_col0 = {42,43,0};
-    vector<string> expected_col1 = {"X","Y","ABC"};
-    vector<double> expected_col2 = {3.14,2.7,100.};
+    vector<int>    expected_row0 = {42,43,0};
+    vector<string> expected_row1 = {"X","Y","ABC"};
+    vector<double> expected_row2 = {3.14,2.7,100.};
 
     SUBCASE("by index") {
-      auto col0 = std_e::range_view<0>(t);
-      auto col1 = std_e::range_view<1>(t);
-      auto col2 = std_e::range_view<2>(t);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      auto row0 = std_e::range_view<0>(t);
+      auto row1 = std_e::range_view<1>(t);
+      auto row2 = std_e::range_view<2>(t);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
     SUBCASE("by type") {
-      auto col0 = std_e::range_view<int>(t);
-      auto col1 = std_e::range_view<string>(t);
-      auto col2 = std_e::range_view<double>(t);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      auto row0 = std_e::range_view<int>(t);
+      auto row1 = std_e::range_view<string>(t);
+      auto row2 = std_e::range_view<double>(t);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
     SUBCASE("is view") {
-      auto col0 = std_e::range_view<int>(t);
-      col0[0] = 50;
+      auto row0 = std_e::range_view<int>(t);
+      row0[0] = 50;
       CHECK( vi[0] == 50 );
     }
   }
@@ -332,45 +333,45 @@ TEST_CASE("views") {
   mv.push_back(0,"ABC",100.);
 
   SUBCASE("complete view") {
-    vector<int>    expected_col0 = {42,43,0};
-    vector<string> expected_col1 = {"X","Y","ABC"};
-    vector<double> expected_col2 = {3.14,2.7,100.};
+    vector<int>    expected_row0 = {42,43,0};
+    vector<string> expected_row1 = {"X","Y","ABC"};
+    vector<double> expected_row2 = {3.14,2.7,100.};
 
     SUBCASE("non-const") {
-      multi_span ms = make_span(mv);
+      multi_span ms = view(mv);
 
-      auto col0 = std_e::range_view<0>(ms);
-      auto col1 = std_e::range_view<1>(ms);
-      auto col2 = std_e::range_view<2>(ms);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      auto row0 = std_e::range_view<0>(ms);
+      auto row1 = std_e::range_view<1>(ms);
+      auto row2 = std_e::range_view<2>(ms);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
     SUBCASE("const") {
       const auto& cmv = mv;
-      multi_span ms = make_span(cmv);
+      multi_span ms = view(cmv);
 
-      auto col0 = std_e::range_view<0>(ms);
-      auto col1 = std_e::range_view<1>(ms);
-      auto col2 = std_e::range_view<2>(ms);
-      CHECK( col0 == expected_col0 );
-      CHECK( col1 == expected_col1 );
-      CHECK( col2 == expected_col2 );
+      auto row0 = std_e::range_view<0>(ms);
+      auto row1 = std_e::range_view<1>(ms);
+      auto row2 = std_e::range_view<2>(ms);
+      CHECK( row0 == expected_row0 );
+      CHECK( row1 == expected_row1 );
+      CHECK( row2 == expected_row2 );
     }
   }
   SUBCASE("partial view") {
-    vector<int>    expected_col0 = {43,0};
-    vector<string> expected_col1 = {"Y","ABC"};
-    vector<double> expected_col2 = {2.7,100.};
+    vector<int>    expected_row0 = {43,0};
+    vector<string> expected_row1 = {"Y","ABC"};
+    vector<double> expected_row2 = {2.7,100.};
 
-    multi_span ms = make_span_n(mv,1,2);
+    multi_span ms = subview_n(mv,1,2);
 
-    auto col0 = std_e::range_view<0>(ms);
-    auto col1 = std_e::range_view<1>(ms);
-    auto col2 = std_e::range_view<2>(ms);
-    CHECK( col0 == expected_col0 );
-    CHECK( col1 == expected_col1 );
-    CHECK( col2 == expected_col2 );
+    auto row0 = std_e::range_view<0>(ms);
+    auto row1 = std_e::range_view<1>(ms);
+    auto row2 = std_e::range_view<2>(ms);
+    CHECK( row0 == expected_row0 );
+    CHECK( row1 == expected_row1 );
+    CHECK( row2 == expected_row2 );
   }
 }
 #endif // C++>17

@@ -78,8 +78,8 @@ class multi_range {
       return get<I>(FWD(self)._impl);
     }
 
-    auto begin(this auto& self) -> iterator { return multi_range_iterator{&self, 0          }; }
-    auto end  (this auto& self) -> iterator { return multi_range_iterator{&self, self.size()}; }
+    auto begin(this auto&& self) { return multi_range_iterator{&self, 0          }; }
+    auto end  (this auto&& self) { return multi_range_iterator{&self, self.size()}; }
     auto
     operator[](this auto&& self, index_type i) {
       return self._subscript_op(i,std::make_index_sequence<n_range>());
@@ -225,25 +225,28 @@ zip_view(Rngs&... rngs) {
 
 // views
 template<class MR>
-  requires (MR::is_multi_range)
+  requires (std::remove_cvref_t<MR>::is_multi_range)
+  // TODO allow rvalue ref only if span
 auto
-make_span(MR& x) {
+view(MR&& x) {
   auto make_multi_span_from_args = [](auto&&... args){ return multi_range(make_span(args)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
 
 template<class MR, class I = MR::index_type>
-  requires (MR::is_multi_range)
+  requires (std::remove_cvref_t<MR>::is_multi_range)
+  // TODO allow rvalue ref only if span
 auto
-make_span_n(MR& x, I i, I n) {
+subview_n(MR&& x, I i, I n) {
   auto make_multi_span_from_args = [i,n](auto&&... args){ return multi_range(make_span_n(args,i,n)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
 
 template<class MR, class I = MR::index_type>
-  requires (MR::is_multi_range)
+  requires (std::remove_cvref_t<MR>::is_multi_range)
+  // TODO allow rvalue ref only if span
 auto
-make_span(MR& x, I i, I j) {
+subview(MR&& x, I i, I j) {
   auto make_multi_span_from_args = [i,j](auto&&... args){ return multi_range(make_span_n(args,i,j)...); };
   return std::apply(make_multi_span_from_args, x.underlying_tuple());
 }
