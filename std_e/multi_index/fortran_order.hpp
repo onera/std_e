@@ -24,7 +24,7 @@ fortran_order__impl_for_param_pack_OLD(const strides_type& strides, const offset
 
 
 template<class Multi_index_0, class Multi_index_1>
-  requires (std::tuple_size_v<Multi_index_0> == std::tuple_size_v<Multi_index_1>)
+  //requires (std::tuple_size_v<Multi_index_0> == std::tuple_size_v<Multi_index_1>)
   //requires (std_e::size<Multi_index_0> == std_e::size<Multi_index_1>)
 FORCE_INLINE constexpr auto
 fortran_order_from_dimensions(const Multi_index_0& dims, const Multi_index_1& indices) -> int {

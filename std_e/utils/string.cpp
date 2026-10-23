@@ -5,10 +5,10 @@ namespace std_e {
 
 
 auto
-split(const std::string& s, char sep) -> std::vector<std::string> {
+split(std::string_view s, char sep) -> std::vector<std::string> {
    std::vector<std::string> ss;
    std::string token;
-   std::istringstream token_stream(s);
+   std::istringstream token_stream(std::string{s});
    while (std::getline(token_stream, token, sep)) {
       ss.push_back(token);
    }
@@ -16,7 +16,7 @@ split(const std::string& s, char sep) -> std::vector<std::string> {
 }
 
 auto
-balanced_parens(const std::string& s, char open_paren, char close_paren) -> bool {
+balanced_parens(std::string_view s, char open_paren, char close_paren) -> bool {
   int paren_count = 0;
   for (char c : s) {
     if (c == open_paren) {
@@ -31,7 +31,7 @@ balanced_parens(const std::string& s, char open_paren, char close_paren) -> bool
 }
 
 auto
-split_with_parens(const std::string& s, char sep, char open_paren, char close_paren) -> std::vector<std::string> {
+split_with_parens(std::string_view s, char sep, char open_paren, char close_paren) -> std::vector<std::string> {
   std::vector<std::string> ss;
   std::string token;
   int paren_count = 0;
@@ -56,14 +56,14 @@ split_with_parens(const std::string& s, char sep, char open_paren, char close_pa
 
 
 auto
-copy_without_spaces(const std::string& s) -> std::string {
+copy_without_spaces(std::string_view s) -> std::string {
   std::string res;
   auto not_space = [](char c){ return !isspace(c); };
   std::copy_if(begin(s), end(s), std::back_inserter(res), not_space);
   return res;
 }
 auto
-trim(const std::string& s) -> std::string {
+trim(std::string_view s) -> std::string {
   auto first = begin(s);
   auto last  = end(s);
   while ((first != last) && isspace(* first  )) { ++first; }

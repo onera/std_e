@@ -24,7 +24,21 @@ to_string(std::string_view s) -> std::string {
   return std::string(s);
 }
 
-template<class T> auto
+inline auto
+to_string(char c) -> std::string {
+  return std::string{c};
+}
+
+template<size_t N> auto
+to_string(const char(&x)[N]) -> std::string {
+ return std::string(x);
+}
+inline auto
+to_string(const char* x) -> std::string {
+ return std::string(x);
+}
+
+template<class T, std::enable_if_t<!std::is_same_v<std::decay_t<T>,char>,int>> auto
 to_string(T* ptr) -> std::string {
   if (ptr == nullptr) { return "0"; };
   std::stringstream ss;
@@ -96,5 +110,13 @@ std::string to_hex_string(I i) {
   return ss.str();
 }
 
+template<class... Ts> auto
+str_cat(Ts&&... xs) -> std::string {
+  using std::to_string;
+  using std_e::to_string;
+  std::string s = "";
+  ( (s += to_string(xs)), ... );
+  return s;
+}
 
 } // std_e

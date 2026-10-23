@@ -54,8 +54,8 @@ class hrange {
     }
     template<class T> auto
     // requires T is one of the Ts
-    emplace_back(T&& elt) {
-      std::get<Range_template<T>>(_impl).emplace_back(std::forward<T>(elt));
+    emplace_back(T&& elt) -> auto& {
+      return std::get<Range_template<T>>(_impl).emplace_back(std::forward<T>(elt));
     }
   private:
     ranges_tuple _impl;

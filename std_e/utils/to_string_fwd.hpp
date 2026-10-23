@@ -12,7 +12,8 @@ namespace std_e {
 
 auto
 to_string(const std::string& s) -> const std::string&;
-template<class T> auto
+
+template<class T, std::enable_if_t<!std::is_same_v<std::decay_t<T>,char>,int> =0> auto
 to_string(T* ptr) -> std::string;
 
 template<class T, size_t N> auto
