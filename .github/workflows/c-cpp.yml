@@ -10,7 +10,7 @@ on:
 jobs:
   ci:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
 
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -26,31 +26,26 @@ jobs:
         # Github Actions requires a single row to be added to the build matrix.
         # See https://help.github.com/en/articles/workflow-syntax-for-github-actions.
         name: [
-          gcc-8,
           gcc-10,
-          gcc-11,
-          gcc-13,
+          gcc-15,
+          gcc-16,
           #clang-8,
           #clang-10,
         ]
 
         include:
-          - name: gcc-8
-            compiler: gcc
-            version: "8"
-
           - name: gcc-10
             compiler: gcc
             version: "10"
 
-          - name: gcc-11
+          - name: gcc-15
             compiler: gcc
-            version: "11"
+            version: "15"
 
-          - name: gcc-13
+          - name: gcc-16
             compiler: gcc
-            version: "13"
-            
+            version: "16"
+
           #- name: clang-8
           #  compiler: clang
           #  version: "8"
@@ -60,7 +55,7 @@ jobs:
           #  version: "10"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
