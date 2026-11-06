@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/field/md_field_uniform.hpp"
@@ -33,3 +34,4 @@ TEST_CASE("md_field_uniform") {
     CHECK( x < z );
   }
 }
+#endif // C++>20

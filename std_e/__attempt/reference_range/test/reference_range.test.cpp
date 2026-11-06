@@ -5,8 +5,7 @@
 
 #include <algorithm>
 
-
-using namespace cgns;
+using namespace std_e;
 
 //namespace {
 

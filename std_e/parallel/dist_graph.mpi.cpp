@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/parallel/dist_graph.hpp"
 
 namespace std_e {
@@ -37,3 +38,4 @@ dist_graph_create_adj(MPI_Comm comm_old, const std::vector<int>& in_out_ranks) -
 }
 
 } // std_e
+#endif // C++20

@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/uniform_sample.hpp"
@@ -38,4 +38,4 @@ MPI_TEST_CASE("uniform_sample_local",4) {
   MPI_CHECK( 2 , sample_local_10 == x );
   MPI_CHECK( 3 , sample_local_10 == x );
 }
-#endif // __cplusplus > 201703L
+#endif // C++>20

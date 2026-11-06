@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/unit_test/id_string.hpp"
 #include "std_e/algorithm/partition_sort.hpp"
@@ -78,4 +78,4 @@ TEST_CASE("sort_into_partitions") {
   CHECK( jv.flat_view() == expected_values );
   CHECK( jv.indices() == expected_partition_indices );
 }
-#endif // C++>17
+#endif // C++>20

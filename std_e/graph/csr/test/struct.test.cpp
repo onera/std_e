@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/graph/csr/struct.hpp"
 #include "std_e/future/dynarray.hpp"
@@ -61,3 +62,4 @@ TEST_CASE("Edge_node_view") {
     CHECK( x.right()[0] == 1 );
   }
 }
+#endif // C++>20

@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/__attempt/multi_range/multi_range.hpp"
 
@@ -215,3 +216,4 @@ TEST_CASE("make_span") {
     CHECK( col2 == expected_col2 );
   }
 }
+#endif // C++>20

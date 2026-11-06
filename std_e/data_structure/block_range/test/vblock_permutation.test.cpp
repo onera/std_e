@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/data_structure/block_range/vblock_permutation.hpp"
@@ -31,4 +31,4 @@ TEST_CASE("ngons") {
   CHECK( x       == expected_x       );
   CHECK( offsets == expected_offsets );
 }
-#endif // C++>17
+#endif // C++>20

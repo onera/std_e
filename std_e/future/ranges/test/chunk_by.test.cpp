@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/future/ranges/chunk_by.hpp"
@@ -26,4 +26,4 @@ TEST_CASE("repeat") {
     CHECK( w == expected_chunked_result );
   }
 }
-#endif // C++>17
+#endif // C++>20

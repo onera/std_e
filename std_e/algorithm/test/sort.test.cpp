@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/algorithm/sort.hpp"
@@ -89,3 +90,4 @@ TEST_CASE("zip_sort") {
 TEST_CASE("sorted") {
   CHECK( sorted(vector<int>{4,3,1,5,2}) == vector<int>{1,2,3,4,5} );
 }
+#endif // C++>20

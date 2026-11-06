@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/field/md_field.hpp"
@@ -151,3 +152,4 @@ TEST_CASE("row") {
     CHECK( res(0,0) ==  3. ); CHECK( res(0,1) ==  4. );
   }
 }
+#endif // C++>20

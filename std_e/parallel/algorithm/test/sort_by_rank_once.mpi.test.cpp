@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/sort_by_rank_once.hpp"
@@ -112,4 +112,4 @@ MPI_TEST_CASE("parallel sort_by_rank_once - indirect projector",2) {
   MPI_CHECK( 0, x_perm == vector{0.6,1.0,  10.1,12.5} );
   MPI_CHECK( 1, x_perm == vector{3.7,  12.1,5.2} );
 }
-#endif // __cplusplus > 201703L
+#endif // C++>20

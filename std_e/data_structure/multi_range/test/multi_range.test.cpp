@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/data_structure/multi_range/multi_range.hpp"
 #include "std_e/data_structure/block_range/block_range.hpp"
@@ -374,4 +374,4 @@ TEST_CASE("views") {
     CHECK( row2 == expected_row2 );
   }
 }
-#endif // C++>17
+#endif // C++>20

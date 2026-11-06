@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/ticks_in_interval.hpp"
@@ -129,4 +129,4 @@ MPI_TEST_CASE("compute_interval_containing_ticks2 - 12 procs",12) {
   MPI_CHECK( 10 , indices == std_e::interval_vector{0,0,0,0,0,0,0,0,0,0,0,0,0} );
   MPI_CHECK( 11 , indices == std_e::interval_vector{0,0,0,0,0,0,0,0,0,0,0,0,0} );
 }
-#endif // __cplusplus > 201703L
+#endif // C++>20

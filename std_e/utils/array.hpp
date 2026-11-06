@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <type_traits>
 #include "std_e/utils/to_string_fwd.hpp"
+#include "std_e/contract/contract.hpp"
 
 
 // The idea of these functions is to provide a common interface
@@ -39,7 +40,7 @@ struct make_array_of_size__impl< T , std::enable_if_t<is_fixed_size_array<T>> > 
   static constexpr auto
   func([[maybe_unused]] int sz) -> T {
     [[maybe_unused]] constexpr int array_sz = std::tuple_size_v<T>;
-    STD_E_ASSERT(sz==array_sz);
+    STD_E_ASSERT_LVL0(sz==array_sz);
     return {};
   }
 };

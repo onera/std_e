@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/future/array_ref.hpp"
 
@@ -60,4 +60,4 @@ TEST_CASE("array_ref") {
     CHECK( jj == 20 );
   }
 }
-#endif // C++>17
+#endif // C++>20

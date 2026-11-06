@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 #include "std_e/graph/csr/algorithm.hpp"
 #include "std_e/future/dynarray.hpp"
@@ -34,3 +35,4 @@ TEST_CASE("renumber_graph") {
   CHECK( idx == std_e::dynarray<int>{0    ,  3,  4  ,  6  ,  8} );
   CHECK(   x == std_e::dynarray<int>{3,1,2,  0,  3,0,  2,0}     );
 }
+#endif // C++>20

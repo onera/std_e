@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/field/field.hpp"
@@ -165,3 +166,4 @@ TEST_CASE("field_view VS. field_ref") {
     CHECK( y(4) == 9. );
   }
 }
+#endif // C++>20

@@ -5,10 +5,10 @@
 #include <type_traits>
 
 
-namespace cgns {
+namespace std_e {
 
-
-// This will never work as a input/output iterator because the requirement
+// Note: This will never work well with swapping (hence, can't partition/sort/... a Reference_range)
+// Technically, the requirement
 //   requires(Ref_range_iterator<T>* o, ref_wrapper<T> x) {
 //     *o = x;
 //   }
@@ -103,68 +103,67 @@ class Ref_range_iterator {
 };
 
 
-} // cgns
+} // std_e
 template<class T,class vector_iter_type>
-struct std::iterator_traits<cgns::Ref_range_iterator<T,vector_iter_type>> {
-  using type = cgns::Ref_range_iterator<T,vector_iter_type>;
+struct std::iterator_traits<std_e::Ref_range_iterator<T,vector_iter_type>> {
+  using type = std_e::Ref_range_iterator<T,vector_iter_type>;
   using value_type = typename type::value_type;
   using reference = typename type::reference;
   using difference_type = typename type::difference_type;
   using iterator_category = typename type::iterator_category;
 };
-namespace cgns {
+namespace std_e {
 
 
 template<class T>
-class Ref_range {
+class Reference_range {
   private:
   // type traits
-    using vec_type = std::vector<std::reference_wrapper<T>>;
+    using vec_type = std::vector<T*>;
     using vec_iterator = typename vec_type::iterator;
   // data member
-    vec_type v;
+    vec_type _impl;
   public:
   // type traits
     using iterator = Ref_range_iterator<T,vec_iterator>;
 
   // ctors
-    Ref_range() = default;
+    Reference_range() = default;
+    Reference_range(size_t n)
+      : _impl(n, nullptr)
+    {}
 
   // array
-    auto
-    size() const -> int {
-      return v.size();
+    auto size() const -> int {
+      return _impl.size();
     }
-    auto
-    operator[](int i) -> T& {
-      return v[i];
+    auto operator[](int i) -> T& {
+      return *_impl[i];
     }
 
   // range
-    auto
-    begin() -> iterator {
-      return {v.begin()};
+    auto begin() -> iterator {
+      return {_impl.begin()};
     }
-    auto
-    end() -> iterator {
-      return {v.end()};
+    auto end() -> iterator {
+      return {_impl.end()};
     }
 
   // container
-    auto
-    emplace_back(T& t) -> T& {
-      return v.emplace_back(t);
+    auto emplace_back(T& t) -> T& {
+      return _impl.emplace_back(&t);
     }
+    auto emplace_back(T&&) -> T& = delete; // refuse temporaries
 };
 
 template<class T> auto
-begin(Ref_range<T>& x) {
+begin(Reference_range<T>& x) {
   return x.begin();
 }
 template<class T> auto
-end(Ref_range<T>& x) {
+end(Reference_range<T>& x) {
   return x.end();
 }
 
 
-} // cgns
+} // std_e

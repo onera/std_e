@@ -1,6 +1,4 @@
-#if __cplusplus > 201703L
-
-
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/struct/distributed_array.hpp"
@@ -323,6 +321,5 @@ MPI_TEST_CASE("distributed array - scatter",4) {
     MPI_CHECK(3, a.local() == vector{9.,10.,11.} );
   }
 }
-
 
 #endif // C++20

@@ -8,13 +8,13 @@
 namespace std_e {
 
 
-class stacktrace_exception : public msg_exception {
+class stacktrace_exception : public ::std_e::msg_exception {
   public:
     stacktrace_exception() = default;
 
     explicit
-    stacktrace_exception(std::string msg)
-      : msg_exception(std::move(msg) + "\n" + stacktrace_to_string())
+    stacktrace_exception(auto&&... msg_parts)
+      : msg_exception(msg_parts...,'\n',stacktrace_to_string())
     {}
 };
 

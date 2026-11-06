@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/parallel/all_to_all.hpp"
 
 #include "doctest/extensions/doctest_mpi.h"
@@ -37,4 +37,4 @@ MPI_TEST_CASE("all_to_all_v",3) {
   MPI_CHECK(2, data_received[1] == vector{13} );
   MPI_CHECK(2, data_received[2] == vector{15,16} );
 }
-#endif // C++>17
+#endif // C++>20

@@ -1,4 +1,4 @@
-#if __cplusplus > 201703L
+#if __cplusplus > 202002L
 #include "std_e/unit_test/doctest_mpi.hpp"
 
 #include "std_e/parallel/algorithm/sort_by_rank.hpp"
@@ -479,4 +479,4 @@ MPI_TEST_CASE("sort_by_rank - block_range - 2 procs",2) {
   CHECK( x == std::vector{6,3,12,  10,4,5} );
   CHECK( y == std::vector{200   ,  100} );
 }
-#endif // __cplusplus > 201703L
+#endif // C++>20

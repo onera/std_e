@@ -1,3 +1,4 @@
+#if __cplusplus > 202002L
 #include "std_e/parallel/algorithm/contiguous_numbering.hpp"
 #include "std_e/debug.hpp"
 #include "std_e/debug_par.hpp"
@@ -642,3 +643,4 @@ auto contiguous_numbering(std_e::span<int64_t> x, MPI_Comm comm, const std::stri
 
 
 } // std_e
+#endif // C++>20
