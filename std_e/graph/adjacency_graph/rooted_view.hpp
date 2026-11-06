@@ -16,6 +16,7 @@ class rooted_graph {
     using edge_type = typename graph_type::edge_type;
     using adjacency_list_type = typename graph_type::adjacency_list_type;
     using index_type = typename graph_type::index_type;
+    static constexpr node_kind node_k = graph_type::node_k;
 
     using adjacency_type = io_adjacency<rooted_graph>;
     using const_adjacency_type = io_adjacency<const rooted_graph>;
@@ -88,12 +89,32 @@ class rooted_graph {
     }
 
     auto
+    size() const -> index_type {
+      return g.size();
+    }
+    auto
     nodes() -> auto& {
       return g.nodes();
     }
     auto
     nodes() const -> const auto& {
       return g.nodes();
+    }
+    auto
+    in_indices(index_type i)       ->       auto& {
+      return g.in_indices(i);
+    }
+    auto
+    in_indices(index_type i) const -> const auto& {
+      return g.in_indices(i);
+    }
+    auto
+    out_indices(index_type i)       ->       auto& {
+      return g.out_indices(i);
+    }
+    auto
+    out_indices(index_type i) const -> const auto& {
+      return g.out_indices(i);
     }
 
     auto

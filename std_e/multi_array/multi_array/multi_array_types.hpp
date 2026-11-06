@@ -25,6 +25,8 @@ using fixed_multi_array = multi_array< fixed_multi_array_container<T,dims...> , 
 // dyn_multi_array {
 using default_index_type = int; // int is sometimes faster. Arrays with size > 2^31 are rare
                                 // (because when arrays are this big, they better be distributed)
+                                // TODO: actually make it int64, see rational and how to do it in doc/_md_array_dim_type
+                                // (see notably that we need casting dims to int32 when computing linear indices)
 
 template<class T, int rank, class Integer = default_index_type>
 using dyn_multi_array = multi_array< std::vector<T> , dyn_shape<Integer,rank>>;

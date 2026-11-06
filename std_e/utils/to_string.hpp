@@ -8,6 +8,7 @@
 #include "std_e/utils/deque.hpp"
 #include "std_e/utils/to_string_fwd.hpp"
 #include <iomanip>
+#include <iterator>
 #include <sstream>
 
 
@@ -18,8 +19,26 @@ inline auto
 to_string(const std::string& s) -> const std::string& {
   return s;
 }
+inline auto
+to_string(std::string_view s) -> std::string {
+  return std::string(s);
+}
 
-template<class T> auto
+inline auto
+to_string(char c) -> std::string {
+  return std::string{c};
+}
+
+template<size_t N> auto
+to_string(const char(&x)[N]) -> std::string {
+ return std::string(x);
+}
+inline auto
+to_string(const char* x) -> std::string {
+ return std::string(x);
+}
+
+template<class T, std::enable_if_t<!std::is_same_v<std::decay_t<T>,char>,int>> auto
 to_string(T* ptr) -> std::string {
   if (ptr == nullptr) { return "0"; };
   std::stringstream ss;
@@ -41,6 +60,8 @@ to_string(Forward_iterator first, S last, const std::string& inter, F to_string_
 }
 template<class R, class F> auto
 range_to_lite_string(const R& x, const std::string& inter, F to_string_fn) -> std::string {
+  using std::begin; // use <iterator> std::begin to wrap .begin()
+  using std::end;
   return to_string(begin(x),end(x),inter,to_string_fn);
 }
 template<class R, class F> auto
@@ -89,5 +110,13 @@ std::string to_hex_string(I i) {
   return ss.str();
 }
 
+template<class... Ts> auto
+str_cat(Ts&&... xs) -> std::string {
+  using std::to_string;
+  using std_e::to_string;
+  std::string s = "";
+  ( (s += to_string(xs)), ... );
+  return s;
+}
 
 } // std_e

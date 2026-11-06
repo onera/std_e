@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include "std_e/future/span_fwd.hpp"
+#include "std_e/future/dynarray.hpp"
 
 
 namespace std_e {
@@ -61,6 +62,12 @@ template<class T, class A>
 struct enable_is_array<std::vector<T,A>> : std::true_type {};
 template<class T, class A>
 struct enable_is_dyn_size_array<std::vector<T,A>> : std::true_type {};
+
+// std_e::dynarray activations
+template<class T>
+struct enable_is_array<std_e::dynarray<T>> : std::true_type {};
+template<class T>
+struct enable_is_dyn_size_array<std_e::dynarray<T>> : std::true_type {};
 
 // std_e::span activations
 template<class T, ptrdiff_t N>

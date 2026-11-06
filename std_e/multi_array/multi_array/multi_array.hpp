@@ -5,6 +5,7 @@
 #include "std_e/multi_array/shape/concept.hpp"
 #include "std_e/multi_index/concept.hpp"
 #include "std_e/multi_index/multi_index.hpp"
+#include "std_e/multi_index/multi_index_range.hpp"
 #include "std_e/multi_index/fortran_order.hpp"
 #include "std_e/future/contract.hpp"
 #include "std_e/multi_array/multi_array/concept.hpp"

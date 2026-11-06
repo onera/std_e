@@ -6,6 +6,7 @@
 #include <functional>
 
 using std::vector;
+using std_e::span;
 
 
 TEST_CASE("repeat") {
@@ -15,7 +16,7 @@ TEST_CASE("repeat") {
     {'A','A'},{'C'},{'A'},{'B','B','B'},{'C'}
   };
   SUBCASE("function syntax") {
-    std_e::vblock_range<vector<char>&,vector<int>> w = std_e::chunk_by(v,std::equal_to<>{});
+    std_e::vblock_range<span<char>,vector<int>> w = std_e::chunk_by(v,std::equal_to<>{});
 
     CHECK( w == expected_chunked_result );
   }

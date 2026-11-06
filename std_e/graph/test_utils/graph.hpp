@@ -8,9 +8,8 @@
 
 namespace std_e {
 
-
 inline auto
-create_io_graph_for_tests() -> io_graph<int> {
+create_io_adjs_for_tests() -> io_index_adjacency_vector<int> {
   /*
          1               lvl 3
       /  |  \
@@ -21,7 +20,7 @@ create_io_graph_for_tests() -> io_graph<int> {
    |  |  \ |  |    \
   4    7  \9  10   11    lvl 0
   */
-  return make_io_graph<int>({
+  return io_index_adjacency_vector<int>({
     /*0*/ { 4, {2}    , {}     },
     /*1*/ { 7, {2}    , {}     },
     /*2*/ { 2, {8}    , {0,1,3}},
@@ -33,11 +32,24 @@ create_io_graph_for_tests() -> io_graph<int> {
     /*8*/ { 1, {}     , {2,7,3}},
   });
 }
+
+inline auto
+create_io_graph_for_tests() -> io_graph<int> {
+  return make_io_graph<int>(create_io_adjs_for_tests());
+}
 inline auto
 create_rooted_graph_for_tests() -> rooted_graph<io_graph<int>> {
   return rooted_graph(create_io_graph_for_tests(),8);
 }
 
+inline auto
+create_index_io_graph_for_tests() -> index_io_graph<int> {
+  return make_index_io_graph<int>(create_io_adjs_for_tests());
+}
+inline auto
+create_rooted_index_graph_for_tests() -> rooted_graph<index_io_graph<int>> {
+  return rooted_graph(create_index_io_graph_for_tests(),8);
+}
 
 } // std_e
 

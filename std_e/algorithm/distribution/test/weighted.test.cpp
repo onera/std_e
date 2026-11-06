@@ -64,8 +64,8 @@ TEST_CASE("balanced_distribution") {
     std::vector<int> weights = {3,5,1,0,2};
 
     auto [v,v_weighted] = balanced_distribution(n_slot,sizes,weights);
-    std_e::interval_vector<int> v_expected = {0,113,186,500};
-    std_e::interval_vector<int> v_weighted_expected = {0,/* 3*100 + 5*13 = */ 365,/* 3*100 + 5*(100-13-1) = */730,/* (3+5+1+0+2)*100 = */1100};
+    std_e::interval_vector<int> v_expected = {0,114,187,500};
+    std_e::interval_vector<int> v_weighted_expected = {0,/* 3*100 + 5*14 = */ 370,/* 3*100 + 5*(100-14-1) = */735,/* (3+5+1+0+2)*100 = */1100};
     CHECK( v == v_expected );
     CHECK( v_weighted == v_weighted_expected );
 
@@ -75,12 +75,12 @@ TEST_CASE("balanced_distribution") {
       auto [elts_inf_2,elts_sup_2] = elements_in_interval(v_weighted[2],v_weighted[3],sizes,weights);
 
       CHECK( elts_inf_0 == std::vector{  0,  0,  0,  0,  0} );
-      CHECK( elts_sup_0 == std::vector{100, 13,  0,  0,  0} );
+      CHECK( elts_sup_0 == std::vector{100, 14,  0,  0,  0} );
 
-      CHECK( elts_inf_1 == std::vector{100, 13,  0,  0,  0} );
-      CHECK( elts_sup_1 == std::vector{100, 86,  0,  0,  0} );
+      CHECK( elts_inf_1 == std::vector{100, 14,  0,  0,  0} );
+      CHECK( elts_sup_1 == std::vector{100, 87,  0,  0,  0} );
 
-      CHECK( elts_inf_2 == std::vector{100, 86,  0,  0,  0} );
+      CHECK( elts_inf_2 == std::vector{100, 87,  0,  0,  0} );
       CHECK( elts_sup_2 == std::vector{100,100,100,100,100} );
     }
   }
@@ -91,7 +91,28 @@ TEST_CASE("balanced_distribution") {
     std::vector<int> weights = {4,3,3,4};
 
     auto [v,v_weighted] = balanced_distribution(n_slot,sizes,weights);
-    CHECK( v == std_e::interval_vector{0,8,18} );
-    CHECK( v_weighted == std_e::interval_vector{0,32,69} );
+    CHECK( v == std_e::interval_vector{0,9,18} );
+    CHECK( v_weighted == std_e::interval_vector{0,36,69} );
+  }
+
+  SUBCASE("zero-weight border cases") {
+    SUBCASE("zero at the end") {
+      int n_slot = 2;
+      std::vector<int> sizes = {1,1,1};
+      std::vector<int> weights = {1,1,0};
+
+      auto [v,v_weighted] = balanced_distribution(n_slot,sizes,weights);
+      std_e::interval_vector<int> v_expected = {0,1,3};
+      std_e::interval_vector<int> v_weighted_expected = {0,1,2};
+    }
+    SUBCASE("zero at the begining") {
+      int n_slot = 2;
+      std::vector<int> sizes = {1,1,1};
+      std::vector<int> weights = {0,1,1};
+
+      auto [v,v_weighted] = balanced_distribution(n_slot,sizes,weights);
+      std_e::interval_vector<int> v_expected = {0,2,3};
+      std_e::interval_vector<int> v_weighted_expected = {0,1,2};
+    }
   }
 }

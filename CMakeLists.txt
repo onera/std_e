@@ -8,16 +8,19 @@ if(NOT DEFINED PROJECT_ROOT)
   set(PROJECT_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH "Root directory, where the submodules are populated")
 endif()
 
+if(NOT DEFINED PROJECT_UTILS_DIR)
+  set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
+endif()
+
 # Bootstrap project_utils
-file(GLOB project_utils_files "${PROJECT_ROOT}/external/project_utils/*")
+file(GLOB project_utils_files ${PROJECT_UTILS_DIR}/*)
 list(LENGTH project_utils_files n_file_project_utils)
 if(n_file_project_utils EQUAL 0)
   message(FATAL_ERROR
-    "external/project_utils is empty.
+    "${PROJECT_UTILS_DIR} is empty.
     Maybe you forgot to initialize it with \"git submodule update --init\""
   )
 endif()
-set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
 set(PROJECT_UTILS_CMAKE_DIR ${PROJECT_UTILS_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_UTILS_CMAKE_DIR}/find_package") # for custom Find*.cmake files
 include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_add_subdirectory, project_find_package and target_install
@@ -40,6 +43,7 @@ option(${PROJECT_NAME}_ENABLE_TESTS "Enable testing for ${PROJECT_NAME}" ON)
 option(${PROJECT_NAME}_ENABLE_COVERAGE "Enable coverage for ${PROJECT_NAME}" OFF)
 option(${PROJECT_NAME}_ENABLE_DOCUMENTATION "Build ${PROJECT_NAME} documentation" OFF)
 option(${PROJECT_NAME}_ENABLE_PERFORMANCE_TESTS "Enable performance tests for ${PROJECT_NAME}" OFF)
+set(${PROJECT_NAME}_ASSERT_LEVEL 0 CACHE STRING "Logging level (-1: deactivate, 0: very lite, 1: medium, 2: all asserts)")
 
 ## Compiler flags
 ### Build type
@@ -47,7 +51,7 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # default to Release
 endif()
 ### C++ standard
-set(SUPPORTED_CXX_STANDARDS 17 20)
+set(SUPPORTED_CXX_STANDARDS 17 20 23 26)
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20 CACHE STRING "C++ standard to compile against")
 endif()
@@ -97,6 +101,14 @@ endif()
 
 ## Main library ##
 add_library(${PROJECT_NAME} SHARED ${cpp_files})
+
+if(${PROJECT_NAME}_ENABLE_MPI)
+  target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_HAS_MPI=1)
+else()
+  target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_HAS_MPI=0)
+endif()
+target_compile_options(${PROJECT_NAME} PUBLIC -DSTD_E_ASSERT_LEVEL=${${PROJECT_NAME}_ASSERT_LEVEL})
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${include_dir}>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>

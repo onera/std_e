@@ -40,24 +40,24 @@ TEST_CASE("partition_sort") {
   }
   SUBCASE("indices vector-returning algorithm") {
     auto partition_indices = std_e::partition_sort_indices(v,partition_values);
-    //                                    0        10   100    120            1000
-    CHECK(                 v ==          vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
-    CHECK( partition_indices == interval_vector{ 0, 1      ,  5 ,   6  ,   7          ,     10   } );
+    //                           0        10   100    120            1000
+    CHECK(                 v == vector{-3, 8,2,6,0,  50,   110,   999,800,200,     10001} );
+    CHECK( partition_indices == vector{ 0, 1      ,  5 ,   6  ,   7          ,     10   } );
   }
 
   SUBCASE("indirect algorithm") {
     auto [partition_indices,new_to_old] = std_e::indirect_partition_sort(v,partition_values);
-    //                                   0          10  100  120   1000
-    CHECK(        new_to_old ==          vector{4,  8,2,3,10,  9,  0,  7,5,1, 6 } );
-    CHECK( partition_indices == interval_vector{0,  1       ,  5,  6,  7    , 10} );
+    //                          0          10  100  120   1000
+    CHECK(        new_to_old == vector{4,  8,2,3,10,  9,  0,  7,5,1, 6 } );
+    CHECK( partition_indices == vector{0,  1       ,  5,  6,  7    , 10} );
   }
 
   SUBCASE("apply indirect algorithm") {
     auto [partition_indices,new_to_old] = std_e::apply_indirect_partition_sort(v,partition_values);
-    //                                   0           10  100  120   1000
-    CHECK(                 v ==          vector{-3, 8,2,6, 0,  50,   110,   999,800,200,     10001} );
-    CHECK(        new_to_old ==          vector{ 4, 8,2,3,10,   9,     0,     7,  5,  1,         6} );
-    CHECK( partition_indices == interval_vector{0,  1      ,  5 ,   6  ,   7          ,     10   } );
+    //                          0           10  100  120   1000
+    CHECK(                 v == vector{-3, 8,2,6, 0,  50,   110,   999,800,200,     10001} );
+    CHECK(        new_to_old == vector{ 4, 8,2,3,10,   9,     0,     7,  5,  1,         6} );
+    CHECK( partition_indices == vector{0,  1      ,  5 ,   6  ,   7          ,     10   } );
   }
 }
 
@@ -74,7 +74,7 @@ TEST_CASE("sort_into_partitions") {
   std_e::jagged_vector<id_string> jv = std_e::sort_into_partitions(std::move(v),[](const id_string& x){ return x.id; });
 
   vector<id_string> expected_values = {{10,"11"},{10,"10"},{10,"12"},{10,"13"},{20,"23"},{20,"21"},{30,"35"},{30,"31"},};
-  std_e::interval_vector<int> expected_partition_indices = {0,4,6,8};
+  vector<int> expected_partition_indices = {0,4,6,8};
   CHECK( jv.flat_view() == expected_values );
   CHECK( jv.indices() == expected_partition_indices );
 }

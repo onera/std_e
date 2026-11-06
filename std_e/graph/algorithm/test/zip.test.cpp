@@ -2,7 +2,7 @@
 #include "std_e/unit_test/doctest.hpp"
 
 #include "std_e/graph/nested_tree/nested_tree.hpp"
-#include "std_e/graph/algorithm/algo_nodes.hpp"
+#include "std_e/graph/algorithm/algo_adjacencies.hpp"
 #include "std_e/graph/test_utils/nested_tree.hpp"
 
 #include "std_e/graph/algorithm/zip.hpp"
@@ -23,7 +23,7 @@ TEST_CASE("zip_graphs") {
 
   SUBCASE("same graph shape") {
     auto t1 = create_nested_tree_for_tests();
-    preorder_depth_first_scan(t1,[](auto& node){ node *= 3; });
+    preorder_depth_first_scan_adjacencies(t1,[](auto&& adj){ node(adj) *= 3; });
     /* t1 = 3*t0, so t1 =
            3
         /     \

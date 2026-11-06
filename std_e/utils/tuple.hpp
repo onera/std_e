@@ -56,6 +56,7 @@ constexpr bool tuple_contains_type = tuple_contains_type__impl<T, Tuple>::value;
 // tuple_contains_type }
 
 
+// Note: this is actually c++17 std::apply
 // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
 // shut down GCC 9 erroneous warning because of "if constexpr"
 template<int I, class tuple_type, class F> constexpr auto

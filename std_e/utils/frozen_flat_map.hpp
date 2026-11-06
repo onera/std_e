@@ -3,7 +3,7 @@
 
 // TODO move to data_structure
 #include <vector>
-#include "std_e/algorithm/permutation.hpp"
+#include "std_e/algorithm/sort.hpp"
 #include "std_e/future/contract.hpp"
 
 

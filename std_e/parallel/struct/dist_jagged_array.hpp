@@ -2,7 +2,7 @@
 
 
 #include "std_e/parallel/mpi/one_sided/window.hpp"
-#include "std_e/parallel/struct/distribution.hpp"
+#include "std_e/parallel/distribution.hpp"
 #include "std_e/parallel/struct/dist_guard.hpp"
 
 

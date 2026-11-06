@@ -19,3 +19,4 @@ User Manual
   overload_set
   switch
   execution
+  blocks

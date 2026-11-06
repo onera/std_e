@@ -4,6 +4,8 @@
 #include "std_e/base/macros.hpp"
 #include "std_e/meta/pack.hpp"
 #include "std_e/meta/types.hpp"
+// TODO I think this tuple is only useful as tuple<Ts&> with assign through behavior
+// So maybe we should call it tuple_ref<Ts>
 
 
 namespace std_e {
@@ -76,15 +78,15 @@ class tuple_impl<T,Ts...> {
     operator<(const tuple_impl<Ts0...>& x, const tuple_impl<Ts1...>& y) -> bool;
 
 
-    template<size_t I, class... Ts0>
-      requires (I < sizeof...(Ts0))
-        friend constexpr auto
-    get_impl(tuple_impl<Ts0...>& x) -> tuple_element<I,tuple_impl<Ts0...>>&;
+    //template<size_t I, class... Ts0>
+    //  requires (I < sizeof...(Ts0))
+    //    friend constexpr auto
+    //get_impl(tuple_impl<Ts0...>& x) -> tuple_element<I,tuple_impl<Ts0...>>&;
 
-    template<size_t I, class... Ts0>
-      requires (I < sizeof...(Ts0))
-        friend constexpr auto
-    get_impl(const tuple_impl<Ts0...>& x) -> const tuple_element<I,tuple_impl<Ts0...>>&;
+    //template<size_t I, class... Ts0>
+    //  requires (I < sizeof...(Ts0))
+    //    friend constexpr auto
+    //get_impl(const tuple_impl<Ts0...>& x) -> const tuple_element<I,tuple_impl<Ts0...>>&;
 };
 
 template<size_t I, class... Ts0>

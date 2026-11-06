@@ -89,10 +89,10 @@ depth_first_prune_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) -> 
 //  }
 //}
 
-template<class Rooted_graph, class Graph_adjacency_visitor> constexpr auto
-depth_first_search_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f) {
+template<class Rooted_graph, class Graph_adjacency_visitor, class Depth = depth::Node> constexpr auto
+depth_first_search_adjacencies(Rooted_graph&& g, Graph_adjacency_visitor&& f, Depth d = depth::node) {
   auto S = graph_traversal_stack(first_root(g),last_root(g));
-  return depth_first_search_adjacency_stack(S,f); // TODO test
+  return depth_first_search_adjacency_stack(S,f,d); // TODO test
 }
 
 

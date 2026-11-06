@@ -52,6 +52,11 @@ class hrange {
     push_back(const T& elt) {
       std::get<Range_template<T>>(_impl).push_back(elt);
     }
+    template<class T> auto
+    // requires T is one of the Ts
+    emplace_back(T&& elt) -> auto& {
+      return std::get<Range_template<T>>(_impl).emplace_back(std::forward<T>(elt));
+    }
   private:
     ranges_tuple _impl;
 };
@@ -119,11 +124,11 @@ apply(F&& f, const hrange<RT,Ts...>& x) -> decltype(auto) {
 // algorithms {
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_range(hrange<RT,Ts...>& hr, F f) -> void {
-  for_each(hr.impl(),f);
+  for_each(hr.impl(),f); // TODO should work with std::apply, but doesn't
 }
 template<class... Ts, template<class> class RT, class F> constexpr auto
 for_each_range(const hrange<RT,Ts...>& hr, F f) -> void {
-  for_each(hr.impl(),f);
+  for_each(hr.impl(),f); // TODO should work with std::apply, but doesn't
 }
 
 template<class... Ts, template<class> class RT, class F> constexpr auto

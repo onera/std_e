@@ -39,8 +39,6 @@ TEST_CASE("STD_E_ENUM_CLASS") {
 }
 // [Sphinx Doc] STD_E_ENUM_CLASS }
 
-#define xxx(...) #__VA_ARGS__
-
 // [Sphinx Doc] STD_E_ENUM_CLASS_WITH_VALUES {
 // Define enum class "my_enum_example_name" with more features
 STD_E_ENUM_CLASS(my_e_val_ex_name,

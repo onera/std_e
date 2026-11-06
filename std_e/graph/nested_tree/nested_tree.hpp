@@ -34,7 +34,7 @@ template<class T> using std_alloc_vector = std::vector<T>;
 template<class T> using dyn_span = std_e::span<T>;
 
 template<class T, template<class> class Memory_ressource> class nested_tree_base;
-template<class T> using nested_tree = nested_tree_base<T,std_alloc_vector>;
+template<class T> requires (!std::is_const_v<T>) using nested_tree = nested_tree_base<T,std_alloc_vector>;
 template<class T> using nested_tree_view = nested_tree_base<T,dyn_span>;
 template<class T> using const_nested_tree_view = nested_tree_base<const T,dyn_span>;
 
@@ -54,10 +54,14 @@ class nested_tree_base {
     using iterator = child_iterator<T*,index_type*>;
     using const_iterator = child_iterator<const T*,const index_type*>;
 
+    using reference = typename iterator::reference;
+    using const_reference = typename const_iterator::reference;
+
     using range_type = std_e::iterator_range<iterator>;
     using const_range_type = std_e::iterator_range<const_iterator>;
 
     using node_adj_type = const_nested_tree_view<T>; // TODO DEL
+    using adjacency_type = const_nested_tree_view<T>; // TODO DEL?
 
     static constexpr size_t is_nested_tree = true;
     template<class T0, template<class> class M0> friend class nested_tree_base;
@@ -212,7 +216,7 @@ class child_iterator {
   public:
     using node_type = std::remove_pointer_t<T_ptr>;
   // std::iterator type traits
-    using value_type = nested_tree<node_type>;
+    using value_type = nested_tree<std::remove_const_t<node_type>>;
     using difference_type = int;
     using iterator_category = std::forward_iterator_tag;
 

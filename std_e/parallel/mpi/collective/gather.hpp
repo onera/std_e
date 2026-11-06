@@ -2,9 +2,6 @@
 
 
 #include "std_e/parallel/mpi/base.hpp"
-#if __cplusplus > 201703L
-#include "std_e/serialize/serialize.hpp"
-#endif // C++20
 
 
 namespace std_e {
@@ -61,15 +58,15 @@ all_gather(const std::vector<T>& x, MPI_Comm comm) -> std::vector<T> {
 
 
 
-#if __cplusplus > 201703L
-inline auto
-all_gather(const std::vector<std::string>& x, MPI_Comm comm) -> std::vector<std::string> {
-  auto [x_szs, x_serial] = serialize_2(x);
-  auto x_szs_all    = all_gather(x_szs,comm);
-  auto x_serial_all = all_gather(x_serial,comm);
-  return deserialize_2<std::vector<std::string>>(x_szs_all,x_serial_all);
-}
-#endif // C++20
+//#if __cplusplus > 201703L
+//inline auto
+//all_gather(const std::vector<std::string>& x, MPI_Comm comm) -> std::vector<std::string> {
+//  auto [x_szs, x_serial] = serialize_2(x);
+//  auto x_szs_all    = all_gather(x_szs,comm);
+//  auto x_serial_all = all_gather(x_serial,comm);
+//  return deserialize_2<std::vector<std::string>>(x_szs_all,x_serial_all);
+//}
+//#endif // C++20
 
 
 } // std_e

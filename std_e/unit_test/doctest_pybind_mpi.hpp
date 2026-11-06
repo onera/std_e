@@ -9,7 +9,7 @@
 
 #define CREATE_PYBIND_MPI_TEST_CASE(name,nb_procs,func) \
   static void func(DOCTEST_UNUSED int test_rank, DOCTEST_UNUSED int test_nb_procs, DOCTEST_UNUSED MPI_Comm test_comm, DOCTEST_UNUSED std::integral_constant<int,nb_procs>); \
-  TEST_CASE(name * doctest::description("MPI_TEST_CASE")) { \
+  TEST_CASE(name * doctest::description("MPI_TEST_CASE") * doctest::skip(doctest::insufficient_procs(nb_procs))) { \
     std_e::throw_if_no_python_interpreter(std::string("MPI_TEST_CASE(\"")+name+"\")"); \
     doctest::execute_mpi_test_case<nb_procs>(func); \
   } \

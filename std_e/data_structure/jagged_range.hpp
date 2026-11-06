@@ -4,14 +4,14 @@
 #include "std_e/interval/interval_sequence.hpp"
 #include <vector>
 #include <algorithm>
-#include "std_e/data_structure/multi_range.hpp"
+#include "std_e/data_structure/multi_range/multi_range.hpp"
 #include "std_e/data_structure/block_range/vblock_iterator.hpp"
 #include "std_e/meta/meta.hpp"
 #include "std_e/future/ranges.hpp"
 #include "std_e/future/ranges/concept.hpp"
 #include "std_e/future/ranges/transform.hpp"
 // TODO clean up!
-// TODO jagged -> vblock_range
+// TODO jagged_ -> vs_ (variable_stride)
 
 
 namespace std_e {
@@ -73,6 +73,7 @@ template<class data_range_type, class indices_range_type, int r>
 class jagged_range {
   public:
     static constexpr int rank = r;
+    static constexpr bool is_jagged_range = true;
   private:
     //using indices_array_type = std::array<indices_range_type,rank-1>;
     using indices_array_type = typename indices_array_type_impl<indices_range_type,rank>::type;
@@ -108,13 +109,22 @@ class jagged_range {
     jagged_range& operator=(const jagged_range&) = default;
     jagged_range& operator=(jagged_range&&) = default;
 
+    // copy from another jagged_range type
+    template<class Jagged_range_type>
+      requires Jagged_range_type::is_jagged_range
+    jagged_range(const Jagged_range_type& x)
+      : flat_values(x.flat_values)
+      , idx_array(x.idx_array)
+      , off(x.off)
+    {}
+
     // TODO private (for default ctor only)
     jagged_range(data_range_type flat_values, unambiguous) requires (rank>2)
-      : flat_values(std::forward<data_range_type>(flat_values))
+      : flat_values(std::move(flat_values))
       , idx_array({0},unambiguous{})
     {}
     jagged_range(data_range_type flat_values, unambiguous) requires (rank==2)
-      : flat_values(std::forward<data_range_type>(flat_values))
+      : flat_values(std::move(flat_values))
       , idx_array({0})
     {}
 
@@ -126,32 +136,32 @@ class jagged_range {
       static_assert(rank==2);
     }
     jagged_range(data_range_type flat_values, indices_range_type idx_array, I off = 0)
-      : flat_values(std::forward<data_range_type>(flat_values))
-      , idx_array(std::forward<indices_range_type>(idx_array))
+      : flat_values(std::move(flat_values))
+      , idx_array(std::move(idx_array))
       , off(off)
     {
       static_assert(rank==2);
     }
-    // same as above, but by copy from different types (e.g. Range==span, data_range_type==vector)
+    //// same as above, but by copy from different types (e.g. Range==span, data_range_type==vector)
+    //jagged_range(
+    //    std_e::ranges::contiguous_range auto&& flat_values,
+    //    std_e::ranges::contiguous_range auto&& idx_array,
+    //    I off = 0
+    //)
+    //  : flat_values(flat_values.begin(),flat_values.end())
+    //  , idx_array(idx_array.begin(),idx_array.end())
+    //  , off(off)
+    //{
+    //  static_assert(rank==2);
+    //}
     jagged_range(
-        std_e::ranges::contiguous_range auto&& flat_values,
-        std_e::ranges::contiguous_range auto&& idx_array,
+        data_range_type flat_values,
+        indices_range_type separators0,
+        indices_range_type separators1,
         I off = 0
     )
-      : flat_values(flat_values.begin(),flat_values.end())
-      , idx_array(idx_array.begin(),idx_array.end())
-      , off(off)
-    {
-      static_assert(rank==2);
-    }
-    jagged_range(
-        std_e::ranges::contiguous_range auto&& flat_values,
-        std_e::ranges::contiguous_range auto&& separators0,
-        std_e::ranges::contiguous_range auto&& separators1,
-        I off = 0
-    )
-      : flat_values(flat_values.begin(),flat_values.end())
-      , idx_array(separators0,separators1)
+      : flat_values(std::move(flat_values))
+      , idx_array(std::move(separators0),std::move(separators1))
       , off(off)
     {
       static_assert(rank==3);
@@ -192,7 +202,7 @@ class jagged_range {
       x.values() | copy_to(values());
 
       auto shift = offsets()[0] - x.offsets()[0];
-      x.offsets().as_base() | std_e::views::transform([=](I i){ return i+shift; }) | copy_to(offsets().as_base()); // TODO ugly .as_base()
+      x.offsets() | std_e::views::transform([=](I i){ return i+shift; }) | copy_to(offsets());
     }
 
   // basic
@@ -220,10 +230,18 @@ class jagged_range {
 
   // accessors
     auto flat_view() { // TODO deprecate (use values that also treats the offset pb)
-      return make_span(flat_values);
+      if constexpr (!is_multi_range2<data_range_type>) {
+        return make_span(flat_values);
+      } else {
+        return view(flat_values);
+      }
     }
     auto flat_view() const {
-      return make_span(flat_values);
+      if constexpr (!is_multi_range2<data_range_type>) {
+        return make_span(flat_values);
+      } else {
+        return view(flat_values);
+      }
     }
     auto flat_ref() -> auto& {
       return flat_values;
@@ -244,23 +262,29 @@ class jagged_range {
     auto index_array() const -> const auto& {
       return idx_array;
     }
-    auto indices() -> interval_span<I> { // TODO deprecate
+    auto indices() -> span<I> { // TODO deprecate
       static_assert(rank==2);
-      return to_interval_span(make_span(idx_array));
+      return make_span(idx_array);
     }
-    auto indices() const -> interval_span<const I> { // TODO deprecate
+    auto indices() const -> span<const I> { // TODO deprecate
       static_assert(rank==2);
-      return to_interval_span(make_span(idx_array));
+      return make_span(idx_array);
     }
-    auto offsets() -> interval_span<I> {
+    auto offsets() -> span<I> {
       return indices();
     }
-    auto offsets() const -> interval_span<const I> {
+    auto offsets() const -> span<const I> {
       return indices();
+    }
+    auto offset_data() -> I* {
+      return idx_array.data();
+    }
+    auto offset_data() const -> const I* {
+      return idx_array.data();
     }
 
     template<int lvl>
-    auto indices() const -> interval_span<const I> {
+    auto indices() const -> span<const I> {
       static_assert(lvl>=0 && lvl<rank);
       return indices_impl<lvl+1>();
     }
@@ -309,9 +333,9 @@ class jagged_range {
   private:
     template<class R0, class R1, int R> friend class jagged_range;
     template<int lvl>
-    auto indices_impl() const -> interval_span<const I> {
+    auto indices_impl() const -> span<const I> {
       if constexpr (lvl==0) {
-        return to_interval_span(flat_view());
+        return make_span(flat_view());
       } else if constexpr (rank==2 && lvl==1) {
         return indices();
       } else {
@@ -333,15 +357,14 @@ class jagged_range {
     static auto subscript_op_impl(jagged_range_type& x, I i) {
       if constexpr (rank==2) {
         using data_value_type = typename jagged_range_type::data_value_range_type;
-        if constexpr (!is_multi_range<data_value_type>) {
+        if constexpr (!is_multi_range2<data_value_type>) {
           if constexpr (std::is_const_v<jagged_range_type> || std::is_const_v<element_type<data_value_type>>) {
             return const_reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           } else {
             return       reference(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array.data()+i);
           }
-        } else { // FIXME return as previous (not possible now because `reference` does not work with proxy-refs of multi_range
-          return make_span_ref(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
-          //return make_span_ref(x.flat_values.data()+x.idx_array[i]-x.off, x.idx_array[i+1]-x.idx_array[i]);
+        } else { // FIXME return as previous (not possible now because `reference` needs to accepts iterators that are not pointers)
+          return subview_n(x.flat_values, x.idx_array[i]-x.off, x.idx_array[i+1]-x.off);
         }
       } else {
         static_assert(rank==3); // Other ranks are not implemented TODO
@@ -425,14 +448,14 @@ downscale_separators(Range0& upper_separators, const Range1& lower_separators) -
   }
 }
 template<class Range0, class Range1, class T = typename Range0::value_type> auto
-upscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> interval_vector<T> {
-  interval_vector<T> upscaled_seps(begin(upper_separators),end(upper_separators));
+upscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> std::vector<T> {
+  std::vector<T> upscaled_seps(begin(upper_separators),end(upper_separators));
   upscale_separators(upscaled_seps,lower_separators);
   return upscaled_seps;
 }
 template<class Range0, class Range1, class T = typename Range0::value_type> auto
-downscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> interval_vector<T> {
-  interval_vector<T> downscaled_seps(begin(upper_separators),end(upper_separators));
+downscaled_separators(Range0& upper_separators, const Range1& lower_separators) -> std::vector<T> {
+  std::vector<T> downscaled_seps(begin(upper_separators),end(upper_separators));
   downscale_separators(downscaled_seps,lower_separators);
   return downscaled_seps;
 }
@@ -447,7 +470,7 @@ flatten_last_level(jagged_range<R00,R01,3> x) -> jagged_range<R00,R01,2> {
 }
 template<class R00, class R01, class Knot_sequence, class T = typename R00::value_type, class I = typename R01::value_type> auto
 view_with_new_level(const jagged_range<R00,R01,2>& x, const Knot_sequence& new_level) -> jagged_span<const T,3,const I> {
-  return jagged_span<const T,3,const I>(x.flat_view(),x.indices(),to_interval_span(new_level));
+  return jagged_span<const T,3,const I>(x.flat_view(),x.indices(),make_span(new_level));
 }
 
 template<
@@ -462,7 +485,8 @@ transform(const jagged_range<R00,R01,rank>& x, F f) -> jagged_vector<RT,rank,I> 
     begin(res),
     f
   );
-  return {res,x.indices().as_base()}; // TODO UGLY
+  R01 indices(x.indices().begin(),x.indices().end());
+  return {res,indices}; // TODO UGLY
 }
 // algorithm }
 

@@ -424,7 +424,7 @@ MPI_TEST_CASE("sort_by_rank - multi_range - 2 procs",2) {
   if (rk == 1) x = {12, 3, 4, 8, 5, 1, 2};
   if (rk == 1) y = { 8, 9,10,11,12,13,14};
 
-  auto mr = view_as_multi_range(x,y);
+  auto mr = zip_view(x,y);
   auto proj = [](const auto& x){ return get<0>(x); };
   interval_vector<int> rank_indices = std_e::sort_by_rank(mr,test_comm,proj);
 
@@ -471,7 +471,7 @@ MPI_TEST_CASE("sort_by_rank - block_range - 2 procs",2) {
   using span_type = std_e::span<int>;
   span_type ys (y.data(),y.size());
 
-  std_e::multi_range2<block_range_type,span_type> t(xb,ys);
+  std_e::multi_range<block_range_type,span_type> t(xb,ys);
 
   constexpr auto proj = [](const auto& x) -> decltype(auto) { return get<0>(x); };
   std_e::sort_by_rank(t,test_comm,proj);
