@@ -66,7 +66,7 @@ class fb_tree_ctor {
 };
 
 
-template<class Graph> constexpr auto
+template<class Graph> auto
 convert_tree_to_io_graph_with_height(const Graph& g) {
   fb_tree_ctor f;
   depth_first_build<int>(g, f); // TODO get rid of explicit `int`
