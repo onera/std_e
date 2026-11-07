@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <memory>
 #include <initializer_list>
+#include <ranges>
 #include "std_e/future/allocator.hpp"
 
 
